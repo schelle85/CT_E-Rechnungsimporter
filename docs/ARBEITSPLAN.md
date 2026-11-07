@@ -1,0 +1,109 @@
+# Arbeitspakete
+
+Stand: 7. November 2026. **AP00 wird kundenseitig vorbereitet; AP01 bis AP09 sind
+geplant und noch nicht begonnen.** ORGA koordiniert, DEV implementiert, REVIEW prüft.
+Die Repositoryvorbereitung ist kein Beginn der Anwendungsentwicklung.
+
+Jedes Unterpaket liefert ein abgegrenztes Ergebnis mit passender Prüfung,
+Dokumentationsnachtrag und geprüftem GitHub-Upload. Abhängigkeiten und ungelöste
+Fehler offen benennen. Kein pauschales Go je Unterpaket erforderlich.
+
+## AP00: Technik vorbereiten - Betreiber
+
+| Teil | Ergebnis |
+| --- | --- |
+| AP00a | Linux-VM, Ressourcen, Netz und internes DNS bereit |
+| AP00b | Schlüsselbasierter SSH-Zugang und administrative Arbeitsmöglichkeit zugeordnet |
+| AP00c | Import- und Zertifikatsfreigaben über Host-Fstab erreichbar |
+| AP00d | AD-Gruppen/Verbindung, Graph-App/Zertifikat und HTTPS-Dateien verfügbar |
+| AP00e | Lokale Datenvolumes und tägliche VM-/Offsite-Sicherung zugeordnet |
+| AP00f | VM einschließlich SMB als bereit bestätigt |
+
+## AP01: Design, Administration und AD-Anmeldung - DEV
+
+| Teil | Ergebnis und Prüfung |
+| --- | --- |
+| AP01a | Oberflächenentwurf für Anmeldung, Übersicht, Details, Einstellungen und Archiv; Rollenunterschiede sichtbar |
+| AP01b | Minimales Docker-/Python-/TypeScript-/MariaDB-Gerüst; reproduzierbarer Start und persistente Daten |
+| AP01c | Verschlüsselte LDAP-Anmeldung, Gruppenrechte, Sitzungen und Abmeldung; positive/negative Zugriffsprüfung |
+| AP01d | Administrationsgrundlage; geschützte Einstellungen und Änderungsprotokoll |
+| AP01e | Oberfläche und wirksame Backendrechte gemeinsam prüfbar zeigen |
+
+## AP02: Graph und Postfacheingang - DEV
+
+| Teil | Ergebnis und Prüfung |
+| --- | --- |
+| AP02a | Zertifikatsanmeldung und Zugriff auf genau das vorgesehene Postfach |
+| AP02b | Vollständiger Abruf mit Paging und Stichtag; Altmails unverändert |
+| AP02c | Zielordner bei Fehlen anlegen, Verschieben/Fahne wiederaufnehmbar vorbereiten |
+
+## AP03: Anhänge erkennen - DEV
+
+| Teil | Ergebnis und Prüfung |
+| --- | --- |
+| AP03a | ZUGFeRD-/XRechnung-Inhaltserkennung mit vorhandenen Bibliotheken; Originalausgabe |
+| AP03b | Gewöhnliche Rechnungs-PDFs/Zahlungsavise nachvollziehbar unterscheiden; Gegenbeispiele prüfen |
+| AP03c | OCR für seltene Scans, konkrete Fehlergründe, unveränderte Originale |
+
+## AP04: SMB-Ablage und Dubletten - DEV
+
+| Teil | Ergebnis und Prüfung |
+| --- | --- |
+| AP04a | Kategorie/Jahr/Monat/KW nach Maileingang; Mount- und Datumsgrenzen prüfen |
+| AP04b | Originalnamen, eindeutige Zusätze und Ablage ohne Überschreiben |
+| AP04c | Dubletten anhand Originalname/Bytegröße nur innerhalb aktueller KW erkennen |
+
+## AP05: Vollständiger Verarbeitungslauf - DEV
+
+| Teil | Ergebnis und Prüfung |
+| --- | --- |
+| AP05a | Mehrfachanhänge, Fahnen und Mailpriorität; Sonderfall neue Anhänge plus Dubletten vorher klären |
+| AP05b | Persistente Zustände, Fünfminutenlauf und Wiederaufnahme ohne Doppelablage |
+| AP05c | Kontrollierter Gesamtpfad; Erfolg erst nach erforderlicher Ablage |
+
+## AP06: Webprotokoll, Wiederholung und Archiv - DEV
+
+| Teil | Ergebnis und Prüfung |
+| --- | --- |
+| AP06a | Übersicht/Details mit Suchfiltern, Entscheidungen, Dateien, Dubletten und Fehlern |
+| AP06b | Geschützte Wiederholung fehlgeschlagener Vorgänge und Einstellungen |
+| AP06c | Zwei Jahre aktiv, danach Webarchiv; keine zusätzliche Mailarchivierung |
+
+## AP07: Automatische Benachrichtigungen - DEV
+
+| Teil | Ergebnis und Prüfung |
+| --- | --- |
+| AP07a | Graph-Versand, konfigurierbare Empfänger und nachvollziehbare Testmail |
+| AP07b | Tägliche Zertifikatswarnung ab zehn Resttagen; Ablauf-/Fehlerfälle synthetisch prüfen |
+| AP07c | Konfigurierbare Fehler-, Ausfall-, Tages- und Wochenmeldungen ohne Mailflut |
+
+## AP08: Betriebsprüfung und Übergang - DEV / REVIEW / ORGA
+
+| Teil | Ergebnis und Prüfung |
+| --- | --- |
+| AP08a | Zusammenhängende Gesamtprüfung einschließlich Neustart, Mounts, Rollen und SSL-Übernahme |
+| AP08b | Bestehende Sicherung berücksichtigen; isolierten Wiederanlauf mit belegtem Umfang koordinieren |
+| AP08c | Kontrollierter Automatikbetrieb mit wirksamem Stichtag und eindeutigem Vorgangsstand |
+| AP08d | Betreiberabläufe, Überwachung, Updates und Rückkehr zum Vorzustand zugeordnet |
+
+## AP09: Abschlussdokumentation und Übergabe - ORGA / DEV / REVIEW
+
+| Teil | Ergebnis |
+| --- | --- |
+| AP09a | Kundenanleitung als PDF mit den tatsächlich verfügbaren Bedienwegen |
+| AP09b | Technische Dokumentation für Betreiber/Kunde, als Markdown-Quelle und PDF |
+| AP09c | KI-Dokumentation als Markdown mit festem Stand, Invarianten und Wiedereinstieg |
+| AP09d | Inhalt gegen Liefercommit prüfen, PDFs rendern/sichten, finale Unterlagen hochladen |
+
+DEV liefert technische Fakten und Prüfbelege. ORGA führt die Dokumentation zusammen;
+REVIEW prüft Widersprüche und nicht belegte Behauptungen. PDFs erst aus dem
+tatsächlich implementierten Stand erstellen, keine fertige Installation vortäuschen.
+
+## Reihenfolge und offene Punkte
+
+AP00 → AP01 → AP02 → AP03 → AP04 → AP05 → AP06 → AP07 → AP08 → AP09.
+Dokumentation wird während aller Pakete gepflegt; AP09 finalisiert sie.
+
+Noch für die betroffenen Pakete festzulegen: Umgang mit gemischten Dubletten-Mails,
+Ende der Zertifikatswarnserie nach gültigem Zertifikatswechsel und Sicherungsumfang
+externer SMB-Daten. Diese offenen Punkte blockieren nicht pauschal unabhängige Arbeit.
