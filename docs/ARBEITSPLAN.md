@@ -1,7 +1,8 @@
 # Arbeitspakete
 
 Stand: 7. November 2026. **AP00 wird kundenseitig vorbereitet; AP01 bis AP09 sind
-geplant und noch nicht begonnen.** ORGA koordiniert, DEV implementiert, REVIEW prüft.
+geplant und noch nicht begonnen.** AP10 ist für die spätere wöchentliche Wartung ergänzt.
+ORGA koordiniert, DEV implementiert, REVIEW prüft.
 Die Repositoryvorbereitung ist kein Beginn der Anwendungsentwicklung.
 
 Jedes Unterpaket liefert ein abgegrenztes Ergebnis mit passender Prüfung,
@@ -98,6 +99,20 @@ Fehler offen benennen. Kein pauschales Go je Unterpaket erforderlich.
 DEV liefert technische Fakten und Prüfbelege. ORGA führt die Dokumentation zusammen;
 REVIEW prüft Widersprüche und nicht belegte Behauptungen. PDFs erst aus dem
 tatsächlich implementierten Stand erstellen, keine fertige Installation vortäuschen.
+
+## AP10: Wöchentliche Wartung und Kontrolle - DEV / ORGA
+
+| Teil | Ergebnis und Prüfung |
+| --- | --- |
+| AP10a | Umfang: sonntags 03:00 Europe/Berlin Linux-Updates und Neustart bei Bedarf |
+| AP10b | DEV erstellt Wartungsskript mit Sperre, Fehlerbehandlung und Vor-/Nachprotokoll |
+| AP10c | Serverzeitplan und Wiederanlauf mit echten Mounts und gesunden Diensten |
+| AP10d | ORGA-Nachkontrolle nach dem Wartungsfenster; fehlender Zugang als nicht prüfbar melden |
+| AP10e | Kontrollierter Probelauf, Dokumentation und anschließender regelmäßiger Betrieb |
+
+Kein Wartungsskript oder Timer ist bereits installiert. Keine ungeprüften
+Anwendungs-/Datenbankschemaupgrades aus der Linux-Wartungsfreigabe ableiten.
+AP10-Einrichtung und Prüfung vor der Finalisierung der Abschlussunterlagen berücksichtigen.
 
 ## Reihenfolge und offene Punkte
 

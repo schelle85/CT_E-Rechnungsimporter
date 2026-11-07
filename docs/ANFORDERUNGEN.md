@@ -116,6 +116,15 @@ Graph-Anmeldezertifikat und HTTPS-Zertifikat haben unterschiedliche Aufgaben.
 Das vorhandene HTTPS-Zertifikat wird extern alle 60 Tage erneuert. Erneuerte Dateien
 prüfen, übernehmen und das tatsächlich verwendete Zertifikat kontrollieren.
 
+## Wöchentliche Wartung
+
+Ein serverseitiges Skript soll sonntags um 03:00 Uhr Europe/Berlin Linux-Updates
+installieren und bei Bedarf neu starten. Zustände und Fehler protokollieren,
+gleichzeitige Wartungsläufe verhindern und Dienste/SMB-Mounts nach Neustart prüfen.
+ORGA kontrolliert die tatsächlichen Ergebnisse nach dem Wartungsfenster.
+Noch keine Implementierung oder aktive Terminierung. Automatische ungeprüfte
+Anwendungsreleases und Datenbankschemaänderungen sind davon nicht umfasst.
+
 ## Speicherung, Sicherung und Tests
 
 SMB-Freigaben werden über `fstab` auf dem Host eingebunden und den Containern
