@@ -19,8 +19,26 @@ SSH-Zugangseinrichtung, keine fertig installierte Anwendung.
 Interne Adressen, Benutzerwerte, Hostschlüssel, Sicherungspfad und
 Zugangskonfiguration bleiben in den separat verwalteten Betreiberunterlagen.
 
+## AP00: SMB-Einbindung und Rechte
+
+- SSL- und Importfreigabe über Host-`fstab` mit SMB 3.1.1 eingebunden.
+- SSL nur lesend; Linux-Verzeichnisse 0550, Dateizuordnung 0440, Zugriff über
+  vorgesehene Administratorgruppe. Importablage für den vorgesehenen Benutzer
+  und seine Gruppe schreibbar: Verzeichnisse 0770, Dateizuordnung 0660.
+- Beide serverseitigen Credential-Dateien root-eigen und 0600; Inhalte nicht offengelegt.
+- Kategorieordner `E-Rechnung`, `PDF`, `Zahlungsavis` angelegt.
+- Eindeutige leere Testdateien im Importer und allen drei Kategorieordnern angelegt
+  und wieder entfernt. Keine echten Dokumente verändert.
+- SSL-Lesezugriff und fehlender Schreibzugriff als vorgesehener Benutzer geprüft.
+- `fstab` ohne Parse-/Mountkonfigurationsfehler geprüft, erzeugte Mountunits aktiv.
+- Kein VM-Neustart; tatsächlicher Wiederanlauf nach Reboot noch nicht nachgewiesen.
+
+Quellen, Credentialpfade und konkrete Benutzer-/UID-Zuordnung sind ausschließlich
+in den separaten Betreiberunterlagen dokumentiert. Containeranbindung und
+Startabhängigkeiten der Anwendung folgen erst im jeweiligen DEV-Paket.
+
 ## Noch nicht nachgewiesen
 
-SMB-, AD-, Graph-, Docker- und Anwendungsbereitschaft sind durch diesen SSH-Test
-nicht bestätigt. Die allgemeine Startbedingung der Entwicklung bleibt offen.
+AD-, Graph-, Docker- und Anwendungsbereitschaft sind durch diese Infrastrukturtests
+nicht bestätigt. Eine allgemeine Bereitmeldung der Entwicklung steht noch aus.
 Wöchentliche Wartung ist geplant, noch kein Skript/Timer auf dem Server installiert.

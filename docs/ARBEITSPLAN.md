@@ -15,12 +15,12 @@ Fehler offen benennen. Kein pauschales Go je Unterpaket erforderlich.
 | --- | --- |
 | AP00a | Linux-VM, Ressourcen, Netz und internes DNS bereit |
 | AP00b | Schlüsselzugang und administrative Ausführung geprüft; SSH-Passwortanmeldung deaktiviert, positive/negative Prüfung bestanden |
-| AP00c | Import- und Zertifikatsfreigaben über Host-Fstab erreichbar |
+| AP00c | Import-/SSL-Freigaben per Fstab eingebunden; Lese-/Schreibrechte und Kategorieordner geprüft |
 | AP00d | AD-Gruppen/Verbindung, Graph-App/Zertifikat und HTTPS-Dateien verfügbar |
 | AP00e | Lokale Datenvolumes und tägliche VM-/Offsite-Sicherung zugeordnet |
 | AP00f | VM einschließlich SMB als bereit bestätigt |
 
-AP00b ist im oben genannten Umfang geprüft; siehe [Betriebsstand](BETRIEBSSTAND.md).
+AP00b und AP00c sind im oben genannten Umfang geprüft; siehe [Betriebsstand](BETRIEBSSTAND.md).
 Die übrige Infrastruktur und AP00f sind damit nicht als vollständig abgenommen markiert.
 
 ## AP01: Design, Administration und AD-Anmeldung - DEV
