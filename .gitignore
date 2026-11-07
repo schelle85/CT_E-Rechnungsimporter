@@ -1,0 +1,59 @@
+# Private Konfiguration und Geheimnisse
+.env
+.env.*
+!.env.example
+secrets/
+config/private/
+*.local.json
+*.local.yaml
+*.local.yml
+*.pem
+*.key
+*.pfx
+*.p12
+*.cer
+*.crt
+*.der
+.ssh/
+
+# Laufzeitdaten und echte Dokumente
+data/
+logs/
+backups/
+private/
+fixtures/private/
+importer/
+E-Rechnung/
+PDF/
+Zahlungsavis/
+*.sqlite
+*.sqlite3
+*.db
+*.sql
+
+# Python und Frontend-Builds
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+node_modules/
+dist/
+build/
+coverage/
+
+# Lokale Werkzeuge und Zwischenstände
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+tmp/
+temp/
+*.tmp
+*.swp
+
+# Die finalen PDF-Handbücher unter docs/ werden bewusst nicht ausgeschlossen.
