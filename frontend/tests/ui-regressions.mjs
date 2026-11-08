@@ -22,12 +22,12 @@ export async function checkExpiredLoginChallenge(page,url,cause="expired") {
   });
   await page.goto(url);
   await page.getByLabel("Benutzername oder UPN").fill("synthetic");
-  await page.getByLabel("Kennwort",{exact:true}).fill("synthetic-user-password");
+  await page.getByLabel(/^Kennwort(?:\s*\*)?$/).fill("synthetic-user-password");
   await page.getByRole("button",{name:"Anmelden",exact:true}).click();
   await page.getByText(CHALLENGE_RENEWED,{exact:true}).waitFor();
   assert.equal(posts,1);assert.equal(challenges,2);
-  assert.equal(await page.getByLabel("Kennwort",{exact:true}).inputValue(),"");
-  await page.getByLabel("Kennwort",{exact:true}).fill("synthetic-user-password");
+  assert.equal(await page.getByLabel(/^Kennwort(?:\s*\*)?$/).inputValue(),"");
+  await page.getByLabel(/^Kennwort(?:\s*\*)?$/).fill("synthetic-user-password");
   await page.getByRole("button",{name:"Anmelden",exact:true}).click();
   await page.getByRole("button",{name:"Abmelden",exact:true}).waitFor();
   assert.equal(posts,2);
