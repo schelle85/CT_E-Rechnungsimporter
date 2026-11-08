@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "typecheck": "tsc -b"
+    "typecheck": "tsc -b",
+    "test:login-flow": "node --experimental-strip-types --test tests/login-flow.test.mjs"
   },
   "dependencies": {
     "@mantine/core": "^9.7.5",

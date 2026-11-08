@@ -143,7 +143,15 @@ class SecurityTests(unittest.IsolatedAsyncioTestCase):
         for method,path in (("PUT","/api/admin/config"),("POST","/api/import"),("DELETE","/api/admin/config")):
             response=await self.client.request(method,path,headers=self.headers(),json=self.candidate())
             self.assertEqual(response.status_code,403,response.text)
-        self.assertEqual((await self.client.get("/api/admin/config")).status_code,403)
+        config_response=await self.client.get("/api/admin/config")
+        self.assertEqual(config_response.status_code,200)
+        self.assertFalse(config_response.json()["can_edit"])
+        self.assertNotIn("bind_password",config_response.text)
+        self.assertNotIn("bind_cipher",config_response.text)
+        self.assertNotIn("bootstrap bind pass",config_response.text)
+        audit_response=await self.client.get("/api/admin/audit")
+        self.assertEqual(audit_response.status_code,200)
+        self.assertNotIn("bootstrap bind pass",audit_response.text)
 
     async def test_bad_password_outside_direct_groups_disabled_locked_expired_denied(self):
         for name,password in (("admin","wrong"),("outside","synthetic-user-password"),("disabled","synthetic-user-password"),("locked","synthetic-user-password"),("expired","synthetic-user-password")):
@@ -233,6 +241,30 @@ class SecurityTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(self.runtime.store.active()["id"],before)
         self.assertEqual((await self.client.get("/api/demo/processes")).status_code,401)
 
+    async def test_expired_or_deleted_preauth_requires_fresh_challenge_without_bind(self):
+        for cause in ("expired","configuration-deleted"):
+            with self.subTest(cause=cause):
+                self.runtime.store.clock=time.time
+                await self.challenge()
+                old_csrf=self.csrf
+                if cause=="expired":
+                    now=int(time.time())
+                    self.runtime.store.clock=lambda:now+601
+                else:
+                    current=self.runtime.store.active()
+                    self.runtime.store.activate(LdapSettings(**CFG),current["bind_cipher"],"test-config-switch",current["id"])
+                with patch.object(self.directory,"authenticate",wraps=self.directory.authenticate) as authenticate:
+                    response=await self.client.post("/api/auth/login",json={"username":"admin","password":"synthetic-user-password"},headers=self.headers())
+                    self.assertEqual(response.status_code,403)
+                    authenticate.assert_not_called()
+                    await self.challenge()
+                    self.assertNotEqual(self.csrf,old_csrf)
+                    response=await self.client.post("/api/auth/login",json={"username":"admin","password":"synthetic-user-password"},headers=self.headers())
+                    self.assertEqual(response.status_code,200,response.text)
+                    self.assertEqual(authenticate.call_count,1)
+                self.runtime.store.clock=time.time
+                await self.client.post("/api/auth/logout",headers={"Origin":"https://test.invalid","X-CSRF-Token":response.json()["csrf_token"]})
+
     async def test_idle_and_absolute_expiry(self):
         await self.login()
         now=int(time.time())
@@ -307,6 +339,30 @@ class SecurityTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual((await self.client.put("/api/admin/config",json=candidate,headers=self.headers())).status_code,422)
 
 class AdapterTests(unittest.TestCase):
+    def test_user_bind_transport_abort_is_never_retried_on_second_dc(self):
+        from unittest.mock import Mock
+        from ldap3.core.exceptions import LDAPSocketReceiveError
+        cfg=LdapSettings(**CFG)
+        directory=LdapDirectory("/etc/ssl/certs/ca-certificates.crt")
+        server=directory._server(cfg,cfg.servers[0])
+        for failure in (OSError("synthetic transport abort"),LDAPSocketReceiveError("synthetic receive timeout")):
+            with self.subTest(failure=type(failure).__name__):
+                service=Mock()
+                service.server=server;service.bind.return_value=True
+                service.result={"result":0}
+                service.response=[entry("1"*32,"admin",[CFG["admin_group"]])]
+                user=Mock();user.bind.side_effect=failure
+                # A reachable second service/user pair is deliberately available.
+                second_service=Mock();second_service.bind.return_value=True
+                second_user=Mock();second_user.bind.return_value=True
+                with patch.object(directory,"_connection",side_effect=[service,user,second_service,second_user]) as connect:
+                    with self.assertRaises(DirectoryUnavailable):
+                        directory.authenticate(cfg,"synthetic-bind","admin","synthetic-user-password")
+                    self.assertEqual(connect.call_count,2)
+                    self.assertEqual(user.bind.call_count,1)
+                    second_service.bind.assert_not_called()
+                    second_user.bind.assert_not_called()
+
     def test_file_terminator_preserves_legitimate_spaces(self):
         with tempfile.TemporaryDirectory() as directory:
             p=Path(directory)/"s"

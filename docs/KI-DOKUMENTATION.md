@@ -41,6 +41,9 @@ Eigene CDE-Tags; eingefrorener A/B-Betrieb bleibt bestehen. Reproduzierbarer
 MariaDB-/CLI-/Uvicorn-/Persistenzrunner im Produktrepo, zunächst16 Fälle bestanden.
 Zusätzliche echte TLS-Negativprobe und Root-Widerruf geprüft; abschließende
 TLS-Socketbereinigung im Quellstand benötigt noch Image-Neubau/Retest und Review.
+Quellnachtrag: ungewissen Benutzerbind nicht wiederholen, abgelaufene Login-
+Challenge erneuern, Leser-Einstellungen/Audit ohne Schreibaktionen anschließen.
+Neue Regressionstestquellen vorhanden, Ausführung/Build noch gesperrt.
 Kein Runtime-Demo-Login. Tatsächlicher Vollzugriffstest und Kunden-Lesetest
 bleiben für die abschließende AP01-Abnahme erforderlich.
 Vertrag/Befehle und genaue Livegrenzen: [AP01-Sicherheit](AP01-SECURITY.md).

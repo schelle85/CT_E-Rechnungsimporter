@@ -102,9 +102,7 @@ export default function App({
       </div>
       <Text className="nav-section">ARBEITSPLATZ</Text>
       <nav aria-label="Hauptnavigation">
-        {pages
-          .filter((p) => p.id !== "admin" || user.role === "admin")
-          .map((p) => (
+        {pages.map((p) => (
             <button
               key={p.id}
               className={page === p.id ? "nav-item active" : "nav-item"}
@@ -417,7 +415,7 @@ export default function App({
             </Paper>
           )}
           {page === "admin" && (
-            <AdminPanel csrfToken={csrfToken} onActivated={onReauthenticate} />
+            <AdminPanel readOnly={user.role !== "admin"} csrfToken={csrfToken} onActivated={onReauthenticate} />
           )}
           {page === "notifications" && (
             <Paper withBorder className="panel">

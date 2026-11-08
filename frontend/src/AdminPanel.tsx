@@ -24,7 +24,7 @@ type Settings = {
   connect_timeout: number;
   receive_timeout: number;
 };
-type Config = { version: number; settings: Settings; password_set: boolean };
+type Config = { version: number; settings: Settings; password_set: boolean; can_edit: boolean };
 type Audit = {
   id: number;
   occurred_at: number;
@@ -35,9 +35,11 @@ type Audit = {
   config_id: number | null;
 };
 export default function AdminPanel({
+  readOnly,
   csrfToken,
   onActivated,
 }: {
+  readOnly: boolean;
   csrfToken: string;
   onActivated: () => Promise<void>;
 }) {
@@ -46,6 +48,7 @@ export default function AdminPanel({
     [error, setError] = useState(""),
     [password, setPassword] = useState(""),
     [busy, setBusy] = useState(false);
+  const canEdit = !readOnly && config?.can_edit === true;
   useEffect(() => {
     let active = true;
     Promise.all([
@@ -72,16 +75,27 @@ export default function AdminPanel({
   return (
     <Stack>
       {error && <Alert color="red">{error}</Alert>}
-      <Alert color="blue" title="Geprüfte Änderungen">
-        Vor der Aktivierung werden alle LDAP-Server und beide Gruppen geprüft.
-        Der letzte aktive Stand bleibt erhalten. Eine Aktivierung beendet
-        bestehende Sitzungen.
+      <Alert color="blue" title={readOnly ? "Schreibgeschützte Ansicht" : "Geprüfte Änderungen"}>
+        {readOnly ? "Sie können Einstellungen und Protokoll lesen. Änderungen erfordern Verwaltungsrecht." : "Vor der Aktivierung werden alle LDAP-Server und beide Gruppen geprüft. Der letzte aktive Stand bleibt erhalten. Eine Aktivierung beendet bestehende Sitzungen."}
       </Alert>
       {config && (
         <Paper withBorder p="xl">
-          <form
+          {!canEdit ? <>
+            <Title order={2} mb="lg">LDAP-Verbindung · Stand {config.version}</Title>
+            <dl className="details">{[
+              ["LDAPS-Server",config.settings.servers.join(", ")],
+              ["LDAPS-Port",String(config.settings.port)],
+              ["Suchbasis",config.settings.search_base],
+              ["Bindkonto",config.settings.bind_user],
+              ["Verwaltungsgruppe",config.settings.admin_group],
+              ["Lesegruppe",config.settings.reader_group],
+              ["Verbindungs-Timeout",config.settings.connect_timeout+" s"],
+              ["Antwort-Timeout",config.settings.receive_timeout+" s"],
+            ].map(([label,value])=><div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}</dl>
+          </> : <form
             onSubmit={async (e) => {
               e.preventDefault();
+              if (!canEdit) return;
               setBusy(true);
               setError("");
               try {
@@ -204,7 +218,7 @@ export default function AdminPanel({
                 </Button>
               </Group>
             </fieldset>
-          </form>
+          </form>}
         </Paper>
       )}
       <Paper withBorder className="panel">

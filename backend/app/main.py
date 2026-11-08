@@ -9,7 +9,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from app.demo import ITEMS
 from app.errors import AccessError
 from app.security import COOKIE, build_runtime
-from app.settings import LoginInput, ConfigInput
+from app.settings import LoginInput, ConfigInput, LdapSettings
 
 def set_cookie(response, token, authenticated=False):
     response.set_cookie(COOKIE,token,max_age=28800 if authenticated else 600,
@@ -115,9 +115,11 @@ def create_app(runtime_factory=build_runtime):
 
     @app.get("/api/admin/config")
     def config_read(request:Request):
-        admin(request)
-        row,cfg,_=app.state.runtime.configuration()
-        return {"version":row["id"],"settings":cfg.model_dump(),"password_set":True}
+        # Both authenticated roles may read safe metadata; do not decrypt secrets.
+        row=app.state.runtime.store.active()
+        cfg=LdapSettings.model_validate_json(row["settings"])
+        return {"version":row["id"],"settings":cfg.model_dump(),"password_set":True,
+                "can_edit":request.state.principal.role=="admin"}
 
     @app.put("/api/admin/config")
     def config_write(request:Request,candidate:ConfigInput):
@@ -129,7 +131,6 @@ def create_app(runtime_factory=build_runtime):
 
     @app.get("/api/admin/audit")
     def audit_read(request:Request):
-        admin(request)
         return {"items":app.state.runtime.store.audit_rows()}
 
     return app

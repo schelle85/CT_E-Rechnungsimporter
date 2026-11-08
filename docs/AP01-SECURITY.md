@@ -40,7 +40,8 @@ Keine CORS-Freigabe. Validierungsfehler spiegeln keine Passwort-/Requestinhalte.
 Alle /api/-Pfade sind zentral geschützt außer exakt Health, Sessionzustand und
 Login. Letztere prüfen ihre eigenen Challenge-/CSRF-Grenzen.
 Leser mit gültiger Sitzung UND gültigem CSRF dürfen weiterhin nicht schreiben.
-Administration und Auditansicht benötigen Verwaltungsrecht.
+Einstellungen und Audit sind für beide authentifizierten Rollen schreibgeschützt lesbar;
+Änderungen/Verbindungstests benötigen Verwaltungsrecht. Geheimniswerte werden nie geliefert.
 Health/ready bestätigt DB, Schema und aktivierten Konfigurationskopf; kein
 dauerhafter LDAP-Verfügbarkeitsnachweis. LDAP wird beim geschützten Zugriff geprüft.
 
@@ -140,3 +141,18 @@ und Hostnamen an ldap3.check_hostname, übernimmt den Socket jedoch vor der
 Handshake-/Namensprüfung, damit der Fehlerpfad ihn garantiert schließen kann.
 Er behebt die im synthetischen Negativtest beobachtete2.9.1-Ressourcenwarnung;
 keine TLS-Prüfung wird übersprungen oder abgeschwächt.
+
+
+## Gezielter Source-Nachtrag R1/R2 und Leseransicht
+Ab Beginn eines Benutzerbinds beendet jeder unklare Transportausgang den Versuch;
+keine automatische Wiederübermittlung desselben Kennworts am nächsten DC.
+Dienst-/Verbindungsfailover vor diesem Punkt bleibt begrenzt erhalten.
+Die Login-UI verwirft bei403 ihre alte Challenge, leert das Kennwort und bezieht
+eine neue. Erst eine bewusste erneute Eingabe sendet Zugangsdaten erneut.
+Node-Quelltests: npm run test:login-flow; gezielte Browserproben als Source in
+frontend/tests/ui-regressions.mjs für vorhandenen Playwright-fähigen Testhost:
+checkExpiredLoginChallenge(page,url,"expired"), erneut mit "configuration-deleted",
+sowie checkReaderSettings(page,url). Kein neues Testframework/Runtime-Bypass.
+Nach diesem Quellnachtrag noch nicht ausgeführt: Backend-/Frontend-Regressionen,
+Typecheck/Build und Browserablauf. Ausführung erst nach positivem Delta-Review
+und ausdrücklicher Zustimmung zum isolierten Build-/Retest.

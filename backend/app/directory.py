@@ -140,9 +140,15 @@ class LdapDirectory:
             entry, principal = self._lookup(connection, cfg, query)
             user_connection = self._connection(connection.server, entry["dn"], password, cfg)
             try:
-                if not user_connection.bind():
+                # A bind may already have reached AD when a transport error occurs.
+                # After starting it, never resend credentials through _run failover.
+                try:
+                    bound=user_connection.bind()
+                except (LDAPException, OSError):
+                    raise DirectoryUnavailable() from None
+                if not bound:
                     if user_connection.result.get("result") in (51, 52):
-                        raise OSError("Directory temporarily unavailable")
+                        raise DirectoryUnavailable()
                     raise DirectoryDenied()
             finally:
                 self._close(user_connection)

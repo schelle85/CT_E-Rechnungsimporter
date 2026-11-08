@@ -12,6 +12,7 @@ import {
   Title,
 } from "@mantine/core";
 import App from "./App";
+import { attemptLogin } from "./login-flow";
 import { api, ApiError, type AuthState } from "./api";
 export default function AuthApp() {
   const [state, setState] = useState<AuthState | null>(null),
@@ -102,16 +103,17 @@ export default function AuthApp() {
             setBusy(true);
             setError("");
             try {
-              setState(
-                await api<AuthState>(
-                  "/api/auth/login",
-                  {
-                    method: "POST",
-                    body: JSON.stringify({ username, password }),
-                  },
-                  state.csrf_token,
-                ),
+              const result = await attemptLogin(
+                {
+                  login: (credentials, csrf) => api<AuthState>("/api/auth/login",
+                    { method: "POST", body: JSON.stringify(credentials) }, csrf),
+                  session: () => api<AuthState>("/api/auth/session"),
+                },
+                { username, password }, state.csrf_token,
+                () => { setState(null); setPassword(""); },
               );
+              setState(result.state);
+              if (result.notice) setError(result.notice);
             } catch (e) {
               setError(
                 e instanceof Error ? e.message : "Anmeldung fehlgeschlagen.",
