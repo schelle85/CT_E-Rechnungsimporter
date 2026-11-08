@@ -44,7 +44,8 @@ Startabhängigkeiten der Anwendung folgen erst im jeweiligen DEV-Paket.
 - App- und Service-Principal-Identitäten intern getrennt dokumentiert.
 - Bisher erteilte Administratorzustimmung umfasst nur delegiertes `User.Read`;
   damit ist kein unbeaufsichtigter Mailzugriff nachgewiesen.
-- Vorbereitung der Postfachrechte über Exchange Application RBAC in DEV/REVIEW.
+- Postfachrechte über Exchange Application RBAC durch DEV vorbereitet und
+  Einrichtungsschritte von REVIEW unabhängig geprüft.
   Geplant sind `Application Mail.ReadWrite` und `Application Mail.Send` mit
   einem auf das Zielpostfach begrenzten Resource Scope. Zusätzliche tenantweite
   Entra-Mailrechte würden die Einschränkung umgehen und sind nicht vorgesehen.
@@ -53,6 +54,14 @@ Startabhängigkeiten der Anwendung folgen erst im jeweiligen DEV-Paket.
   private Dateien 0600. Nur öffentliches Zertifikat zum Portal übertragen.
 - Öffentliches Zertifikat durch Betreiber registriert; Fingerabdruck und Laufzeit
   im Portal mit der lokalen Kopie abgeglichen. Privater Schlüssel bleibt auf der VM.
+- Exchange-Service-Principal-Zeiger angelegt. Einmalige Organisationsanpassung
+  nach Microsoft-Voraussetzung aktiviert; `IsDehydrated=False` nachgelesen.
+- Resource Scope anhand stabiler Postfach-Objekt-ID angelegt; gespeicherten Filter
+  erneut ausgewertet und genau ein vorgesehenes Postfach bestätigt.
+- Die Anlage der App-Rollenzuweisung wird von Exchange mit einem administrativen
+  Delegierungsfehler abgewiesen, obwohl aktive Delegierung und effektive
+  Administratorzuordnung lesend angezeigt werden. Auch nach gezielter erneuter
+  Anmeldung noch offen. Keine zusätzliche Administratorrolle als Versuch vergeben.
 - Effektive Rollenzuweisungen und echte positive/negative Graph-Zugriffstests
   stehen noch aus. Keine Testmail gesendet.
 
