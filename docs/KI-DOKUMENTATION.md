@@ -12,13 +12,14 @@ Stand: 8. November 2026. Lebende Markdown-Dokumentation, noch kein Abschlussberi
 ## Aktueller Stand
 
 - Repositorygrundstand und geprüfte SSH-/SMB-Vorbereitung vorhanden.
-- AP00 ausdrücklich freigegeben und begonnen; Graph-App und öffentliches
-  Anmeldezertifikat registriert. Privater Schlüssel geschützt auf Ziel-VM.
-  Erfolgreicher Zertifikats-Tokenbezug und begrenzte Mailrechte noch zu prüfen.
+- AP00-Grundbereitschaft geprüft; Graph-Zertifikatsanmeldung, begrenzter
+  Lesezugriff und synthetischer Versand mit separatem Empfang belegt.
+  Privater Schlüssel geschützt auf Ziel-VM.
 - DEV und REVIEW durch ORGA angelegt; interne Zuordnungen separat geführt.
-- AP01 bis AP10: nicht begonnen und noch nicht freigegeben.
+- AP01 freigegeben und begonnen: Design/HTTPS-Grundgerüst zuerst, dann
+  AD-Anmeldung und Administrationsgrundlage. AP02 bis AP10 noch nicht freigegeben.
 - Keine Anwendung, Datenbankstruktur oder produktive Verarbeitung implementiert.
-- Keine Testmail aus dieser Vorbereitung versendet.
+- Synthetische AP00-Testmail zugestellt; keine Rechnungsverarbeitung begonnen.
 - Keine Betriebs- oder Wiederherstellungsprüfung als bestanden behaupten.
 
 ## Rollen
@@ -73,8 +74,8 @@ Primärquellen: [Graph SDKs](https://learn.microsoft.com/en-us/graph/sdks/sdks-o
 
 ## Nächster Schritt
 
-AP00-Grundbereitschaft ist geprüft. Nach eigenem AP01-Go beginnt DEV mit AP01a
-gemäß konkreter ORGA-Übergabe. Implementierungs- und Prüfbefehle erst dokumentieren, sobald sie
+AP00-Grundbereitschaft ist geprüft; das eigene AP01-Go liegt vor. DEV bearbeitet
+AP01a/b gemäß konkreter ORGA-Übergabe. Implementierungs- und Prüfbefehle erst dokumentieren, sobald sie
 tatsächlich existieren und ausgeführt wurden. Keine erfundenen Startanweisungen.
 
 ## Fortschreibung je Unterpaket
@@ -88,7 +89,8 @@ Planungsnachtrag 08.11.2026 zu AP01: Designentwicklung und Vorschau direkt auf
 dem Kundenserver über HTTPS; CT-Webauftritt als Gestaltungsvorlage, Logo optional,
 bei Verwendung gerade und proportional. Nginx Open Source als
 Webserver/HTTPS-Reverse-Proxy vorgesehen.
-Keine AP01-Implementierung durch diesen Nachtrag begonnen.
+Dieser frühere Nachtrag war reine Planung; mit dem anschließenden AP01-Go
+beginnt nun die Umsetzung durch DEV.
 
 Paket, Commit, Ergebnis, passende Prüfung, Fehlerstatus, geänderte Invarianten
 und nächsten Schritt ergänzen. Für Review einen festen Commit sowie bei Fehlern

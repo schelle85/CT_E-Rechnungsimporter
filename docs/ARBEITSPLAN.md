@@ -1,7 +1,7 @@
 # Arbeitspakete
 
 Stand: 8. November 2026. **AP00 ist im definierten Grundbereitstellungsumfang abgeschlossen;
-AP01 bis AP09 sind geplant und noch nicht freigegeben.** AP10 ist für die spätere wöchentliche Wartung ergänzt.
+AP01 ist freigegeben und begonnen; AP02 bis AP09 sind noch nicht freigegeben.** AP10 ist für die spätere wöchentliche Wartung ergänzt.
 ORGA koordiniert, DEV implementiert, REVIEW prüft.
 Die Repositoryvorbereitung ist kein Beginn der Anwendungsentwicklung.
 
@@ -27,7 +27,7 @@ Details und Grenzen im [Betriebsstand](BETRIEBSSTAND.md).
 AP00-Grundbereitschaft ist nach unabhängiger Nachweisprüfung bestätigt; siehe
 [Betriebsstand](BETRIEBSSTAND.md). LDAP-Login, HTTPS-/Anwendungsbetrieb,
 vollständige Graph-Funktionen und Wiederherstellung werden in ihren späteren
-Arbeitspaketen geprüft. AP01 beginnt erst nach seinem eigenen Go.
+Arbeitspaketen geprüft. Das eigene AP01-Go liegt inzwischen vor.
 
 ## AP01: Design, Administration und AD-Anmeldung - DEV
 
@@ -40,7 +40,8 @@ Vorgesehener Webserver ist Nginx Open Source im Docker-Setup: statische
 Weboberfläche, HTTPS und Reverse Proxy zur Python-API. Vorhandene Zertifikate
 geschützt serverseitig übernehmen; PFX bei Bedarf in PEM überführen und
 Zertifikatswechsel einschließlich Konfigurationsprüfung und Reload vorsehen.
-Diese Ergänzung erweitert die Planung; AP01 benötigt weiterhin sein eigenes Go.
+AP01-Go am 08.11.2026 erteilt; DEV beginnt mit Design und HTTPS-Grundgerüst,
+danach folgen AD-Anmeldung, Administrationsgrundlage und gemeinsame Abnahme.
 
 | Teil | Ergebnis und Prüfung |
 | --- | --- |
