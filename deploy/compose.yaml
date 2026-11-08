@@ -80,7 +80,7 @@ services:
       api: {condition: service_healthy}
 networks:
   database: {internal: true}
-  web: {internal: true}
+  web: {internal: false}
 secrets:
   db_password:
     file: ${DB_PASSWORD_FILE:-/etc/ct-e-rechnungsimporter/secrets/db_password}
