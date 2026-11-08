@@ -65,6 +65,16 @@ Startabhängigkeiten der Anwendung folgen erst im jeweiligen DEV-Paket.
 - Effektive Rollenzuweisungen und echte positive/negative Graph-Zugriffstests
   stehen noch aus. Keine Testmail gesendet.
 
+## AP00: Microsoft-Supportklärung
+
+Am 08.11.2026 wurde der reproduzierbare Exchange-Delegierungsfehler über den
+delegierten Partnerzugang als Microsoft-Serviceanfrage eröffnet. Status bei
+Anlage: offen, Schweregrad C (Inbetriebnahme blockiert, kein Produktionsausfall).
+Die geprüften Berechtigungsbefunde und der Reproduktionsbefehl wurden übergeben.
+Fallnummer, Kontaktdaten und technische Identitäten bleiben in den internen
+Betreiberunterlagen. AP00 bleibt bis zur Klärung und den noch ausstehenden
+Berechtigungs-/Graph-Nachweisen offen.
+
 ## Noch nicht nachgewiesen
 
 AD-, Graph-, Docker- und Anwendungsbereitschaft sind durch diese Infrastrukturtests
