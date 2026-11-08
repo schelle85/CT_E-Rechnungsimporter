@@ -18,7 +18,8 @@ Stand: 8. November 2026. Lebende Markdown-Dokumentation, noch kein Abschlussberi
 - DEV und REVIEW durch ORGA angelegt; interne Zuordnungen separat geführt.
 - AP01 freigegeben und begonnen: Design/HTTPS-Grundgerüst zuerst, dann
   AD-Anmeldung und Administrationsgrundlage. AP02 bis AP10 noch nicht freigegeben.
-- Keine Anwendung, Datenbankstruktur oder produktive Verarbeitung implementiert.
+- AP01-A/B-Quellgerüst und synthetische Ansichten implementiert; Imagebuilds bestanden.
+  Noch keine Appdienstfreigabe, HTTPS-Abnahme oder produktive Verarbeitung.
 - AP01-Containerlaufzeit aus offiziellen Ubuntu-Paketen installiert und geprüft;
   Compose/Buildx verfügbar. Anwendungscode, HTTPS und Datenbankbetrieb folgen.
 - Synthetische AP00-Testmail zugestellt; keine Rechnungsverarbeitung begonnen.
@@ -85,7 +86,7 @@ tatsächlich existieren und ausgeführt wurden. Keine erfundenen Startanweisunge
 AP00-Abschluss 08.11.2026: technische Grundlage unabhängig geprüft, Graph-
 Zertifikatsanmeldung und Leseabgrenzung sowie synthetischer Versand mit separatem
 Empfang und vorgesehenem Absender belegt. Kein tenantweiter Mailgrant, keine
-zusätzliche Postfachlizenz; AP01+ bleibt ohne Go. Grenzen im Betriebsstand.
+zusätzliche Postfachlizenz; AP01 ist inzwischen freigegeben; spätere AP bleiben ohne Go. Grenzen im Betriebsstand.
 
 Planungsnachtrag 08.11.2026 zu AP01: Designentwicklung und Vorschau direkt auf
 dem Kundenserver über HTTPS; CT-Webauftritt als Gestaltungsvorlage, Logo optional,

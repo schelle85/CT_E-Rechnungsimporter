@@ -1,0 +1,9 @@
+.git
+**/node_modules
+**/dist
+**/__pycache__
+**/.venv
+**/.env*
+**/*.pem
+**/*.key
+**/*.pfx

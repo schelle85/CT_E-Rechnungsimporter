@@ -47,3 +47,8 @@ Konfiguration und interne Organisationsunterlagen werden separat verwaltet.
 Zum Abschluss sind eine Kundenanleitung als PDF, eine technische Dokumentation
 für Betreiber und Kunde sowie eine fortgeschriebene KI-Dokumentation als Markdown
 vorgesehen. Diese entstehen aus dem tatsächlich implementierten und geprüften Stand.
+
+## AP01-Vorschau
+
+[Synthetische A/B-Oberfläche und Grundgerüst](docs/AP01-PREVIEW.md):
+Quellstand und Builds vorhanden; Laufzeit-/HTTPS-Abnahme noch offen.

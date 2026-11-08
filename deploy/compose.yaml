@@ -1,0 +1,88 @@
+name: invoice-importer
+x-api: &api
+  image: invoice-importer-api:ap01-ab
+  build:
+    context: ..
+    dockerfile: backend/Dockerfile
+  user: "10001:10001"
+  read_only: true
+  tmpfs: ["/tmp:rw,noexec,nosuid,size=32m"]
+  cap_drop: [ALL]
+  security_opt: ["no-new-privileges:true"]
+  environment:
+    DB_HOST: db
+    DB_NAME: importer
+    DB_USER: importer
+    DB_PASSWORD_FILE: /run/secrets/db_password
+  secrets: [db_password]
+  networks: [database]
+services:
+  db:
+    image: mariadb:12.3@sha256:d46e102fa8b9b72bfcdeb56f9dd538742092119dc8b11f31fe662605cd234cd9
+    restart: unless-stopped
+    environment:
+      MARIADB_DATABASE: importer
+      MARIADB_USER: importer
+      MARIADB_PASSWORD_FILE: /run/secrets/db_password
+      MARIADB_ROOT_PASSWORD_FILE: /run/secrets/db_root_password
+    secrets: [db_password, db_root_password]
+    volumes:
+      - type: bind
+        source: ${DB_DATA_DIR:-/var/lib/ct-e-rechnungsimporter/mariadb}
+        target: /var/lib/mysql
+        bind: {create_host_path: false}
+    networks: [database]
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+    security_opt: ["no-new-privileges:true"]
+  migrate:
+    <<: *api
+    command: ["alembic", "upgrade", "head"]
+    depends_on:
+      db: {condition: service_healthy}
+  api:
+    <<: *api
+    restart: unless-stopped
+    networks: [database, web]
+    depends_on:
+      migrate: {condition: service_completed_successfully}
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/health/ready', timeout=5)"]
+      interval: 15s
+      timeout: 8s
+      retries: 5
+  nginx:
+    image: invoice-importer-web:ap01-ab
+    build:
+      context: ..
+      dockerfile: frontend/Dockerfile
+    user: "10002:10002"
+    restart: unless-stopped
+    read_only: true
+    tmpfs: ["/tmp:rw,noexec,nosuid,size=32m"]
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    ports:
+      - "${SITE_BIND_IP:-127.0.0.1}:443:8443"
+      - "${SITE_BIND_IP:-127.0.0.1}:80:8080"
+    volumes:
+      - type: bind
+        source: ${TLS_DIR:-/etc/ct-e-rechnungsimporter/tls}
+        target: /etc/importer-tls
+        read_only: true
+        bind: {create_host_path: false}
+    networks: [web]
+    depends_on:
+      api: {condition: service_healthy}
+networks:
+  database: {internal: true}
+  web: {internal: true}
+secrets:
+  db_password:
+    file: ${DB_PASSWORD_FILE:-/etc/ct-e-rechnungsimporter/secrets/db_password}
+  db_root_password:
+    file: ${DB_ROOT_PASSWORD_FILE:-/etc/ct-e-rechnungsimporter/secrets/db_root_password}
