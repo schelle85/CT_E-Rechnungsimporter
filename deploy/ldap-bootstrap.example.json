@@ -1,0 +1,14 @@
+{
+  "servers": [
+    "dc01.example.invalid",
+    "dc02.example.invalid",
+    "dc03.example.invalid"
+  ],
+  "port": 636,
+  "search_base": "DC=example,DC=invalid",
+  "bind_user": "ldap@example.invalid",
+  "admin_group": "CN=InvoiceAdmins,OU=Groups,DC=example,DC=invalid",
+  "reader_group": "CN=InvoiceReaders,OU=Groups,DC=example,DC=invalid",
+  "connect_timeout": 3,
+  "receive_timeout": 5
+}

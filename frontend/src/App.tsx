@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { api, type User } from "./api";
+import AdminPanel from "./AdminPanel";
 import {
   Alert,
   Badge,
@@ -8,7 +10,6 @@ import {
   Group,
   Modal,
   Paper,
-  SegmentedControl,
   Select,
   Stack,
   Table,
@@ -16,8 +17,7 @@ import {
   TextInput,
   Title,
 } from "@mantine/core";
-type Page =
-  "overview" | "processes" | "admin" | "notifications" | "archive" | "login";
+type Page = "overview" | "processes" | "admin" | "notifications" | "archive";
 type Item = {
   id: string;
   received: string;
@@ -35,7 +35,6 @@ const pages: { id: Page; label: string; icon: string }[] = [
   { id: "archive", label: "Archiv", icon: "▤" },
   { id: "notifications", label: "Meldungen", icon: "◇" },
   { id: "admin", label: "Administration", icon: "⚙" },
-  { id: "login", label: "Anmeldung", icon: "↪" },
 ];
 const colors: Record<string, string> = {
   Erfolgreich: "teal",
@@ -43,10 +42,20 @@ const colors: Record<string, string> = {
   Fehler: "red",
   Dublette: "gray",
 };
-export default function App() {
+export default function App({
+  user,
+  csrfToken,
+  onLogout,
+  onReauthenticate,
+}: {
+  user: User;
+  csrfToken: string;
+  onLogout: () => Promise<void>;
+  onReauthenticate: () => Promise<void>;
+}) {
+  const role = user.role === "admin" ? "Verwaltung" : "Lesen";
   const [page, setPage] = useState<Page>("overview"),
-    [mobile, setMobile] = useState(false),
-    [role, setRole] = useState("Verwaltung");
+    [mobile, setMobile] = useState(false);
   const [items, setItems] = useState<Item[]>([]),
     [detail, setDetail] = useState<Item | null>(null);
   const [query, setQuery] = useState(""),
@@ -54,11 +63,7 @@ export default function App() {
     [apiState, setApiState] = useState("Wird geprüft");
   useEffect(() => {
     const controller = new AbortController();
-    fetch("/api/demo/processes", { signal: controller.signal })
-      .then((r) => {
-        if (!r.ok) throw Error();
-        return r.json();
-      })
+    api<{ items: Item[] }>("/api/demo/processes", { signal: controller.signal })
       .then((d) => setItems(d.items))
       .catch((e) => {
         if (e.name !== "AbortError")
@@ -97,17 +102,19 @@ export default function App() {
       </div>
       <Text className="nav-section">ARBEITSPLATZ</Text>
       <nav aria-label="Hauptnavigation">
-        {pages.map((p) => (
-          <button
-            key={p.id}
-            className={page === p.id ? "nav-item active" : "nav-item"}
-            onClick={() => nav(p.id)}
-            aria-current={page === p.id ? "page" : undefined}
-          >
-            <span aria-hidden="true">{p.icon}</span>
-            {p.label}
-          </button>
-        ))}
+        {pages
+          .filter((p) => p.id !== "admin" || user.role === "admin")
+          .map((p) => (
+            <button
+              key={p.id}
+              className={page === p.id ? "nav-item active" : "nav-item"}
+              onClick={() => nav(p.id)}
+              aria-current={page === p.id ? "page" : undefined}
+            >
+              <span aria-hidden="true">{p.icon}</span>
+              {p.label}
+            </button>
+          ))}
       </nav>
       <div className="sidebar-bottom">
         <span className="status-dot" />
@@ -213,15 +220,20 @@ export default function App() {
             </Text>
           </Group>
           <Group gap="sm">
-            <span className="avatar">DV</span>
+            <span className="avatar">
+              {user.username.slice(0, 2).toUpperCase()}
+            </span>
             <div>
               <Text size="sm" fw={600}>
-                Designvorschau
+                {user.username}
               </Text>
               <Text size="xs" c="dimmed">
-                {role} · simuliert
+                {role} · AD
               </Text>
             </div>
+            <Button size="xs" variant="subtle" onClick={onLogout}>
+              Abmelden
+            </Button>
           </Group>
         </header>
         <main id="main-content">
@@ -252,17 +264,9 @@ export default function App() {
                           : "Zugang mit Ihrem bestehenden Windows-Konto."}
               </Text>
             </div>
-            <div>
-              <Text size="xs" c="dimmed" mb={5}>
-                Rollenansicht · keine Anmeldung
-              </Text>
-              <SegmentedControl
-                size="xs"
-                value={role}
-                onChange={setRole}
-                data={["Verwaltung", "Lesen"]}
-              />
-            </div>
+            <Badge color="blue" variant="light">
+              {role} · AD geprüft
+            </Badge>
           </Group>
           {page === "overview" && (
             <>
@@ -345,7 +349,7 @@ export default function App() {
                   </div>
                   <div className="system-row">
                     <span>AD-Anmeldung</span>
-                    <Badge color="gray">Geplant</Badge>
+                    <Badge color="teal">Angemeldet</Badge>
                   </div>
                   <div className="system-row">
                     <span>Automatischer Import</span>
@@ -360,8 +364,8 @@ export default function App() {
                       Nächster Schritt
                     </Text>
                     <Text size="sm" c="dimmed" mt={5}>
-                      Oberfläche und Grundgerüst prüfen. Anschließend die
-                      AD-Anmeldung und wirksame Berechtigungen anbinden.
+                      AD-Anmeldung und Verwaltung sind geschützt verfügbar. Die
+                      Verarbeitungsvorgänge bleiben synthetische Beispiele.
                     </Text>
                   </div>
                 </Paper>
@@ -372,7 +376,10 @@ export default function App() {
             <Paper withBorder className="panel">
               <Group className="panel-heading" justify="space-between">
                 <Title order={2}>Vorgänge</Title>
-                <Badge variant="light">{filtered.length} Beispiele</Badge>
+                <Badge variant="light">
+                  {filtered.length}{" "}
+                  {filtered.length === 1 ? "Beispiel" : "Beispiele"}
+                </Badge>
               </Group>
               <Group px="lg" pb="lg" grow>
                 <TextInput
@@ -410,64 +417,7 @@ export default function App() {
             </Paper>
           )}
           {page === "admin" && (
-            <>
-              <Alert color={role === "Lesen" ? "yellow" : "blue"} mb="lg">
-                {role === "Lesen"
-                  ? "Ansicht für Leseberechtigte: Einstellungen können später nur mit Verwaltungsrecht geändert werden."
-                  : "Verwaltungsansicht als Entwurf. Speichern ist bis zur geschützten Backendanbindung gesperrt."}
-              </Alert>
-              <div className="settings-grid">
-                <Paper withBorder p="xl">
-                  <Title order={2} mb="lg">
-                    AD-Verbindung
-                  </Title>
-                  <Stack>
-                    <TextInput
-                      label="LDAP-Server"
-                      placeholder="ldaps://dc.example.invalid"
-                      disabled
-                    />
-                    <TextInput
-                      label="Suchbasis"
-                      placeholder="DC=example,DC=invalid"
-                      disabled
-                    />
-                    <TextInput
-                      label="Bindkonto"
-                      placeholder="Dienstkonto"
-                      disabled
-                    />
-                    <Text size="sm" c="dimmed">
-                      Kennwort und CA-Vertrauen werden geschützt auf dem Server
-                      hinterlegt. Die Vorschau nimmt keine Zugangsdaten an.
-                    </Text>
-                    <Button disabled>Verbindung prüfen · geplant</Button>
-                  </Stack>
-                </Paper>
-                <Paper withBorder p="xl">
-                  <Title order={2} mb="lg">
-                    Zugriff und Rollen
-                  </Title>
-                  <Stack>
-                    <TextInput
-                      label="Gruppe für Verwaltung"
-                      placeholder="AD-Gruppe konfigurieren"
-                      disabled
-                    />
-                    <TextInput
-                      label="Gruppe für Lesen"
-                      placeholder="AD-Gruppe konfigurieren"
-                      disabled
-                    />
-                    <Text size="sm" c="dimmed">
-                      Vorgesehen sind direkte Gruppenmitgliedschaften. Die
-                      spätere API prüft Rechte bei jedem geschützten Zugriff.
-                    </Text>
-                    <Button disabled>Einstellungen speichern · geplant</Button>
-                  </Stack>
-                </Paper>
-              </div>
-            </>
+            <AdminPanel csrfToken={csrfToken} onActivated={onReauthenticate} />
           )}
           {page === "notifications" && (
             <Paper withBorder className="panel">
@@ -514,35 +464,6 @@ export default function App() {
                 Empfänger und Zeitpläne werden später geschützt verwaltet. Es
                 gibt keinen manuellen Mail-Editor.
               </Text>
-            </Paper>
-          )}
-          {page === "login" && (
-            <Paper withBorder className="login-card">
-              <div className="login-symbol" aria-hidden="true">
-                ↪
-              </div>
-              <Title order={2}>Mit Windows-Konto anmelden</Title>
-              <Text c="dimmed" mt="sm" mb="xl">
-                Die AD-Anmeldung wird im nächsten Schritt angebunden. Bitte hier
-                keine echten Zugangsdaten eingeben.
-              </Text>
-              <Stack>
-                <TextInput
-                  label="Benutzername"
-                  placeholder="In der Vorschau gesperrt"
-                  disabled
-                />
-                <TextInput
-                  label="Kennwort"
-                  type="password"
-                  placeholder="In der Vorschau gesperrt"
-                  disabled
-                />
-                <Button disabled>Anmelden · geplant</Button>
-                <Text size="xs" c="dimmed">
-                  Keine lokale Benutzer- oder Passwortverwaltung.
-                </Text>
-              </Stack>
             </Paper>
           )}
           <footer>

@@ -1,6 +1,6 @@
 name: invoice-importer
 x-api: &api
-  image: invoice-importer-api:ap01-ab
+  image: invoice-importer-api:ap01-cde
   build:
     context: ..
     dockerfile: backend/Dockerfile
@@ -9,7 +9,7 @@ x-api: &api
   tmpfs: ["/tmp:rw,noexec,nosuid,size=32m"]
   cap_drop: [ALL]
   security_opt: ["no-new-privileges:true"]
-  environment:
+  environment: &db-env
     DB_HOST: db
     DB_NAME: importer
     DB_USER: importer
@@ -48,6 +48,25 @@ services:
     <<: *api
     restart: unless-stopped
     networks: [database, web]
+    environment:
+      <<: *db-env
+      PUBLIC_ORIGIN: ${PUBLIC_ORIGIN:?Set the external HTTPS origin}
+      LDAP_CA_FILE: /run/importer/ldap-ca.pem
+      LDAP_BIND_PASSWORD_FILE: /run/secrets/ldap_bind_password
+      CONFIG_KEY_FILE: /run/secrets/config_key
+      LDAP_BOOTSTRAP_FILE: /run/importer/ldap-bootstrap.json
+    secrets: [db_password, ldap_bind_password, config_key]
+    volumes:
+      - type: bind
+        source: ${LDAP_CA_HOST_FILE:-/etc/ct-e-rechnungsimporter/pki/ldap-ca.pem}
+        target: /run/importer/ldap-ca.pem
+        read_only: true
+        bind: {create_host_path: false}
+      - type: bind
+        source: ${LDAP_BOOTSTRAP_HOST_FILE:-/etc/ct-e-rechnungsimporter/ldap-bootstrap.json}
+        target: /run/importer/ldap-bootstrap.json
+        read_only: true
+        bind: {create_host_path: false}
     depends_on:
       migrate: {condition: service_completed_successfully}
     healthcheck:
@@ -56,7 +75,7 @@ services:
       timeout: 8s
       retries: 5
   nginx:
-    image: invoice-importer-web:ap01-ab
+    image: invoice-importer-web:ap01-cde
     build:
       context: ..
       dockerfile: frontend/Dockerfile
@@ -86,3 +105,7 @@ secrets:
     file: ${DB_PASSWORD_FILE:-/etc/ct-e-rechnungsimporter/secrets/db_password}
   db_root_password:
     file: ${DB_ROOT_PASSWORD_FILE:-/etc/ct-e-rechnungsimporter/secrets/db_root_password}
+  ldap_bind_password:
+    file: ${LDAP_BIND_PASSWORD_HOST_FILE:-/etc/ct-e-rechnungsimporter/secrets/ldap-bind-password}
+  config_key:
+    file: ${CONFIG_KEY_HOST_FILE:-/etc/ct-e-rechnungsimporter/secrets/config-key}

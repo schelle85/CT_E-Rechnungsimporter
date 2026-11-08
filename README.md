@@ -52,3 +52,5 @@ vorgesehen. Diese entstehen aus dem tatsächlich implementierten und geprüften 
 
 [Synthetische A/B-Oberfläche und Grundgerüst](docs/AP01-PREVIEW.md):
 Quellstand und Builds vorhanden; Laufzeit-/HTTPS-Abnahme noch offen.
+
+[AP01 AD-Anmeldung/geschützte Konfiguration – Quell- und Prüfstand](docs/AP01-SECURITY.md).

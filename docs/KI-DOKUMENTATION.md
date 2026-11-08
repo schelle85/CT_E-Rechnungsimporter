@@ -34,6 +34,17 @@ werden nicht durch Modellwechsel oder Aufteilung desselben Fehlers zurückgesetz
 Modellfreigaben und interne Chatzuordnung werden außerhalb dieses öffentlichen
 Repositorys durch ORGA gesteuert. Keine eigenständigen Zusatzagenten starten.
 
+## AP01 C/D/E – neuer Quellstand, noch nicht bereitgestellt
+
+AD-/Session-/CSRF-/Konfigurationsmodule und additive Migration002 implementiert.
+Eigene CDE-Tags; eingefrorener A/B-Betrieb bleibt bestehen. Reproduzierbarer
+MariaDB-/CLI-/Uvicorn-/Persistenzrunner im Produktrepo, zunächst16 Fälle bestanden.
+Zusätzliche echte TLS-Negativprobe und Root-Widerruf geprüft; abschließende
+TLS-Socketbereinigung im Quellstand benötigt noch Image-Neubau/Retest und Review.
+Kein Runtime-Demo-Login. Tatsächlicher Vollzugriffstest und Kunden-Lesetest
+bleiben für die abschließende AP01-Abnahme erforderlich.
+Vertrag/Befehle und genaue Livegrenzen: [AP01-Sicherheit](AP01-SECURITY.md).
+
 ## Geplante Architektur
 
 Python-Importdienst/API, TypeScript-Web, lokale persistente MariaDB, Linux/Docker
