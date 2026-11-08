@@ -12,8 +12,9 @@ Stand: 8. November 2026. Lebende Markdown-Dokumentation, noch kein Abschlussberi
 ## Aktueller Stand
 
 - Repositorygrundstand und geprüfte SSH-/SMB-Vorbereitung vorhanden.
-- AP00 ausdrücklich freigegeben und begonnen; Graph-App registriert,
-  Zertifikatsanmeldung und begrenzte Mailrechte noch einzurichten/zu prüfen.
+- AP00 ausdrücklich freigegeben und begonnen; Graph-App und öffentliches
+  Anmeldezertifikat registriert. Privater Schlüssel geschützt auf Ziel-VM.
+  Erfolgreicher Zertifikats-Tokenbezug und begrenzte Mailrechte noch zu prüfen.
 - DEV und REVIEW durch ORGA angelegt; interne Zuordnungen separat geführt.
 - AP01 bis AP10: nicht begonnen und noch nicht freigegeben.
 - Keine Anwendung, Datenbankstruktur oder produktive Verarbeitung implementiert.

@@ -48,8 +48,13 @@ Startabhängigkeiten der Anwendung folgen erst im jeweiligen DEV-Paket.
   Geplant sind `Application Mail.ReadWrite` und `Application Mail.Send` mit
   einem auf das Zielpostfach begrenzten Resource Scope. Zusätzliche tenantweite
   Entra-Mailrechte würden die Einschränkung umgehen und sind nicht vorgesehen.
-- Anmeldezertifikat, effektive Rollenzuweisungen und echte positive/negative
-  Graph-Zugriffstests stehen noch aus. Keine Testmail gesendet.
+- Dediziertes RSA-3072/SHA256-Anmeldezertifikat auf der Ziel-VM erzeugt;
+  Schlüsselzuordnung geprüft, lokales Credential-Verzeichnis root-eigen 0700,
+  private Dateien 0600. Nur öffentliches Zertifikat zum Portal übertragen.
+- Öffentliches Zertifikat durch Betreiber registriert; Fingerabdruck und Laufzeit
+  im Portal mit der lokalen Kopie abgeglichen. Privater Schlüssel bleibt auf der VM.
+- Effektive Rollenzuweisungen und echte positive/negative Graph-Zugriffstests
+  stehen noch aus. Keine Testmail gesendet.
 
 ## Noch nicht nachgewiesen
 
