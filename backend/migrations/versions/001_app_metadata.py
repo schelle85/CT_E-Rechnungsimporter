@@ -9,7 +9,7 @@ depends_on = None
 
 def upgrade():
     table = op.create_table("app_metadata",
-        sa.Column("singleton", sa.SmallInteger, primary_key=True),
+        sa.Column("singleton", sa.SmallInteger, primary_key=True, autoincrement=False),
         sa.Column("instance_id", sa.String(36), nullable=False),
         sa.CheckConstraint("singleton = 1", name="one_metadata_row"),
     )
