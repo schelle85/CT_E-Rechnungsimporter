@@ -76,6 +76,8 @@ Anlage: offen, Schweregrad C (Inbetriebnahme blockiert, kein Produktionsausfall)
 Die geprüften Berechtigungsbefunde und der Reproduktionsbefehl wurden übergeben.
 Fallnummer, Kontaktdaten und technische Identitäten bleiben in den internen
 Betreiberunterlagen. Der spätere ReadWrite-Erfolg wurde Microsoft gemeldet.
+Für den behobenen Rollenanlagefehler wurde die Schließung der Serviceanfrage
+erbeten; eine Schließungsbestätigung steht noch aus.
 Verzögerte Provisionierung bleibt eine mögliche, nicht bestätigte Erklärung.
 AP00 bleibt wegen der ausstehenden Versand- und Graph-Nachweise offen.
 
