@@ -58,12 +58,15 @@ Startabhängigkeiten der Anwendung folgen erst im jeweiligen DEV-Paket.
   nach Microsoft-Voraussetzung aktiviert; `IsDehydrated=False` nachgelesen.
 - Resource Scope anhand stabiler Postfach-Objekt-ID angelegt; gespeicherten Filter
   erneut ausgewertet und genau ein vorgesehenes Postfach bestätigt.
-- Die Anlage der App-Rollenzuweisung wird von Exchange mit einem administrativen
-  Delegierungsfehler abgewiesen, obwohl aktive Delegierung und effektive
-  Administratorzuordnung lesend angezeigt werden. Auch nach gezielter erneuter
-  Anmeldung noch offen. Keine zusätzliche Administratorrolle als Versuch vergeben.
-- Effektive Rollenzuweisungen und echte positive/negative Graph-Zugriffstests
-  stehen noch aus. Keine Testmail gesendet.
+- Nach drei administrativen Delegierungsfehlern gelang am 08.11.2026 um
+  19:39 Uhr Europe/Berlin eine einzelne erneute ReadWrite-Zuweisung in frischer
+  Sitzung. Reguläre Verwaltungsrechte und delegierende Application-Rechte waren
+  bereits vorhanden; keine zusätzliche Administratorrolle wurde vergeben.
+- Rücklesen bestätigt genau eine aktivierte `Application Mail.ReadWrite`-Zuweisung
+  mit unverändertem Ein-Postfach-Scope. Exchange-RBAC-Prüfung: vorgesehenes
+  Postfach erlaubt, separat bestätigtes Kontrollpostfach ausgeschlossen.
+- `Application Mail.Send`, tatsächlicher Graph-Zertifikatszugriff und echte
+  positive/negative API-Prüfungen stehen noch aus. Keine Testmail gesendet.
 
 ## AP00: Microsoft-Supportklärung
 
@@ -72,8 +75,9 @@ delegierten Partnerzugang als Microsoft-Serviceanfrage eröffnet. Status bei
 Anlage: offen, Schweregrad C (Inbetriebnahme blockiert, kein Produktionsausfall).
 Die geprüften Berechtigungsbefunde und der Reproduktionsbefehl wurden übergeben.
 Fallnummer, Kontaktdaten und technische Identitäten bleiben in den internen
-Betreiberunterlagen. AP00 bleibt bis zur Klärung und den noch ausstehenden
-Berechtigungs-/Graph-Nachweisen offen.
+Betreiberunterlagen. Der spätere ReadWrite-Erfolg wurde Microsoft gemeldet.
+Verzögerte Provisionierung bleibt eine mögliche, nicht bestätigte Erklärung.
+AP00 bleibt wegen der ausstehenden Versand- und Graph-Nachweise offen.
 
 ## Noch nicht nachgewiesen
 
