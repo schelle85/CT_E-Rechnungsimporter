@@ -73,11 +73,16 @@ Primärquellen: [Graph SDKs](https://learn.microsoft.com/en-us/graph/sdks/sdks-o
 
 ## Nächster Schritt
 
-Technikbereitschaft abwarten. Danach beginnt DEV mit AP01a gemäß konkreter
-ORGA-Übergabe. Implementierungs- und Prüfbefehle erst dokumentieren, sobald sie
+AP00-Grundbereitschaft ist geprüft. Nach eigenem AP01-Go beginnt DEV mit AP01a
+gemäß konkreter ORGA-Übergabe. Implementierungs- und Prüfbefehle erst dokumentieren, sobald sie
 tatsächlich existieren und ausgeführt wurden. Keine erfundenen Startanweisungen.
 
 ## Fortschreibung je Unterpaket
+
+AP00-Abschluss 08.11.2026: technische Grundlage unabhängig geprüft, Graph-
+Zertifikatsanmeldung und Leseabgrenzung sowie synthetischer Versand mit separatem
+Empfang und vorgesehenem Absender belegt. Kein tenantweiter Mailgrant, keine
+zusätzliche Postfachlizenz; AP01+ bleibt ohne Go. Grenzen im Betriebsstand.
 
 Planungsnachtrag 08.11.2026 zu AP01: Designentwicklung und Vorschau direkt auf
 dem Kundenserver über HTTPS; CT-Webauftritt als Gestaltungsvorlage, Logo optional,

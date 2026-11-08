@@ -1,7 +1,8 @@
 # Betriebsstand
 
 Stand: 8. November 2026. Dieser Nachweis beschreibt geprüfte Infrastruktur und
-den begonnenen Graph-Anschluss, keine fertig installierte Anwendung.
+den geprüften Graph-Anschluss. AP00-Grundbereitschaft nach unabhängiger Prüfung
+bestätigt; eine fertig installierte Anwendung ist damit noch nicht vorhanden.
 
 ## AP00: SSH-Zugang
 
@@ -37,7 +38,7 @@ Quellen, Credentialpfade und konkrete Benutzer-/UID-Zuordnung sind ausschließli
 in den separaten Betreiberunterlagen dokumentiert. Containeranbindung und
 Startabhängigkeiten der Anwendung folgen erst im jeweiligen DEV-Paket.
 
-## AP00: Graph-Grundanbindung begonnen
+## AP00: Graph-Grundanbindung geprüft
 
 - AP00 ist ausdrücklich freigegeben; nachfolgende AP noch nicht.
 - Dedizierte Single-Tenant-App registriert, ohne Redirect-URI oder Client-Secret.
@@ -46,7 +47,7 @@ Startabhängigkeiten der Anwendung folgen erst im jeweiligen DEV-Paket.
   damit ist kein unbeaufsichtigter Mailzugriff nachgewiesen.
 - Postfachrechte über Exchange Application RBAC durch DEV vorbereitet und
   Einrichtungsschritte von REVIEW unabhängig geprüft.
-  Geplant sind `Application Mail.ReadWrite` und `Application Mail.Send` mit
+  Eingerichtet sind `Application Mail.ReadWrite` und `Application Mail.Send` mit
   einem auf das Zielpostfach begrenzten Resource Scope. Zusätzliche tenantweite
   Entra-Mailrechte würden die Einschränkung umgehen und sind nicht vorgesehen.
 - Dediziertes RSA-3072/SHA256-Anmeldezertifikat auf der Ziel-VM erzeugt;
@@ -62,11 +63,41 @@ Startabhängigkeiten der Anwendung folgen erst im jeweiligen DEV-Paket.
   19:39 Uhr Europe/Berlin eine einzelne erneute ReadWrite-Zuweisung in frischer
   Sitzung. Reguläre Verwaltungsrechte und delegierende Application-Rechte waren
   bereits vorhanden; keine zusätzliche Administratorrolle wurde vergeben.
-- Rücklesen bestätigt genau eine aktivierte `Application Mail.ReadWrite`-Zuweisung
-  mit unverändertem Ein-Postfach-Scope. Exchange-RBAC-Prüfung: vorgesehenes
-  Postfach erlaubt, separat bestätigtes Kontrollpostfach ausgeschlossen.
-- `Application Mail.Send`, tatsächlicher Graph-Zertifikatszugriff und echte
-  positive/negative API-Prüfungen stehen noch aus. Keine Testmail gesendet.
+- Rücklesen bestätigt beide aktivierten Rollen am selben Service Principal und
+  unveränderten Ein-Postfach-Scope. Exchange-RBAC-Prüfung: beide Rollen für das
+  vorgesehene Postfach erlaubt, separat bestätigtes Kontrollpostfach ausgeschlossen.
+- Tatsächliche Zertifikatsanmeldung von der Ziel-VM erfolgreich. Begrenzter
+  Inbox-Metadatenzugriff liefert beim Ziel HTTP200 und beim Kontrollpostfach403;
+  keine Rechnungs- oder Anhanginhalte abgerufen.
+- Der Betreiber korrigierte die Primäradresse des synchronisierten Postfachs in
+  der lokalen Verwaltungsquelle. Cloudübernahme vor Versand bestätigt; kein
+  globaler Aliasversand aktiviert und keine Postfachumwandlung vorgenommen.
+- Erster synthetischer Versandversuch um20:29 Uhr mit403 abgewiesen. Nach über
+  30 Minuten vollständiger App-API-Ruhe genau ein abgestimmter neuer Versuch:
+  HTTP202 um21:00 Uhr; tatsächlicher Empfang mit eindeutigem Testbetreff und
+  vorgesehenem Geschäftsabsender separat im Empfängerpostfach nachgewiesen.
+  Einmalmarker und historische Ergebnisse erhalten, kein weiterer Versand.
+- Berechtigungscache ist eine plausible Erklärung des vorübergehenden403;
+  aus dem späteren Erfolg lässt sich die genaue Ursache nicht beweisen.
+
+## AP00: VM, LDAP- und HTTPS-Voraussetzungen
+
+- Linux-Version und Ressourcen der bereitgestellten VM erfasst, internes DNS
+  und Schlüsselzugang erneut geprüft. Zugriff weiterhin nur im Kundennetz.
+- LDAP-Dienstkonto und direkte Berechtigungsgruppen laut Betreiber vorhanden.
+- Bestehende öffentliche interne CA aus einem bereits vertrauenswürdigen
+  Windows-Zertifikatsspeicher exportiert und anwendungsspezifisch auf der VM
+  abgelegt. Keine neue CA und kein privater CA-Schlüssel erzeugt/übertragen.
+- Alle drei vorgesehenen LDAPS-Endpunkte mit CA-, Ketten- und Hostnamenprüfung
+  erfolgreich geprüft; keine unsichere TLS-Ausnahme. LDAP-Bind und Benutzer-/
+  Gruppenrechte werden erst im vorgesehenen AP01-Paket implementiert und getestet.
+- Vorhandenes Wildcard-PFX passt zum internen Webhost und ist gültig.
+  HTTPS-Webbetrieb, geschützte Schlüssel-/Kettenübernahme und kontrollierter
+  Zertifikatswechsel folgen in AP01; aktuell läuft keine Webanwendung.
+- Isolierte Python-Testumgebung für die Graph-Abnahme mit dokumentierter
+  Paketliste eingerichtet; keine Datenbank oder Importer-Anwendung installiert.
+- Tägliche VM-/Offsite-Sicherung einschließlich SMB-Server vom Betreiber
+  bestätigt. Ein Wiederherstellungstest ist damit nicht nachgewiesen.
 
 ## AP00: Microsoft-Supportklärung
 
@@ -79,10 +110,14 @@ Betreiberunterlagen. Der spätere ReadWrite-Erfolg wurde Microsoft gemeldet.
 Für den behobenen Rollenanlagefehler wurde die Schließung der Serviceanfrage
 erbeten; eine Schließungsbestätigung steht noch aus.
 Verzögerte Provisionierung bleibt eine mögliche, nicht bestätigte Erklärung.
-AP00 bleibt wegen der ausstehenden Versand- und Graph-Nachweise offen.
+Die frühere Rollenanlageblockade ist behoben; Graph-Lesezugriff und Versand
+sind inzwischen tatsächlich nachgewiesen. Die automatische Support-Mailprüfung
+wurde auf Betreiberwunsch vollständig abgeschaltet.
 
 ## Noch nicht nachgewiesen
 
-AD-, Graph-, Docker- und Anwendungsbereitschaft sind durch diese Infrastrukturtests
-nicht bestätigt. Die AP00-Freigabe ersetzt keine technische Gesamtabnahme.
+Die Infrastrukturtests und Graph-Einzelproben ersetzen keine Anwendungsabnahme.
+LDAP-Login, HTTPS-Webbetrieb, Docker-Anwendung, Datenbank, Mailordner/Fahnen/
+Verschieben und Rechnungsverarbeitung folgen in den jeweiligen freizugebenden AP.
+Nach Neustart durchgängiger Wiederanlauf und vollständiger Restore sind offen.
 Wöchentliche Wartung ist geplant, noch kein Skript/Timer auf dem Server installiert.

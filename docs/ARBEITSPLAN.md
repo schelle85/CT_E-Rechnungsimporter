@@ -1,6 +1,6 @@
 # Arbeitspakete
 
-Stand: 8. November 2026. **AP00 ist ausdrücklich freigegeben und begonnen;
+Stand: 8. November 2026. **AP00 ist im definierten Grundbereitstellungsumfang abgeschlossen;
 AP01 bis AP09 sind geplant und noch nicht freigegeben.** AP10 ist für die spätere wöchentliche Wartung ergänzt.
 ORGA koordiniert, DEV implementiert, REVIEW prüft.
 Die Repositoryvorbereitung ist kein Beginn der Anwendungsentwicklung.
@@ -9,8 +9,9 @@ Jedes Unterpaket liefert ein abgegrenztes Ergebnis mit passender Prüfung,
 Dokumentationsnachtrag und geprüftem GitHub-Upload. Abhängigkeiten und ungelöste
 Fehler offen benennen. Kein pauschales Go je Unterpaket erforderlich.
 Jedes AP benötigt sein eigenes Go; die Freigabe von AP00 gibt keine späteren AP frei.
-Graph-Grundanbindung in AP00d zuerst; App registriert, Zertifikat und begrenzte
-Mailrechte sowie deren Nachweise noch offen. Details im [Betriebsstand](BETRIEBSSTAND.md).
+Graph-Grundanbindung in AP00d geprüft: Zertifikatszugriff, begrenzte Mailrechte,
+positive/negative Leseprobe sowie tatsächlicher Testversand und Empfang.
+Details und Grenzen im [Betriebsstand](BETRIEBSSTAND.md).
 
 ## AP00: Technik vorbereiten - Betreiber
 
@@ -23,8 +24,10 @@ Mailrechte sowie deren Nachweise noch offen. Details im [Betriebsstand](BETRIEBS
 | AP00e | Lokale Datenvolumes und tägliche VM-/Offsite-Sicherung zugeordnet |
 | AP00f | VM einschließlich SMB als bereit bestätigt |
 
-AP00b und AP00c sind im oben genannten Umfang geprüft; siehe [Betriebsstand](BETRIEBSSTAND.md).
-Die übrige Infrastruktur und AP00f sind damit nicht als vollständig abgenommen markiert.
+AP00-Grundbereitschaft ist nach unabhängiger Nachweisprüfung bestätigt; siehe
+[Betriebsstand](BETRIEBSSTAND.md). LDAP-Login, HTTPS-/Anwendungsbetrieb,
+vollständige Graph-Funktionen und Wiederherstellung werden in ihren späteren
+Arbeitspaketen geprüft. AP01 beginnt erst nach seinem eigenen Go.
 
 ## AP01: Design, Administration und AD-Anmeldung - DEV
 
