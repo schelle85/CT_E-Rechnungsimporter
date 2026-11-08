@@ -8,6 +8,9 @@ Echte Postfach-, Gruppen-, Empfänger- und Verbindungswerte werden separat konfi
 - Linux-VM, Docker Compose, Python-Importdienst/API, TypeScript-Weboberfläche.
 - MariaDB mit persistentem lokalem Datenvolume auf der VM.
 - Weboberfläche ausschließlich im Kundennetz, über HTTPS.
+- Designentwurf direkt auf dem vorgesehenen Kundenserver über HTTPS entwickeln
+  und zeigen. Gestaltung am öffentlichen CT-Auftritt orientieren. Kundenlogo
+  optional; falls verwendet, gerade und ohne Verzerrung darstellen.
 - Ein konfiguriertes Microsoft-365-Postfach über Microsoft Graph verarbeiten.
 - Alle fünf Minuten den Posteingang abarbeiten, ohne parallele Doppelverarbeitung.
 - Nur E-Mails mit Maileingang ab **1. Dezember 2026** berücksichtigen.

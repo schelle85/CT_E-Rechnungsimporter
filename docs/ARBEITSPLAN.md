@@ -28,6 +28,17 @@ Die übrige Infrastruktur und AP00f sind damit nicht als vollständig abgenommen
 
 ## AP01: Design, Administration und AD-Anmeldung - DEV
 
+Vorgabe vom 08.11.2026: Den Entwurf direkt auf dem vorgesehenen Kundenserver
+bereitstellen und schon während der Entwicklung über HTTPS prüfen.
+Gestaltung an [CT Beschläge](https://www.ct-beschlaege.de/) anlehnen;
+das Kundenlogo ist optional. Falls verwendet, gerade und mit unverzerrtem
+Seitenverhältnis darstellen; seine Übernahme ist kein Abnahmekriterium.
+Vorgesehener Webserver ist Nginx Open Source im Docker-Setup: statische
+Weboberfläche, HTTPS und Reverse Proxy zur Python-API. Vorhandene Zertifikate
+geschützt serverseitig übernehmen; PFX bei Bedarf in PEM überführen und
+Zertifikatswechsel einschließlich Konfigurationsprüfung und Reload vorsehen.
+Diese Ergänzung erweitert die Planung; AP01 benötigt weiterhin sein eigenes Go.
+
 | Teil | Ergebnis und Prüfung |
 | --- | --- |
 | AP01a | Oberflächenentwurf für Anmeldung, Übersicht, Details, Einstellungen und Archiv; Rollenunterschiede sichtbar |

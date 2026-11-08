@@ -79,6 +79,12 @@ tatsächlich existieren und ausgeführt wurden. Keine erfundenen Startanweisunge
 
 ## Fortschreibung je Unterpaket
 
+Planungsnachtrag 08.11.2026 zu AP01: Designentwicklung und Vorschau direkt auf
+dem Kundenserver über HTTPS; CT-Webauftritt als Gestaltungsvorlage, Logo optional,
+bei Verwendung gerade und proportional. Nginx Open Source als
+Webserver/HTTPS-Reverse-Proxy vorgesehen.
+Keine AP01-Implementierung durch diesen Nachtrag begonnen.
+
 Paket, Commit, Ergebnis, passende Prüfung, Fehlerstatus, geänderte Invarianten
 und nächsten Schritt ergänzen. Für Review einen festen Commit sowie bei Fehlern
 Reproduktion und Versuchszähler angeben. Finale Markdown-Fassung in AP09c prüfen.
