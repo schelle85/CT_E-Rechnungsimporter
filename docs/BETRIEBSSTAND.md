@@ -116,6 +116,13 @@ wurde auf Betreiberwunsch vollständig abgeschaltet.
 
 ## Noch nicht nachgewiesen
 
+AP01 ist inzwischen freigegeben. Die Containerlaufzeit aus den offiziellen
+Ubuntu-Paketquellen ist installiert und zurückgelesen: Docker29.1.3,
+Compose2.40.3 und Buildx0.30.1. Die Dienste laufen, bestehende Mount- und
+Credentialrechte sind erhalten; keine zusätzliche Docker-Gruppenmitgliedschaft.
+Quellarbeit erfolgt auf lokalem VM-Speicher getrennt von der SMB-Dokumentablage.
+Dies ist die Infrastrukturvorbereitung, noch kein gestarteter Anwendungscontainer.
+
 Die Infrastrukturtests und Graph-Einzelproben ersetzen keine Anwendungsabnahme.
 LDAP-Login, HTTPS-Webbetrieb, Docker-Anwendung, Datenbank, Mailordner/Fahnen/
 Verschieben und Rechnungsverarbeitung folgen in den jeweiligen freizugebenden AP.

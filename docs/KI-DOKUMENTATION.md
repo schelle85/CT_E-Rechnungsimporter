@@ -19,6 +19,8 @@ Stand: 8. November 2026. Lebende Markdown-Dokumentation, noch kein Abschlussberi
 - AP01 freigegeben und begonnen: Design/HTTPS-Grundgerüst zuerst, dann
   AD-Anmeldung und Administrationsgrundlage. AP02 bis AP10 noch nicht freigegeben.
 - Keine Anwendung, Datenbankstruktur oder produktive Verarbeitung implementiert.
+- AP01-Containerlaufzeit aus offiziellen Ubuntu-Paketen installiert und geprüft;
+  Compose/Buildx verfügbar. Anwendungscode, HTTPS und Datenbankbetrieb folgen.
 - Synthetische AP00-Testmail zugestellt; keine Rechnungsverarbeitung begonnen.
 - Keine Betriebs- oder Wiederherstellungsprüfung als bestanden behaupten.
 
