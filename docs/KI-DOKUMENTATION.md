@@ -18,12 +18,13 @@ Stand: 8. November 2026. Lebende Markdown-Dokumentation, noch kein Abschlussberi
 - DEV und REVIEW durch ORGA angelegt; interne Zuordnungen separat geführt.
 - AP01 freigegeben und begonnen: Design/HTTPS-Grundgerüst zuerst, dann
   AD-Anmeldung und Administrationsgrundlage. AP02 bis AP10 noch nicht freigegeben.
-- AP01-A/B-Quellgerüst und synthetische Ansichten implementiert; Imagebuilds bestanden.
-  Noch keine Appdienstfreigabe, HTTPS-Abnahme oder produktive Verarbeitung.
-- AP01-Containerlaufzeit aus offiziellen Ubuntu-Paketen installiert und geprüft;
-  Compose/Buildx verfügbar. Anwendungscode, HTTPS und Datenbankbetrieb folgen.
+- AP01a/b auf festem Stand `13bc3047` durch Astra abgenommen: synthetische
+  Designvorschau, tatsächliches HTTPS mit HTTP-Weiterleitung, MariaDB-Migration,
+  Containerpersistenz und begrenzter TLS-Übernahme-/Reloadpfad geprüft.
+- AP01c/d/e in Entwicklung: echte AD-Anmeldung und geschützte Administration
+  erhalten eine separate Prüfung unter Astra vor dem nächsten Kundentest.
 - Synthetische AP00-Testmail zugestellt; keine Rechnungsverarbeitung begonnen.
-- Keine Betriebs- oder Wiederherstellungsprüfung als bestanden behaupten.
+- Kein vollständiger VM-/Offsite-Restore oder produktiver Import nachgewiesen.
 
 ## Rollen
 
@@ -77,11 +78,18 @@ Primärquellen: [Graph SDKs](https://learn.microsoft.com/en-us/graph/sdks/sdks-o
 
 ## Nächster Schritt
 
-AP00-Grundbereitschaft ist geprüft; das eigene AP01-Go liegt vor. DEV bearbeitet
-AP01a/b gemäß konkreter ORGA-Übergabe. Implementierungs- und Prüfbefehle erst dokumentieren, sobald sie
+AP00-Grundbereitschaft und AP01a/b sind geprüft; das eigene AP01-Go liegt vor.
+DEV bearbeitet AP01c/d/e gemäß konkreter ORGA-Übergabe. Implementierungs- und Prüfbefehle erst dokumentieren, sobald sie
 tatsächlich existieren und ausgeführt wurden. Keine erfundenen Startanweisungen.
 
 ## Fortschreibung je Unterpaket
+
+AP01a/b-Abnahme 08.11.2026: Alembic-CLI-Import, MariaDB-DDL und Webnetz-Publishing
+in drei nachvollziehbaren Korrekturen behoben. Fester Stand `13bc3047` mit
+unabhängiger Astra-Prüfung und tatsächlichen HTTPS-/Persistenz-/Browserbelegen
+abgenommen. Keine echten Benutzer- oder Importdaten in der Vorschau. A/B-Betrieb
+bleibt vom parallel entstehenden C/D/E-Stand getrennt. AP01 insgesamt noch offen;
+siehe [Betriebsstand](BETRIEBSSTAND.md) und [Vorschaugrenzen](AP01-PREVIEW.md).
 
 AP00-Abschluss 08.11.2026: technische Grundlage unabhängig geprüft, Graph-
 Zertifikatsanmeldung und Leseabgrenzung sowie synthetischer Versand mit separatem

@@ -1,8 +1,9 @@
 # Betriebsstand
 
 Stand: 8. November 2026. Dieser Nachweis beschreibt geprüfte Infrastruktur und
-den geprüften Graph-Anschluss. AP00-Grundbereitschaft nach unabhängiger Prüfung
-bestätigt; eine fertig installierte Anwendung ist damit noch nicht vorhanden.
+den geprüften Graph-Anschluss. AP00-Grundbereitschaft und AP01a/b sind nach
+unabhängiger Prüfung bestätigt. Die installierte Webvorschau ist synthetisch;
+AD-Anmeldung und Administration werden in AP01c/d/e umgesetzt.
 
 ## AP00: SSH-Zugang
 
@@ -40,7 +41,7 @@ Startabhängigkeiten der Anwendung folgen erst im jeweiligen DEV-Paket.
 
 ## AP00: Graph-Grundanbindung geprüft
 
-- AP00 ist ausdrücklich freigegeben; nachfolgende AP noch nicht.
+- AP00 ist abgeschlossen; AP01 ist inzwischen ausdrücklich freigegeben.
 - Dedizierte Single-Tenant-App registriert, ohne Redirect-URI oder Client-Secret.
 - App- und Service-Principal-Identitäten intern getrennt dokumentiert.
 - Bisher erteilte Administratorzustimmung umfasst nur delegiertes `User.Read`;
@@ -92,10 +93,10 @@ Startabhängigkeiten der Anwendung folgen erst im jeweiligen DEV-Paket.
   erfolgreich geprüft; keine unsichere TLS-Ausnahme. LDAP-Bind und Benutzer-/
   Gruppenrechte werden erst im vorgesehenen AP01-Paket implementiert und getestet.
 - Vorhandenes Wildcard-PFX passt zum internen Webhost und ist gültig.
-  HTTPS-Webbetrieb, geschützte Schlüssel-/Kettenübernahme und kontrollierter
-  Zertifikatswechsel folgen in AP01; aktuell läuft keine Webanwendung.
+  HTTPS-Webbetrieb und geschützte Schlüssel-/Kettenübernahme sind inzwischen
+  im unten beschriebenen AP01a/b-Umfang geprüft.
 - Isolierte Python-Testumgebung für die Graph-Abnahme mit dokumentierter
-  Paketliste eingerichtet; keine Datenbank oder Importer-Anwendung installiert.
+  Paketliste eingerichtet. Die spätere AP01-Webvorschau läuft separat in Docker.
 - Tägliche VM-/Offsite-Sicherung einschließlich SMB-Server vom Betreiber
   bestätigt. Ein Wiederherstellungstest ist damit nicht nachgewiesen.
 
@@ -114,17 +115,43 @@ Die frühere Rollenanlageblockade ist behoben; Graph-Lesezugriff und Versand
 sind inzwischen tatsächlich nachgewiesen. Die automatische Support-Mailprüfung
 wurde auf Betreiberwunsch vollständig abgeschaltet.
 
-## Noch nicht nachgewiesen
+## AP01a/b: Design und HTTPS-Grundbetrieb
 
 AP01 ist inzwischen freigegeben. Die Containerlaufzeit aus den offiziellen
 Ubuntu-Paketquellen ist installiert und zurückgelesen: Docker29.1.3,
 Compose2.40.3 und Buildx0.30.1. Die Dienste laufen, bestehende Mount- und
 Credentialrechte sind erhalten; keine zusätzliche Docker-Gruppenmitgliedschaft.
-Quellarbeit erfolgt auf lokalem VM-Speicher getrennt von der SMB-Dokumentablage.
-Dies ist die Infrastrukturvorbereitung, noch kein gestarteter Anwendungscontainer.
+Quellarbeit und Datenbank liegen auf lokalem VM-Speicher getrennt von der
+SMB-Dokumentablage. Der feste Quellstand `13bc3047` wurde unabhängig mit Astra
+geprüft und anhand der Betriebsbelege im vereinbarten A/B-Umfang abgenommen.
+
+- React-/TypeScript-Vorschau mit synthetischen Vorgängen, Filtern, Details und
+  deaktivierter Administration auf Desktop und Mobilgerät bedient und gesichtet.
+- FastAPI, MariaDB und Nginx laufen als getrennte Container. Nur Nginx veröffentlicht
+  HTTP/HTTPS an der vorgesehenen privaten Schnittstelle; API/DB ohne Hostports,
+  Datenbanknetz intern. HTTP leitet mit308 auf HTTPS um.
+- Tatsächlicher Zugriff aus dem Kundennetz/VPN mit gültiger Zertifikatskette und
+  Hostnamenprüfung erfolgreich; API-Readiness200. TLS-Schlüssel nur für Nginx lesend.
+- Drei Startprobleme behoben: Alembic-Importpfad, MariaDB-Singleton-DDL und
+  Docker-Portveröffentlichung am Webnetz. Feste Korrekturen vor erneuten
+  Kundentests unabhängig geprüft; reale MariaDB-/CLI-/HTTP-Proben erfolgreich.
+- Alle drei Anwendungscontainer neu angelegt: neue Container-IDs bei unveränderten
+  Images, Mounts und persistentem Metadatenbezeichner. Kein Datenverzeichnis gelöscht.
+- Kontrollierte TLS-Releaseübernahme mit geprüftem vorhandenem Material,
+  atomarem Linkwechsel, erfolgreichem Konfigurationstest und Reload geprüft.
+  Neue Nginx-Worker und weiterhin gültiges Live-HTTPS nachgewiesen.
+- Bestehende CIFS- und Credentialrechte nachgelesen. Vorschau ohne Graph-,
+  LDAP- oder Rechnungszugriff; Administrations-GET/POST liefern403.
+
+## Noch nicht nachgewiesen
 
 Die Infrastrukturtests und Graph-Einzelproben ersetzen keine Anwendungsabnahme.
-LDAP-Login, HTTPS-Webbetrieb, Docker-Anwendung, Datenbank, Mailordner/Fahnen/
-Verschieben und Rechnungsverarbeitung folgen in den jeweiligen freizugebenden AP.
+Echte LDAP-Benutzeranmeldung, wirksame Gruppenrechte, sichere Sitzungen und
+geschützte Administration folgen innerhalb des laufenden AP01c/d/e. Der lesende
+LDAP-Dienstbind und die Suche der vorgesehenen direkten Gruppen wurden vorgeprüft;
+dies ersetzt keine Benutzer-/Rollenabnahme. Mailordner/Fahnen/Verschieben und
+Rechnungsverarbeitung folgen erst in späteren freizugebenden AP.
+Die TLS-Probe mit identischem Material belegt keinen externen 60-Tage-Erneuerungslauf
+oder tatsächlichen Zertifikatsfehler-Rollback.
 Nach Neustart durchgängiger Wiederanlauf und vollständiger Restore sind offen.
 Wöchentliche Wartung ist geplant, noch kein Skript/Timer auf dem Server installiert.

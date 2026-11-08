@@ -1,7 +1,7 @@
 # Arbeitspakete
 
 Stand: 8. November 2026. **AP00 ist im definierten Grundbereitstellungsumfang abgeschlossen;
-AP01 ist freigegeben und begonnen; AP02 bis AP09 sind noch nicht freigegeben.** AP10 ist für die spätere wöchentliche Wartung ergänzt.
+AP01a/b sind abgenommen, AP01c/d/e sind in Arbeit; AP02 bis AP09 sind noch nicht freigegeben.** AP10 ist für die spätere wöchentliche Wartung ergänzt.
 ORGA koordiniert, DEV implementiert, REVIEW prüft.
 Die Repositoryvorbereitung ist kein Beginn der Anwendungsentwicklung.
 
@@ -45,11 +45,11 @@ danach folgen AD-Anmeldung, Administrationsgrundlage und gemeinsame Abnahme.
 
 | Teil | Ergebnis und Prüfung |
 | --- | --- |
-| AP01a | Oberflächenentwurf für Anmeldung, Übersicht, Details, Einstellungen und Archiv; Rollenunterschiede sichtbar |
-| AP01b | Minimales Docker-/Python-/TypeScript-/MariaDB-Gerüst; reproduzierbarer Start und persistente Daten |
-| AP01c | Verschlüsselte LDAP-Anmeldung, Gruppenrechte, Sitzungen und Abmeldung; positive/negative Zugriffsprüfung |
-| AP01d | Administrationsgrundlage; geschützte Einstellungen und Änderungsprotokoll |
-| AP01e | Oberfläche und wirksame Backendrechte gemeinsam prüfbar zeigen |
+| AP01a | Abgenommen: synthetischer Oberflächenentwurf, Desktop-/Mobilprüfung; Anmeldung und Administration noch gesperrt |
+| AP01b | Abgenommen: Docker-/Python-/TypeScript-/MariaDB-Grundbetrieb, echtes HTTPS/HTTP-Weiterleitung, Containerpersistenz und TLS-Reload |
+| AP01c | In Arbeit: verschlüsselte LDAP-Anmeldung, Gruppenrechte, Sitzungen und Abmeldung; positive/negative Zugriffsprüfung |
+| AP01d | In Arbeit: Administrationsgrundlage; geschützte Einstellungen und Änderungsprotokoll |
+| AP01e | Offen: Oberfläche und wirksame Backendrechte gemeinsam prüfbar zeigen |
 
 ## AP02: Graph und Postfacheingang - DEV
 

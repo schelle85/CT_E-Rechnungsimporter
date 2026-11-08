@@ -54,8 +54,13 @@ Compose-Konfiguration valide; Nginx-Konfiguration isoliert mit synthetischem
 Zertifikat geprüft. Kein Kundenzertifikat und kein Laufzeitsecret im Build.
 MariaDB-Dienstidentität im geladenen Image: UID/GID999. API10001, Nginx10002.
 Basisimages per Digest, npm-/Python-Laufzeitabhängigkeiten per Lockdatei fixiert.
-Noch offen: feste Codeprüfung, freigegebener Dienststart, echtes HTTPS,
-MariaDB-Persistenztest und Browser-Sichtprüfung. Kein A/B-Gesamtabschluss behauptet.
+Fester Stand `13bc3047` unabhängig mit Astra geprüft und im vereinbarten
+A/B-Umfang abgenommen. Tatsächlicher interner HTTPS-Zugriff, HTTP308-Weiterleitung,
+MariaDB-Migration und Readiness sowie Desktop-/Mobilbedienung bestanden.
+Neuanlage aller drei Container bewahrte Images, Mounts und Metadatenbezeichner.
+TLS-Releasewechsel mit identischem geprüftem Material und tatsächlichem
+Worker-Reload bestanden. Kein vollständiger VM-/Offsite-Restore oder externer
+Zertifikatserneuerungslauf daraus abgeleitet. AP01c/d/e bleiben gesondert offen.
 
 Gezielte HTTP-/Migrationstests bestanden (3 unittest-Fälle): alle unterstützten
 Adminmethoden403; ausschließlich synthetische Daten/keine Importendpunkte;
