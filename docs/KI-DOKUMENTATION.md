@@ -1,6 +1,6 @@
 # KI-Dokumentation
 
-Stand: 7. November 2026. Lebende Markdown-Dokumentation, noch kein Abschlussbericht.
+Stand: 8. November 2026. Lebende Markdown-Dokumentation, noch kein Abschlussbericht.
 
 ## Wiedereinstieg
 
@@ -11,9 +11,11 @@ Stand: 7. November 2026. Lebende Markdown-Dokumentation, noch kein Abschlussberi
 
 ## Aktueller Stand
 
-- Repository und Projektunterlagen werden initialisiert.
-- AP00: Technikvorbereitung durch den Betreiber, Bereitschaft noch nicht bestätigt.
-- AP01 bis AP09: nicht begonnen.
+- Repositorygrundstand und geprüfte SSH-/SMB-Vorbereitung vorhanden.
+- AP00 ausdrücklich freigegeben und begonnen; Graph-App registriert,
+  Zertifikatsanmeldung und begrenzte Mailrechte noch einzurichten/zu prüfen.
+- DEV und REVIEW durch ORGA angelegt; interne Zuordnungen separat geführt.
+- AP01 bis AP10: nicht begonnen und noch nicht freigegeben.
 - Keine Anwendung, Datenbankstruktur oder produktive Verarbeitung implementiert.
 - Keine Testmail aus dieser Vorbereitung versendet.
 - Keine Betriebs- oder Wiederherstellungsprüfung als bestanden behaupten.

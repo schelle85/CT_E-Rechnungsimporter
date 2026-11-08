@@ -1,7 +1,7 @@
 # Betriebsstand
 
-Stand: 7. November 2026. Dieser Nachweis beschreibt ausschließlich die erfolgte
-SSH-Zugangseinrichtung, keine fertig installierte Anwendung.
+Stand: 8. November 2026. Dieser Nachweis beschreibt geprüfte Infrastruktur und
+den begonnenen Graph-Anschluss, keine fertig installierte Anwendung.
 
 ## AP00: SSH-Zugang
 
@@ -37,8 +37,22 @@ Quellen, Credentialpfade und konkrete Benutzer-/UID-Zuordnung sind ausschließli
 in den separaten Betreiberunterlagen dokumentiert. Containeranbindung und
 Startabhängigkeiten der Anwendung folgen erst im jeweiligen DEV-Paket.
 
+## AP00: Graph-Grundanbindung begonnen
+
+- AP00 ist ausdrücklich freigegeben; nachfolgende AP noch nicht.
+- Dedizierte Single-Tenant-App registriert, ohne Redirect-URI oder Client-Secret.
+- App- und Service-Principal-Identitäten intern getrennt dokumentiert.
+- Bisher erteilte Administratorzustimmung umfasst nur delegiertes `User.Read`;
+  damit ist kein unbeaufsichtigter Mailzugriff nachgewiesen.
+- Vorbereitung der Postfachrechte über Exchange Application RBAC in DEV/REVIEW.
+  Geplant sind `Application Mail.ReadWrite` und `Application Mail.Send` mit
+  einem auf das Zielpostfach begrenzten Resource Scope. Zusätzliche tenantweite
+  Entra-Mailrechte würden die Einschränkung umgehen und sind nicht vorgesehen.
+- Anmeldezertifikat, effektive Rollenzuweisungen und echte positive/negative
+  Graph-Zugriffstests stehen noch aus. Keine Testmail gesendet.
+
 ## Noch nicht nachgewiesen
 
 AD-, Graph-, Docker- und Anwendungsbereitschaft sind durch diese Infrastrukturtests
-nicht bestätigt. Eine allgemeine Bereitmeldung der Entwicklung steht noch aus.
+nicht bestätigt. Die AP00-Freigabe ersetzt keine technische Gesamtabnahme.
 Wöchentliche Wartung ist geplant, noch kein Skript/Timer auf dem Server installiert.

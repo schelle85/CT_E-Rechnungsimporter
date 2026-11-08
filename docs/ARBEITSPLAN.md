@@ -1,13 +1,16 @@
 # Arbeitspakete
 
-Stand: 7. November 2026. **AP00 wird kundenseitig vorbereitet; AP01 bis AP09 sind
-geplant und noch nicht begonnen.** AP10 ist für die spätere wöchentliche Wartung ergänzt.
+Stand: 8. November 2026. **AP00 ist ausdrücklich freigegeben und begonnen;
+AP01 bis AP09 sind geplant und noch nicht freigegeben.** AP10 ist für die spätere wöchentliche Wartung ergänzt.
 ORGA koordiniert, DEV implementiert, REVIEW prüft.
 Die Repositoryvorbereitung ist kein Beginn der Anwendungsentwicklung.
 
 Jedes Unterpaket liefert ein abgegrenztes Ergebnis mit passender Prüfung,
 Dokumentationsnachtrag und geprüftem GitHub-Upload. Abhängigkeiten und ungelöste
 Fehler offen benennen. Kein pauschales Go je Unterpaket erforderlich.
+Jedes AP benötigt sein eigenes Go; die Freigabe von AP00 gibt keine späteren AP frei.
+Graph-Grundanbindung in AP00d zuerst; App registriert, Zertifikat und begrenzte
+Mailrechte sowie deren Nachweise noch offen. Details im [Betriebsstand](BETRIEBSSTAND.md).
 
 ## AP00: Technik vorbereiten - Betreiber
 

@@ -6,8 +6,10 @@
 - Anwendungsentwicklung und technische Implementierung führt DEV aus.
 - REVIEW prüft feste Lieferstände und übernimmt ungelöste Fehler nach Eskalation.
 - ORGA implementiert keinen Anwendungscode als Ersatz für DEV.
-- Dieser Stand bereitet nur das Repository vor. Der Entwicklungsstart hängt von
-  der bestätigten Bereitstellung der VM einschließlich SMB ab.
+- Jedes AP benötigt die ausdrückliche Freigabe des Betreibers. AP00 ist seit
+  08.11.2026 freigegeben; Graph-Grundanbindung ist der erste Einrichtungsschritt.
+  Innerhalb eines freigegebenen AP koordiniert ORGA DEV/REVIEW bis zum Abschluss
+  oder zu einer konkreten Frage/Blockade. AP01 und spätere AP sind noch nicht freigegeben.
 - Keine zusätzlichen Agenten oder Chats ohne entsprechenden Auftrag.
 
 ## Auftrag und vorhandene Lösungen
