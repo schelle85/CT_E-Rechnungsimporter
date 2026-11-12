@@ -33,12 +33,28 @@ class Identity:
 
 
 def looks_xml(data):
-    try:
-        if data.startswith((b"\xff\xfe", b"\xfe\xff")):
-            return data[:512].decode("utf-16", errors="ignore").lstrip().startswith("<")
-        return data[:512].decode("utf-8-sig", errors="ignore").lstrip().startswith("<")
-    except (UnicodeError, ValueError):
+    # Only sniff the first non-whitespace code unit. Do not silently truncate
+    # valid XML before the root; parsing/size enforcement remains in safe_xml.
+    whitespace = b" \t\r\n"
+    offset, byteorder = 0, None
+    if data.startswith(b"\xff\xfe"):
+        offset, byteorder = 2, "little"
+    elif data.startswith(b"\xfe\xff"):
+        offset, byteorder = 2, "big"
+    elif len(data) >= 2 and data[0] in whitespace + b"<" and data[1] == 0:
+        byteorder = "little"
+    elif len(data) >= 2 and data[0] == 0 and data[1] in whitespace + b"<":
+        byteorder = "big"
+    if byteorder is not None:
+        while offset + 1 < len(data):
+            unit = int.from_bytes(data[offset:offset + 2], byteorder)
+            if unit not in whitespace:
+                return unit == ord("<")
+            offset += 2
         return False
+    if data.startswith(b"\xef\xbb\xbf"):
+        data = data[3:]
+    return data.lstrip(whitespace).startswith(b"<")
 
 
 def safe_xml(data):

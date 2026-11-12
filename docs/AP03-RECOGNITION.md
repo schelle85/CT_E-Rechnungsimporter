@@ -84,12 +84,16 @@ ein RO-Input-Bind. Vor echter Verwendung REVIEW/ORGA; bestehende Dienste nicht
 
 ## Referenzen und Prüfung
 
-15 echte Parser-/PDF-Tests: offizielle KoSIT-UBL/CII-Fixtures, fünf Factur-X-
+16 echte Parser-/PDF-Tests: offizielle KoSIT-UBL/CII-Fixtures, fünf Factur-X-
 Profile über factur-x7.9, drei Legacy-XMLs aus dessen Referenzsammlung mit pypdf-
 Hybridgenerierung, generisches/gefälschtes/kaputtes XML, UTF16 und andere Präfixe,
 DTD/XXE/XInclude/Strukturlimits, PDF-Verschlüsselung/JS, falsche Einbettung,
 verschachtelte und doppelte Names, widersprüchliche XMP-/AF-Kontexte,
 Originalhash und echter Prozessabbruch. Keine reinen Extrakttext-Doubles.
+AP03-A-F1 Versuch1: XML-Vorerkennung bis zum ersten nichtleeren Codepunkt statt
+eines512Byte-Präfixfensters. Sieben gültige Kombinationen aus langem Leerraum,
+BOM, XML-Deklaration, UTF8 und UTF16LE/BE geprüft. Größenlimit und Ablehnung
+gewöhnlicher Nicht-XML-Daten bleiben erhalten; der Parser entscheidet weiterhin.
 
 KoSIT-Referenzen: Apache2, Commit1ce1dafffd035e5ce59a7ab0d3bf44ac14af16c9.
 factur-x-Referenzen: BSD3, Commit650cfe34ec524ec39ea106a09df6d0cc259813a4.

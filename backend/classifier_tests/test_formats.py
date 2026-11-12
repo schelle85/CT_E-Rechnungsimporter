@@ -59,6 +59,36 @@ class FormatTests(unittest.TestCase):
         data = data.replace('encoding="UTF-8"', 'encoding="UTF-16"').replace("<ubl:", "<different:").replace("</ubl:", "</different:").replace("xmlns:ubl=", "xmlns:different=")
         self.assertEqual(classify(data.encode("utf-16"))["status"], "recognized")
 
+    def test_xml_root_after_long_legal_whitespace_and_encodings(self):
+        source = (REFERENCES / "ubl.xml").read_text()
+        body = source.split("?>", 1)[1]
+        whitespace = " \t\r\n" * 1024
+        samples = [
+            (whitespace + body).encode("utf-8"),
+            b"\xef\xbb\xbf" + (whitespace + body).encode("utf-8"),
+            ('<?xml version="1.0" encoding="UTF-8"?>' + whitespace + body).encode("utf-8"),
+            (whitespace + body).encode("utf-16"),
+            ('<?xml version="1.0" encoding="UTF-16"?>' + whitespace + body).encode("utf-16"),
+            ('<?xml version="1.0" encoding="UTF-16LE"?>' + whitespace + body).encode("utf-16-le"),
+            ('<?xml version="1.0" encoding="UTF-16BE"?>' + whitespace + body).encode("utf-16-be"),
+        ]
+        for index, data in enumerate(samples):
+            with self.subTest(encoding_case=index):
+                self.assertEqual(classify(data)["status"], "recognized")
+                self.assertEqual(classify(data)["original_sha256"], sha256(data).hexdigest())
+        for name in ("ubl.xml", "cii.xml"):
+            original = (REFERENCES / name).read_bytes().split(b"?>", 1)[1]
+            for count in (512, 513):
+                for bom in (b"", b"\xef\xbb\xbf"):
+                    data = bom + b" " * count + original
+                    with self.subTest(syntax=name, prefix=count, bom=bool(bom)):
+                        result = classify(data)
+                        self.assertEqual(result["status"], "recognized")
+                        self.assertEqual(result["original_sha256"], sha256(data).hexdigest())
+        self.assertEqual(classify(b" " * 513 + b"<Invoice><broken>")["status"], "failed")
+        self.assertEqual(classify(b" " * 1048576 + body.encode())["reason"], "xml_size_limit")
+        self.assertEqual(classify(b" " * 8192 + b"ordinary non-XML content")["status"], "ignored")
+
     def test_xxe_dtd_xinclude_and_limits(self):
         attacks = [b"<!DOCTYPE root [<!ENTITY e SYSTEM 'file:///etc/passwd'>]><root>&e;</root>",
                    "<!DOCTYPE root [<!ENTITY e 'expanded'>]><root>&e;</root>".encode("utf-16"),
