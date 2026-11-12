@@ -1,0 +1,5 @@
+{
+  "mailbox": "invoice@example.invalid",
+  "folder_id": "EXACT_OPERATOR_APPROVED_TEST_FOLDER_ID",
+  "parent_id": "EXACT_OPERATOR_APPROVED_PARENT_ID"
+}

@@ -2,7 +2,8 @@
 
 Stand12.11.2026: AP03a–c freigegeben. Dieser erste Lieferstand enthält den
 strukturierten XML-/Hybrid-PDF-Kern, PDF-Textklassifikation und bedarfsweise lokale OCR.
-Die zusätzliche streng lesende Testmailquelle folgt; keine Kundenbereitstellung oder echte
+Die zusätzliche [streng lesende Testmailquelle](AP03-TEST-SOURCE.md) ist separat
+implementiert und zur Prüfung geliefert; keine Kundenbereitstellung oder echte
 Testmailabholung. AP04+ und automatische Verarbeitung sind nicht freigegeben.
 
 ## Vorhandene Bausteine

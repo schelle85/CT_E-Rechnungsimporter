@@ -1,0 +1,6 @@
+ARG TEST_SOURCE_IMAGE
+FROM ${TEST_SOURCE_IMAGE}
+COPY backend/tests/test_test_source.py ./tests/
+COPY backend/tests/test_test_operator.py ./tests/
+COPY deploy/run-test-source.py ./operator/
+ENTRYPOINT ["python", "-m", "unittest", "discover", "-s", "tests", "-v"]

@@ -1,0 +1,3 @@
+# Same reviewed Graph transport versions as AP02; separate from parsers/API/DB.
+azure-identity==1.27.0
+httpx==0.28.1

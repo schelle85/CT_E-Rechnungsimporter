@@ -21,10 +21,13 @@ Stand: 8. November 2026. Lebende Markdown-Dokumentation, noch kein Abschlussberi
   drei Reviewbefunde gezielt korrigiert (Titelreihenfolge, Begleitabschnitte,
   repetitive Textebene). B-F1/B-F3 nach gezieltem Versuch2 zur Nachprüfung geliefert.
 - AP03c: lokale PDFium/Tesseract-OCR mit15 echten OCR-Tests implementiert;
-  zusammen54 Classifiertests bestanden. Separate Testmailquelle noch nicht bereit.
+  zusammen54 Classifiertests bestanden, C-Quellreview bestanden.
+- Separate GET-only-Testquelle mit20 Schutztests und synthetischem Zwei-Container-
+  Übergabenachweis implementiert, zur unabhängigen Prüfung. Kundenprobe separat.
 - Keine API-/DB-/Graphsecret-Erweiterung; Classifier separates manuelles Image.
 - AP04+ ohne Go. Kein SMB-Output, Worker, Routing oder Benachrichtigungsstart.
 - Verträge/Prüfung: [AP02](AP02-GRAPH.md), [AP03](AP03-RECOGNITION.md).
+  [Testquelle](AP03-TEST-SOURCE.md) nur manuell mit fester Ordner-/Parentbindung.
 
 ## Rollen
 

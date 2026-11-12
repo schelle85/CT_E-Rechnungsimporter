@@ -1,0 +1,41 @@
+# Separate manual source. Never merge with graph-actions or application services.
+services:
+  test-source:
+    profiles: [test-source-operator]
+    image: ${TEST_SOURCE_IMAGE:?Set reviewed immutable GET-only source image}
+    user: "10001:10001"
+    entrypoint: [python, -m, app.test_source_cli]
+    command: [scan]
+    init: true
+    restart: "no"
+    read_only: true
+    tmpfs: ["/tmp:rw,noexec,nosuid,size=32m"]
+    mem_limit: 256m
+    memswap_limit: 256m
+    cpus: 1
+    pids_limit: 64
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    networks: [graph-test]
+    volumes:
+      - type: bind
+        source: ${GRAPH_CONFIG_HOST_FILE:?Set existing protected Graph JSON}
+        target: /run/importer/graph.json
+        read_only: true
+        bind: {create_host_path: false}
+      - type: bind
+        source: ${GRAPH_CREDENTIAL_HOST_FILE:?Set existing protected certificate}
+        target: /run/secrets/graph_credential
+        read_only: true
+        bind: {create_host_path: false}
+      - type: bind
+        source: ${TEST_SOURCE_BINDING_HOST_FILE:?Set protected approved folder binding}
+        target: /run/importer/test-source.json
+        read_only: true
+        bind: {create_host_path: false}
+      - type: bind
+        source: ${TEST_SOURCE_OUTPUT_HOST_DIR:?Set private local temporary directory}
+        target: /output
+        bind: {create_host_path: false}
+networks:
+  graph-test: {}
