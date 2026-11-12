@@ -24,7 +24,8 @@ Echte Postfach-, Gruppen-, Empfänger- und Verbindungswerte werden separat konfi
 | ZUGFeRD | `E-Rechnung`, unveränderte Original-PDF |
 | XRechnung | `E-Rechnung`, ursprüngliche XML-Datei |
 | Gewöhnliche Rechnungs-PDF | `PDF` |
-| Zahlungsavis-PDF | `Zahlungsavis` |
+| Zahlungsavis-PDF einschließlich eindeutiger Zahlungs-Pre-Notifikation | `Zahlungsavis` |
+| Mahnung oder Zahlungserinnerung | `Mahnung` |
 
 Erkennung erfolgt anhand des Inhalts. Eine vollständige Validierung sämtlicher
 Norm- und Geschäftsregeln ist nicht beauftragt. ZUGFeRD wird anschließend vom
@@ -32,8 +33,10 @@ kundenseitig vorhandenen DMS übernommen; eine neue DMS-Anbindung ist kein Proje
 
 Seltene gescannte Rechnungs-PDFs benötigen Texterkennung. Arbeitskopien für OCR
 nutzen und Originalanhänge unverändert aufbewahren. Andere Anhänge ignorieren.
-Beschädigte E-Rechnungen, unlesbare Scans und uneindeutige PDFs führen zu `Failed`
-mit konkreter Begründung im Protokoll.
+Technische oder strukturelle Verarbeitungsfehler führen zu `failed` mit neutralem
+Grund. Lesbare, aber nicht eindeutig zuordenbare Dokumente führen zu `unknown`
+(Unbekannt), eindeutig irrelevante Anhänge zu `ignored`. Unbekannt gehört zum
+bestehenden Postfachziel `unzugeordnet`; daraus folgt kein neuer SMB-Ordner.
 
 SMB-Struktur unter einer konfigurierten Importfreigabe:
 
@@ -42,6 +45,7 @@ importer/
   E-Rechnung/<Jahr>/<Monat>/KW<Nummer>/<Dateiname>
   PDF/<Jahr>/<Monat>/KW<Nummer>/<Dateiname>
   Zahlungsavis/<Jahr>/<Monat>/KW<Nummer>/<Dateiname>
+  Mahnung/<Jahr>/<Monat>/KW<Nummer>/<Dateiname>
 ```
 
 Grundlage ist der Maileingang. Vorgesehene technische Zeitbasis: Europe/Berlin,
@@ -62,17 +66,15 @@ Dubletten gleichzeitig. Die Regel vor Implementierung dieses Sonderfalls festleg
 
 ## Mailabschluss und Fahne
 
-Jeden relevanten Anhang einzeln ablegen, die gesamte E-Mail danach einem Ordner
-zuordnen. Bei gemischten Kategorien gilt die Priorität:
+Jeden relevanten Anhang einzeln ablegen. Nach bestätigter Vorgabe vom12.11.2026
+laufen erkannte PDF- und E-Rechnungen automatisch. Eine manuelle Bestätigung
+gewöhnlicher Rechnungs-PDFs ist nicht mehr vorgesehen. Nur bei `unknown` muss
+der Benutzer die Dokumentart klären; das Ziel ist `unzugeordnet`.
 
-1. `Failed`: erforderliche Verarbeitung fehlgeschlagen.
-2. `Nachfragen`: gewöhnliche PDF-Rechnung enthalten.
-3. `Zahlungsavis`: Zahlungsavis enthalten.
-4. `Success`: ausschließlich E-Rechnungen als relevante Anhänge erfolgreich abgelegt.
-
-E-Mails außerhalb des Rasters und Dubletten kommen nach `unzugeordnet`.
-Die noch offene Sonderregel für gemischte Dubletten ist hiervon getrennt festzulegen.
-Zusätzliche ignorierte Anhänge verhindern einen Erfolg nicht.
+Die Mail erst nach den erforderlichen erfolgreichen Schritten abschließen.
+Die Mischmail-Priorität für unterschiedliche Kategorien, Unbekannt, Fehler und
+Dubletten bleibt vor AP05 zu klären. Ignorierte Anhänge sind kein technischer
+Fehler. Dieser Dokumentvertrag startet keinen Worker oder Korrekturjob.
 
 Bei mehreren tatsächlichen Anhängen eine Outlook-Fahne setzen. Eingebettete
 Signaturbilder nicht mitzählen. Die Fahne muss nach dem Verschieben erhalten bleiben.

@@ -164,7 +164,7 @@ class FormatTests(unittest.TestCase):
         def conflict(pdf):
             raw = pdf.Root.Metadata.read_bytes().replace(b"EN 16931", b"MINIMUM")
             pdf.Root.Metadata.write(raw)
-        self.assertEqual(classify(mutate_pdf(hybrid(), conflict))["status"], "failed")
+        self.assertEqual(classify(mutate_pdf(hybrid(), conflict))["status"], "unknown")
 
     def test_spoofed_hybrid_namespace_cannot_replace_legacy_context(self):
         def spoof(pdf):
@@ -213,7 +213,8 @@ class FormatTests(unittest.TestCase):
                 pdf.pages[0].obj.Annots = pikepdf.Array([annotation(pdf, spec.obj)])
         for via_page in (True, False):
             result = classify(mutate_pdf(hybrid(), lambda pdf: second_candidate(pdf, via_page)))
-            self.assertEqual(result["status"], "failed", result)
+            self.assertEqual(result["status"], "unknown" if via_page else "failed", result)
+            self.assertEqual(result["reason"], "ambiguous_embedded_invoices" if via_page else "missing_hybrid_context")
         def annotation_only(pdf):
             spec = pdf.Root.AF[0]
             pdf.pages[0].obj.Annots = pikepdf.Array([annotation(pdf, spec)])

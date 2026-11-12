@@ -1,5 +1,5 @@
 from hashlib import sha256
-from classifier.model import Finding, RecognitionError, failed, ignored
+from classifier.model import Finding, RecognitionError, failed, ignored, unknown
 from classifier.xml_invoice import identity, looks_xml
 from classifier.pdf_structure import detect_pdf
 
@@ -27,6 +27,12 @@ def recognize(data):
             return Finding("recognized", "E-Rechnung", "XRechnung-" + invoice.syntax, "invoice_xml_structure")
         return ignored()
     except RecognitionError as error:
+        if error.code.startswith("ambiguous_") or error.code in {
+            "unsupported_hybrid_version", "hybrid_profile_mismatch", "hybrid_namespace_mismatch",
+        }:
+            # Preserve the structural guard and reason; never silently treat a
+            # disputed hybrid as an ordinary invoice or a technical parser crash.
+            return unknown(error.code)
         return failed(error.code)
 
 

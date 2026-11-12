@@ -16,11 +16,15 @@ class Finding:
     method: str = "structure"
 
     def result(self, digest):
-        return {**asdict(self), "original_sha256": digest, "rule_version": "ap03-3"}
+        return {**asdict(self), "original_sha256": digest, "rule_version": "ap03-4"}
 
 
 def failed(code):
     return Finding("failed", None, None, code)
+
+
+def unknown(code, method="structure"):
+    return Finding("unknown", None, None, code, method)
 
 
 def ignored(code="unsupported_attachment"):

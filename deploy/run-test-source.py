@@ -67,7 +67,7 @@ def operate(command, case, attachment, source_image, classifier_image):
             environment["CLASSIFIER_INPUT_HOST_FILE"] = str(document)
             status, finding = invoke(classifier_compose + ["run", "--no-deps", "--rm", "-T", "--name", classifier_name,
                                                           "classifier"], environment, 150)
-            if finding.get("status") not in ("recognized", "ignored", "failed"):
+            if finding.get("status") not in ("recognized", "ignored", "unknown", "failed"):
                 raise ValueError()
             return {"ok": status == 0, "source": "test", "case": case, "attachment": attachment, **finding}
         finally:

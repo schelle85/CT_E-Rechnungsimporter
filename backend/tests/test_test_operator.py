@@ -71,6 +71,26 @@ class OperatorTests(unittest.TestCase):
             self.assertEqual(cleanup.call_count, 2)
         self.assertTrue(all(not path.exists() for path in roots))
 
+    def test_unknown_and_reminder_are_not_rejected_during_handoff(self):
+        for finding in ({"status": "unknown", "category": None, "reason": "ambiguous_pdf"},
+                        {"status": "recognized", "category": "Mahnung", "reason": "reminder_title_amount_or_reference_date"}):
+            def invoke(arguments, environment, timeout):
+                if "test-source" in arguments:
+                    document = Path(environment["TEST_SOURCE_OUTPUT_HOST_DIR"]) / "document"
+                    document.write_bytes(b"opaque")
+                    document.chmod(0o400)
+                    return 0, {"ok": True}
+                return 0, finding
+            with self.subTest(finding=finding), patch.dict(operator.os.environ, ENV), \
+                    patch.object(operator.os, "geteuid", return_value=0), patch.object(operator.os, "chown"), \
+                    patch.object(operator, "checked_file", side_effect=lambda value: value), \
+                    patch.object(Path, "read_text", return_value="CLASSIFIER_IMAGE=" + IMAGE), \
+                    patch.object(operator, "invoke", side_effect=invoke), patch.object(operator.subprocess, "run") as cleanup:
+                cleanup.return_value.returncode = 0
+                result = operator.operate("fetch", 1, 1, IMAGE, IMAGE)
+                self.assertTrue(result["ok"])
+                self.assertEqual((result["status"], result["category"]), (finding["status"], finding["category"]))
+
     def test_mutable_images_rejected_before_execution(self):
         with patch.object(operator.os, "geteuid", return_value=0), patch.object(operator, "invoke") as invoke:
             with self.assertRaises(ValueError):

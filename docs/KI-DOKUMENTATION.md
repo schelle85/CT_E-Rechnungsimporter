@@ -86,3 +86,12 @@ Schemaänderung und Betreiberbereitstellung erst nach REVIEW/ORGA. Alte AP01-
 Zwischenstände in Paketdokumenten sind historische Belege. Prüfergebnisse,
 Image-IDs und tatsächliche Bereitstellung getrennt benennen; kein Test schaltet
 Verarbeitung frei. Pro Fehler höchstens fünf gezielte DEV-Korrekturversuche.
+
+## AP03-Quellrevision ap03-4
+
+Unknown für lesbare unklare Zuordnung, Failed für technische/strukturelle Fehler;
+Mahnung umfasst Zahlungserinnerung. Gezielte Titel-/Label-/Avisregeln in vorhandener
+Pipeline, CLI-/Testoperator-Allowlisten ergänzt. Quellreview vor Runtimebuild und
+Korpuswiederholung; historische Daten unverändert. Erkannte PDF-/E-Rechnungen laufen
+künftig automatisch; Benutzerklärung nur bei Unbekannt. Korrekturjob, Frontend und
+Mischmail-Priorität bleiben späteren freigegebenen AP vorbehalten.

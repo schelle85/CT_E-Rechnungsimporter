@@ -3,25 +3,29 @@ from datetime import date
 from collections import Counter
 import re
 import unicodedata
-from classifier.model import Finding, RecognitionError, failed, ignored
+from classifier.model import Finding, RecognitionError, failed, ignored, unknown
 
 MAX_TEXT = 250000
 MAX_PAGE_TEXT = 50000
 MAX_PAGES = 30
-INVOICE_TITLE = re.compile(r"^(?:(?:abschlags|schluss|teil|korrektur)?rechnung|invoice|gutschrift|credit\s+note)(?:\s*(?:(?:s?-?nr\.?|nummer|no\.?|number|#)\s*[:.#-]?\s*)?[a-z0-9./-]*\d[a-z0-9./ -]*)?\s*:?[\s]*$")
+INVOICE_TITLE = re.compile(r"^(?:(?:ausgangs|abschlags|schluss|teil|korrektur)?rechnung|invoice|gutschrift|credit\s+note)(?:\s*(?:(?:s?-?nr\.?|nummer|no\.?|number|#)\s*[:.#-]?\s*)?[a-z0-9./-]*\d[a-z0-9./ -]*)?\s*:?[\s]*$")
 AVIS_TITLE = re.compile(r"^(?:zahlungsavis|zahlungsmitteilung|remittance\s+advice|payment\s+advice)(?:\s*(?:nr\.?|no\.?|number|#|:)\s*[a-z0-9./ -]+)?\s*$")
-OTHER_TITLES = {"angebot", "bestellung", "auftragsbestatigung", "lieferschein", "mahnung", "newsletter", "werbung"}
+PRENOTICE_TITLE = re.compile(r"^(?:(?:sepa[- ](?:firmen|basis)[- ]?lastschrift)\s*[-:(]?\s*)?(?:pre[- ]notifikation|pre[- ]notification|vorabankundigung)(?:\s*\))?\s*:?$", re.I)
+REMINDER_TITLE = re.compile(r"^(?:(?:\d+\.|erste|zweite|dritte|letzte|freundliche)\s+)?(?:mahnung|zahlungserinnerung|payment reminder)(?:\s*(?:nr\.?|no\.?|#|:)\s*[a-z0-9./ -]+)?\s*$")
+SPACED_INVOICE = re.compile(r"\br\s+e\s+c\s+h\s+n\s+u\s+n\s+g\b")
+OTHER_TITLES = {"angebot", "bestellung", "auftragsbestatigung", "lieferschein", "newsletter", "werbung"}
 TERMS_TITLES = {"agb", "allgemeine geschaftsbedingungen", "terms and conditions",
                 "datenschutz", "datenschutzhinweise", "datenschutzerklarung", "privacy policy",
                 "zahlungsbedingungen", "payment terms"}
 NEGATION = re.compile(r"\b(?:keine?\s+rechnung|nicht\s+(?:als\s+)?(?:eine\s+)?rechnung|not\s+an?\s+invoice|pro[ -]?forma(?:\s+invoice|rechnung)?)\b")
-INVOICE_ID = re.compile(r"\b(?:rechnungs?(?:-?nr\.?|nummer)|rechnung(?:\s+(?:nr\.?|nummer|#))?|invoice(?:\s+(?:no\.?|number|#))?|gutschrift(?:s?-?nr\.?|nummer)?)\s*[:.#-]?\s*[a-z0-9/.-]*\d[a-z0-9/.-]*\b")
+INVOICE_ID = re.compile(r"\b(?:rechnungs?(?:-?nr\.?|nummer)|(?:ausgangs)?rechnung(?:\s+(?:nr\.?|nummer|#))?|invoice(?:\s+(?:no\.?|number|#))?|gutschrift(?:s?-?nr\.?|nummer)?)\s*[:.#-]?\s*[a-z0-9/.-]*\d[a-z0-9/.-]*\b")
 AMOUNT = re.compile(r"(?<!\d)-?(?:\d{1,3}(?:[. ]\d{3})*|\d+)[,.]\d{2}(?!\d)")
 TOTAL = re.compile(r"\b(?:gesamt(?:betrag|summe)?|rechnungsbetrag|zahlbetrag|zu zahlen|brutto|total|summe)\b")
-DATE_LABEL = re.compile(r"\b(?:rechnungsdatum|datum|invoice date|date|zahlungsdatum|payment date|valuta)\b")
+DATE_LABEL = re.compile(r"\b(?:rechnungs[- ]?datum|belegdatum|datum|invoice date|date|zahlungsdatum|payment date|valuta|falligkeit)\b")
 DATE_VALUE = re.compile(r"\b(?:(\d{4})-(\d{1,2})-(\d{1,2})|(\d{1,2})[./](\d{1,2})[./](\d{4}))\b")
-PAYMENT = re.compile(r"\b(?:wir\s+(?:uberweisen|zahlen)|uberweisung|zahlung(?:\s+erfolgt|\s+am)|zahlungsdatum|valuta|we\s+(?:pay|remit)|payment date|transfer(?:red)?)\b")
-PAYMENT_DATE = re.compile(r"\b(?:zahlungsdatum|payment date|valuta)\b")
+PAYMENT = re.compile(r"\b(?:wir\s+(?:uberweisen|zahlen|ziehen|belasten)|uberweisung|zahlung(?:\s+erfolgt|\s+am)|zahlungsdatum|valuta|lastschrift|lastschrifteinzug|abbuchung|we\s+(?:pay|remit|collect)|payment date|transfer(?:red)?)\b")
+PAYMENT_DATE = re.compile(r"\b(?:zahlungsdatum|payment date|valuta|falligkeit)\b")
+LINE_ITEMS = re.compile(r"\b(?:artikel|position|menge|einzelpreis|leistungen|netto|mwst|ust|vat|quantity|unit price)\b")
 
 
 def normalized(value):
@@ -44,8 +48,11 @@ def usable(text):
 
 
 def line_kind(line):
-    if AVIS_TITLE.fullmatch(line):
+    line = SPACED_INVOICE.sub("rechnung", line).strip(" :=-_*\t")
+    if AVIS_TITLE.fullmatch(line) or PRENOTICE_TITLE.fullmatch(line):
         return "avis"
+    if REMINDER_TITLE.fullmatch(line):
+        return "reminder"
     if INVOICE_TITLE.fullmatch(line):
         return "invoice"
     if line in OTHER_TITLES or any(re.fullmatch(re.escape(t) + r"\s+(?:nr\.?\s*)?[a-z0-9./-]*\d[a-z0-9./ -]*", line) for t in OTHER_TITLES):
@@ -64,7 +71,7 @@ def sections(text):
         block = lines[index:end]
         # A numbered reference under advice/other/terms is not a second invoice.
         # A standalone title or its own invoice-date section is independent evidence.
-        if (kind == "invoice" and result[-1][0] in ("avis", "other", "terms")
+        if (kind == "invoice" and result[-1][0] in ("avis", "reminder", "other", "terms")
                 and any(c.isdigit() for c in lines[index])
                 and not has_date([line for line in block[1:] if not PAYMENT_DATE.search(line)])):
             result[-1][1].extend(block)
@@ -80,10 +87,19 @@ def title(text):
     return next(iter(kinds)) if kinds else ("terms" if any(kind == "terms" for kind, _ in sections(text)) else None)
 
 
+def label_values(lines, label):
+    """Same line or at most two following nonempty lines; never cross a title."""
+    for index, line in enumerate(lines):
+        if label.search(line):
+            yield line
+            for following in lines[index + 1:index + 3]:
+                if line_kind(following):
+                    break
+                yield following
+
+
 def has_date(lines):
-    for line in lines:
-        if not DATE_LABEL.search(line):
-            continue
+    for line in label_values(lines, DATE_LABEL):
         for match in DATE_VALUE.finditer(line):
             groups = match.groups()
             try:
@@ -103,23 +119,32 @@ def decide_pages(pages, method="pdf_text"):
     text = "\n".join(lines)
     if len(text) > MAX_TEXT:
         raise RecognitionError("text_size_limit")
-    if "mixed" in types or "invoice" in types and ("avis" in types or "other" in types) or "avis" in types and "other" in types:
-        return failed("ambiguous_mixed_document")
-    if NEGATION.search(text):
-        return ignored("explicit_non_invoice") if "avis" not in types else failed("ambiguous_document")
-    has_total = any(TOTAL.search(line) and AMOUNT.search(line) for line in lines)
+    main_types = types - {"terms"}
+    if "mixed" in types or len(main_types) > 1:
+        return unknown("ambiguous_mixed_document", method)
+    if NEGATION.search(text) and not types.intersection({"avis", "reminder"}):
+        return ignored("explicit_non_invoice")
+    has_total = any(AMOUNT.search(line) for line in label_values(lines, TOTAL))
     invoice_id, dated = bool(INVOICE_ID.search(text)), has_date(lines)
     if "avis" in types:
-        if has_total and invoice_id and PAYMENT.search(text) and dated:
-            return Finding("recognized", "Zahlungsavis", "PDF-Zahlungsavis", "avis_title_references_payment_date_total", method)
-        return failed("ambiguous_payment_advice")
+        if has_total and PAYMENT.search(text):
+            return Finding("recognized", "Zahlungsavis", "PDF-Zahlungsavis", "avis_title_payment_total", method)
+        return unknown("ambiguous_payment_advice", method)
+    if "reminder" in types:
+        if has_total or invoice_id and dated:
+            return Finding("recognized", "Mahnung", "PDF-Mahnung", "reminder_title_amount_or_reference_date", method)
+        return unknown("ambiguous_reminder", method)
     if "invoice" in types:
         if invoice_id and dated and has_total:
             return Finding("recognized", "PDF", "PDF-Rechnung", "invoice_title_id_date_total", method)
-        return failed("ambiguous_invoice")
+        if invoice_id and dated:
+            return Finding("recognized", "PDF", "PDF-Rechnung", "invoice_title_reference_date", method)
+        if has_total and (invoice_id or LINE_ITEMS.search(text)):
+            return Finding("recognized", "PDF", "PDF-Rechnung", "invoice_title_total_transaction", method)
+        return unknown("ambiguous_invoice", method)
     if "other" in types or types == {"terms"}:
         return ignored("irrelevant_document_type")
-    return failed("ambiguous_pdf")
+    return unknown("ambiguous_pdf", method)
 
 
 def extract_pages(data):

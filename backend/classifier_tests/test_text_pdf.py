@@ -39,7 +39,7 @@ class TextPdfTests(unittest.TestCase):
         self.check_pdf([AVIS[:2] + ["Rechnung Nr. SYN-2026-001"] + AVIS[2:]], "recognized", "Zahlungsavis")
 
     def test_clear_other_document_types_with_invoice_reference(self):
-        for title in ("Angebot", "Bestellung", "Lieferschein", "Mahnung", "Newsletter", "AGB"):
+        for title in ("Angebot", "Bestellung", "Lieferschein", "Newsletter", "AGB"):
             with self.subTest(title=title):
                 self.check_pdf([[title, "Bezug zur Rechnung Nr. SYN-2026-001", "Datum: 12.11.2026", "Gesamtbetrag: 119,00 EUR"]],
                                "ignored", reason="irrelevant_document_type")
@@ -51,20 +51,20 @@ class TextPdfTests(unittest.TestCase):
 
     def test_single_keyword_or_bank_details_never_suffice(self):
         self.check_pdf([["Bitte prüfen Sie die Rechnung.", "IBAN DE12345678901234567890", "Betrag: 119,00 EUR"]],
-                       "failed", reason="ambiguous_pdf")
-        self.check_pdf([["Rechnung", "Willkommen und vielen Dank für Ihr Interesse"]], "failed", reason="ambiguous_invoice")
+                       "unknown", reason="ambiguous_pdf")
+        self.check_pdf([["Rechnung", "Willkommen und vielen Dank für Ihr Interesse"]], "unknown", reason="ambiguous_invoice")
 
     def test_conflicting_followup_page_and_mixed_types_fail(self):
         self.check_pdf([INVOICE, ["Angebot", "Dies ist ein anderer vollständiger Geschäftsvorgang"]],
-                       "failed", reason="ambiguous_mixed_document")
-        self.check_pdf([INVOICE, AVIS], "failed", reason="ambiguous_mixed_document")
+                       "unknown", reason="ambiguous_mixed_document")
+        self.check_pdf([INVOICE, AVIS], "unknown", reason="ambiguous_mixed_document")
 
     def test_conflicting_document_titles_on_same_page_fail(self):
-        self.check_pdf([INVOICE + AVIS], "failed", reason="ambiguous_mixed_document")
+        self.check_pdf([INVOICE + AVIS], "unknown", reason="ambiguous_mixed_document")
         self.check_pdf([INVOICE + ["Weitere Angaben zum Vorgang"] * 15 + AVIS],
-                       "failed", reason="ambiguous_mixed_document")
+                       "unknown", reason="ambiguous_mixed_document")
         self.check_pdf([INVOICE + ["Angebot", "Ein unabhängiger zweiter Geschäftsvorgang"]],
-                       "failed", reason="ambiguous_mixed_document")
+                       "unknown", reason="ambiguous_mixed_document")
 
     def test_terms_appendix_and_multipage_total(self):
         for heading in ("Allgemeine Geschäftsbedingungen", "Datenschutz", "Zahlungsbedingungen"):
@@ -79,13 +79,13 @@ class TextPdfTests(unittest.TestCase):
         for first, second in ((offer, INVOICE), (INVOICE, offer), (AVIS, separate_invoice),
                               (separate_invoice, AVIS), (AVIS, INVOICE), (INVOICE, AVIS)):
             with self.subTest(first=first[0], second=second[0]):
-                self.check_pdf([first + second], "failed", reason="ambiguous_mixed_document")
+                self.check_pdf([first + second], "unknown", reason="ambiguous_mixed_document")
                 self.check_pdf([first + ["Zusätzliche Hinweise zum Vorgang"] * 25 + second],
-                               "failed", reason="ambiguous_mixed_document")
+                               "unknown", reason="ambiguous_mixed_document")
         self.check_pdf([INVOICE, ["Allgemeine Geschäftsbedingungen"] + AVIS],
-                       "failed", reason="ambiguous_mixed_document")
+                       "unknown", reason="ambiguous_mixed_document")
         self.check_pdf([["Allgemeine Geschäftsbedingungen"] + AVIS, INVOICE],
-                       "failed", reason="ambiguous_mixed_document")
+                       "unknown", reason="ambiguous_mixed_document")
         self.check_pdf([AVIS[:2] + ["Rechnung Nr. SYN-2026-001"] + AVIS[2:]], "recognized", "Zahlungsavis")
 
     def test_b_f2_companion_sections_on_same_or_separate_page(self):
@@ -94,7 +94,7 @@ class TextPdfTests(unittest.TestCase):
             with self.subTest(heading=heading):
                 self.check_pdf([INVOICE + appendix], "recognized", "PDF")
                 self.check_pdf([INVOICE, appendix], "recognized", "PDF")
-                self.check_pdf([appendix + AVIS, INVOICE], "failed", reason="ambiguous_mixed_document")
+                self.check_pdf([appendix + AVIS, INVOICE], "unknown", reason="ambiguous_mixed_document")
         for negative in ("Dies ist keine Rechnung", "Proforma Rechnung", "Not an invoice"):
             self.check_pdf([INVOICE + [negative]], "ignored", reason="explicit_non_invoice")
 
@@ -111,10 +111,10 @@ class TextPdfTests(unittest.TestCase):
             with self.subTest(label=label):
                 self.check_pdf([invoice], "recognized", "PDF")
                 for other in (offer, AVIS):
-                    self.check_pdf([other + invoice], "failed", reason="ambiguous_mixed_document")
-                    self.check_pdf([invoice + other], "failed", reason="ambiguous_mixed_document")
+                    self.check_pdf([other + invoice], "unknown", reason="ambiguous_mixed_document")
+                    self.check_pdf([invoice + other], "unknown", reason="ambiguous_mixed_document")
                     self.check_pdf([["Allgemeine Geschäftsbedingungen"] + other + invoice],
-                                   "failed", reason="ambiguous_mixed_document")
+                                   "unknown", reason="ambiguous_mixed_document")
         self.check_pdf([AVIS[:2] + ["Rechnung Nr. SYN-2026-001"] + AVIS[2:]], "recognized", "Zahlungsavis")
 
     def test_b_f3_repetition_across_whitespace_and_lines(self):
@@ -124,9 +124,9 @@ class TextPdfTests(unittest.TestCase):
             self.check_pdf([INVOICE, noise], "failed", reason="ocr_unreadable")
         self.check_pdf([INVOICE[:5], INVOICE[5:]], "recognized", "PDF")
 
-    def test_missing_or_invalid_date_or_total_stays_ambiguous(self):
-        self.check_pdf([[line for line in INVOICE if "Gesamtbetrag" not in line]], "failed", reason="ambiguous_invoice")
-        self.check_pdf([[line.replace("12.11.2026", "32.13.2026") for line in INVOICE]], "failed", reason="ambiguous_invoice")
+    def test_invoice_type_does_not_require_every_single_field(self):
+        self.check_pdf([[line for line in INVOICE if "Gesamtbetrag" not in line]], "recognized", "PDF", reason="invoice_title_reference_date")
+        self.check_pdf([[line.replace("12.11.2026", "32.13.2026") for line in INVOICE]], "recognized", "PDF", reason="invoice_title_total_transaction")
 
     def test_blank_and_mixed_unreadable_pages_fail_after_ocr(self):
         self.check_pdf([[]], "failed", reason="ocr_unreadable")
@@ -147,6 +147,26 @@ class TextPdfTests(unittest.TestCase):
         self.assertEqual(result["status"], "recognized", result)
         self.assertEqual(result["category"], "PDF")
         self.assertEqual(result["original_sha256"], sha256(data).hexdigest())
+
+    def test_bounded_worker_accepts_unknown_and_reminder_results(self):
+        for lines, status, category in ((["Bitte prüfen Sie die beigefügten Unterlagen."], "unknown", None),
+                (["Zahlungserinnerung", "Bitte begleichen Sie die offenen Posten.", "Gesamtbetrag: 119,00 EUR"],
+                 "recognized", "Mahnung")):
+            data = text_document([lines])
+            result = bounded_classify(data)
+            self.assertEqual((result["status"], result["category"]), (status, category), result)
+            self.assertEqual(result["original_sha256"], sha256(data).hexdigest())
+            self.assertEqual(result["rule_version"], "ap03-4")
+
+    def test_empty_user_password_preserves_all_other_pdf_guards(self):
+        from io import BytesIO
+        import pikepdf
+        data = text_document([INVOICE])
+        with pikepdf.Pdf.open(BytesIO(data)) as pdf:
+            output = BytesIO()
+            pdf.save(output, encryption=pikepdf.Encryption(owner="synthetic-owner", user=""))
+        result = classify(output.getvalue())
+        self.assertEqual((result["status"], result["category"]), ("recognized", "PDF"), result)
 
 
 if __name__ == "__main__":

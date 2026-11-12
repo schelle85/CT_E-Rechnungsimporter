@@ -46,7 +46,7 @@ def bounded_classify(data, seconds=WALLCLOCK):
     temporary = tempfile.TemporaryDirectory(prefix="ct-classifier-")
     receive, send = context.Pipe(duplex=False)
     process = context.Process(target=child, args=(send, data, temporary.name))
-    common = {"original_sha256": hashlib.sha256(data).hexdigest(), "rule_version": "ap03-3"}
+    common = {"original_sha256": hashlib.sha256(data).hexdigest(), "rule_version": "ap03-4"}
     started = time.monotonic()
     try:
         process.start()
@@ -54,7 +54,7 @@ def bounded_classify(data, seconds=WALLCLOCK):
         if receive.poll(max(0, seconds - (time.monotonic() - started))):
             try:
                 result = json.loads(receive.recv_bytes(4096))
-                if result.get("status") not in ("recognized", "ignored", "failed"):
+                if result.get("status") not in ("recognized", "ignored", "unknown", "failed"):
                     raise ValueError()
                 return {**result, **common}
             except (EOFError, OSError, ValueError):

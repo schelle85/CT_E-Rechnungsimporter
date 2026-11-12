@@ -1,6 +1,7 @@
 # AP03 – Erkennungsumfang und Isolation
 
-Stand12.11.2026: AP03a–c freigegeben. Dieser erste Lieferstand enthält den
+Stand12.11.2026: AP03a–c freigegeben. Quellrevision `ap03-4` zur Prüfung;
+Runtimebuild/Korpuswiederholung erst nach Quellreview. Dieser erste Lieferstand enthält den
 strukturierten XML-/Hybrid-PDF-Kern, PDF-Textklassifikation und bedarfsweise lokale OCR.
 Die zusätzliche [streng lesende Testmailquelle](AP03-TEST-SOURCE.md) ist separat
 implementiert und zur Prüfung geliefert; keine Kundenbereitstellung oder echte
@@ -20,10 +21,10 @@ zusätzliche Validierungswege und Bibliothekslogs mit. Hier wird er ausschließl
 als unabhängiger Testgenerator verwendet. Eigener Code begrenzt Ressourcen und
 prüft Namespace/Profil/Strukturkontext; keine eigene PDF-/XML-Engine.
 
-Für Text/OCR sind PDFium und Tesseract vorgesehen. OCRmyPDF ist eine geeignete
+Für Text/OCR werden PDFium und Tesseract verwendet. OCRmyPDF ist eine geeignete
 Alternative mit zusätzlicher PDF-Erzeugung und seit17.0 optionalem PDFium-
-Rasterizer; Ghostscript ist keine pauschale Voraussetzung. Noch kein OCR-Pfad
-in diesem Commit. Versionen und transitive Python-Abhängigkeiten stehen in den
+Rasterizer; Ghostscript ist keine pauschale Voraussetzung. Ein zusätzlicher
+OCRmyPDF-Pfad wird nicht eingebaut. Versionen und transitive Abhängigkeiten stehen in den
 getrennten `requirements-classifier*.lock`; API-Abhängigkeiten bleiben unverändert.
 Keine kostenpflichtige SDK oder Cloud-API erforderlich; Paket-/Nativepflege und
 CPU/RAM bleiben Betriebsaufwand, keine unbelegten Laufkostenbeträge.
@@ -37,8 +38,9 @@ CPU/RAM bleiben Betriebsaufwand, keine unbelegten Laufkostenbeträge.
 | PDF | ZUGFeRD1.0-CII12: BASIC, COMFORT, EXTENDED mit Legacy-XMP | E-Rechnung, Original-PDF |
 | XML mit Hybridprofil ohne PDF | Erkanntes Hybrid-Rechnungs-XML, kein XRechnungsprofil | Failed/hybrid_pdf_required |
 | Andere XML | Keine unterstützte Rechnungsstruktur, etwa Order-X oder generischesXML | ignored |
-| Bekannte Rechnung mit unbekanntem Namespace/Profil/Typcode | Kein sicher zugesagtes Format | Failed/unsupported_* |
-| Gewöhnliche Text-PDF | Eindeutiger Titel und mehrere passende Dokumentmerkmale | PDF-Rechnung, Zahlungsavis, irrelevant oder Failed |
+| XML-Rechnung mit unbekanntem Namespace/Profil/Typcode | Kein sicher zugesagtes Format | Failed/unsupported_* |
+| Hybrid-PDF mit unverstandener Version oder Profil-/Namespacewiderspruch | Keine sichere Hybridzuordnung, kein Textfallback | unknown mit neutralem Strukturgrund |
+| Gewöhnliche Text-PDF | Titel und Belegzusammenhang | PDF-Rechnung, Zahlungsavis, Mahnung, irrelevant, unknown oder technischer Failed |
 | Scan/fehlende brauchbare Textebene | Begrenzte seitenbezogene OCR auf Arbeitsbildern | Dieselben Kategorien/Regeln; unlesbar oder Fehler ergibt Failed |
 
 Unterstützte Dokumenttypcodes:380/381/384/386/389; UBL-CreditNote381, UBL-Invoice
@@ -56,52 +58,55 @@ Annotationen vollständig im begrenzten Umfang gesammelt. Gleiche Namen werden
 nicht über ein Mapping auf den ersten Inhalt reduziert. XML-Inhalt, AF-Beziehung,
 referenzierter Dateiname und konsistente XMP-Familie/Version/Profil müssen zusammen
 passen. Annotation-only ohne AF wird nicht als gültiger Hybridkontext akzeptiert.
-Mehrere unterschiedliche Rechnungs-XMLs, beschädigte Kandidaten und widersprüchliche
-Claims führen zu Failed; kein Rückfall auf gewöhnliche PDF. Kein separates XML-
+Mehrere unterschiedliche gültige Rechnungs-XMLs ergeben Unbekannt; beschädigte
+Kandidaten bleiben Failed. Widersprüchliche Hybridclaims werden nicht automatisch
+verarbeitet; kein Rückfall auf gewöhnliche PDF. Kein separates XML-
 Produktartefakt. Dateien werden niemals über ihren eingebetteten Namen geöffnet.
 
 ## Ergebnis und Grenzen
 
-### AP03b: Textregeln
+### AP03b: Textentscheidung, Revision ap03-4
 
-PDFium über pypdfium2 5.15.2 extrahiert jede Seite begrenzt. Tatsächlicher Build
-PDFium159.0.8149.0, Featureflags leer, keinV8/XFA. Keine Formularinitialisierung
-oder externe Ressource. Maximal50.000Zeichen pro Seite/250.000 insgesamt; bei
-fehlendem oder unbrauchbarem Text kein Teilerfolg, sondern OCR der betroffenen Seiten. Original
-bleibt unverändert. Runtime-/Testlocks separat ergänzt; keine API-Abhängigkeit.
+PDFium liest alle begrenzten Seiten. Plausibilitäts-/Wiederholungsprüfungen und
+bedarfsweise OCR bleiben bestehen. Unterstützte Titel umfassen Ausgangsrechnung,
+gesperrtes Rechnung, Invoice und die bestehenden Rechnungs-/Gutschriftsvarianten.
+Nur die Titelzeile wird gezielt normalisiert; beiläufige Wörter/Bankdaten genügen nicht.
 
-Konservative Regelversionap03-2: gewöhnliche Rechnung benötigt Dokumenttitel,
-Rechnungs-/Gutschriftsnummermerkmal, gültiges numerisches Datum und bezeichneten
-Gesamtbetrag. Keine vollständige Beleg-/Betragsextraktion oder Prozentwahrscheinlichkeit.
-Avis benötigt eigenen Titel sowie Rechnungsreferenz, Zahlungsmerkmal, Datum und
-Gesamt-/Zahlbetrag. Rechnungsreferenzen unter einem Avis-Titel machen keine Rechnung.
-Angebot/Bestellung/Lieferschein/Mahnung/Werbung/AGB bleiben bei eindeutiger Zuordnung
-irrelevant. Explizites„keine Rechnung“/Proforma verhindert eine Positiventscheidung.
-Einzelwort/IBAN genügen nicht; fehlende Evidenz ergibt Failed/ambiguous_*.
+Datums-/Summenlabels dürfen Werte auf derselben oder den folgenden zwei nichtleeren
+Zeilen haben. Eine neue Dokumentüberschrift beendet die Suche; Datumswerte bleiben
+kalendergeprüft. Keine allgemeine Layoutanalyse. Eine explizite Rechnungsüberschrift
+braucht Referenz und Datum, Referenz und Gesamtbetrag oder Gesamtbetrag plus
+Positions-/Leistungs-/Steuermerkmale. Die vollständige alte Kombination behält ihren
+neutralen Grund. Fehlende Einzelfelder schließen die Dokumentart nicht pauschal aus;
+keine steuerliche Rechnungsvalidierung oder willkürliche Wahrscheinlichkeit.
 
-Widersprüchliche eigenständige Dokumenttitel auf derselben oder einer Folgeseite
-führen zuFailed. Alle bereits begrenzten Textzeilen prüfen, kein Titel-Suchfenster.
-Hauptabschnitte unabhängig von ihrer Reihenfolge prüfen. Ein alleinstehender
-Rechnungstitel oder ein nummerierter Titel mit eigenem Rechnungsdatum zählt als
-eigenständiger Abschnitt. Alle unterstützten Datumslabels einschließlich Datum/Date
-zählen dabei, reine Zahlungsdatumsfelder bleiben Avisreferenzkontext.
-Ein bloßes Rechnungsnummernfeld unter einem Avis bleibt
-Referenz. Begleitüberschriften verdecken keine späteren Hauptabschnitte.
-Erkennbare AGB-/Datenschutz-/Zahlungsbedingungen-Anhänge führen eine eindeutige
-Rechnung weiter; deren Beispiele/Negationen/Finanzangaben werden nicht als Merkmale
-des Hauptbelegs verwendet. Das gilt auch für Abschnitte auf derselben Seite;
-spätere eigenständige Dokumenttitel werden trotzdem geprüft. Offensichtlich
-repetitive Buchstabenfolgen (auch über Wort-/Zeilengrenzen) oder unbrauchbare Wortstruktur gelten nicht als
-brauchbare Textebene und dürfen keinen positiven Teilerfolg ermöglichen.
-Deutsche/englische numerische Standardfälle geprüft;
-unbekannte Layouts oder ausgeschriebene Datumsformate können kontrolliert Failed
-ergeben. Noch keine behauptete Kunden-Erkennungsqualität ohne Kundenbeispiele.
+Avis/Payment Advice und Pre-Notifikation/Vorabankündigung brauchen Hauptüberschrift,
+Zahlungs-/Einzugskontext und Gesamtbetrag; Referenz/Datum sind nicht zwingend.
+Ein bloßes SEPA-Mandat wird dadurch nicht zum Avis. Mahnung/Zahlungserinnerung teilen
+Kategorie `Mahnung`: eigene Überschrift plus Betrag oder Referenz/Datum. Zitierte
+Rechnungsnummern sind kein zweiter Beleg. Beiläufige Mahnungshinweise in AGB sind
+keine eigene Mahnung. Ein Avis/eine Mahnung darf sagen, keine Rechnung zu sein.
 
-19 echte PDF-Texttests prüfen Deutsch/Englisch/Umlaute, Avis mit Referenzen,
-eindeutig andere Dokumentarten, Negationen, einzelne Wörter/Bankangaben,
-widersprüchliche und späte Titel, erlaubte Begleitseiten, mehrseitige Summen,
-fehlendes/ungültiges Datum, Blanko-/Mischseiten, Größenlimit und echten begrenzten
-Worker mit PDFium. Strukturierte Hybridrechnungen behalten Vorrang.
+Alle Textzeilen, Folgeseiten und unabhängig von ihrer Reihenfolge vorhandene Haupt-
+abschnitte bleiben geprüft. Widersprüchliche eigenständige Titel ergeben `unknown`.
+Rechnungsnummern unter Avis/Mahnung bleiben Referenzen; eigenständiges Rechnungsdatum
+oder alleinstehender Rechnungstitel bleibt ein unabhängiger Beleg. Begleitabschnitte
+AGB/Datenschutz/Zahlungsbedingungen liefern keine Belegevidenz, verdecken spätere
+Hauptabschnitte aber nicht. Explizite Nicht-Rechnung/Proforma verhindert die
+Rechnungsentscheidung; Einzelwort und IBAN reichen weiterhin nicht.
+
+Vier Ergebnisse: `recognized`, `ignored`, `unknown`, `failed`. Lesbare unklare
+Dokumentarten bleiben `unknown` mit neutralem `ambiguous_*`-Grund und Methode.
+Echte technische Lese-/Struktur-/Parser-/Ressourcenfehler bleiben `failed`.
+Unverstandene Hybridversion bzw. widersprüchliches Hybridprofil/Namespace ergibt
+`unknown` ohne gewöhnlichen PDF-Fallback. Alle übrigen Struktur-/XML-/Sicherheits-
+und Budgetprüfungen bleiben bestehen. Ohne Benutzerpasswort geöffnete PDFs werden
+trotz Eigentümerschutz vollständig geprüft; Passwortbedarf bleibt `encrypted_pdf`.
+
+invoice2data-API/Textpfad und Vorlagen wurden geprüft. Keine neue Abhängigkeit in
+dieser kleinen Revision: allgemeine Titel-/Label- und Strukturlücken werden dadurch
+nicht ohne zusätzliche Vorlagen-/Extraktionspflege gelöst. Spätere schlanke lokale
+Anbindung bei belegtem Vorlagennutzen gesondert prüfen. Keine zweite PDF-/OCR-/LLM-Stufe.
 
 ### AP03c: OCR auf Arbeitsbildern
 
@@ -132,7 +137,7 @@ Produktresultat. Begrenzte Wortkonfidenz dient nur als technische Lesbarkeitsgre
 (gewichteter Mittelwert mindestens55, maximal25% Zeichen in Wörtern unter40),
 niemals als Rechnungswahrscheinlichkeit. Dieselbe Wort-/Wiederholungsplausibilität
 und dieselben fachlichen Regeln wie beim Text-PDF anschließend anwenden.
-Methoden `pdf_text`, `ocr` oder `pdf_text_ocr`, Regelversion `ap03-3`.
+Methoden `pdf_text`, `ocr` oder `pdf_text_ocr`, Regelversion `ap03-4`.
 
 Der überwachende Elternprozess besitzt das private temporäre Wurzelverzeichnis.
 Nach Ergebnis, Fehler oder120s Gesamttimeout beendet er die private Workergruppe
@@ -150,7 +155,7 @@ leere Ergebnisse, Ausgabetext-/Datei-/Seiten-/Pixelgrenzen und tatsächliche Tim
 bleiben Failed. Ein echter Prozessgruppenfall startet OCR und absichtlich hängende
 Nachfahren; nach Abbruch weder laufende Nachfahren noch Arbeitsdateien. Originalhash
 bei Erfolg und Fehler unverändert. Keine allgemeine Qualitätsgarantie für unbekannte
-Kundenscans; unklare Ergebnisse bleiben Failed.
+Kundenscans; lesbare unklare Dokumentarten bleiben Unbekannt, technische OCR-Fehler Failed.
 
 Manueller Aufruf im Classifierimage: `python -m classifier.cli /input/document`.
 JSON enthält status, category, format, neutralen reason, method, rule_version
@@ -207,3 +212,12 @@ Java-Formatdetektor; seine Übernahme würde eine zusätzliche JVM/Java-Biblioth
 einführen. Hier bleibt die kleine bekannte Profilallowlist beim vorhandenen
 Python-Parser, die Fachstruktur- und Isolationsregeln wären weiterhin erforderlich.
 Testwerkzeuge reportlab/pypdf/factur-x sind nur im separaten Testimage.
+
+### Ergebnisübergabe und spätere Verarbeitung
+
+CLI-Worker/Testreader akzeptieren `unknown` und die erkannte Kategorie `Mahnung`.
+Unbekannt ist kein technischer Übergabefehler; CLI-Exitcode nur bei `failed` ungleich0.
+Bestehende API/DB und Profile werden hier nicht migriert. Historische Ist-Ergebnisse
+bleiben erhalten. Neue Ergebnisse separat speichern. Erkannte PDF-/E-Rechnungen
+künftig automatisch verarbeiten; Benutzerklärung nur bei Unbekannt. Korrekturjob,
+Frontend und Mischmail-Priorität bleiben späteren freigegebenen AP vorbehalten.

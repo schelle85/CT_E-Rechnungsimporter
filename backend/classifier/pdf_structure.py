@@ -105,8 +105,9 @@ def embedded_files(pdf):
 def detect_pdf(data):
     try:
         with pikepdf.Pdf.open(BytesIO(data), attempt_recovery=False, suppress_warnings=True) as pdf:
-            if pdf.is_encrypted:
-                raise RecognitionError("encrypted_pdf")
+            # Opening with the default empty password already succeeded. Owner
+            # restrictions alone do not make a document unreadable; non-empty
+            # user passwords still raise PasswordError below. All guards remain.
             if not 1 <= len(pdf.pages) <= MAX_PAGES or len(pdf.objects) > MAX_OBJECTS:
                 raise RecognitionError("pdf_structure_limit")
             for obj in pdf.objects:

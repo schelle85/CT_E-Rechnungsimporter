@@ -44,7 +44,7 @@ class OcrTests(unittest.TestCase):
             self.assertEqual(result["status"], "recognized", result)
             self.assertEqual(result["category"], category, result)
         else:
-            self.assertEqual(result["status"], "failed", result)
+            self.assertEqual(result["status"], "unknown" if reason and reason.startswith("ambiguous_") else "failed", result)
         if reason:
             self.assertEqual(result["reason"], reason, result)
         if method:
