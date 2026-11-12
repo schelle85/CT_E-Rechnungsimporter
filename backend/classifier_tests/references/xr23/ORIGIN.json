@@ -1,0 +1,15 @@
+{
+  "repository": "itplr-kosit/xrechnung-testsuite",
+  "commit": "77f0b0814624d038479bd0c8412d81ebc491f44b",
+  "license": "Apache-2.0",
+  "files": {
+    "ubl.xml": {
+      "source": "src/test/business-cases/standard/01.01a-INVOICE_ubl.xml",
+      "sha256": "7b12ab71578cbb61ce41c4d639e3b72bcb93e878706e42ca7cba712bcd0f2175"
+    },
+    "cii.xml": {
+      "source": "src/test/business-cases/standard/01.01a-INVOICE_uncefact.xml",
+      "sha256": "3ea06614b7d26325231abe1832b3b81541462b41eef1ee52d12815abe8985c55"
+    }
+  }
+}

@@ -3,6 +3,7 @@ from io import BytesIO
 import json
 from pathlib import Path
 import unittest
+import xml.etree.ElementTree as ET
 import pikepdf
 from classifier.core import classify
 from classifier.cli import bounded_classify
@@ -27,6 +28,26 @@ class FormatTests(unittest.TestCase):
             self.assertEqual(result["category"], "E-Rechnung")
             self.assertTrue(result["format"].startswith("XRechnung-"))
             self.assertEqual(result["original_sha256"], sha256(data).hexdigest())
+
+    def test_official_historical_xrechnung22_and23_both_syntaxes(self):
+        for version in ("xr22", "xr23"):
+            for name in ("ubl.xml", "cii.xml"):
+                data = (REFERENCES / version / name).read_bytes()
+                with self.subTest(version=version, syntax=name):
+                    result = classify(data)
+                    self.assertEqual(result["status"], "recognized", result)
+                    self.assertTrue(result["format"].startswith("XRechnung-"))
+
+    def test_independent_creditnote_tree_with_explicit_profile_adaptation(self):
+        folder = REFERENCES / "creditnote"
+        original = (folder / "original-peppol.xml").read_bytes()
+        adapted = (folder / "profile-adapted-xrechnung.xml").read_bytes()
+        self.assertEqual(classify(original)["reason"], "unsupported_invoice_profile")
+        result = classify(adapted)
+        self.assertEqual(result["status"], "recognized", result)
+        self.assertEqual(result["format"], "XRechnung-UBL-CreditNote")
+        old = b"urn:cen.eu:en16931:2017#compliant#urn:fdc:peppol.eu:2017:poacc:billing:3.0"
+        self.assertEqual(original.replace(old, XR.encode(), 1), adapted)
 
     def test_independent_facturx_profiles(self):
         for profile in ("minimum", "basicwl", "basic", "en16931", "extended"):
@@ -152,6 +173,53 @@ class FormatTests(unittest.TestCase):
                 b"urn:ferd:pdfa:CrossIndustryDocument:invoice:1p0#")
             pdf.Root.Metadata.write(raw)
         self.assertEqual(classify(mutate_pdf(hybrid(), spoof))["reason"], "hybrid_namespace_mismatch")
+
+    def test_all_ef_platform_stream_variants_are_checked(self):
+        def equal_variants(pdf):
+            spec = pdf.Root.AF[0]
+            raw = spec.EF.F.read_bytes()
+            spec.EF.UF = pdf.make_stream(raw)
+        self.assertEqual(classify(mutate_pdf(hybrid(), equal_variants))["status"], "recognized")
+        def conflicting_variants(pdf):
+            spec = pdf.Root.AF[0]
+            raw = ET.fromstring(spec.EF.F.read_bytes())
+            raw.find("{urn:un:unece:uncefact:data:standard:CrossIndustryInvoice:100}ExchangedDocument/{urn:un:unece:uncefact:data:standard:ReusableAggregateBusinessInformationEntity:100}ID").text = "SECOND-SYNTHETIC-INVOICE"
+            spec.EF.UF = pdf.make_stream(ET.tostring(raw))
+        self.assertEqual(classify(mutate_pdf(hybrid(), conflicting_variants))["reason"], "ambiguous_embedded_invoices")
+
+    def test_pageaf_annotation_and_repeated_reference_candidates(self):
+        def annotation(pdf, spec):
+            return pdf.make_indirect(pikepdf.Dictionary(Type=pikepdf.Name.Annot,
+                Subtype=pikepdf.Name.FileAttachment, FS=spec, Rect=pikepdf.Array([0, 0, 10, 10])))
+        def repeated(pdf):
+            spec = pdf.Root.AF[0]
+            pdf.pages[0].obj.AF = pikepdf.Array([spec])
+            pdf.pages[0].obj.Annots = pikepdf.Array([annotation(pdf, spec)])
+        self.assertEqual(classify(mutate_pdf(hybrid(), repeated))["status"], "recognized")
+        def page_only(pdf):
+            spec = pdf.Root.AF[0]
+            pdf.pages[0].obj.AF = pikepdf.Array([spec])
+            del pdf.Root.AF
+            del pdf.Root.Names.EmbeddedFiles
+        self.assertEqual(classify(mutate_pdf(hybrid(), page_only))["status"], "recognized")
+        def second_candidate(pdf, via_page):
+            raw = ET.fromstring(reference_xml("factur-x-en16931"))
+            raw.find("{urn:un:unece:uncefact:data:standard:CrossIndustryInvoice:100}ExchangedDocument/{urn:un:unece:uncefact:data:standard:ReusableAggregateBusinessInformationEntity:100}ID").text = "SECOND-SYNTHETIC-INVOICE"
+            spec = pikepdf.AttachedFileSpec(pdf, ET.tostring(raw), filename="factur-x.xml")
+            spec.obj.AFRelationship = pikepdf.Name.Alternative
+            if via_page:
+                pdf.pages[0].obj.AF = pikepdf.Array([spec.obj])
+            else:
+                pdf.pages[0].obj.Annots = pikepdf.Array([annotation(pdf, spec.obj)])
+        for via_page in (True, False):
+            result = classify(mutate_pdf(hybrid(), lambda pdf: second_candidate(pdf, via_page)))
+            self.assertEqual(result["status"], "failed", result)
+        def annotation_only(pdf):
+            spec = pdf.Root.AF[0]
+            pdf.pages[0].obj.Annots = pikepdf.Array([annotation(pdf, spec)])
+            del pdf.Root.AF
+            del pdf.Root.Names.EmbeddedFiles
+        self.assertEqual(classify(mutate_pdf(hybrid(), annotation_only))["reason"], "missing_hybrid_context")
 
     def test_encryption_actions_and_size_limits(self):
         with pikepdf.Pdf.open(BytesIO(plain_pdf())) as pdf:

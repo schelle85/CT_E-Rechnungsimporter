@@ -16,6 +16,9 @@ UDT = "urn:un:unece:uncefact:data:standard:UnqualifiedDataType:100"
 CBC = "urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2"
 CAC = "urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2"
 XR = "urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_3.0"
+XR_PROFILES = frozenset({XR,
+    "urn:cen.eu:en16931:2017#compliant#urn:xoev-de:kosit:standard:xrechnung_2.2",
+    "urn:cen.eu:en16931:2017#compliant#urn:xoev-de:kosit:standard:xrechnung_2.3"})
 PROFILES = {
     "urn:factur-x.eu:1p0:minimum": "MINIMUM",
     "urn:factur-x.eu:1p0:basicwl": "BASIC WL",
@@ -125,7 +128,7 @@ def identity(data):
     if root.tag in ("{urn:oasis:names:specification:ubl:schema:xsd:Invoice-2}Invoice",
                     "{urn:oasis:names:specification:ubl:schema:xsd:CreditNote-2}CreditNote"):
         customization = (one(root, f"{{{CBC}}}CustomizationID", text=True).text or "").strip()
-        if customization != XR:
+        if customization not in XR_PROFILES:
             raise RecognitionError("unsupported_invoice_profile")
         credit = root.tag.endswith("CreditNote")
         for name in ("ID", "IssueDate", "DocumentCurrencyCode", "CreditNoteTypeCode" if credit else "InvoiceTypeCode"):
@@ -149,7 +152,7 @@ def identity(data):
     if root.tag == f"{{{RSM}}}CrossIndustryInvoice":
         context = f"{{{RSM}}}ExchangedDocumentContext/{{{RAM}}}GuidelineSpecifiedDocumentContextParameter/{{{RAM}}}ID"
         profile = (one(root, context, text=True).text or "").strip()
-        if profile != XR and profile not in PROFILES:
+        if profile not in XR_PROFILES and profile not in PROFILES:
             raise RecognitionError("unsupported_invoice_profile")
         document = one(root, f"{{{RSM}}}ExchangedDocument")
         for name in ("ID", "TypeCode"):
@@ -173,7 +176,7 @@ def identity(data):
                 one(line, f"{{{RAM}}}AssociatedDocumentLineDocument/{{{RAM}}}LineID", text=True)
                 one(line, f"{{{RAM}}}SpecifiedTradeProduct/{{{RAM}}}Name", text=True)
                 amount(line, f"{{{RAM}}}SpecifiedLineTradeSettlement/{{{RAM}}}SpecifiedTradeSettlementLineMonetarySummation/{{{RAM}}}LineTotalAmount")
-        return Identity("xrechnung" if profile == XR else "facturx", "CII", "XRECHNUNG" if profile == XR else PROFILES[profile])
+        return Identity("xrechnung" if profile in XR_PROFILES else "facturx", "CII", "XRECHNUNG" if profile in XR_PROFILES else PROFILES[profile])
     local = root.tag.rsplit("}", 1)[-1]
     if local in ("Invoice", "CreditNote", "CrossIndustryInvoice", "CrossIndustryDocument"):
         raise RecognitionError("unsupported_invoice_namespace")

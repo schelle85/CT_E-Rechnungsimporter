@@ -1,0 +1,21 @@
+{
+  "repository": "phax/ddd",
+  "commit": "98f34f68600b416c8b1e54c6d3820aa701690b68",
+  "license": "Apache-2.0",
+  "files": {
+    "original-peppol.xml": {
+      "source": "ddd/src/test/resources/external/ubl2-creditnote/good/base-creditnote-correction.xml",
+      "sha256": "08e0ad82e0dbe7e16d7533c01761843343a56954ea24881d0f7f1cce06f8879e",
+      "modification": "none"
+    },
+    "profile-adapted-xrechnung.xml": {
+      "source": "ddd/src/test/resources/external/ubl2-creditnote/good/base-creditnote-correction.xml",
+      "sha256": "7b2dcb3b12424c473a82701ac4856f3d2a9ab365f6af3c8786c80ff41824d7c0",
+      "modification": "Only CustomizationID replaced with known XRechnung3.0 URI; no conformity claim."
+    },
+    "LICENSE.txt": {
+      "source": "LICENSE",
+      "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
+    }
+  }
+}

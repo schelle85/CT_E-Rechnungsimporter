@@ -31,7 +31,7 @@ CPU/RAM bleiben Betriebsaufwand, keine unbelegten Laufkostenbeträge.
 
 | Eingabe | Unterstützter Kontext | Ergebnis |
 | --- | --- | --- |
-| XML | XRechnung3.0, exakte Profilkennung; UBL-Invoice/CreditNote oder CII100 | E-Rechnung, Original-XML |
+| XML | XRechnung2.2/2.3/3.0, exakte bekannte Profilkennungen; UBL-Invoice/CreditNote oder CII100 | E-Rechnung, Original-XML |
 | PDF | Factur-X1.x/ZUGFeRD2.x-CII: MINIMUM, BASIC WL, BASIC, EN16931, EXTENDED | E-Rechnung, Original-PDF |
 | PDF | ZUGFeRD1.0-CII12: BASIC, COMFORT, EXTENDED mit Legacy-XMP | E-Rechnung, Original-PDF |
 | XML mit Hybridprofil ohne PDF | Erkanntes Hybrid-Rechnungs-XML, kein XRechnungsprofil | Failed/hybrid_pdf_required |
@@ -41,7 +41,9 @@ CPU/RAM bleiben Betriebsaufwand, keine unbelegten Laufkostenbeträge.
 
 Unterstützte Dokumenttypcodes:380/381/384/386/389; UBL-CreditNote381, UBL-Invoice
 die übrigen. XRechnung-Profil genau
-`urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_3.0`.
+`urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_3.0`;
+historische2.2/2.3 exakt mit `#urn:xoev-de:kosit:standard:xrechnung_2.2`
+beziehungsweise2.3 statt des neueren URN-Namensraums. Keine offene Versionsregex.
 Keine Aussage über XSD-/Schematron-Konformität, Echtheit oder Betragsrichtigkeit.
 Profilkennung allein genügt nicht: Dokument-ID/Datum, Parteien, Währung,
 Monetärstruktur und bei line-basierten Profilen strukturierte Positionen prüfen.
@@ -84,7 +86,7 @@ ein RO-Input-Bind. Vor echter Verwendung REVIEW/ORGA; bestehende Dienste nicht
 
 ## Referenzen und Prüfung
 
-16 echte Parser-/PDF-Tests: offizielle KoSIT-UBL/CII-Fixtures, fünf Factur-X-
+20 echte Parser-/PDF-Tests: offizielle KoSIT-UBL/CII-Fixtures, fünf Factur-X-
 Profile über factur-x7.9, drei Legacy-XMLs aus dessen Referenzsammlung mit pypdf-
 Hybridgenerierung, generisches/gefälschtes/kaputtes XML, UTF16 und andere Präfixe,
 DTD/XXE/XInclude/Strukturlimits, PDF-Verschlüsselung/JS, falsche Einbettung,
@@ -94,9 +96,22 @@ AP03-A-F1 Versuch1: XML-Vorerkennung bis zum ersten nichtleeren Codepunkt statt
 eines512Byte-Präfixfensters. Sieben gültige Kombinationen aus langem Leerraum,
 BOM, XML-Deklaration, UTF8 und UTF16LE/BE geprüft. Größenlimit und Ablehnung
 gewöhnlicher Nicht-XML-Daten bleiben erhalten; der Parser entscheidet weiterhin.
+Zusätzliche Belege: historische offizielle UBL/CII jeweils für2.2/2.3, abweichende
+EF-F/UF-Streams, ausschließlich Page-AF/Annotation erreichbare zweite Kandidaten,
+gleicher Inhalt über mehrere zulässige Referenzen sowie Annotation-only-Grenze.
+CreditNote stammt aus phax/ddd; der veröffentlichte Peppol-Baum bleibt strukturell
+unverändert und erhält nur für den Erkennungstest die kanonische XRechnung3.0-
+CustomizationID. Original und abgeleitete Fixture samt genau dieser Modifikation
+und Apache2-Lizenz sind getrennt dokumentiert; kein unabhängiger XR-Norm-PASS.
 
 KoSIT-Referenzen: Apache2, Commit1ce1dafffd035e5ce59a7ab0d3bf44ac14af16c9.
 factur-x-Referenzen: BSD3, Commit650cfe34ec524ec39ea106a09df6d0cc259813a4.
 Herkunft, Dateien und SHA256 in den jeweiligen ORIGIN.json neben mitgeführten
 Lizenzen. Öffentliche synthetische Referenzen, keine Kundenrechnungen.
+Historische KoSIT-Commits5a89ca5e73754270072ad54590b314eb15641438 und
+77f0b0814624d038479bd0c8412d81ebc491f44b; CreditNote-Baum aus
+phax/ddd98f34f68600b416c8b1e54c6d3820aa701690b68. DDD ist ein vorhandener
+Java-Formatdetektor; seine Übernahme würde eine zusätzliche JVM/Java-Bibliothek
+einführen. Hier bleibt die kleine bekannte Profilallowlist beim vorhandenen
+Python-Parser, die Fachstruktur- und Isolationsregeln wären weiterhin erforderlich.
 Testwerkzeuge reportlab/pypdf/factur-x sind nur im separaten Testimage.
