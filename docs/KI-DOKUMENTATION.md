@@ -1,6 +1,6 @@
 # KI-Dokumentation
 
-Stand: 8. November 2026. Lebende Markdown-Dokumentation, noch kein Abschlussbericht.
+Stand: 12. November 2026. Lebende Markdown-Dokumentation, noch kein Gesamtabschlussbericht.
 
 ## Wiedereinstieg
 
@@ -11,22 +11,18 @@ Stand: 8. November 2026. Lebende Markdown-Dokumentation, noch kein Abschlussberi
 
 ## Aktueller Stand
 
-- Stand12.11.2026: AP00/AP02 technisch abgeschlossen, AP01 durch den Kunden abgenommen.
+- AP00/AP02 technisch abgeschlossen, AP01 durch den Kunden abgenommen.
 - AD-Kennwortanmeldung bleibt; SSO verworfen. Schema003 und fünf Inboxziele bereit.
-- Keine echte Mailmutation oder automatische Rechnungsverarbeitung aus AP02 ableiten.
-- AP03a–c freigegeben auf dev/ap03 von mainbc7181f.
-- AP03a: XRechnung2.2/2.3/3.0 UBL/CII, ZUGFeRD1.0 und Factur-X/ZUGFeRD2-Profile,
- 20Formatfälle und unabhängige Quell-Teilabnahme auf6ce8f06.
-- AP03b: PDFium-Textentscheidung mit19 echten PDF-Tests und konservativen Gründen;
-  drei Reviewbefunde gezielt korrigiert (Titelreihenfolge, Begleitabschnitte,
-  repetitive Textebene). B-F1/B-F3 nach gezieltem Versuch2 zur Nachprüfung geliefert.
-- AP03c: lokale PDFium/Tesseract-OCR mit15 echten OCR-Tests implementiert;
-  zusammen54 Classifiertests bestanden, C-Quellreview bestanden.
-- Separate GET-only-Testquelle mit20 Schutztests und synthetischem Zwei-Container-
-  Übergabenachweis implementiert, zur unabhängigen Prüfung. Kundenprobe separat.
-- Keine API-/DB-/Graphsecret-Erweiterung; Classifier separates manuelles Image.
-- AP04+ ohne Go. Kein SMB-Output, Worker, Routing oder Benachrichtigungsstart.
-- Verträge/Prüfung: [AP02](AP02-GRAPH.md), [AP03](AP03-RECOGNITION.md).
+- AP03-Revision4: Quellreview auf `2ae6c13` bestanden, B-F1 nach Versuch3 geschlossen.
+  Separates Runtimeimage gebaut und isolierter Dateinachtest abgeschlossen.
+- `unknown` für lesbare unklare Zuordnung; Mahnung umfasst Zahlungserinnerung.
+  Titel-/Label-/Avisregeln und Übergabeverträge geprüft. Fachliche Restfälle bleiben offen.
+- Bestehende API/Web/DB und Produktivprofile unverändert; keine automatische Verarbeitung,
+  echte Mailmutation oder Frontend-/Jobaktivierung aus dem Dateinachtest ableiten.
+- Historische Ergebnisse und Originale erhalten. Details und technische Pins werden in
+  den getrennten internen Lauf-/Abnahmebelegen geführt, nicht als Kundendaten im Repo.
+- AP04+ ohne Go. Automatische SMB-Ablage, Routing und Benachrichtigungen bleiben spätere Pakete.
+- Verträge: [AP02](AP02-GRAPH.md), [AP03](AP03-RECOGNITION.md).
   [Testquelle](AP03-TEST-SOURCE.md) nur manuell mit fester Ordner-/Parentbindung.
 
 ## Rollen
@@ -81,17 +77,21 @@ Primärquellen: [Graph SDKs](https://learn.microsoft.com/en-us/graph/sdks/sdks-o
 
 ## Nächster Schritt
 
-AP02 in abgegrenzten festen Commits liefern und prüfen. Live-Ordneranlage,
-Schemaänderung und Betreiberbereitstellung erst nach REVIEW/ORGA. Alte AP01-
-Zwischenstände in Paketdokumenten sind historische Belege. Prüfergebnisse,
-Image-IDs und tatsächliche Bereitstellung getrennt benennen; kein Test schaltet
-Verarbeitung frei. Pro Fehler höchstens fünf gezielte DEV-Korrekturversuche.
+ORGA gleicht Quellen-, Runtime- und Dateitestbelege ab und bespricht die fachlichen
+Restfälle vor einem Gesamtabschluss. Auf main erst nach ORGA-Abgleich übernehmen.
+Keine weitere Erkennungsänderung oder neue Testserie aus offenen Fällen automatisch
+starten. Kein Test schaltet Produktivverarbeitung frei. Pro Ursache höchstens fünf
+gezielte DEV-Korrekturversuche; bestätigte Zähler werden nicht zurückgesetzt.
 
 ## AP03-Quellrevision ap03-4
 
 Unknown für lesbare unklare Zuordnung, Failed für technische/strukturelle Fehler;
 Mahnung umfasst Zahlungserinnerung. Gezielte Titel-/Label-/Avisregeln in vorhandener
-Pipeline, CLI-/Testoperator-Allowlisten ergänzt. Quellreview vor Runtimebuild und
-Korpuswiederholung; historische Daten unverändert. Erkannte PDF-/E-Rechnungen laufen
-künftig automatisch; Benutzerklärung nur bei Unbekannt. Korrekturjob, Frontend und
+Pipeline, CLI-/Testoperator-Allowlisten ergänzt. Quellreview bestanden, separates
+Runtimeimage gebaut und isolierter Dateinachtest durchgeführt; historische Daten
+unverändert. Fachliche Restfälle offen. Erkannte PDF-/E-Rechnungen laufen künftig
+automatisch; Benutzerklärung nur bei Unbekannt. Korrekturjob, Frontend und
 Mischmail-Priorität bleiben späteren freigegebenen AP vorbehalten.
+
+Eine Webkorrektur mit späterer Wiederaufnahme ist ein Vorschlag für AP05/AP06.
+Insbesondere ist noch keine 15-Minuten-Wiederaufnahme oder entsprechende Oberfläche aktiv.

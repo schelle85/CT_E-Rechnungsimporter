@@ -4,7 +4,7 @@
 
 Projekt für den automatischen Import von Rechnungsanhängen aus einem
 Microsoft-365-Postfach über Microsoft Graph. Ziel ist die kategorisierte
-SMB-Ablage von E-Rechnungen, Rechnungs-PDFs und Zahlungsavisen mit einem
+SMB-Ablage von E-Rechnungen, Rechnungs-PDFs, Zahlungsavisen und Mahnungen mit einem
 internen Webportal für Protokolle, Fehler und Dubletten.
 
 ## Projektstatus
@@ -20,7 +20,7 @@ bereitgestellt. Die automatische Rechnungsverarbeitung ist noch nicht aktiviert.
 | AP01 – AD und Administration | Echte LDAPS-Anmeldung, Gruppenrechte, sichere Sitzungen, versionierte Einstellungen und Änderungsprotokoll implementiert. Vollzugriffstest durch den Betreiber bestätigt. |
 | AP01 – Kundenabnahme | Gesamtabnahme nach Kundentermin durch den Betreiber bestätigt. Bestehende AD-Anmeldung bleibt; SSO wurde verworfen. |
 | AP02 – Graph und Postfacheingang | Abgeschlossen: echte Zertifikatsanmeldung und gefilterter Leerabruf bestätigt; fünf Inbox-Zielordner samt Wiederverwendung live geprüft. Paging, Anhangabruf und getrennte persistente Aktionen isoliert geprüft; additives Schema003 bereitgestellt. |
-| AP03 – Anhänge erkennen | Manuelle Erkennung von XML-/Hybridrechnungen, Rechnungs-PDFs und Zahlungsavisen mit bedarfsweiser OCR technisch bereit, synthetisch und unabhängig geprüft. Gemeinsamer fachlicher Abgleich offen. |
+| AP03 – Anhänge erkennen | Revision4: Quellprüfung bestanden, separates Runtimeimage gebaut und isolierter Dateinachtest abgeschlossen. Unbekannt sowie Mahnung/Zahlungserinnerung ergänzt. Fachliche Restfälle und Gesamtabnahme bleiben offen. |
 | AP04 und folgende Pakete | Noch nicht freigegeben. Automatische Verarbeitung und Dateiablage sind nicht aktiviert. |
 
 Die angezeigten Rechnungsvorgänge sind weiterhin **synthetische Beispieldaten**.
@@ -57,9 +57,11 @@ Bestehende frei lizenzierte Bibliotheken werden vor Eigenentwicklung geprüft.
 
 ## Prüfstand
 
-- AP03: Erkennungs-, OCR- und Lesegrenzen mit synthetischen Dokumenten geprüft;
-  Quellstände und isolierte Operatorabläufe unabhängig geprüft. Manuell technisch
-  bereit; gemeinsamer fachlicher Abgleich offen.
+- AP03: Erkennungs-, OCR- und Lesegrenzen synthetisch geprüft. Revision4 einschließlich
+  der Abschnittsgrenzen unabhängig im Quellreview bestätigt; separates Runtimeimage
+  aus diesem Stand gebaut und im isolierten Dateinachtest verwendet. Originale und
+  historische Ergebnisse erhalten. Die verbleibenden fachlichen Zuordnungen brauchen
+  weitere Abstimmung; keine allgemeine Erkennungsqualität oder Gesamtfreigabe ableiten.
 - AP02: 66 Backendtests auf isolierter MariaDB 12.3 bestanden, einschließlich
   Paging-/Deadline-/Downloadfehlern, Aktionswiederaufnahme und Konkurrenz.
   Additive003-Migration erhält die Instanzkennung; bisherige API bleibt kompatibel.
@@ -81,6 +83,12 @@ Bestehende frei lizenzierte Bibliotheken werden vor Eigenentwicklung geprüft.
 Quellstände und technische Bereitstellungsbelege wurden unabhängig unter Astra
 geprüft. Isolierte LDAP-/Browsertests ersetzen keine tatsächliche Benutzerabnahme;
 der Betreiber hat am12.11.2026 die vollständige Kundenabnahme gemeldet.
+Diese Kundenabnahme betrifft AP01. AP03-Quellprüfung, separater Runtime-Nachtest und
+fachliche Gesamtabnahme sind getrennte Schritte. Der Classifier-Nachtest hat keine
+laufende API-/Web-/Datenbankinstanz ersetzt und keinen Produktivworker gestartet.
+Erkannte PDF-/E-Rechnungen sollen künftig automatisch weiterlaufen; nur Unbekannt
+braucht Benutzerklärung. Korrekturoberfläche und Wiederaufnahmejob sind noch nicht
+implementiert; daraus folgt insbesondere keine laufende 15-Minuten-Funktion.
 
 ## Unterlagen
 

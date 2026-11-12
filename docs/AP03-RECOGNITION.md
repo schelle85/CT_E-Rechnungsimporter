@@ -1,11 +1,13 @@
 # AP03 – Erkennungsumfang und Isolation
 
-Stand12.11.2026: AP03a–c freigegeben. Quellrevision `ap03-4` zur Prüfung;
-Runtimebuild/Korpuswiederholung erst nach Quellreview. Dieser erste Lieferstand enthält den
-strukturierten XML-/Hybrid-PDF-Kern, PDF-Textklassifikation und bedarfsweise lokale OCR.
-Die zusätzliche [streng lesende Testmailquelle](AP03-TEST-SOURCE.md) ist separat
-implementiert und zur Prüfung geliefert; keine Kundenbereitstellung oder echte
-Testmailabholung. AP04+ und automatische Verarbeitung sind nicht freigegeben.
+Stand12.11.2026: AP03a–c freigegeben. Quellrevision `ap03-4` einschließlich der
+Abschnittskorrektur auf `2ae6c13` unabhängig geprüft. Separates Runtimeimage aus
+diesem Stand gebaut und im isolierten Dateinachtest verwendet. Fachliche Restfälle
+bleiben offen; kein AP03-Gesamt-PASS. XML-/Hybridstruktur, PDF-Text und bedarfsweise
+lokale OCR bleiben getrennt geprüft. Die [streng lesende Testmailquelle](AP03-TEST-SOURCE.md)
+ist ein separater manueller Operatorweg, kein Produktivworker. Der Nachtest verwendete
+vorhandene Dateien und benötigte keinen erneuten Postfachabruf. Laufende API/Web/DB
+und Produktivprofile wurden nicht umgeschaltet; AP04+ bleibt ohne pauschales Go.
 
 ## Vorhandene Bausteine
 
