@@ -25,6 +25,7 @@ class ActionRemote(InboxDouble):
         self.writes = []
         self.write_failure = None
         self.after_write_reads_fail = False
+        self.after_write_failure = None
 
     def __call__(self, request):
         path = request.url.path.split("/users/invoice@example.invalid")[-1]
@@ -48,6 +49,13 @@ class ActionRemote(InboxDouble):
             if self.write_failure:
                 raise httpx.ReadTimeout("synthetic uncertain write", request=request)
             return httpx.Response(200 if request.method == "PATCH" else 201, json={"body": "synthetic write response never consumed"})
+        if self.writes and self.after_write_failure:
+            self.calls.append(request)
+            if self.after_write_failure == "timeout":
+                raise httpx.ReadTimeout("synthetic read after successful write", request=request)
+            if self.after_write_failure == "invalid":
+                return httpx.Response(200, json=[])
+            return httpx.Response(403)
         if self.writes and self.after_write_reads_fail:
             self.calls.append(request)
             return httpx.Response(403)
@@ -225,6 +233,36 @@ class GraphActionTests(unittest.TestCase):
                 "app.graph_cli.bounded_operation", return_value={"ok": False, "code": "graph_runtime_unavailable"}), contextlib.redirect_stdout(output):
             self.assertEqual(main(), 1)
         self.assertTrue(json.loads(output.getvalue())["uncertain"])
+
+    def test_postwrite_read_failures_remain_uncertain_without_replay(self):
+        for kind in ("folder", "move", "flag"):
+            for failure in ("timeout", "403", "invalid"):
+                with self.subTest(kind=kind, failure=failure):
+                    with self.engine.begin() as connection:
+                        connection.execute(actions.delete())
+                    self.remote.messages = {"m1": message()}
+                    self.remote.folders = {}
+                    if kind != "folder":
+                        self.ready_folders()
+                    self.remote.writes = []
+                    self.remote.after_write_failure = failure
+                    operation = self.api.ensure_folders if kind == "folder" else (
+                        lambda: self.api.move("m1", "Success")) if kind == "move" else lambda: self.api.flag("m1")
+                    for _ in range(2):  # First postwrite failure, then restart-style reconciliation only.
+                        with self.assertRaises(GraphError) as raised:
+                            operation()
+                        self.assertTrue(raised.exception.uncertain)
+                        self.assertEqual(len(self.remote.writes), 1)
+                    with self.engine.connect() as connection:
+                        self.assertEqual(connection.execute(sa.select(actions.c.state)).scalar_one(), "unknown")
+                    self.remote.after_write_failure = None
+                    operation()
+                    if kind == "folder":
+                        successes = [r for r in self.remote.writes if json.loads(r.content).get("displayName") == "Success"]
+                        self.assertEqual(len(successes), 1)
+                        self.assertEqual(len(self.remote.writes), 5)
+                    else:
+                        self.assertEqual(len(self.remote.writes), 1)
 
     @unittest.skipUnless(os.environ.get("INTEGRATION_DB") == "1", "Row-lock concurrency needs real MariaDB")
     def test_real_mariadb_only_one_concurrent_claim(self):

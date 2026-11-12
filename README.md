@@ -10,7 +10,8 @@ internen Webportal für Protokolle, Fehler und Dubletten.
 ## Projektstatus
 
 **Stand: 12. November 2026. AP01 ist durch den Kunden vollständig abgenommen.
-AP02a–c ist freigegeben und in Entwicklung; noch keine AP02-Kundenbereitstellung.**
+AP02a–c ist freigegeben und teilweise technisch bereitgestellt; Ordneranlage
+und AP02-Gesamtprüfung sind noch offen.**
 
 | Paket | Stand |
 | --- | --- |
@@ -18,7 +19,7 @@ AP02a–c ist freigegeben und in Entwicklung; noch keine AP02-Kundenbereitstellu
 | AP01 – Design und Grundbetrieb | Docker-/MariaDB-/HTTPS-Grundbetrieb und Oberfläche unabhängig geprüft und bereitgestellt. HTTP leitet auf HTTPS um. |
 | AP01 – AD und Administration | Echte LDAPS-Anmeldung, Gruppenrechte, sichere Sitzungen, versionierte Einstellungen und Änderungsprotokoll implementiert. Vollzugriffstest durch den Betreiber bestätigt. |
 | AP01 – Kundenabnahme | Gesamtabnahme nach Kundentermin durch den Betreiber bestätigt. Bestehende AD-Anmeldung bleibt; SSO wurde verworfen. |
-| AP02 – Graph und Postfacheingang | Zertifikatsclient/Paging/Stichtag geprüft, reale manuelle Leerabfrage bestätigt. Begrenzter Anhangabruf und getrennte persistente Folder-/Move-/Flag-Aktionen isoliert geprüft. Schemawechsel/Ordneranlage noch nicht bereitgestellt. |
+| AP02 – Graph und Postfacheingang | Zertifikatsclient/Paging/Stichtag geprüft, reale manuelle Leerabfrage bestätigt. Anhangabruf und getrennte persistente Aktionen isoliert geprüft. Additives Schema003 bereitgestellt; Ordneranlage und Gesamtprüfung noch offen. |
 | AP03 und folgende Pakete | Noch nicht freigegeben. Automatische Rechnungsverarbeitung ist nicht aktiviert. |
 
 Die angezeigten Rechnungsvorgänge sind weiterhin **synthetische Beispieldaten**.
@@ -51,7 +52,7 @@ Bestehende frei lizenzierte Bibliotheken werden vor Eigenentwicklung geprüft.
 
 ## Prüfstand
 
-- AP02:65Backendtests auf isolierter MariaDB12.3 bestanden, einschließlich
+- AP02:66Backendtests auf isolierter MariaDB12.3 bestanden, einschließlich
   Paging-/Deadline-/Downloadfehlern, Aktionswiederaufnahme und Konkurrenz.
   Additive003-Migration erhält die Instanzkennung; bisherige API bleibt kompatibel.
 - 20 Backendtests einschließlich Rollen, Sitzungen, CSRF, Kontosperre,

@@ -1,6 +1,7 @@
 # AP02 – Graph-Vertrag
 
-Stand12.11.2026: Entwicklung auf separatem Zweig, keine Kundenbereitstellung.
+Stand12.11.2026: Entwicklung auf separatem Zweig; manuelle Leseprobe und additives
+Schema003 bereitgestellt. Ordneranlage und AP02-Gesamtprüfung noch offen.
 AP01 ist vollständig durch den Kunden abgenommen; AP02a–c hat Go. AP03+ bleibt
 gesperrt. Kein Scheduler, keine automatische Aktivierung am Stichtag und kein
 neuer Versand. AP00-Lese-/Versandnachweise sind historische Grundprüfungen.
@@ -155,6 +156,9 @@ durch Löschen scheinbar repariert.
 Gespeichert werden Absicht/opaqueIDs, Ziel, Zustand, Lease, Reservierungsanzahl,
 Zeit und neutrale Fehlercodes; keine Mailinhalte, Token, Zertifikate oder Schlüssel.
 IDs bleiben case-sensitive über ihren Hashschlüssel und Python-Vergleich.
+Die Metadatendefinition dieser historischen003-Revision bleibt eingefroren;
+spätere Schemaänderungen benötigen eine neue Migration. Vor Erstupgrade keine
+unerwartet vorhandene graph_actions-Tabelle zulassen, danach Struktur prüfen.
 
 Vor jeder Absicht: DB-Insert/Rowlock, feste Zielbindung, vor Netzwerkaufruf
 durabel höchstens eine Schreibreservierung. Lease300s verhindert konkurrierende
@@ -167,6 +171,11 @@ Ziel `operator_required`, niemals automatisch erneut POST/PATCH senden. Ein Cras
 vor dem tatsächlichen ersten Schreiben kann deshalb bewusst Betreiberklärung
 erfordern. Es gibt weder automatische Reservierungsrücksetzung noch Exactly-once-
 Zusage. Ein widersprüchliches späteres Move-Ziel ersetzt keine bestehende Absicht.
+F3-Korrekturversuch1: Fehler beim Abgleich nach möglichem Schreiben oder einer
+früheren Reservierung bleiben auch bei reinem GET-Fehler nach außen ungewiss.
+Neutraler Fehlercode/Status bleiben erhalten. Neun Kombinationen aus Folder/Move/
+Flag und anschließendem Timeout/403/ungültiger Antwort belegen unknown und
+uncertain:true, erneuten lesenden Abgleich ohne zweiten Write und späteres done.
 
 Nachricht vor jedem direkten Move/Flag erneut über immutableID lesen und echten
 Stichtag prüfen. Move nur aus Inbox ins benannte geprüfte Ziel oder bereits dort
@@ -191,9 +200,9 @@ gesperrt, um ungewisse Aktionen nicht zu verlieren. Rückweg ist das vorherige A
 Image bei erhaltener additiver Tabelle; ein DB-Restore braucht eigenen Betreiberplan
 und Abgleich aller eventuell bereits ausgeführten Graph-Aktionen.
 
-Prüfstand:14 Aktionsfälle, davon echte MariaDB-Konkurrenz mit Rowlock. Insgesamt
-65Backendtests auf isolierter MariaDB12.3 bestanden, keine übersprungenen Fälle.
-Netzloser Lauf65Fälle mit einem ausdrücklich übersprungenen MariaDB-Locktest.
+Prüfstand:15 Aktionsfälle, davon echte MariaDB-Konkurrenz mit Rowlock. Insgesamt
+66Backendtests auf isolierter MariaDB12.3 bestanden, einschließlich der F3-Fälle.
+Netzloser Lauf66Fälle mit einem ausdrücklich übersprungenen MariaDB-Locktest.
 `scripts/test-graph-mariadb.sh` erweitert den vorhandenen isolierten Runner:
 Revision001→002_security_configuration→003_graph_actions zweimal, UUID-Erhalt,
 separate Prozesse für persistierte Reservierung/Reconciliation/Bestätigung,
@@ -202,3 +211,8 @@ Nur neue temporäre Testressourcen; keine Kunden-DB oder echten Graph-Secrets.
 
 Live-Ordneranlage, produktive Migration und spätere begrenzte synthetische
 Mutationsproben erfolgen ausschließlich nach festem Review-/Betreiberplan.
+Die separat geprüfte003-Migration wurde inzwischen vom Betreiber mit vorherigem
+DB-Backup erfolgreich ausgeführt. UUID, Konfigurationen, Sitzungen und laufende
+Container erhalten, HTTPS bereit. Dafür keinen weiteren Migrator starten.
+Noch keine echte Ordner-/Nachrichtenmutation; nächster Schritt ist die Prüfung
+des Aktionsfixes und anschließend die koordinierte Ordneranlage.

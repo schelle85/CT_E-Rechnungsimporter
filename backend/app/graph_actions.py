@@ -59,12 +59,20 @@ class GraphActions:
                 except GraphError:
                     result = None
                 if result is not None:
-                    self.store.finish(key, owner, "done", result=result)
+                    try:
+                        self.store.finish(key, owner, "done", result=result)
+                    except GraphError as confirmation_error:
+                        raise GraphError(confirmation_error.code, confirmation_error.status, uncertain=True) from None
                     return result
             terminal = error.code in ("graph_before_cutoff", "graph_invalid_received_time", "graph_invalid_source_folder",
                                       "graph_existing_completed_flag", "graph_action_operator_required", "graph_ambiguous_folder")
-            self.store.finish(key, owner, "operator_required" if terminal else "unknown", error=error.code)
-            raise
+            try:
+                self.store.finish(key, owner, "operator_required" if terminal else "unknown", error=error.code)
+            except GraphError as persistence_error:
+                raise GraphError(persistence_error.code, persistence_error.status,
+                                 uncertain=error.uncertain or mutation_started or not may_send) from None
+            raise GraphError(error.code, error.status,
+                             uncertain=error.uncertain or mutation_started or not may_send) from None
 
     def ensure_folders(self):
         result = {}
