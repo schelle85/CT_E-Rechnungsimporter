@@ -1,7 +1,7 @@
 # AP03 – Erkennungsumfang und Isolation
 
 Stand12.11.2026: AP03a–c freigegeben. Dieser erste Lieferstand enthält den
-strukturierten XML-/Hybrid-PDF-Kern. Textklassifikation, OCR und zusätzliche
+strukturierten XML-/Hybrid-PDF-Kern und die PDF-Textklassifikation. OCR und zusätzliche
 streng lesende Testmailquelle folgen; keine Kundenbereitstellung oder echte
 Testmailabholung. AP04+ und automatische Verarbeitung sind nicht freigegeben.
 
@@ -37,7 +37,8 @@ CPU/RAM bleiben Betriebsaufwand, keine unbelegten Laufkostenbeträge.
 | XML mit Hybridprofil ohne PDF | Erkanntes Hybrid-Rechnungs-XML, kein XRechnungsprofil | Failed/hybrid_pdf_required |
 | Andere XML | Keine unterstützte Rechnungsstruktur, etwa Order-X oder generischesXML | ignored |
 | Bekannte Rechnung mit unbekanntem Namespace/Profil/Typcode | Kein sicher zugesagtes Format | Failed/unsupported_* |
-| Gewöhnliche PDF | Noch keine Text-/OCR-Auswertung in AP03a | Failed/text_analysis_pending; keine E-Rechnungszusage |
+| Gewöhnliche Text-PDF | Eindeutiger Titel und mehrere passende Dokumentmerkmale | PDF-Rechnung, Zahlungsavis, irrelevant oder Failed |
+| Scan/fehlende brauchbare Textebene | OCR noch nicht Bestandteil von AP03b | Failed/ocr_required |
 
 Unterstützte Dokumenttypcodes:380/381/384/386/389; UBL-CreditNote381, UBL-Invoice
 die übrigen. XRechnung-Profil genau
@@ -59,6 +60,37 @@ Claims führen zu Failed; kein Rückfall auf gewöhnliche PDF. Kein separates XM
 Produktartefakt. Dateien werden niemals über ihren eingebetteten Namen geöffnet.
 
 ## Ergebnis und Grenzen
+
+### AP03b: Textregeln
+
+PDFium über pypdfium2 5.15.2 extrahiert jede Seite begrenzt. Tatsächlicher Build
+PDFium159.0.8149.0, Featureflags leer, keinV8/XFA. Keine Formularinitialisierung
+oder externe Ressource. Maximal50.000Zeichen pro Seite/250.000 insgesamt; bei
+fehlendem oder unbrauchbarem Text kein Teilerfolg, sondern OCR-Bedarf. Original
+bleibt unverändert. Runtime-/Testlocks separat ergänzt; keine API-Abhängigkeit.
+
+Konservative Regelversionap03-2: gewöhnliche Rechnung benötigt Dokumenttitel,
+Rechnungs-/Gutschriftsnummermerkmal, gültiges numerisches Datum und bezeichneten
+Gesamtbetrag. Keine vollständige Beleg-/Betragsextraktion oder Prozentwahrscheinlichkeit.
+Avis benötigt eigenen Titel sowie Rechnungsreferenz, Zahlungsmerkmal, Datum und
+Gesamt-/Zahlbetrag. Rechnungsreferenzen unter einem Avis-Titel machen keine Rechnung.
+Angebot/Bestellung/Lieferschein/Mahnung/Werbung/AGB bleiben bei eindeutiger Zuordnung
+irrelevant. Explizites„keine Rechnung“/Proforma verhindert eine Positiventscheidung.
+Einzelwort/IBAN genügen nicht; fehlende Evidenz ergibt Failed/ambiguous_*.
+
+Widersprüchliche eigenständige Dokumenttitel auf derselben oder einer Folgeseite
+führen zuFailed. Alle bereits begrenzten Textzeilen prüfen, kein Titel-Suchfenster.
+Erkennbare AGB-/Datenschutz-/Zahlungsbedingungen-Anhänge führen eine eindeutige
+Rechnung weiter; deren Beispiele/Negationen/Finanzangaben werden nicht als Merkmale
+des Hauptbelegs verwendet. Deutsche/englische numerische Standardfälle geprüft;
+unbekannte Layouts oder ausgeschriebene Datumsformate können kontrolliert Failed
+ergeben. Noch keine behauptete Kunden-Erkennungsqualität ohne Kundenbeispiele.
+
+14 echte PDF-Textfälle prüfen Deutsch/Englisch/Umlaute, Avis mit Referenzen,
+eindeutig andere Dokumentarten, Negationen, einzelne Wörter/Bankangaben,
+widersprüchliche und späte Titel, erlaubte Begleitseiten, mehrseitige Summen,
+fehlendes/ungültiges Datum, Blanko-/Mischseiten, Größenlimit und echten begrenzten
+Worker mit PDFium. Strukturierte Hybridrechnungen behalten Vorrang.
 
 Manueller Aufruf im Classifierimage: `python -m classifier.cli /input/document`.
 JSON enthält status, category, format, neutralen reason, method, rule_version

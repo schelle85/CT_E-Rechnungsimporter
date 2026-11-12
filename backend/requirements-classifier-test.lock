@@ -9,6 +9,7 @@ packaging==26.3
 pikepdf==10.18.0
 pillow==13.0.0
 pypdf==7.0.1
+pypdfium2==5.15.2
 python-stdnum==2.2
 reportlab==4.5.1
 requests==2.34.2

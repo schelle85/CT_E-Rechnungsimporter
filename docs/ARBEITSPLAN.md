@@ -65,7 +65,7 @@ danach folgen AD-Anmeldung, Administrationsgrundlage und gemeinsame Abnahme.
 | Teil | Ergebnis und Prüfung |
 | --- | --- |
 | AP03a | Implementiert und isoliert geprüft: ZUGFeRD1/2, Factur-X und XRechnung3.0 mit vorhandenen Bibliotheken, keine Vollvalidierung |
-| AP03b | Gewöhnliche Rechnungs-PDFs/Zahlungsavise nachvollziehbar unterscheiden; Gegenbeispiele prüfen |
+| AP03b | Implementiert/isoliert geprüft: nachvollziehbare Textentscheidung mit echten PDF-Gegenfällen und erlaubten Begleitseiten |
 | AP03c | OCR für seltene Scans, konkrete Fehlergründe, unveränderte Originale |
 
 ## AP04: SMB-Ablage und Dubletten - DEV

@@ -19,6 +19,18 @@ def plain_pdf(lines=("Synthetisches Testdokument",)):
     return output.getvalue()
 
 
+def text_document(pages):
+    output = BytesIO()
+    writer = canvas.Canvas(output, pagesize=(595, 842), invariant=1)
+    for lines in pages:
+        writer.setFont("Helvetica", 12)
+        for index, line in enumerate(lines):
+            writer.drawString(40, 790 - 20 * index, line)
+        writer.showPage()
+    writer.save()
+    return output.getvalue()
+
+
 def reference_xml(name):
     return (REFERENCES / "facturx" / (name + ".xml")).read_bytes()
 

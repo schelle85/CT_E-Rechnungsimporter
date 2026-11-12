@@ -13,7 +13,11 @@ def recognize(data):
         return failed("input_size_limit")
     try:
         if b"%PDF-" in data[:1024]:
-            return detect_pdf(data) or failed("text_analysis_pending")
+            structured = detect_pdf(data)
+            if structured is not None:
+                return structured
+            from classifier.text_pdf import analyze_pdf
+            return analyze_pdf(data)
         if looks_xml(data):
             invoice = identity(data)
             if invoice is None:

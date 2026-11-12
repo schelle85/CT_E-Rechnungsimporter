@@ -16,7 +16,7 @@ class Finding:
     method: str = "structure"
 
     def result(self, digest):
-        return {**asdict(self), "original_sha256": digest, "rule_version": "ap03-1"}
+        return {**asdict(self), "original_sha256": digest, "rule_version": "ap03-2"}
 
 
 def failed(code):

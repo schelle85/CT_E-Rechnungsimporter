@@ -43,7 +43,7 @@ def bounded_classify(data, seconds=WALLCLOCK):
     context = multiprocessing.get_context("spawn")
     receive, send = context.Pipe(duplex=False)
     process = context.Process(target=child, args=(send, data))
-    common = {"original_sha256": hashlib.sha256(data).hexdigest(), "rule_version": "ap03-1"}
+    common = {"original_sha256": hashlib.sha256(data).hexdigest(), "rule_version": "ap03-2"}
     started = time.monotonic()
     try:
         process.start()
@@ -99,7 +99,7 @@ def main():
     args = parser.parse_args()
     try:
         result = bounded_classify(read_input(args.input))
-    except (OSError, ValueError):
+    except (OSError, ValueError, RuntimeError):
         result = {"status": "failed", "category": None, "format": None, "reason": "input_unavailable"}
     print(json.dumps(result))
     return 1 if result["status"] == "failed" else 0
