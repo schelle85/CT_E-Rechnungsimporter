@@ -1,6 +1,6 @@
 # Optional, explicit operator command only. Never mount Graph keys in the API.
 services:
-  graph:
+  graph: &graph-read
     profiles: [graph-operator]
     image: ${GRAPH_IMAGE:?Set a reviewed immutable AP02 image}
     user: "10001:10001"
@@ -23,3 +23,31 @@ services:
         target: /run/secrets/graph_credential
         read_only: true
         bind: {create_host_path: false}
+  graph-actions:
+    <<: *graph-read
+    profiles: [graph-actions-operator]
+    networks: [web, database]
+    environment:
+      DB_HOST: db
+      DB_NAME: importer
+      DB_USER: importer
+      DB_PASSWORD_FILE: /run/secrets/db_password
+    secrets: [db_password]
+  graph-migrate:
+    profiles: [graph-actions-operator]
+    image: ${GRAPH_IMAGE:?Set a reviewed immutable AP02 image}
+    user: "10001:10001"
+    entrypoint: [alembic]
+    command: [current]
+    restart: "no"
+    read_only: true
+    tmpfs: ["/tmp:rw,noexec,nosuid,size=32m"]
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    networks: [database]
+    environment:
+      DB_HOST: db
+      DB_NAME: importer
+      DB_USER: importer
+      DB_PASSWORD_FILE: /run/secrets/db_password
+    secrets: [db_password]

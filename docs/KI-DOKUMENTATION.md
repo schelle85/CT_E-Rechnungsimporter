@@ -18,7 +18,11 @@ Stand: 8. November 2026. Lebende Markdown-Dokumentation, noch kein Abschlussberi
   Betreiberprofil vorhanden; isolierte Tests, keine Kundenbereitstellung.
 - Keine neuen Graph-Secrets in Dauer-API/Nginx/Migrator; ausschließlich Graph-CLI.
 - AP02b: Paging/Stichtag/Anhangmetadaten und begrenzte Rohbytefunktion implementiert,
-  isoliert geprüft. AP02c folgt mit getrennten persistenten Aktionen.
+  isoliert geprüft; reale gefilterte einmalige Leerabfrage0/0 durch ORGA bestätigt.
+- AP02c: getrennte persistente Folder-/Move-/Flag-Aktionen implementiert und auf
+  isolierter MariaDB geprüft. Revision003_graph_actions, kein produktiver Schemawechsel.
+- 65Backendtests auf echter isolierter MariaDB bestanden; vorherige API kompatibel
+  mit additivem003-Schema, kein alter Migrator gegen003. Operatorvertrag im AP02-Dokument.
 - Keine Klassifikation, SMB-Ausgabe, Benachrichtigung oder automatische Verarbeitung.
 - AP03+ bleibt ohne Go. Kein vollständiger VM-/Offsite-Restore nachgewiesen.
 - Aktueller Vertrag, Grenzen und Prüfbefehle: [AP02-Graph](AP02-GRAPH.md).

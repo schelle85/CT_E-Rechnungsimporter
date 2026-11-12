@@ -56,9 +56,9 @@ danach folgen AD-Anmeldung, Administrationsgrundlage und gemeinsame Abnahme.
 
 | Teil | Ergebnis und Prüfung |
 | --- | --- |
-| AP02a | In Entwicklung: Zertifikatsclient/Betreiberprofil und isolierte Grenztests; noch nicht bereitgestellt |
+| AP02a | Implementiert/geprüft: Zertifikatsclient und manuelle Betreiberprobe; kein dauernder Graphdienst |
 | AP02b | Implementiert, isoliert geprüft: vollständiges Paging/Stichtag/Anhangmetadaten und begrenzte Rohbytefunktion; keine Liveprobe |
-| AP02c | Zielordner bei Fehlen anlegen, Verschieben/Fahne wiederaufnehmbar vorbereiten |
+| AP02c | Implementiert/isoliert geprüft: persistente Zielordner-/Move-/Flag-Aktionen, additive003; Kundenmigration und Ordneranlage noch offen |
 
 ## AP03: Anhänge erkennen - DEV
 

@@ -122,7 +122,7 @@ abweisen; keine stille Teilantwort. `attachment.size` ist Metadatum und kann
 Overhead enthalten; Rohbytelänge wird nicht unbelegt damit gleichgesetzt.
 Keine SMB-Ablage, Formaterkennung, OCR oder Mehrfachanhangentscheidung.
 
-15 synthetische AP02b-Tests decken Grenzzeit/Offsets, direkte
+17 synthetische AP02b-Tests decken Grenzzeit/Offsets, direkte
 Altmailsperre, überlappende/leere Seiten, fehlerhafte Fortsetzungen/Teilabbruch,
 Inline-/Anhangtypen und Paging, Originalbytes von File/Item, sichere temporäre
 Pfade, Download-/Encoding-/Collectiongrenzen und geänderten Inboxbestand ab.
@@ -133,9 +133,72 @@ Handle, neuer Abruf liefert alle Originalbytes. Nach Nachrichten-/Anhangteilfehl
 liest ein neuer Scan den vollständigen Bestand; zusätzliche Grenz-/Widerspruchs-
 und geänderte-finaler-Guard-Tests verhindern stille Teilresultate.
 
-## Noch ausstehend
+## AP02c: getrennte persistente Aktionen
 
-AP02c ergänzt getrennte persistente Folder-/Move-/Flag-Absichten und additive
-DB-Revision003. Diese Funktionen sind in diesem Lieferstand noch nicht vorhanden.
-Live-Ordneranlage, echte Leerabfrage und spätere begrenzte synthetische
+Zusätzliche explizite Betreiberbefehle: `ensure-folders`, `flag --message-id <ID>`
+und `move --message-id <ID> --destination <Name>`. Kein Aufruf aus `scan`, kein
+automatisches Success-Ziel und keine Verarbeitung beim01.12.2026. Die Befehle
+geben nur Zähler/Status und neutrale Fehler aus. Konkrete Liveobjekte und Aktionen
+gehören in den geprüften Betreiberplan, keine beliebigen produktiven Versuche.
+
+Nur die direkten sichtbaren Inbox-Unterordner Success/Failed/Nachfragen/
+Zahlungsavis/unzugeordnet sind Ziele. Vollständiges Listing inklusive verborgener
+Ordner, Paging/Überlappungen prüfen. Bestehende IDs wiederverwenden, Namen ohne
+Beachtung der Schreibweise abgleichen; Mehrdeutigkeit, verborgene gleichnamige
+oder falsche Eltern stoppen. Keine Löschung/Umbenennung. Konkurrenz innerhalb
+der Anwendung wird über die DB-Absicht serialisiert. Externe Ordneranlagen sind
+keine atomare Graph-Transaktion: Mehrdeutigkeit nach POST wird gemeldet, nicht
+durch Löschen scheinbar repariert.
+
+`003_graph_actions` folgt exakt auf `002_security_configuration`; nur die Tabelle
+`graph_actions` kommt hinzu. Keine Änderung von AP01-Tabellen oder Instanzkennung.
+Gespeichert werden Absicht/opaqueIDs, Ziel, Zustand, Lease, Reservierungsanzahl,
+Zeit und neutrale Fehlercodes; keine Mailinhalte, Token, Zertifikate oder Schlüssel.
+IDs bleiben case-sensitive über ihren Hashschlüssel und Python-Vergleich.
+
+Vor jeder Absicht: DB-Insert/Rowlock, feste Zielbindung, vor Netzwerkaufruf
+durabel höchstens eine Schreibreservierung. Lease300s verhindert konkurrierende
+Ausführung während des maximal182s langen CLI-Aufrufs. Keine DB-Transaktion
+bleibt über HTTP offen. Zustände pending/sending/checking/unknown/done/
+operator_required. Nach Timeout, verlorener Antwort oder Prozessabbruch wird
+zuerst der tatsächliche Zustand gelesen. Bereits angewandte Änderungen abschließen,
+bei nicht beobachtbarem Ausgang nur weiter abgleichen; bei bekannt nicht erreichtem
+Ziel `operator_required`, niemals automatisch erneut POST/PATCH senden. Ein Crash
+vor dem tatsächlichen ersten Schreiben kann deshalb bewusst Betreiberklärung
+erfordern. Es gibt weder automatische Reservierungsrücksetzung noch Exactly-once-
+Zusage. Ein widersprüchliches späteres Move-Ziel ersetzt keine bestehende Absicht.
+
+Nachricht vor jedem direkten Move/Flag erneut über immutableID lesen und echten
+Stichtag prüfen. Move nur aus Inbox ins benannte geprüfte Ziel oder bereits dort
+als erledigt bestätigen; Flag nur in Inbox/bekannten Zielordnern. Flag setzt nur
+flagStatus=flagged, vorhandene flagged bleibt bestehen, complete wird nicht
+zurückgesetzt. Schreibantwortbody wird verworfen und Erfolg durch minimale GETs
+abgeglichen; stabile IDs ermöglichen Wiederaufnahme nach dem Verschieben. Andere
+Markierungen/Lesestatus werden nicht gepatcht. Kein blindes Schreibretry.
+
+Profil `graph-operator` bleibt für `graph` ohne DB-Netz/Secret. Separates Profil
+`graph-actions-operator` enthält `graph-actions` mit GraphJSON/PEM und DB-Passwort,
+Netzenweb/database, sowie `graph-migrate` ausschließlich mit DB-Passwort und
+internaldatabase-Netz. Beide manuell, UID10001, ohnePorts/Restart. Migrator hat
+keinen Graph-/LDAP-/TLS-Bind und zeigt standardmäßig nur `current`.
+
+Nach REVIEW, Betreiberbackup und eindeutigem vorherigen002-Stand: neuen Migrator
+mit festem Image und `upgrade 003_graph_actions` ausdrücklich ausführen. Danach
+`current`/Instanzkennung/alteAPI-Readiness prüfen. Dauer-API und Web können auf ihren
+vorherigen Images bleiben; echte isolierte MariaDB bestätigt deren Kompatibilität
+mit003. Niemals alten Migrator gegen003 ausführen. Destruktiver Downgrade ist
+gesperrt, um ungewisse Aktionen nicht zu verlieren. Rückweg ist das vorherige API-
+Image bei erhaltener additiver Tabelle; ein DB-Restore braucht eigenen Betreiberplan
+und Abgleich aller eventuell bereits ausgeführten Graph-Aktionen.
+
+Prüfstand:14 Aktionsfälle, davon echte MariaDB-Konkurrenz mit Rowlock. Insgesamt
+65Backendtests auf isolierter MariaDB12.3 bestanden, keine übersprungenen Fälle.
+Netzloser Lauf65Fälle mit einem ausdrücklich übersprungenen MariaDB-Locktest.
+`scripts/test-graph-mariadb.sh` erweitert den vorhandenen isolierten Runner:
+Revision001→002_security_configuration→003_graph_actions zweimal, UUID-Erhalt,
+separate Prozesse für persistierte Reservierung/Reconciliation/Bestätigung,
+Uvicorn/Session-/Konfigurationspersistenz und vorheriges AP01-API auf003.
+Nur neue temporäre Testressourcen; keine Kunden-DB oder echten Graph-Secrets.
+
+Live-Ordneranlage, produktive Migration und spätere begrenzte synthetische
 Mutationsproben erfolgen ausschließlich nach festem Review-/Betreiberplan.

@@ -158,6 +158,16 @@ class GraphClient:
             raise GraphError("graph_invalid_response")
         return {"mailbox_access": "ok"}
 
+    def _write(self, method, url, payload, *, expected):
+        from app.graph_deadline import request_deadline
+        if method not in ("POST", "PATCH"):
+            raise GraphError("graph_invalid_action")
+        with request_deadline(45, uncertain=True):
+            # Discard the write response body; verify with a minimal selected GET instead.
+            with self._response(method, url, payload=payload) as response:
+                if response.status_code != expected:
+                    raise GraphError("graph_unexpected_write_response", response.status_code, uncertain=True)
+
 
 @contextmanager
 def operator_client(config_path, certificate_path):

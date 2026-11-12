@@ -6,6 +6,9 @@ umask 077
 : "${TEST_IMAGE:?Pass immutable sha256 test image ID}"
 [[ "$API_IMAGE" =~ ^sha256:[a-f0-9]{64}$ ]] || exit 2
 [[ "$TEST_IMAGE" =~ ^sha256:[a-f0-9]{64}$ ]] || exit 2
+expected_schema=${EXPECTED_SCHEMA:-002_security_configuration}
+[[ "$expected_schema" = 002_security_configuration || "$expected_schema" = 003_graph_actions ]] || exit 2
+if [ -n "${OLD_API_IMAGE:-}" ]; then [[ "$OLD_API_IMAGE" =~ ^sha256:[a-f0-9]{64}$ ]] || exit 2; fi
 docker image inspect --format '{{json .RootFS.Layers}}' "$API_IMAGE" "$TEST_IMAGE" | python3 -c 'import json,sys; rows=[json.loads(x) for x in sys.stdin if x.strip()]; assert len(rows)==2 and rows[1][:len(rows[0])]==rows[0]; print("Immutable test image descends from exact API layers: PASS")'
 db_image=mariadb:12.3@sha256:d46e102fa8b9b72bfcdeb56f9dd538742092119dc8b11f31fe662605cd234cd9
 case_id="invoice-cde-test-$(date -u +%Y%m%dT%H%M%S)-$$"
@@ -64,13 +67,24 @@ db_run() {
 uuid_query='from app.database import make_engine; from sqlalchemy import text; e=make_engine(); c=e.connect(); rows=c.execute(text("SELECT singleton,instance_id FROM app_metadata")).all(); assert len(rows)==1 and rows[0][0]==1; print(rows[0][1]); c.close();e.dispose()'
 db_run "$API_IMAGE" alembic upgrade 001_app_metadata
 before=$(db_run "$API_IMAGE" python -c "$uuid_query")
+db_run "$API_IMAGE" alembic upgrade 002_security_configuration
 db_run "$API_IMAGE" alembic upgrade head
 db_run "$API_IMAGE" alembic upgrade head
 after=$(db_run "$API_IMAGE" python -c "$uuid_query")
 test "$before" = "$after"
-printf 'Actual CLI001->002 twice, preserved metadata UUID=%s\n' "$after"
+actual_schema=$(db_run "$API_IMAGE" python -c 'from app.database import make_engine;from sqlalchemy import text;e=make_engine();c=e.connect();print(c.execute(text("SELECT version_num FROM alembic_version")).scalar_one());c.close();e.dispose()')
+test "$actual_schema" = "$expected_schema"
+printf 'Actual CLI001->002_security_configuration->%s twice, preserved metadata UUID=%s\n' "$actual_schema" "$after"
 db_run "$TEST_IMAGE" python -m unittest discover -s tests -v
 test "$(db_run "$API_IMAGE" python -c "$uuid_query")" = "$before"
+if [ "$expected_schema" = 003_graph_actions ]; then
+ persist_seed='from app.database import make_engine;from app.graph_state import ActionStore;e=make_engine();key,owner,send=ActionStore(e,clock=lambda:1000).claim("invoice@example.invalid","flag","persist-message","flagged");assert send;print("Graph write reservation committed in first process");e.dispose()'
+ db_run "$API_IMAGE" python -c "$persist_seed"
+ persist_resume='from app.database import make_engine;from app.graph_state import ActionStore,actions;from sqlalchemy import select;e=make_engine();s=ActionStore(e,clock=lambda:1301);key,owner,send=s.claim("invoice@example.invalid","flag","persist-message","flagged");assert not send;s.finish(key,owner,"done",result="persist-message");print("Second process reconciles expired reservation without permission to replay");e.dispose()'
+ db_run "$API_IMAGE" python -c "$persist_resume"
+ persist_verify='from app.database import make_engine;from app.graph_state import actions;from sqlalchemy import select;e=make_engine();c=e.connect();r=c.execute(select(actions).where(actions.c.resource=="persist-message")).mappings().one();assert r["state"]=="done" and r["result_id"]=="persist-message" and r["reservations"]==1;print("Third process reads exact durable completed Graph intent");c.close();e.dispose()'
+ db_run "$API_IMAGE" python -c "$persist_verify"
+fi
 api_mounts=(
  --mount "type=bind,source=$temp_dir/app-password,target=/run/secrets/db_password,readonly"
  --mount "type=bind,source=$temp_dir/app-password,target=/run/secrets/ldap_bind_password,readonly"
@@ -97,13 +111,14 @@ r.engine.dispose()'
 api_utility python -c "$seed"
 config_check='from app.security import build_runtime;from app.settings import read_secret;r=build_runtime();row,cfg,pw=r.configuration();assert pw==read_secret(r.bind_file);print("Persisted encrypted configuration decrypts with stable test key, version="+str(row["id"]));r.engine.dispose()'
 api_utility python -c "$config_check"
+active_api_image="$API_IMAGE"
 create_api() {
  docker create --name "$api" --label "invoice.cde.test=$case_id" --network "$network" --network-alias api \
  --read-only --tmpfs /tmp:rw,noexec,nosuid,size=32m --cap-drop ALL --security-opt no-new-privileges:true \
- "${api_mounts[@]}" "$API_IMAGE" >/dev/null
+ "${api_mounts[@]}" "$active_api_image" >/dev/null
  api_created=1
  docker start "$api" >/dev/null
- test "$(docker inspect --format '{{.Image}}' "$api")" = "$API_IMAGE"
+ test "$(docker inspect --format '{{.Image}}' "$api")" = "$active_api_image"
  test "$(docker inspect --format '{{.Config.User}}' "$api")" = 10001:10001
  test "$(docker inspect --format '{{len .HostConfig.PortBindings}}' "$api")" = 0
  docker inspect --format 'Actual API image={{.Image}} CMD={{json .Config.Cmd}} user={{.Config.User}} readOnly={{.HostConfig.ReadonlyRootfs}}' "$api"
@@ -162,4 +177,13 @@ docker run --rm --network "$network" --read-only --cap-drop ALL --security-opt n
  --env "EXPECTED_UUID=$before" "$API_IMAGE" python -c "$http_second"
 api_utility python -c "$config_check"
 test "$(db_run "$API_IMAGE" python -c "$uuid_query")" = "$before"
+if [ -n "${OLD_API_IMAGE:-}" ]; then
+ docker rm -f "$api" >/dev/null; api_created=0
+ active_api_image="$OLD_API_IMAGE"
+ create_api
+ docker run --rm --network "$network" --read-only --cap-drop ALL --security-opt no-new-privileges:true \
+  --mount "type=bind,source=$temp_dir/http-state.json,target=/state.json,readonly" \
+  --env "EXPECTED_UUID=$before" "$API_IMAGE" python -c "$http_second"
+ printf 'Prior AP01 API HTTPready/session compatibility on additive schema: PASS; old migrator never executed.\n'
+fi
 printf 'CDE MariaDB CLI/security/Uvicorn/persistence regression: PASS\n'
