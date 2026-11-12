@@ -179,6 +179,8 @@ class Mailbox:
         started, count = self.client.clock(), 0
         with TemporaryFile(mode="w+b") as output, request_deadline(self.MAX_DOWNLOAD_SECONDS):
             with self.client._response("GET", url) as response:
+                if response.status_code != 200 or "Content-Range" in response.headers:
+                    raise GraphError("graph_incomplete_attachment", response.status_code)
                 header = response.headers.get("Content-Length")
                 try:
                     if header is not None and (int(header) < 0 or int(header) > self.MAX_DOWNLOAD):

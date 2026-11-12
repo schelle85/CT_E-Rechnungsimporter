@@ -1,5 +1,6 @@
 from datetime import datetime, timezone
 import unittest
+from unittest.mock import patch
 import httpx
 from app.graph import GraphClient, GraphError
 from app.graph_mail import Mailbox, CUTOFF, CUTOFF_GRAPH, received
@@ -176,6 +177,112 @@ class GraphMailTests(unittest.TestCase):
         remote.attachments["m1"] = [attachment(), attachment(size=8)]
         with self.assertRaises(GraphError):
             box.scan()
+
+    def test_partial_empty_and_broken_stream_close_temporary_file(self):
+        from tempfile import TemporaryFile
+        class Broken(httpx.SyncByteStream):
+            closed = False
+            def __iter__(self):
+                yield b"partial"
+                raise httpx.ReadError("synthetic stream failure")
+            def close(self):
+                self.closed = True
+        for status in (206, 204, "range200", "broken"):
+            box, remote = self.mailbox()
+            stream = Broken()
+            opened = []
+            def temporary(*args, **kwargs):
+                output = TemporaryFile(*args, **kwargs)
+                opened.append(output)
+                return output
+            def fail(request):
+                if request.url.path.endswith("/$value"):
+                    if status == "broken":
+                        return httpx.Response(200, stream=stream)
+                    if status == "range200":
+                        return httpx.Response(200, headers={"Content-Range": "bytes 0-2/7"}, content=b"par")
+                    return httpx.Response(status, headers={"Content-Range": "bytes 0-2/7"} if status == 206 else {}, content=b"par" if status == 206 else b"")
+            remote.override = fail
+            with patch("app.graph_mail.TemporaryFile", side_effect=temporary):
+                with self.subTest(status=status), self.assertRaises(GraphError) as raised:
+                    with box.attachment_content("m1", "a1"):
+                        self.fail("never return partial content")
+            self.assertTrue(opened and all(output.closed for output in opened))
+            self.assertEqual(raised.exception.code, "graph_transport_error" if status == "broken" else "graph_incomplete_attachment")
+            if status == "broken":
+                self.assertTrue(stream.closed)
+                remote.override = None
+                with box.attachment_content("m1", "a1") as output:
+                    self.assertEqual(output.read(), remote.raw)
+
+    def test_full_200_empty_file_is_valid(self):
+        box, remote = self.mailbox()
+        remote.raw = b""
+        remote.attachments["m1"] = [attachment(size=0)]
+        with box.attachment_content("m1", "a1") as output:
+            self.assertEqual(output.read(), b"")
+
+    def test_rescan_after_partial_page_failure_restarts_complete_scan(self):
+        box, remote = self.mailbox()
+        remote.messages["m2"] = message("m2", "2026-12-02T12:00:00Z")
+        url = box.client.root + "/mailFolders/inbox/messages"
+        def fail(request):
+            if request.url.path.endswith("/inbox/messages"):
+                if request.url.params.get("$skiptoken"):
+                    return httpx.Response(403)
+                return httpx.Response(200, json={"value": [message()], "@odata.nextLink": url + "?$skiptoken=failed"})
+        remote.override = fail
+        with self.assertRaises(GraphError):
+            box.scan()
+        remote.override = None
+        self.assertEqual([m.id for m, _ in box.scan()], ["m1", "m2"])
+
+    def test_attachment_failure_after_first_mail_then_fresh_scan(self):
+        box, remote = self.mailbox()
+        remote.messages["m2"] = message("m2", "2026-12-02T12:00:00Z")
+        remote.attachments["m2"] = [attachment("a2")]
+        def fail(request):
+            if request.url.path.endswith("/m2/attachments"):
+                return httpx.Response(403)
+        remote.override = fail
+        with self.assertRaises(GraphError):
+            box.scan()
+        self.assertTrue(any(r.url.path.endswith("/m1/attachments") for r in remote.calls))
+        remote.override = None
+        self.assertEqual([(m.id, [a.id for a in rows]) for m, rows in box.scan()], [("m1", ["a1"]), ("m2", ["a2"])])
+        self.assertTrue(all(r.method == "GET" and r.url.host == "graph.microsoft.com" for r in remote.calls))
+
+    def test_changed_final_guard_prevents_raw_access(self):
+        for changed in ("old", "moved"):
+            box, remote = self.mailbox()
+            calls = []
+            def change(request):
+                if request.url.path.endswith("/messages/m1"):
+                    calls.append(request)
+                    if len(calls) == 2:
+                        return httpx.Response(200, json=message(timestamp="2026-11-30T22:59:59Z") if changed == "old" else message(parent="elsewhere"))
+            remote.override = change
+            with self.subTest(changed=changed), self.assertRaises(GraphError):
+                with box.attachment_content("m1", "a1"):
+                    self.fail("no raw access")
+            self.assertFalse(any(r.url.path.endswith("/$value") for r in remote.calls))
+
+    def test_conflicting_message_and_all_collection_budgets(self):
+        box, remote = self.mailbox()
+        remote.override = lambda r: httpx.Response(200, json={"value": [message(), message(flag="flagged")]}) if r.url.path.endswith("/inbox/messages") else None
+        with self.assertRaises(GraphError):
+            box.scan()
+        for attribute in ("MAX_PAGES", "MAX_ATTACHMENTS", "MAX_SCAN_ATTACHMENTS"):
+            box, _ = self.mailbox()
+            setattr(box, attribute, 0)
+            with self.subTest(budget=attribute), self.assertRaises(GraphError):
+                box.scan()
+        box, _ = self.mailbox()
+        ticks = iter([0, 121, 122, 123])
+        # _pages must fail before another page when the shared scan clock has expired.
+        box.client.clock = lambda: next(ticks, 124)
+        with self.assertRaises(GraphError):
+            tuple(box._pages(box.client.root + "/mailFolders/inbox/messages", {}, 10, started=0))
 
 
 if __name__ == "__main__":

@@ -118,10 +118,16 @@ abweisen; keine stille Teilantwort. `attachment.size` ist Metadatum und kann
 Overhead enthalten; Rohbytelänge wird nicht unbelegt damit gleichgesetzt.
 Keine SMB-Ablage, Formaterkennung, OCR oder Mehrfachanhangentscheidung.
 
-Neun zusätzliche synthetische AP02b-Tests decken Grenzzeit/Offsets, direkte
+15 synthetische AP02b-Tests decken Grenzzeit/Offsets, direkte
 Altmailsperre, überlappende/leere Seiten, fehlerhafte Fortsetzungen/Teilabbruch,
 Inline-/Anhangtypen und Paging, Originalbytes von File/Item, sichere temporäre
 Pfade, Download-/Encoding-/Collectiongrenzen und geänderten Inboxbestand ab.
+F2-Korrekturversuch1: Rohantwort muss200 sein und darf keinen Content-Range
+enthalten. 206/204 sowie200mitTeilbereich scheitern ohne Dateiübergabe; reguläre
+leere200Datei bleibt erlaubt. Streamabbruch schließt Response und temporären
+Handle, neuer Abruf liefert alle Originalbytes. Nach Nachrichten-/Anhangteilfehler
+liest ein neuer Scan den vollständigen Bestand; zusätzliche Grenz-/Widerspruchs-
+und geänderte-finaler-Guard-Tests verhindern stille Teilresultate.
 
 ## Noch ausstehend
 
