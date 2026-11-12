@@ -134,13 +134,16 @@ class GraphClient:
                 raise GraphError("graph_transport_error", uncertain=method != "GET") from None
 
     def _json(self, method, url, *, params=None, payload=None):
+        from app.graph_deadline import request_deadline
         data = bytearray()
         started = self.clock()
-        with self._response(method, url, params=params, payload=payload) as response:
-            for chunk in response.iter_bytes(chunk_size=65536):
-                if len(data) + len(chunk) > JSON_LIMIT or self.clock() - started > 45:
-                    raise GraphError("graph_response_limit", uncertain=method != "GET")
-                data.extend(chunk)
+        with request_deadline(45, uncertain=method != "GET"):
+            with self._response(method, url, params=params, payload=payload) as response:
+                # No ByteChunker buffering: inspect every transport piece immediately.
+                for chunk in response.iter_bytes():
+                    if len(data) + len(chunk) > JSON_LIMIT or self.clock() - started >= 45:
+                        raise GraphError("graph_response_limit", uncertain=method != "GET")
+                    data.extend(chunk)
         try:
             result = json.loads(data)
             if not isinstance(result, dict):

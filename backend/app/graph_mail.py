@@ -7,6 +7,7 @@ from urllib.parse import quote
 from zoneinfo import ZoneInfo
 
 from app.graph import GraphError
+from app.graph_deadline import request_deadline
 
 CUTOFF = datetime(2026, 12, 1, tzinfo=ZoneInfo("Europe/Berlin")).astimezone(timezone.utc)
 CUTOFF_GRAPH = "2026-11-30T23:00:00Z"
@@ -176,7 +177,7 @@ class Mailbox:
             raise GraphError("graph_inbox_changed")
         url = self.client.root + "/messages/" + quote(current.id, safe="") + "/attachments/" + quote(value.id, safe="") + "/$value"
         started, count = self.client.clock(), 0
-        with TemporaryFile(mode="w+b") as output:
+        with TemporaryFile(mode="w+b") as output, request_deadline(self.MAX_DOWNLOAD_SECONDS):
             with self.client._response("GET", url) as response:
                 header = response.headers.get("Content-Length")
                 try:
@@ -184,7 +185,7 @@ class Mailbox:
                         raise GraphError("graph_download_limit")
                 except ValueError:
                     raise GraphError("graph_invalid_response") from None
-                for chunk in response.iter_bytes(chunk_size=65536):
+                for chunk in response.iter_bytes():
                     count += len(chunk)
                     if count > self.MAX_DOWNLOAD or self.client.clock() - started > self.MAX_DOWNLOAD_SECONDS:
                         raise GraphError("graph_download_limit")

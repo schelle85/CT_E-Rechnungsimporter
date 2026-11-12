@@ -42,6 +42,24 @@ geschlossen zurückgegeben. POST/PATCH werden nie automatisch wiederholt;
 Transportfehler/5xx kennzeichnen einen ungewissen Schreibausgang. Kein upstream
 Fehlertext, Token, Schlüssel oder Mailinhalt wird ausgegeben.
 
+Die45s werden im Linux-Hauptthread durch einen POSIX-Requesttimer über Tokenabruf,
+Retries und tatsächlichen Empfang begrenzt. Jeder Transportblock wird sofort
+geprüft, ohne64KiB-Anwendungspuffer. Der Timerabbruch ist kein vom SDK erneut
+versuchbarer Auth-/HTTP-Fehler; Verbindungen werden beim Unwinding geschlossen.
+Ein vorhandener fremder Timer, andere Plattform oder Threadnutzung wird geschlossen
+abgewiesen. Unterstützte Runtime ist die separate Linux-Betreiber-CLI.
+
+Zusätzlich führt die CLI die gesamte Operation in einem separaten Kindprozess
+aus: Probe60s, Scan180s ab Prozessstart einschließlich Initialisierung, Tokenauth,
+aller Seiten und Cleanup. Der Elternprozess liest keine Credentials. Bei Ablauf
+wird das Kind beendet, nötigenfalls hart getötet; bis zu zwei weitere Sekunden
+sind für die Terminierung vorgesehen. Es gibt keinen automatischen Neustart oder
+Replay. Dadurch sind auch im nativen Code hängende Aufrufe begrenzt. Ein möglicher
+Schreibausgang bleibt ungewiss und muss später persistent abgeglichen werden.
+Vier zusätzliche Tests belegen Small-Piece/Slow-Trickle mit kontrollierter Uhr,
+blockierenden Read, blockierenden Tokenabruf und Prozessabbruch. Der frühere
+64KiB-Pufferfehler ist damit in Korrekturversuch1 adressiert.
+
 ## Betreiberprofil – noch nicht anwenden
 
 `deploy/compose.graph.yaml` ergänzt ausschließlich einen manuell gestarteten

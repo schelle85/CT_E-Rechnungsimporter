@@ -4,14 +4,10 @@ import json
 import logging
 from app.graph import GraphError, operator_client
 from app.graph_mail import Mailbox, CUTOFF_GRAPH
+from app.graph_deadline import bounded_operation
 
 
-def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("command", choices=["probe", "scan"])
-    parser.add_argument("--config", default="/run/importer/graph.json")
-    parser.add_argument("--certificate", default="/run/secrets/graph_credential")
-    args = parser.parse_args()
+def execute(args):
     # HTTP diagnostics can contain resource IDs. This command emits only summaries.
     logging.disable(logging.CRITICAL)
     try:
@@ -22,11 +18,20 @@ def main():
                 values = Mailbox(client).scan()
                 result = {"scan_complete": True, "cutoff_utc": CUTOFF_GRAPH, "messages": len(values),
                           "attachments": sum(len(a) for _, a in values)}
-        print(json.dumps({"ok": True, **result}))
-        return 0
+        return {"ok": True, **result}
     except GraphError as error:
-        print(json.dumps({"ok": False, "code": error.code, "status": error.status}))
-        return 1
+        return {"ok": False, "code": error.code, "status": error.status, "uncertain": error.uncertain}
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("command", choices=["probe", "scan"])
+    parser.add_argument("--config", default="/run/importer/graph.json")
+    parser.add_argument("--certificate", default="/run/secrets/graph_credential")
+    args = parser.parse_args()
+    result = bounded_operation(execute, (args,), seconds=60 if args.command == "probe" else 180)
+    print(json.dumps(result))
+    return 0 if result["ok"] else 1
 
 
 if __name__ == "__main__":
