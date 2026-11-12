@@ -20,8 +20,8 @@ bereitgestellt. Die automatische Rechnungsverarbeitung ist noch nicht aktiviert.
 | AP01 – AD und Administration | Echte LDAPS-Anmeldung, Gruppenrechte, sichere Sitzungen, versionierte Einstellungen und Änderungsprotokoll implementiert. Vollzugriffstest durch den Betreiber bestätigt. |
 | AP01 – Kundenabnahme | Gesamtabnahme nach Kundentermin durch den Betreiber bestätigt. Bestehende AD-Anmeldung bleibt; SSO wurde verworfen. |
 | AP02 – Graph und Postfacheingang | Abgeschlossen: echte Zertifikatsanmeldung und gefilterter Leerabruf bestätigt; fünf Inbox-Zielordner samt Wiederverwendung live geprüft. Paging, Anhangabruf und getrennte persistente Aktionen isoliert geprüft; additives Schema003 bereitgestellt. |
-| AP03 – Anhänge erkennen | XML-/Hybridkern, PDF-Text und lokale OCR implementiert und unabhängig quellgeprüft. 54 Classifiertests bestanden; separate GET-only-Testquelle mit20 Schutztests zur Review geliefert. Kundenprobe/Bereitstellung separat. |
-| AP04 und folgende Pakete | Noch nicht freigegeben. Automatische Rechnungsverarbeitung ist nicht aktiviert. |
+| AP03 – Anhänge erkennen | Manuelle Erkennung von XML-/Hybridrechnungen, Rechnungs-PDFs und Zahlungsavisen mit bedarfsweiser OCR technisch bereit, synthetisch und unabhängig geprüft. Gemeinsamer fachlicher Abgleich offen. |
+| AP04 und folgende Pakete | Noch nicht freigegeben. Automatische Verarbeitung und Dateiablage sind nicht aktiviert. |
 
 Die angezeigten Rechnungsvorgänge sind weiterhin **synthetische Beispieldaten**.
 Anmeldung und Administration verwenden bereits die tatsächliche AD-Anbindung.
@@ -57,8 +57,9 @@ Bestehende frei lizenzierte Bibliotheken werden vor Eigenentwicklung geprüft.
 
 ## Prüfstand
 
-- AP03:54 echte Parser-/PDF-/OCR-Tests; separates20er-Transport-/Operatorpaket
-  und synthetischer Zwei-Container-Byte-/Hashnachweis. Kundenqualität separat offen.
+- AP03: Erkennungs-, OCR- und Lesegrenzen mit synthetischen Dokumenten geprüft;
+  Quellstände und isolierte Operatorabläufe unabhängig geprüft. Manuell technisch
+  bereit; gemeinsamer fachlicher Abgleich offen.
 - AP02: 66 Backendtests auf isolierter MariaDB 12.3 bestanden, einschließlich
   Paging-/Deadline-/Downloadfehlern, Aktionswiederaufnahme und Konkurrenz.
   Additive003-Migration erhält die Instanzkennung; bisherige API bleibt kompatibel.
