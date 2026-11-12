@@ -17,8 +17,9 @@ Stand: 8. November 2026. Lebende Markdown-Dokumentation, noch kein Abschlussberi
 - AP03a–c freigegeben auf dev/ap03 von mainbc7181f.
 - AP03a: XRechnung2.2/2.3/3.0 UBL/CII, ZUGFeRD1.0 und Factur-X/ZUGFeRD2-Profile,
  20Formatfälle und unabhängige Quell-Teilabnahme auf6ce8f06.
-- AP03b: PDFium-Textentscheidung mit14 echten PDF-Fällen und konservativen Gründen
-  implementiert; OCR und reine Testmailquelle noch nicht bereit.
+- AP03b: PDFium-Textentscheidung mit17 echten PDF-Tests und konservativen Gründen;
+  drei Reviewbefunde gezielt korrigiert (Titelreihenfolge, Begleitabschnitte,
+  repetitive Textebene). OCR und reine Testmailquelle noch nicht bereit.
 - Keine API-/DB-/Graphsecret-Erweiterung; Classifier separates manuelles Image.
 - AP04+ ohne Go. Kein SMB-Output, Worker, Routing oder Benachrichtigungsstart.
 - Verträge/Prüfung: [AP02](AP02-GRAPH.md), [AP03](AP03-RECOGNITION.md).

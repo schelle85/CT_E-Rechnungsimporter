@@ -73,6 +73,37 @@ class TextPdfTests(unittest.TestCase):
                                          "Diese allgemeinen Informationen sind keine Rechnung."]], "recognized", "PDF")
         self.check_pdf([INVOICE[:5], INVOICE[5:]], "recognized", "PDF")
 
+    def test_b_f1_independent_sections_in_every_order(self):
+        offer = ["Angebot", "Ein eigenständiger weiterer Geschäftsvorgang"]
+        separate_invoice = ["Rechnung", "Rechnungsnummer: SYN-2026-002"] + INVOICE[2:]
+        for first, second in ((offer, INVOICE), (INVOICE, offer), (AVIS, separate_invoice),
+                              (separate_invoice, AVIS), (AVIS, INVOICE), (INVOICE, AVIS)):
+            with self.subTest(first=first[0], second=second[0]):
+                self.check_pdf([first + second], "failed", reason="ambiguous_mixed_document")
+                self.check_pdf([first + ["Zusätzliche Hinweise zum Vorgang"] * 25 + second],
+                               "failed", reason="ambiguous_mixed_document")
+        self.check_pdf([INVOICE, ["Allgemeine Geschäftsbedingungen"] + AVIS],
+                       "failed", reason="ambiguous_mixed_document")
+        self.check_pdf([["Allgemeine Geschäftsbedingungen"] + AVIS, INVOICE],
+                       "failed", reason="ambiguous_mixed_document")
+        self.check_pdf([AVIS[:2] + ["Rechnung Nr. SYN-2026-001"] + AVIS[2:]], "recognized", "Zahlungsavis")
+
+    def test_b_f2_companion_sections_on_same_or_separate_page(self):
+        for heading in ("Allgemeine Geschäftsbedingungen", "Datenschutz", "Zahlungsbedingungen"):
+            appendix = [heading, "Diese allgemeinen Informationen sind keine Rechnung."]
+            with self.subTest(heading=heading):
+                self.check_pdf([INVOICE + appendix], "recognized", "PDF")
+                self.check_pdf([INVOICE, appendix], "recognized", "PDF")
+                self.check_pdf([appendix + AVIS, INVOICE], "failed", reason="ambiguous_mixed_document")
+        for negative in ("Dies ist keine Rechnung", "Proforma Rechnung", "Not an invoice"):
+            self.check_pdf([INVOICE + [negative]], "ignored", reason="explicit_non_invoice")
+
+    def test_b_f3_repetitive_long_text_never_allows_partial_success(self):
+        for noise in (["A" * 40] * 20, ["ABCD" * 20] * 20, ["AAAA AAAA AAAA AAAA"] * 20):
+            self.check_pdf([noise], "failed", reason="ocr_required")
+            self.check_pdf([INVOICE, noise], "failed", reason="ocr_required")
+        self.check_pdf([INVOICE[:5], INVOICE[5:]], "recognized", "PDF")
+
     def test_missing_or_invalid_date_or_total_stays_ambiguous(self):
         self.check_pdf([[line for line in INVOICE if "Gesamtbetrag" not in line]], "failed", reason="ambiguous_invoice")
         self.check_pdf([[line.replace("12.11.2026", "32.13.2026") for line in INVOICE]], "failed", reason="ambiguous_invoice")

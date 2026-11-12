@@ -20,6 +20,7 @@ TOTAL = re.compile(r"\b(?:gesamt(?:betrag|summe)?|rechnungsbetrag|zahlbetrag|zu 
 DATE_LABEL = re.compile(r"\b(?:rechnungsdatum|datum|invoice date|date|zahlungsdatum|payment date|valuta)\b")
 DATE_VALUE = re.compile(r"\b(?:(\d{4})-(\d{1,2})-(\d{1,2})|(\d{1,2})[./](\d{1,2})[./](\d{4}))\b")
 PAYMENT = re.compile(r"\b(?:wir\s+(?:uberweisen|zahlen)|uberweisung|zahlung(?:\s+erfolgt|\s+am)|zahlungsdatum|valuta|we\s+(?:pay|remit)|payment date|transfer(?:red)?)\b")
+OWN_INVOICE_DATE = re.compile(r"\b(?:rechnungsdatum|invoice date|gutschriftsdatum)\b")
 
 
 def normalized(value):
@@ -31,28 +32,49 @@ def usable(text):
     visible = [c for c in text if not c.isspace()]
     letters = sum(c.isalpha() for c in visible)
     broken = sum(c == "\ufffd" or unicodedata.category(c) in ("Co", "Cs", "Cn", "Cc") for c in visible)
-    return letters >= 12 and broken <= max(1, len(visible) // 50)
+    words = re.findall(r"[^\W\d_]+", normalized(text), re.UNICODE)
+    plausible = [word for word in words if 2 <= len(word) <= 35
+                 and (len(word) <= 3 or any(c in "aeiouy" for c in word))
+                 and max(word.count(c) for c in set(word)) <= max(2, len(word) * 0.7)]
+    return (letters >= 12 and broken <= max(1, len(visible) // 50) and len(plausible) >= 3
+            and sum(map(len, plausible)) >= letters * 0.7)
+
+
+def line_kind(line):
+    if AVIS_TITLE.fullmatch(line):
+        return "avis"
+    if INVOICE_TITLE.fullmatch(line):
+        return "invoice"
+    if line in OTHER_TITLES or any(re.fullmatch(re.escape(t) + r"\s+(?:nr\.?\s*)?[a-z0-9./-]*\d[a-z0-9./ -]*", line) for t in OTHER_TITLES):
+        return "other"
+    if line in TERMS_TITLES:
+        return "terms"
+    return None
+
+
+def sections(text):
+    lines = [re.sub(r"\s+", " ", normalized(line)).strip() for line in text.splitlines() if line.strip()]
+    headings = [(index, line_kind(line)) for index, line in enumerate(lines) if line_kind(line)]
+    result = [(None, lines[:headings[0][0]] if headings else lines)]
+    for offset, (index, kind) in enumerate(headings):
+        end = headings[offset + 1][0] if offset + 1 < len(headings) else len(lines)
+        block = lines[index:end]
+        # A numbered reference under advice/other/terms is not a second invoice.
+        # A standalone title or its own invoice-date section is independent evidence.
+        if (kind == "invoice" and result[-1][0] in ("avis", "other", "terms")
+                and any(c.isdigit() for c in lines[index])
+                and not any(OWN_INVOICE_DATE.search(line) for line in block[1:])):
+            result[-1][1].extend(block)
+        else:
+            result.append((kind, block))
+    return result
 
 
 def title(text):
-    primary = None
-    for line in text.splitlines():
-        line = re.sub(r"\s+", " ", normalized(line)).strip()
-        kind = None
-        if AVIS_TITLE.fullmatch(line):
-            kind = "avis"
-        elif INVOICE_TITLE.fullmatch(line):
-            kind = "invoice"
-        elif line in OTHER_TITLES or any(re.fullmatch(re.escape(t) + r"\s+(?:nr\.?\s*)?[a-z0-9./-]*\d[a-z0-9./ -]*", line) for t in OTHER_TITLES):
-            kind = "other"
-        elif line in TERMS_TITLES:
-            kind = "terms"
-        if primary is None:
-            primary = kind
-        elif primary == "invoice" and kind in ("avis", "other") or primary == "avis" and kind == "other":
-            return "mixed"
-        # Invoice-number fields below an advice title are references, not a new invoice title.
-    return primary
+    kinds = {kind for kind, _ in sections(text) if kind not in (None, "terms")}
+    if len(kinds) > 1:
+        return "mixed"
+    return next(iter(kinds)) if kinds else ("terms" if any(kind == "terms" for kind, _ in sections(text)) else None)
 
 
 def has_date(lines):
@@ -74,8 +96,7 @@ def decide_pages(pages, method="pdf_text"):
         return failed("ocr_required")
     types = {title(p) for p in pages}
     types.discard(None)
-    business_pages = [page for page in pages if title(page) != "terms"]
-    lines = [re.sub(r"\s+", " ", normalized(line)).strip() for page in business_pages for line in page.splitlines() if line.strip()]
+    lines = [line for page in pages for kind, block in sections(page) if kind != "terms" for line in block]
     text = "\n".join(lines)
     if len(text) > MAX_TEXT:
         raise RecognitionError("text_size_limit")

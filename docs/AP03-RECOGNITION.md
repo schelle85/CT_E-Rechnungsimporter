@@ -80,13 +80,21 @@ Einzelwort/IBAN genügen nicht; fehlende Evidenz ergibt Failed/ambiguous_*.
 
 Widersprüchliche eigenständige Dokumenttitel auf derselben oder einer Folgeseite
 führen zuFailed. Alle bereits begrenzten Textzeilen prüfen, kein Titel-Suchfenster.
+Hauptabschnitte unabhängig von ihrer Reihenfolge prüfen. Ein alleinstehender
+Rechnungstitel oder ein nummerierter Titel mit eigenem Rechnungsdatum zählt als
+eigenständiger Abschnitt; ein bloßes Rechnungsnummernfeld unter einem Avis bleibt
+Referenz. Begleitüberschriften verdecken keine späteren Hauptabschnitte.
 Erkennbare AGB-/Datenschutz-/Zahlungsbedingungen-Anhänge führen eine eindeutige
 Rechnung weiter; deren Beispiele/Negationen/Finanzangaben werden nicht als Merkmale
-des Hauptbelegs verwendet. Deutsche/englische numerische Standardfälle geprüft;
+des Hauptbelegs verwendet. Das gilt auch für Abschnitte auf derselben Seite;
+spätere eigenständige Dokumenttitel werden trotzdem geprüft. Offensichtlich
+repetitive Buchstabenfolgen oder unbrauchbare Wortstruktur gelten nicht als
+brauchbare Textebene und dürfen keinen positiven Teilerfolg ermöglichen.
+Deutsche/englische numerische Standardfälle geprüft;
 unbekannte Layouts oder ausgeschriebene Datumsformate können kontrolliert Failed
 ergeben. Noch keine behauptete Kunden-Erkennungsqualität ohne Kundenbeispiele.
 
-14 echte PDF-Textfälle prüfen Deutsch/Englisch/Umlaute, Avis mit Referenzen,
+17 echte PDF-Texttests prüfen Deutsch/Englisch/Umlaute, Avis mit Referenzen,
 eindeutig andere Dokumentarten, Negationen, einzelne Wörter/Bankangaben,
 widersprüchliche und späte Titel, erlaubte Begleitseiten, mehrseitige Summen,
 fehlendes/ungültiges Datum, Blanko-/Mischseiten, Größenlimit und echten begrenzten
