@@ -1,7 +1,8 @@
 # Arbeitspakete
 
-Stand: 8. November 2026. **AP00 ist im definierten Grundbereitstellungsumfang abgeschlossen;
-AP01a/b sind abgenommen, AP01c/d/e sind in Arbeit; AP02 bis AP09 sind noch nicht freigegeben.** AP10 ist für die spätere wöchentliche Wartung ergänzt.
+Stand: 12. November 2026. **AP00 ist im definierten Grundbereitstellungsumfang abgeschlossen;
+AP01 ist vollständig durch den Kunden abgenommen. AP02a–c ist freigegeben und in Entwicklung;
+AP03 bis AP10 sind noch nicht freigegeben.** AP10 ist für die spätere wöchentliche Wartung ergänzt.
 ORGA koordiniert, DEV implementiert, REVIEW prüft.
 Die Repositoryvorbereitung ist kein Beginn der Anwendungsentwicklung.
 
@@ -47,15 +48,15 @@ danach folgen AD-Anmeldung, Administrationsgrundlage und gemeinsame Abnahme.
 | --- | --- |
 | AP01a | Abgenommen: synthetischer Oberflächenentwurf, Desktop-/Mobilprüfung; Anmeldung und Administration noch gesperrt |
 | AP01b | Abgenommen: Docker-/Python-/TypeScript-/MariaDB-Grundbetrieb, echtes HTTPS/HTTP-Weiterleitung, Containerpersistenz und TLS-Reload |
-| AP01c | In Arbeit: verschlüsselte LDAP-Anmeldung, Gruppenrechte, Sitzungen und Abmeldung; positive/negative Zugriffsprüfung |
-| AP01d | In Arbeit: Administrationsgrundlage; geschützte Einstellungen und Änderungsprotokoll |
-| AP01e | Offen: Oberfläche und wirksame Backendrechte gemeinsam prüfbar zeigen |
+| AP01c | Abgenommen: verschlüsselte LDAP-Anmeldung, Gruppenrechte, Sitzungen und Abmeldung; positive/negative Zugriffsprüfung |
+| AP01d | Abgenommen: Administrationsgrundlage; geschützte Einstellungen und Änderungsprotokoll |
+| AP01e | Abgenommen: Oberfläche und Backendrechte geprüft; Kundengesamtabnahme12.11.2026 bestätigt |
 
 ## AP02: Graph und Postfacheingang - DEV
 
 | Teil | Ergebnis und Prüfung |
 | --- | --- |
-| AP02a | Zertifikatsanmeldung und Zugriff auf genau das vorgesehene Postfach |
+| AP02a | In Entwicklung: Zertifikatsclient/Betreiberprofil und isolierte Grenztests; noch nicht bereitgestellt |
 | AP02b | Vollständiger Abruf mit Paging und Stichtag; Altmails unverändert |
 | AP02c | Zielordner bei Fehlen anlegen, Verschieben/Fahne wiederaufnehmbar vorbereiten |
 

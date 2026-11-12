@@ -9,16 +9,17 @@ internen Webportal für Protokolle, Fehler und Dubletten.
 
 ## Projektstatus
 
-**Stand: 9. November 2026. AP01 ist technisch bereitgestellt; der CEO-Lesetest
-steht noch aus. AP01 bleibt bis zu dieser Abnahme offen.**
+**Stand: 12. November 2026. AP01 ist durch den Kunden vollständig abgenommen.
+AP02a–c ist freigegeben und in Entwicklung; noch keine AP02-Kundenbereitstellung.**
 
 | Paket | Stand |
 | --- | --- |
 | AP00 – technische Grundlage | Abgeschlossen: SSH/SMB, Zertifikate und begrenzter Graph-Zugriff einschließlich Testversand geprüft. |
 | AP01 – Design und Grundbetrieb | Docker-/MariaDB-/HTTPS-Grundbetrieb und Oberfläche unabhängig geprüft und bereitgestellt. HTTP leitet auf HTTPS um. |
 | AP01 – AD und Administration | Echte LDAPS-Anmeldung, Gruppenrechte, sichere Sitzungen, versionierte Einstellungen und Änderungsprotokoll implementiert. Vollzugriffstest durch den Betreiber bestätigt. |
-| AP01 – Leserabnahme | Isolierte Rollen-/Browserprüfungen bestanden; tatsächlicher CEO-Lesetest noch offen. |
-| AP02 und folgende Pakete | Noch nicht freigegeben. Automatischer Postfachlauf und Rechnungsverarbeitung folgen dort. |
+| AP01 – Kundenabnahme | Gesamtabnahme nach Kundentermin durch den Betreiber bestätigt. Bestehende AD-Anmeldung bleibt; SSO wurde verworfen. |
+| AP02 – Graph und Postfacheingang | Zertifikatsclient und isolierte Grenztests vorbereitet; Paging, Anhänge und getrennte wiederaufnehmbare Graph-Aktionen folgen im selben Paket. |
+| AP03 und folgende Pakete | Noch nicht freigegeben. Automatische Rechnungsverarbeitung ist nicht aktiviert. |
 
 Die angezeigten Rechnungsvorgänge sind weiterhin **synthetische Beispieldaten**.
 Anmeldung und Administration verwenden bereits die tatsächliche AD-Anbindung.
@@ -62,7 +63,7 @@ Bestehende frei lizenzierte Bibliotheken werden vor Eigenentwicklung geprüft.
 
 Quellstände und technische Bereitstellungsbelege wurden unabhängig unter Astra
 geprüft. Isolierte LDAP-/Browsertests ersetzen keine tatsächliche Benutzerabnahme;
-der Betreiber hat den Vollzugriff bestätigt, die CEO-Leserabnahme folgt noch.
+der Betreiber hat am12.11.2026 die vollständige Kundenabnahme gemeldet.
 
 ## Unterlagen
 
@@ -72,6 +73,7 @@ der Betreiber hat den Vollzugriff bestätigt, die CEO-Leserabnahme folgt noch.
 - [KI-Dokumentation und Wiedereinstieg](docs/KI-DOKUMENTATION.md)
 - [Arbeitsregeln für beteiligte KI-Chats](AGENTS.md)
 - [AP01: Anmeldung, Konfiguration und Betreiberabläufe](docs/AP01-SECURITY.md)
+- [AP02: Graph-Vertrag und isolierte Prüfung](docs/AP02-GRAPH.md)
 - [AP01: ursprünglicher Vorschauumfang](docs/AP01-PREVIEW.md)
 
 Diese README nennt den aktuellen Gesamtstand. Frühere Prüfstandsangaben in

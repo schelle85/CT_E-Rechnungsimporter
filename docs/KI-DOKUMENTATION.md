@@ -11,20 +11,16 @@ Stand: 8. November 2026. Lebende Markdown-Dokumentation, noch kein Abschlussberi
 
 ## Aktueller Stand
 
-- Repositorygrundstand und geprüfte SSH-/SMB-Vorbereitung vorhanden.
-- AP00-Grundbereitschaft geprüft; Graph-Zertifikatsanmeldung, begrenzter
-  Lesezugriff und synthetischer Versand mit separatem Empfang belegt.
-  Privater Schlüssel geschützt auf Ziel-VM.
-- DEV und REVIEW durch ORGA angelegt; interne Zuordnungen separat geführt.
-- AP01 freigegeben und begonnen: Design/HTTPS-Grundgerüst zuerst, dann
-  AD-Anmeldung und Administrationsgrundlage. AP02 bis AP10 noch nicht freigegeben.
-- AP01a/b auf festem Stand `13bc3047` durch Astra abgenommen: synthetische
-  Designvorschau, tatsächliches HTTPS mit HTTP-Weiterleitung, MariaDB-Migration,
-  Containerpersistenz und begrenzter TLS-Übernahme-/Reloadpfad geprüft.
-- AP01c/d/e in Entwicklung: echte AD-Anmeldung und geschützte Administration
-  erhalten eine separate Prüfung unter Astra vor dem nächsten Kundentest.
-- Synthetische AP00-Testmail zugestellt; keine Rechnungsverarbeitung begonnen.
-- Kein vollständiger VM-/Offsite-Restore oder produktiver Import nachgewiesen.
+- Stand12.11.2026: AP00 abgeschlossen; AP01 vollständig durch den Kunden abgenommen.
+- AD-Kennwortanmeldung bleibt bestehen; SSO wurde verworfen.
+- AP02a–c hat ausdrückliches Go und wird auf dev/ap02 entwickelt.
+- AP02a: Azure Identity1.27.0/HTTPX0.28.1, geschützter Zertifikatsclient und manuelles
+  Betreiberprofil vorhanden; isolierte Tests, keine Kundenbereitstellung.
+- Keine neuen Graph-Secrets in Dauer-API/Nginx/Migrator; ausschließlich Graph-CLI.
+- AP02b/c folgen mit Paging/Anhängen sowie getrennten persistenten Aktionen.
+- Keine Klassifikation, SMB-Ausgabe, Benachrichtigung oder automatische Verarbeitung.
+- AP03+ bleibt ohne Go. Kein vollständiger VM-/Offsite-Restore nachgewiesen.
+- Aktueller Vertrag, Grenzen und Prüfbefehle: [AP02-Graph](AP02-GRAPH.md).
 
 ## Rollen
 
@@ -33,20 +29,6 @@ ORGA koordiniert und verwaltet Lieferstände. DEV implementiert. REVIEW prüft u
 werden nicht durch Modellwechsel oder Aufteilung desselben Fehlers zurückgesetzt.
 Modellfreigaben und interne Chatzuordnung werden außerhalb dieses öffentlichen
 Repositorys durch ORGA gesteuert. Keine eigenständigen Zusatzagenten starten.
-
-## AP01 C/D/E – neuer Quellstand, noch nicht bereitgestellt
-
-AD-/Session-/CSRF-/Konfigurationsmodule und additive Migration002 implementiert.
-Eigene CDE-Tags; eingefrorener A/B-Betrieb bleibt bestehen. Reproduzierbarer
-MariaDB-/CLI-/Uvicorn-/Persistenzrunner im Produktrepo, zunächst16 Fälle bestanden.
-Zusätzliche echte TLS-Negativprobe und Root-Widerruf geprüft; abschließende
-TLS-Socketbereinigung im Quellstand benötigt noch Image-Neubau/Retest und Review.
-Quellnachtrag: ungewissen Benutzerbind nicht wiederholen, abgelaufene Login-
-Challenge erneuern, Leser-Einstellungen/Audit ohne Schreibaktionen anschließen.
-Neue Regressionstestquellen vorhanden, Ausführung/Build noch gesperrt.
-Kein Runtime-Demo-Login. Tatsächlicher Vollzugriffstest und Kunden-Lesetest
-bleiben für die abschließende AP01-Abnahme erforderlich.
-Vertrag/Befehle und genaue Livegrenzen: [AP01-Sicherheit](AP01-SECURITY.md).
 
 ## Geplante Architektur
 
@@ -92,31 +74,8 @@ Primärquellen: [Graph SDKs](https://learn.microsoft.com/en-us/graph/sdks/sdks-o
 
 ## Nächster Schritt
 
-AP00-Grundbereitschaft und AP01a/b sind geprüft; das eigene AP01-Go liegt vor.
-DEV bearbeitet AP01c/d/e gemäß konkreter ORGA-Übergabe. Implementierungs- und Prüfbefehle erst dokumentieren, sobald sie
-tatsächlich existieren und ausgeführt wurden. Keine erfundenen Startanweisungen.
-
-## Fortschreibung je Unterpaket
-
-AP01a/b-Abnahme 08.11.2026: Alembic-CLI-Import, MariaDB-DDL und Webnetz-Publishing
-in drei nachvollziehbaren Korrekturen behoben. Fester Stand `13bc3047` mit
-unabhängiger Astra-Prüfung und tatsächlichen HTTPS-/Persistenz-/Browserbelegen
-abgenommen. Keine echten Benutzer- oder Importdaten in der Vorschau. A/B-Betrieb
-bleibt vom parallel entstehenden C/D/E-Stand getrennt. AP01 insgesamt noch offen;
-siehe [Betriebsstand](BETRIEBSSTAND.md) und [Vorschaugrenzen](AP01-PREVIEW.md).
-
-AP00-Abschluss 08.11.2026: technische Grundlage unabhängig geprüft, Graph-
-Zertifikatsanmeldung und Leseabgrenzung sowie synthetischer Versand mit separatem
-Empfang und vorgesehenem Absender belegt. Kein tenantweiter Mailgrant, keine
-zusätzliche Postfachlizenz; AP01 ist inzwischen freigegeben; spätere AP bleiben ohne Go. Grenzen im Betriebsstand.
-
-Planungsnachtrag 08.11.2026 zu AP01: Designentwicklung und Vorschau direkt auf
-dem Kundenserver über HTTPS; CT-Webauftritt als Gestaltungsvorlage, Logo optional,
-bei Verwendung gerade und proportional. Nginx Open Source als
-Webserver/HTTPS-Reverse-Proxy vorgesehen.
-Dieser frühere Nachtrag war reine Planung; mit dem anschließenden AP01-Go
-beginnt nun die Umsetzung durch DEV.
-
-Paket, Commit, Ergebnis, passende Prüfung, Fehlerstatus, geänderte Invarianten
-und nächsten Schritt ergänzen. Für Review einen festen Commit sowie bei Fehlern
-Reproduktion und Versuchszähler angeben. Finale Markdown-Fassung in AP09c prüfen.
+AP02 in abgegrenzten festen Commits liefern und prüfen. Live-Ordneranlage,
+Schemaänderung und Betreiberbereitstellung erst nach REVIEW/ORGA. Alte AP01-
+Zwischenstände in Paketdokumenten sind historische Belege. Prüfergebnisse,
+Image-IDs und tatsächliche Bereitstellung getrennt benennen; kein Test schaltet
+Verarbeitung frei. Pro Fehler höchstens fünf gezielte DEV-Korrekturversuche.

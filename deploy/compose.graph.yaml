@@ -1,0 +1,25 @@
+# Optional, explicit operator command only. Never mount Graph keys in the API.
+services:
+  graph:
+    profiles: [graph-operator]
+    image: ${GRAPH_IMAGE:?Set a reviewed immutable AP02 image}
+    user: "10001:10001"
+    entrypoint: [python, -m, app.graph_cli]
+    command: [probe]
+    restart: "no"
+    read_only: true
+    tmpfs: ["/tmp:rw,noexec,nosuid,size=32m"]
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    networks: [web]
+    volumes:
+      - type: bind
+        source: ${GRAPH_CONFIG_HOST_FILE:?Set protected Graph JSON path}
+        target: /run/importer/graph.json
+        read_only: true
+        bind: {create_host_path: false}
+      - type: bind
+        source: ${GRAPH_CREDENTIAL_HOST_FILE:?Set protected Graph credential path}
+        target: /run/secrets/graph_credential
+        read_only: true
+        bind: {create_host_path: false}
