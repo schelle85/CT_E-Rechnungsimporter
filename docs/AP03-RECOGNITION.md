@@ -90,7 +90,11 @@ keine eigene Mahnung. Ein Avis/eine Mahnung darf sagen, keine Rechnung zu sein.
 Alle Textzeilen, Folgeseiten und unabhängig von ihrer Reihenfolge vorhandene Haupt-
 abschnitte bleiben geprüft. Widersprüchliche eigenständige Titel ergeben `unknown`.
 Rechnungsnummern unter Avis/Mahnung bleiben Referenzen; eigenständiges Rechnungsdatum
-oder alleinstehender Rechnungstitel bleibt ein unabhängiger Beleg. Begleitabschnitte
+oder eigener Rechnungsbelegzusammenhang bleibt ein unabhängiger Beleg, auch ohne Datum.
+Abschnittsbildung und Rechnungsentscheidung verwenden dieselbe Belegevidenz.
+Zahlungsdatum/Zahlbetrag allein sind Referenzkontext; eigene Positionsangaben können
+den Rechnungszusammenhang herstellen. Die AGB-Beispielkonvention bleibt erhalten.
+Ein alleinstehender Rechnungstitel wird weiter separat erfasst. Begleitabschnitte
 AGB/Datenschutz/Zahlungsbedingungen liefern keine Belegevidenz, verdecken spätere
 Hauptabschnitte aber nicht. Explizite Nicht-Rechnung/Proforma verhindert die
 Rechnungsentscheidung; Einzelwort und IBAN reichen weiterhin nicht.

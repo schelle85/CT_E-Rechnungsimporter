@@ -25,6 +25,7 @@ DATE_LABEL = re.compile(r"\b(?:rechnungs[- ]?datum|belegdatum|datum|invoice date
 DATE_VALUE = re.compile(r"\b(?:(\d{4})-(\d{1,2})-(\d{1,2})|(\d{1,2})[./](\d{1,2})[./](\d{4}))\b")
 PAYMENT = re.compile(r"\b(?:wir\s+(?:uberweisen|zahlen|ziehen|belasten)|uberweisung|zahlung(?:\s+erfolgt|\s+am)|zahlungsdatum|valuta|lastschrift|lastschrifteinzug|abbuchung|we\s+(?:pay|remit|collect)|payment date|transfer(?:red)?)\b")
 PAYMENT_DATE = re.compile(r"\b(?:zahlungsdatum|payment date|valuta|falligkeit)\b")
+PAYMENT_TOTAL = re.compile(r"\bzahlbetrag\b")
 LINE_ITEMS = re.compile(r"\b(?:artikel|position|menge|einzelpreis|leistungen|netto|mwst|ust|vat|quantity|unit price)\b")
 
 
@@ -69,14 +70,22 @@ def sections(text):
     for offset, (index, kind) in enumerate(headings):
         end = headings[offset + 1][0] if offset + 1 < len(headings) else len(lines)
         block = lines[index:end]
-        # A numbered reference under advice/other/terms is not a second invoice.
-        # A standalone title or its own invoice-date section is independent evidence.
+        # Numbered references are not automatically separate invoices. Use the
+        # same invoice evidence as the final decision, not just its date subset.
         if (kind == "invoice" and result[-1][0] in ("avis", "reminder", "other", "terms")
-                and any(c.isdigit() for c in lines[index])
-                and not has_date([line for line in block[1:] if not PAYMENT_DATE.search(line)])):
-            result[-1][1].extend(block)
-        else:
-            result.append((kind, block))
+                and any(c.isdigit() for c in lines[index])):
+            own_lines = [line for line in block if not PAYMENT_DATE.search(line)]
+            # Payment-only amounts/dates belong to advice/reminder references;
+            # actual item details can establish an invoice's own transaction.
+            if not LINE_ITEMS.search("\n".join(block[1:])):
+                own_lines = [line for line in own_lines if not PAYMENT_TOTAL.search(line)]
+            independent = has_date([line for line in block[1:] if not PAYMENT_DATE.search(line)])
+            if result[-1][0] != "terms":  # Keep the established terms-example convention.
+                independent = independent or invoice_evidence(own_lines) is not None
+            if not independent:
+                result[-1][1].extend(block)
+                continue
+        result.append((kind, block))
     return result
 
 
@@ -110,6 +119,20 @@ def has_date(lines):
     return False
 
 
+def invoice_evidence(lines):
+    """Shared by section independence and the unchanged invoice acceptance rules."""
+    text = "\n".join(lines)
+    invoice_id, dated = bool(INVOICE_ID.search(text)), has_date(lines)
+    has_total = any(AMOUNT.search(line) for line in label_values(lines, TOTAL))
+    if invoice_id and dated and has_total:
+        return "invoice_title_id_date_total"
+    if invoice_id and dated:
+        return "invoice_title_reference_date"
+    if has_total and (invoice_id or LINE_ITEMS.search(text)):
+        return "invoice_title_total_transaction"
+    return None
+
+
 def decide_pages(pages, method="pdf_text"):
     if not pages or any(not usable(p) for p in pages):
         return failed("ocr_unreadable")
@@ -135,12 +158,9 @@ def decide_pages(pages, method="pdf_text"):
             return Finding("recognized", "Mahnung", "PDF-Mahnung", "reminder_title_amount_or_reference_date", method)
         return unknown("ambiguous_reminder", method)
     if "invoice" in types:
-        if invoice_id and dated and has_total:
-            return Finding("recognized", "PDF", "PDF-Rechnung", "invoice_title_id_date_total", method)
-        if invoice_id and dated:
-            return Finding("recognized", "PDF", "PDF-Rechnung", "invoice_title_reference_date", method)
-        if has_total and (invoice_id or LINE_ITEMS.search(text)):
-            return Finding("recognized", "PDF", "PDF-Rechnung", "invoice_title_total_transaction", method)
+        reason = invoice_evidence(lines)
+        if reason is not None:
+            return Finding("recognized", "PDF", "PDF-Rechnung", reason, method)
         return unknown("ambiguous_invoice", method)
     if "other" in types or types == {"terms"}:
         return ignored("irrelevant_document_type")

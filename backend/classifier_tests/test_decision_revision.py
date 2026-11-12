@@ -66,6 +66,33 @@ class DecisionRevisionTests(unittest.TestCase):
             result = self.check(first + "\n" + second, "unknown")
             self.assertEqual(result.reason, "ambiguous_mixed_document")
 
+    def test_b_f1_3_dateless_invoice_is_independent_in_both_orders_and_layouts(self):
+        invoices = ("Rechnung Nr. SAMPLE-123\nArtikel und Leistungen\nGesamtbetrag: 119,00 EUR",
+                    "Rechnung Nr. SAMPLE-123\nGesamtbetrag: 119,00 EUR",
+                    "Rechnung Nr. SAMPLE-123\nArtikel und Leistungen\nZahlbetrag: 119,00 EUR")
+        for invoice in invoices:
+            self.check(invoice, "recognized", "PDF")
+            for other in (ADVICE, REMINDER, "Angebot\nEin eigenständiger weiterer Geschäftsvorgang"):
+                for first, second in ((other, invoice), (invoice, other)):
+                    for pages in ([first + "\n" + second], [first, second]):
+                        with self.subTest(invoice=invoice, other=other, pages=len(pages), first=first):
+                            result = decide_pages(pages)
+                            self.assertEqual((result.status, result.reason), ("unknown", "ambiguous_mixed_document"))
+
+    def test_b_f1_3_payment_fields_do_not_turn_numbered_references_into_invoices(self):
+        references = ("Rechnung Nr. SAMPLE-123",
+                      "Rechnung Nr. SAMPLE-123\nZahlungsdatum: 12.11.2026\nZahlbetrag: 119,00 EUR",
+                      "Rechnung Nr. SAMPLE-123\nValuta:\n12.11.2026\nZahlbetrag:\n119,00 EUR")
+        for other, category in ((ADVICE, "Zahlungsavis"), (REMINDER, "Mahnung")):
+            for reference in references:
+                with self.subTest(category=category, reference=reference):
+                    self.check(other + "\n" + reference, "recognized", category)
+
+    def test_b_f1_3_terms_reference_convention_is_preserved(self):
+        self.check("Allgemeine Geschäftsbedingungen\nBeispiel für die Zuordnung:\n"
+                   "Rechnung Nr. SAMPLE-123\nArtikel und Leistungen\nGesamtbetrag: 119,00 EUR",
+                   "ignored")
+
     def test_uncertainty_preserves_method_and_technical_failure_stays_failed(self):
         result = decide_pages(["Bitte prüfen Sie die beigefügten Unterlagen."], "ocr")
         self.assertEqual((result.status, result.method), ("unknown", "ocr"))

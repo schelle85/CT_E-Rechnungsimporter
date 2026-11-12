@@ -117,6 +117,15 @@ class TextPdfTests(unittest.TestCase):
                                    "unknown", reason="ambiguous_mixed_document")
         self.check_pdf([AVIS[:2] + ["Rechnung Nr. SYN-2026-001"] + AVIS[2:]], "recognized", "Zahlungsavis")
 
+    def test_b_f1_3_independent_dateless_invoice_after_advice_or_reminder(self):
+        invoice = [line for line in INVOICE if "Rechnungsdatum" not in line]
+        reminder = ["Zahlungserinnerung", "Bitte begleichen Sie die offenen Posten.", "Gesamtbetrag: 119,00 EUR"]
+        for other in (AVIS, reminder):
+            for first, second in ((other, invoice), (invoice, other)):
+                with self.subTest(first=first[0]):
+                    self.check_pdf([first + second], "unknown", reason="ambiguous_mixed_document")
+                    self.check_pdf([first, second], "unknown", reason="ambiguous_mixed_document")
+
     def test_b_f3_repetition_across_whitespace_and_lines(self):
         for separator in (" ", "  ", "\t"):
             noise = [separator.join(["ABCD"] * 4)] * 20
