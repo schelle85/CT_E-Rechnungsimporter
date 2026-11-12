@@ -104,6 +104,26 @@ class TextPdfTests(unittest.TestCase):
             self.check_pdf([INVOICE, noise], "failed", reason="ocr_required")
         self.check_pdf([INVOICE[:5], INVOICE[5:]], "recognized", "PDF")
 
+    def test_b_f1_generic_date_sections_remain_independent(self):
+        offer = ["Angebot", "Ein eigenständiger weiterer Geschäftsvorgang"]
+        for label in ("Datum", "Date", "Invoice date", "Rechnungsdatum"):
+            invoice = [line.replace("Rechnungsdatum:", label + ":") for line in INVOICE]
+            with self.subTest(label=label):
+                self.check_pdf([invoice], "recognized", "PDF")
+                for other in (offer, AVIS):
+                    self.check_pdf([other + invoice], "failed", reason="ambiguous_mixed_document")
+                    self.check_pdf([invoice + other], "failed", reason="ambiguous_mixed_document")
+                    self.check_pdf([["Allgemeine Geschäftsbedingungen"] + other + invoice],
+                                   "failed", reason="ambiguous_mixed_document")
+        self.check_pdf([AVIS[:2] + ["Rechnung Nr. SYN-2026-001"] + AVIS[2:]], "recognized", "Zahlungsavis")
+
+    def test_b_f3_repetition_across_whitespace_and_lines(self):
+        for separator in (" ", "  ", "\t"):
+            noise = [separator.join(["ABCD"] * 4)] * 20
+            self.check_pdf([noise], "failed", reason="ocr_required")
+            self.check_pdf([INVOICE, noise], "failed", reason="ocr_required")
+        self.check_pdf([INVOICE[:5], INVOICE[5:]], "recognized", "PDF")
+
     def test_missing_or_invalid_date_or_total_stays_ambiguous(self):
         self.check_pdf([[line for line in INVOICE if "Gesamtbetrag" not in line]], "failed", reason="ambiguous_invoice")
         self.check_pdf([[line.replace("12.11.2026", "32.13.2026") for line in INVOICE]], "failed", reason="ambiguous_invoice")

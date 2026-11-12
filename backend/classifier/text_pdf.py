@@ -1,5 +1,6 @@
 """Bounded PDFium text extraction and conservative, explainable document rules."""
 from datetime import date
+from collections import Counter
 import re
 import unicodedata
 from classifier.model import Finding, RecognitionError, failed, ignored
@@ -20,7 +21,7 @@ TOTAL = re.compile(r"\b(?:gesamt(?:betrag|summe)?|rechnungsbetrag|zahlbetrag|zu 
 DATE_LABEL = re.compile(r"\b(?:rechnungsdatum|datum|invoice date|date|zahlungsdatum|payment date|valuta)\b")
 DATE_VALUE = re.compile(r"\b(?:(\d{4})-(\d{1,2})-(\d{1,2})|(\d{1,2})[./](\d{1,2})[./](\d{4}))\b")
 PAYMENT = re.compile(r"\b(?:wir\s+(?:uberweisen|zahlen)|uberweisung|zahlung(?:\s+erfolgt|\s+am)|zahlungsdatum|valuta|we\s+(?:pay|remit)|payment date|transfer(?:red)?)\b")
-OWN_INVOICE_DATE = re.compile(r"\b(?:rechnungsdatum|invoice date|gutschriftsdatum)\b")
+PAYMENT_DATE = re.compile(r"\b(?:zahlungsdatum|payment date|valuta)\b")
 
 
 def normalized(value):
@@ -36,7 +37,9 @@ def usable(text):
     plausible = [word for word in words if 2 <= len(word) <= 35
                  and (len(word) <= 3 or any(c in "aeiouy" for c in word))
                  and max(word.count(c) for c in set(word)) <= max(2, len(word) * 0.7)]
-    return (letters >= 12 and broken <= max(1, len(visible) // 50) and len(plausible) >= 3
+    dominant = max((len(word) * count for word, count in Counter(words).items()), default=0)
+    return (letters >= 12 and dominant <= letters * 0.6
+            and broken <= max(1, len(visible) // 50) and len(plausible) >= 3
             and sum(map(len, plausible)) >= letters * 0.7)
 
 
@@ -63,7 +66,7 @@ def sections(text):
         # A standalone title or its own invoice-date section is independent evidence.
         if (kind == "invoice" and result[-1][0] in ("avis", "other", "terms")
                 and any(c.isdigit() for c in lines[index])
-                and not any(OWN_INVOICE_DATE.search(line) for line in block[1:])):
+                and not has_date([line for line in block[1:] if not PAYMENT_DATE.search(line)])):
             result[-1][1].extend(block)
         else:
             result.append((kind, block))
