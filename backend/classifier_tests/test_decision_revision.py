@@ -57,6 +57,30 @@ class DecisionRevisionTests(unittest.TestCase):
             self.check(text + "\nRechnung Nr. SAMPLE-123", "recognized", "Mahnung")
         self.check("Zahlungserinnerung\nBitte prüfen Sie die beigefügten Unterlagen.", "unknown")
 
+    def test_variant_k1_slash_pre_notification_and_date_suffix_reminder(self):
+        for heading in ("SEPA-Firmenlastschrift/Pre-Notifikation", "SEPA-Firmenlastschrift / Pre-Notifikation"):
+            self.check(heading + "\nWir belasten Ihr Konto per Lastschrift.\nZahlbetrag: 119,00 EUR",
+                       "recognized", "Zahlungsavis")
+            self.check(heading + "\nAllgemeine Hinweise zum Verfahren.", "unknown")
+        for heading in ("Zahlungserinnerung vom 12.11.2026", "Mahnung vom 12/11/2026"):
+            self.check(REMINDER.replace("Zahlungserinnerung", heading), "recognized", "Mahnung")
+            self.check(heading + "\nBitte prüfen Sie die beigefügten Unterlagen.", "unknown")
+
+    def test_variant_k1_does_not_treat_inline_mentions_or_prefixed_titles_as_headings(self):
+        for text in ("Hinweise zur SEPA-Firmenlastschrift/Pre-Notifikation",
+                     "Bitte beachten Sie die Zahlungserinnerung vom 12.11.2026.",
+                     "Allgemeiner Hinweis R E C H N U N G"):
+            self.check(text + "\nArtikel und Leistungen\nGesamtbetrag: 119,00 EUR", "unknown")
+
+    def test_variant_k1_titles_preserve_mixed_document_guard_in_both_orders(self):
+        advice = "SEPA-Firmenlastschrift/Pre-Notifikation\nWir belasten Ihr Konto.\nZahlbetrag: 119,00 EUR"
+        reminder = REMINDER.replace("Zahlungserinnerung", "Zahlungserinnerung vom 12.11.2026")
+        invoice = "Rechnung Nr. SAMPLE-123\nArtikel und Leistungen\nGesamtbetrag: 119,00 EUR"
+        for other in (advice, reminder):
+            for first, second in ((other, invoice), (invoice, other)):
+                result = self.check(first + "\n" + second, "unknown")
+                self.assertEqual(result.reason, "ambiguous_mixed_document")
+
     def test_reminder_mentions_in_terms_are_not_a_second_document(self):
         self.check(INVOICE + "\nAllgemeine Geschäftsbedingungen\nBei Mahnung können weitere Kosten entstehen.",
                    "recognized", "PDF")

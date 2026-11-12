@@ -126,6 +126,13 @@ class TextPdfTests(unittest.TestCase):
                     self.check_pdf([first + second], "unknown", reason="ambiguous_mixed_document")
                     self.check_pdf([first, second], "unknown", reason="ambiguous_mixed_document")
 
+    def test_variant_k1_slash_notice_and_dated_reminder_pdf_titles(self):
+        for lines, category in ((["SEPA-Firmenlastschrift/Pre-Notifikation",
+                                 "Wir belasten Ihr Konto per Lastschrift.", "Zahlbetrag: 119,00 EUR"], "Zahlungsavis"),
+                                (["Zahlungserinnerung vom 12.11.2026",
+                                  "Bitte begleichen Sie die offenen Posten.", "Gesamtbetrag: 119,00 EUR"], "Mahnung")):
+            self.check_pdf([lines], "recognized", category)
+
     def test_b_f3_repetition_across_whitespace_and_lines(self):
         for separator in (" ", "  ", "\t"):
             noise = [separator.join(["ABCD"] * 4)] * 20

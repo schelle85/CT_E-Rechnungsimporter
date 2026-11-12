@@ -9,6 +9,11 @@ ist ein separater manueller Operatorweg, kein Produktivworker. Der Nachtest verw
 vorhandene Dateien und benötigte keinen erneuten Postfachabruf. Laufende API/Web/DB
 und Produktivprofile wurden nicht umgeschaltet; AP04+ bleibt ohne pauschales Go.
 
+Begrenzter Quellnachtrag zur Deltaprüfung: Pre-Notifikation mit `/` als Titeltrenner
+und Mahnung/Zahlungserinnerung mit `vom <Datum>` als Überschrift. Das sind zusätzliche
+vollständig verankerte Titelformen; beliebige Textpräfixe werden nicht entfernt.
+Noch kein neuer Runtimebuild oder Dateinachtest für diesen Nachtrag.
+
 ## Vorhandene Bausteine
 
 Die eigentliche Dokumentverarbeitung bleibt bei vorhandenen OSS-Bibliotheken:

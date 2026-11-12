@@ -23,6 +23,10 @@ bereitgestellt. Die automatische Rechnungsverarbeitung ist noch nicht aktiviert.
 | AP03 – Anhänge erkennen | Revision4: Quellprüfung bestanden, separates Runtimeimage gebaut und isolierter Dateinachtest abgeschlossen. Unbekannt sowie Mahnung/Zahlungserinnerung ergänzt. Fachliche Restfälle und Gesamtabnahme bleiben offen. |
 | AP04 und folgende Pakete | Noch nicht freigegeben. Automatische Verarbeitung und Dateiablage sind nicht aktiviert. |
 
+Ein begrenzter Quellnachtrag für einen Titeltrenner und datierte Mahnungsüberschriften
+liegt zur Deltaprüfung vor. Der bisherige Runtime-/Dateinachtest bezieht sich weiterhin
+auf `2ae6c13`; der Nachtrag wird erst nach erneutem Quellreview gebaut und nachgetestet.
+
 Die angezeigten Rechnungsvorgänge sind weiterhin **synthetische Beispieldaten**.
 Anmeldung und Administration verwenden bereits die tatsächliche AD-Anbindung.
 Das blau-weiße E-Favicon ist eingebunden und über HTTPS geprüft.
