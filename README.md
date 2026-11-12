@@ -10,8 +10,8 @@ internen Webportal für Protokolle, Fehler und Dubletten.
 ## Projektstatus
 
 **Stand: 12. November 2026. AP01 ist durch den Kunden vollständig abgenommen.
-AP02a–c ist freigegeben und teilweise technisch bereitgestellt; Ordneranlage
-und AP02-Gesamtprüfung sind noch offen.**
+AP02a–c ist im vereinbarten Grundlagenumfang technisch abgeschlossen und
+bereitgestellt. Die automatische Rechnungsverarbeitung ist noch nicht aktiviert.**
 
 | Paket | Stand |
 | --- | --- |
@@ -19,7 +19,7 @@ und AP02-Gesamtprüfung sind noch offen.**
 | AP01 – Design und Grundbetrieb | Docker-/MariaDB-/HTTPS-Grundbetrieb und Oberfläche unabhängig geprüft und bereitgestellt. HTTP leitet auf HTTPS um. |
 | AP01 – AD und Administration | Echte LDAPS-Anmeldung, Gruppenrechte, sichere Sitzungen, versionierte Einstellungen und Änderungsprotokoll implementiert. Vollzugriffstest durch den Betreiber bestätigt. |
 | AP01 – Kundenabnahme | Gesamtabnahme nach Kundentermin durch den Betreiber bestätigt. Bestehende AD-Anmeldung bleibt; SSO wurde verworfen. |
-| AP02 – Graph und Postfacheingang | Zertifikatsclient/Paging/Stichtag geprüft, reale manuelle Leerabfrage bestätigt. Anhangabruf und getrennte persistente Aktionen isoliert geprüft. Additives Schema003 bereitgestellt; Ordneranlage und Gesamtprüfung noch offen. |
+| AP02 – Graph und Postfacheingang | Abgeschlossen: echte Zertifikatsanmeldung und gefilterter Leerabruf bestätigt; fünf Inbox-Zielordner samt Wiederverwendung live geprüft. Paging, Anhangabruf und getrennte persistente Aktionen isoliert geprüft; additives Schema003 bereitgestellt. |
 | AP03 und folgende Pakete | Noch nicht freigegeben. Automatische Rechnungsverarbeitung ist nicht aktiviert. |
 
 Die angezeigten Rechnungsvorgänge sind weiterhin **synthetische Beispieldaten**.
@@ -41,6 +41,10 @@ Das blau-weiße E-Favicon ist eingebunden und über HTTPS geprüft.
   Betreiber-Rückweg. Geheimniswerte werden nicht zurückangezeigt.
 - Host-SMB-Mounts für die spätere Dokumentablage und vorhandene TLS-Zertifikate;
   Quellcode und Datenbank liegen auf lokalem VM-Speicher.
+- Manuelle Graph-Betreiberprofile: Lesen ohne Datenbankzugriff, Aktionen mit
+  persistentem Journal und Migration ausschließlich im internen Datenbanknetz.
+  Der Graph-Schlüssel ist ausschließlich den benötigenden CLI-Prozessen lesend
+  zugänglich; die laufende Web-API erhält ihn nicht.
 
 Der Zugang erfolgt ausschließlich im Kundennetz beziehungsweise über die
 vorgesehene VPN und die konfigurierte HTTPS-Adresse. Tatsächliche Hostnamen,
@@ -52,9 +56,14 @@ Bestehende frei lizenzierte Bibliotheken werden vor Eigenentwicklung geprüft.
 
 ## Prüfstand
 
-- AP02:66Backendtests auf isolierter MariaDB12.3 bestanden, einschließlich
+- AP02: 66 Backendtests auf isolierter MariaDB 12.3 bestanden, einschließlich
   Paging-/Deadline-/Downloadfehlern, Aktionswiederaufnahme und Konkurrenz.
   Additive003-Migration erhält die Instanzkennung; bisherige API bleibt kompatibel.
+- Echte Graph-Leseprobe vollständig mit null Nachrichten vor dem festgelegten
+  Stichtag. Fünf direkte sichtbare Inbox-Ziele unabhängig geprüft; ein zweiter
+  Ordnerlauf verwendet dieselben IDs und abgeschlossenen Journalzustände wieder.
+  Live wurden keine Nachrichten verschoben oder gekennzeichnet. Der leere
+  Abruf ersetzt keine Paging-/Move-/Flag-Prüfung; diese erfolgte isoliert.
 - 20 Backendtests einschließlich Rollen, Sitzungen, CSRF, Kontosperre,
   Rechteentzug, Konfigurationswechsel und TLS-Fehlerpfaden bestanden.
 - Vier Node-Tests für den Loginablauf und drei Browserproben für erneuerte
