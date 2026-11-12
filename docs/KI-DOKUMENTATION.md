@@ -17,7 +17,8 @@ Stand: 8. November 2026. Lebende Markdown-Dokumentation, noch kein Abschlussberi
 - AP02a: Azure Identity1.27.0/HTTPX0.28.1, geschützter Zertifikatsclient und manuelles
   Betreiberprofil vorhanden; isolierte Tests, keine Kundenbereitstellung.
 - Keine neuen Graph-Secrets in Dauer-API/Nginx/Migrator; ausschließlich Graph-CLI.
-- AP02b/c folgen mit Paging/Anhängen sowie getrennten persistenten Aktionen.
+- AP02b: Paging/Stichtag/Anhangmetadaten und begrenzte Rohbytefunktion implementiert,
+  isoliert geprüft. AP02c folgt mit getrennten persistenten Aktionen.
 - Keine Klassifikation, SMB-Ausgabe, Benachrichtigung oder automatische Verarbeitung.
 - AP03+ bleibt ohne Go. Kein vollständiger VM-/Offsite-Restore nachgewiesen.
 - Aktueller Vertrag, Grenzen und Prüfbefehle: [AP02-Graph](AP02-GRAPH.md).

@@ -3,11 +3,12 @@ import argparse
 import json
 import logging
 from app.graph import GraphError, operator_client
+from app.graph_mail import Mailbox, CUTOFF_GRAPH
 
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("command", choices=["probe"])
+    parser.add_argument("command", choices=["probe", "scan"])
     parser.add_argument("--config", default="/run/importer/graph.json")
     parser.add_argument("--certificate", default="/run/secrets/graph_credential")
     args = parser.parse_args()
@@ -15,7 +16,12 @@ def main():
     logging.disable(logging.CRITICAL)
     try:
         with operator_client(args.config, args.certificate) as client:
-            result = client.probe()
+            if args.command == "probe":
+                result = client.probe()
+            else:
+                values = Mailbox(client).scan()
+                result = {"scan_complete": True, "cutoff_utc": CUTOFF_GRAPH, "messages": len(values),
+                          "attachments": sum(len(a) for _, a in values)}
         print(json.dumps({"ok": True, **result}))
         return 0
     except GraphError as error:

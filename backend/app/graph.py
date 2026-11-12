@@ -126,6 +126,8 @@ class GraphClient:
                         code = {401: "graph_unauthorized", 403: "graph_forbidden", 404: "graph_not_found",
                                 429: "graph_retry_later"}.get(status, "graph_http_error")
                         raise GraphError(code, status, method != "GET" and status >= 500)
+                    if response.headers.get("Content-Encoding", "identity").lower() not in ("", "identity"):
+                        raise GraphError("graph_unexpected_encoding", uncertain=method != "GET")
                     yield response
                     return
             except (httpx.HTTPError, OSError):

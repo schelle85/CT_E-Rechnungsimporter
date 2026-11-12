@@ -18,7 +18,7 @@ AP02a–c ist freigegeben und in Entwicklung; noch keine AP02-Kundenbereitstellu
 | AP01 – Design und Grundbetrieb | Docker-/MariaDB-/HTTPS-Grundbetrieb und Oberfläche unabhängig geprüft und bereitgestellt. HTTP leitet auf HTTPS um. |
 | AP01 – AD und Administration | Echte LDAPS-Anmeldung, Gruppenrechte, sichere Sitzungen, versionierte Einstellungen und Änderungsprotokoll implementiert. Vollzugriffstest durch den Betreiber bestätigt. |
 | AP01 – Kundenabnahme | Gesamtabnahme nach Kundentermin durch den Betreiber bestätigt. Bestehende AD-Anmeldung bleibt; SSO wurde verworfen. |
-| AP02 – Graph und Postfacheingang | Zertifikatsclient und isolierte Grenztests vorbereitet; Paging, Anhänge und getrennte wiederaufnehmbare Graph-Aktionen folgen im selben Paket. |
+| AP02 – Graph und Postfacheingang | Zertifikatsclient, Paging/Stichtag und begrenzter Anhangabruf isoliert geprüft; getrennte wiederaufnehmbare Graph-Aktionen folgen. Noch nicht bereitgestellt. |
 | AP03 und folgende Pakete | Noch nicht freigegeben. Automatische Rechnungsverarbeitung ist nicht aktiviert. |
 
 Die angezeigten Rechnungsvorgänge sind weiterhin **synthetische Beispieldaten**.

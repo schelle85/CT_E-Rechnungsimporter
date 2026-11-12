@@ -57,7 +57,7 @@ danach folgen AD-Anmeldung, Administrationsgrundlage und gemeinsame Abnahme.
 | Teil | Ergebnis und Prüfung |
 | --- | --- |
 | AP02a | In Entwicklung: Zertifikatsclient/Betreiberprofil und isolierte Grenztests; noch nicht bereitgestellt |
-| AP02b | Vollständiger Abruf mit Paging und Stichtag; Altmails unverändert |
+| AP02b | Implementiert, isoliert geprüft: vollständiges Paging/Stichtag/Anhangmetadaten und begrenzte Rohbytefunktion; keine Liveprobe |
 | AP02c | Zielordner bei Fehlen anlegen, Verschieben/Fahne wiederaufnehmbar vorbereiten |
 
 ## AP03: Anhänge erkennen - DEV

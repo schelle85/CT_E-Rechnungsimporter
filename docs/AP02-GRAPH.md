@@ -63,11 +63,51 @@ Größenlimit/ungültiges JSON und neutrale Auth-Fehler. Ausführung mit
 Kein echter Graph-Zugriff oder Geheimnis nötig. Lockdateien wurden im isolierten
 Linux/Python3.13-Build aufgelöst; bestehende AP01-Versionen bleiben erhalten.
 
+## AP02b: Inbox und Anhänge
+
+`python -m app.graph_cli scan` liest die Inbox mit festem serverseitigem Filter
+`receivedDateTime ge 2026-11-30T23:00:00Z` und aufsteigendem Eingangsdatum. Das ist
+01.12.2026 00:00 Europe/Berlin. Datum und Offset werden zusätzlich lokal geprüft;
+fehlende, ungültige, naive oder frühere Zeiten verhindern jede direkte
+Anhangabfrage. Es gibt keinen konfigurierbaren früheren Produktivstichtag.
+
+Alle Nachrichten- und Anhangseiten werden verfolgt, auch leere Zwischenseiten.
+Fortsetzungen bleiben unverändert, müssen aber denselben Collectionpfad und
+Postfachkontext behalten. ImmutableId-Header bei jedem Request; überlappende IDs
+deduplizieren, widersprüchliche Metadaten führen zum Fehler. Erst alle
+Nachrichtenseiten sammeln, danach Anhänge lesen; niemals während Paging ändern.
+Ein Teilfehler ergibt keinen erfolgreichen vollständigen Scan. Grenzen:
+1000Seiten/10000Nachrichten/1000Anhänge je Mail/20000Anhänge je Scan/120s.
+Überschreitungen ergeben explizite Fehler. Ein Graph-Paginglauf ist kein atomarer
+Snapshot; externe Änderungen können einen neuen vollständigen Lauf erfordern.
+Es wird kein Highwatermark fortgeschrieben und kein Vorgang automatisch ausgelöst.
+
+Mailbody, Betreff und Absender werden nicht angefordert. Der CLI-Bericht enthält
+nur Vollständigkeit, Stichtag und Zähler. Die Bibliothek hält begrenzte Metadaten
+im Prozess. Jede Mail wird auf Anhänge geprüft, auch bei `hasAttachments:false`,
+weil Inline-Anhänge darin nicht zuverlässig enthalten sind. Originalname, Größe,
+Typ und Inline-Merkmal bleiben erhalten. Datei-/Item-/Referenz-/unbekannte
+Anhangtypen werden ausdrücklich unterschieden, ohne Inhaltsklassifikation.
+
+`Mailbox.attachment_content(message_id, attachment_id)` ist eine Bibliotheksfunktion,
+kein CLI-Export oder Webdownload. Vor Listen- und Rohbytezugriff wird die echte
+Eingangszeit erneut gelesen. Nur File/Item unterstützen Rohbytes; Item ist MIME.
+Referenz/unbekannt werden ausdrücklich abgewiesen, externe URLs nie verfolgt.
+Der Inhalt landet in einer generierten temporären Datei mit automatisch geschlossenem
+Handle, niemals unter dem untrusted Originalnamen. Grenze25MiB/120s pro Download,
+Header- und tatsächlich empfangene Größe prüfen, komprimierte HTTP-Antworten
+abweisen; keine stille Teilantwort. `attachment.size` ist Metadatum und kann
+Overhead enthalten; Rohbytelänge wird nicht unbelegt damit gleichgesetzt.
+Keine SMB-Ablage, Formaterkennung, OCR oder Mehrfachanhangentscheidung.
+
+Neun zusätzliche synthetische AP02b-Tests decken Grenzzeit/Offsets, direkte
+Altmailsperre, überlappende/leere Seiten, fehlerhafte Fortsetzungen/Teilabbruch,
+Inline-/Anhangtypen und Paging, Originalbytes von File/Item, sichere temporäre
+Pfade, Download-/Encoding-/Collectiongrenzen und geänderten Inboxbestand ab.
+
 ## Noch ausstehend
 
-AP02b ergänzt vollständiges Paging und begrenzte Anhangdownloads mit unveränderlichem
-Stichtag01.12.2026 Europe/Berlin =30.11.2026 23:00 UTC. AP02c ergänzt getrennte
-persistente Folder-/Move-/Flag-Absichten und additive DB-Revision003.
-Diese Funktionen sind in diesem ersten Lieferstand noch nicht vorhanden.
+AP02c ergänzt getrennte persistente Folder-/Move-/Flag-Absichten und additive
+DB-Revision003. Diese Funktionen sind in diesem Lieferstand noch nicht vorhanden.
 Live-Ordneranlage, echte Leerabfrage und spätere begrenzte synthetische
 Mutationsproben erfolgen ausschließlich nach festem Review-/Betreiberplan.
