@@ -13,8 +13,9 @@ Stand: 12. November 2026. Lebende Markdown-Dokumentation, noch kein Gesamtabschl
 
 - AP00/AP02 technisch abgeschlossen, AP01 durch den Kunden abgenommen.
 - AD-Kennwortanmeldung bleibt; SSO verworfen. Schema003 und fünf Inboxziele bereit.
-- AP03-Revision4: Quellreview auf `2ae6c13` bestanden, B-F1 nach Versuch3 geschlossen.
-  Separates Runtimeimage gebaut und isolierter Dateinachtest abgeschlossen.
+- AP03-Revision4 samt Titelvariantennachtrag: Quellreview auf `e49ccdb` bestanden,
+  B-F1 bleibt nach Versuch3 geschlossen. Separates Runtimeimage gebaut und isolierter
+  abschließender Dateinachtest durchgeführt; weitere fachliche Restfälle bleiben offen.
 - `unknown` für lesbare unklare Zuordnung; Mahnung umfasst Zahlungserinnerung.
   Titel-/Label-/Avisregeln und Übergabeverträge geprüft. Fachliche Restfälle bleiben offen.
 - Bestehende API/Web/DB und Produktivprofile unverändert; keine automatische Verarbeitung,

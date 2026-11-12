@@ -1,7 +1,7 @@
 # AP03 – Erkennungsumfang und Isolation
 
 Stand12.11.2026: AP03a–c freigegeben. Quellrevision `ap03-4` einschließlich der
-Abschnittskorrektur auf `2ae6c13` unabhängig geprüft. Separates Runtimeimage aus
+Abschnitts- und Titelkorrektur auf `e49ccdb` unabhängig geprüft. Separates Runtimeimage aus
 diesem Stand gebaut und im isolierten Dateinachtest verwendet. Fachliche Restfälle
 bleiben offen; kein AP03-Gesamt-PASS. XML-/Hybridstruktur, PDF-Text und bedarfsweise
 lokale OCR bleiben getrennt geprüft. Die [streng lesende Testmailquelle](AP03-TEST-SOURCE.md)
@@ -9,10 +9,10 @@ ist ein separater manueller Operatorweg, kein Produktivworker. Der Nachtest verw
 vorhandene Dateien und benötigte keinen erneuten Postfachabruf. Laufende API/Web/DB
 und Produktivprofile wurden nicht umgeschaltet; AP04+ bleibt ohne pauschales Go.
 
-Begrenzter Quellnachtrag zur Deltaprüfung: Pre-Notifikation mit `/` als Titeltrenner
-und Mahnung/Zahlungserinnerung mit `vom <Datum>` als Überschrift. Das sind zusätzliche
-vollständig verankerte Titelformen; beliebige Textpräfixe werden nicht entfernt.
-Noch kein neuer Runtimebuild oder Dateinachtest für diesen Nachtrag.
+Geprüfter Titelvariantennachtrag: Pre-Notifikation mit `/` als Titeltrenner und
+Mahnung/Zahlungserinnerung mit `vom <Datum>` als Überschrift. Beide zusätzlichen
+vollständig verankerten Titelformen wurden im isolierten Dateinachtest bestätigt.
+Beliebige Textpräfixe werden nicht entfernt; keine zusätzliche Layout-/Feldnormalisierung.
 
 ## Vorhandene Bausteine
 
