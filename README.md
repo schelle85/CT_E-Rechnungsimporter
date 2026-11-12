@@ -20,7 +20,8 @@ bereitgestellt. Die automatische Rechnungsverarbeitung ist noch nicht aktiviert.
 | AP01 – AD und Administration | Echte LDAPS-Anmeldung, Gruppenrechte, sichere Sitzungen, versionierte Einstellungen und Änderungsprotokoll implementiert. Vollzugriffstest durch den Betreiber bestätigt. |
 | AP01 – Kundenabnahme | Gesamtabnahme nach Kundentermin durch den Betreiber bestätigt. Bestehende AD-Anmeldung bleibt; SSO wurde verworfen. |
 | AP02 – Graph und Postfacheingang | Abgeschlossen: echte Zertifikatsanmeldung und gefilterter Leerabruf bestätigt; fünf Inbox-Zielordner samt Wiederverwendung live geprüft. Paging, Anhangabruf und getrennte persistente Aktionen isoliert geprüft; additives Schema003 bereitgestellt. |
-| AP03 und folgende Pakete | Noch nicht freigegeben. Automatische Rechnungsverarbeitung ist nicht aktiviert. |
+| AP03 – Anhänge erkennen | Freigegeben: XML-/Hybrid-PDF-Formatkern isoliert geprüft; Textentscheidung und OCR folgen. Keine Kundenbereitstellung oder Testmailabholung. |
+| AP04 und folgende Pakete | Noch nicht freigegeben. Automatische Rechnungsverarbeitung ist nicht aktiviert. |
 
 Die angezeigten Rechnungsvorgänge sind weiterhin **synthetische Beispieldaten**.
 Anmeldung und Administration verwenden bereits die tatsächliche AD-Anbindung.
@@ -87,6 +88,7 @@ der Betreiber hat am12.11.2026 die vollständige Kundenabnahme gemeldet.
 - [Arbeitsregeln für beteiligte KI-Chats](AGENTS.md)
 - [AP01: Anmeldung, Konfiguration und Betreiberabläufe](docs/AP01-SECURITY.md)
 - [AP02: Graph-Vertrag und isolierte Prüfung](docs/AP02-GRAPH.md)
+- [AP03: Erkennungsumfang, Isolation und Prüfungen](docs/AP03-RECOGNITION.md)
 - [AP01: ursprünglicher Vorschauumfang](docs/AP01-PREVIEW.md)
 
 Diese README nennt den aktuellen Gesamtstand. Frühere Prüfstandsangaben in

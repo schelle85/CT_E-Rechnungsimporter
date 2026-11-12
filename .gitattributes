@@ -12,3 +12,6 @@
 *.pdf binary
 *.png binary
 *.jpg binary
+backend/classifier_tests/references/** -text
+backend/requirements-classifier*.in text eol=lf
+backend/requirements-classifier*.lock text eol=lf

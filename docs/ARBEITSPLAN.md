@@ -1,8 +1,8 @@
 # Arbeitspakete
 
 Stand: 12. November 2026. **AP00 ist im definierten Grundbereitstellungsumfang abgeschlossen;
-AP01 ist vollständig durch den Kunden abgenommen. AP02a–c ist freigegeben und in Entwicklung;
-AP03 bis AP10 sind noch nicht freigegeben.** AP10 ist für die spätere wöchentliche Wartung ergänzt.
+AP01 ist vollständig durch den Kunden abgenommen. AP02a–c ist technisch abgeschlossen;
+AP03a–c ist freigegeben und in Entwicklung, AP04 bis AP10 sind noch nicht freigegeben.** AP10 ist für die spätere wöchentliche Wartung ergänzt.
 ORGA koordiniert, DEV implementiert, REVIEW prüft.
 Die Repositoryvorbereitung ist kein Beginn der Anwendungsentwicklung.
 
@@ -57,14 +57,14 @@ danach folgen AD-Anmeldung, Administrationsgrundlage und gemeinsame Abnahme.
 | Teil | Ergebnis und Prüfung |
 | --- | --- |
 | AP02a | Implementiert/geprüft: Zertifikatsclient und manuelle Betreiberprobe; kein dauernder Graphdienst |
-| AP02b | Implementiert, isoliert geprüft: vollständiges Paging/Stichtag/Anhangmetadaten und begrenzte Rohbytefunktion; keine Liveprobe |
-| AP02c | Implementiert/isoliert geprüft: persistente Zielordner-/Move-/Flag-Aktionen, additive003 bereitgestellt; Aktionsfix-/Ordnerabnahme noch offen |
+| AP02b | Abgeschlossen: Paging/Stichtag/Anhangabruf isoliert; echte gefilterte Leerprobe bestätigt |
+| AP02c | Abgeschlossen: additive003 und fünf Inboxziele mit Wiederverwendung bereitgestellt; Move/Flag isoliert geprüft, keine echten Mailmutationen |
 
 ## AP03: Anhänge erkennen - DEV
 
 | Teil | Ergebnis und Prüfung |
 | --- | --- |
-| AP03a | ZUGFeRD-/XRechnung-Inhaltserkennung mit vorhandenen Bibliotheken; Originalausgabe |
+| AP03a | Implementiert und isoliert geprüft: ZUGFeRD1/2, Factur-X und XRechnung3.0 mit vorhandenen Bibliotheken, keine Vollvalidierung |
 | AP03b | Gewöhnliche Rechnungs-PDFs/Zahlungsavise nachvollziehbar unterscheiden; Gegenbeispiele prüfen |
 | AP03c | OCR für seltene Scans, konkrete Fehlergründe, unveränderte Originale |
 

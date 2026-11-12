@@ -1,0 +1,8 @@
+ARG CLASSIFIER_IMAGE=invoice-importer-classifier:ap03-a
+FROM ${CLASSIFIER_IMAGE}
+USER root
+COPY backend/requirements-classifier-test.lock /tmp/requirements-test.lock
+RUN pip install --no-cache-dir -r /tmp/requirements-test.lock
+COPY backend/classifier_tests ./classifier_tests/
+USER 10001:10001
+ENTRYPOINT ["python", "-m", "unittest", "discover", "-s", "classifier_tests", "-v"]

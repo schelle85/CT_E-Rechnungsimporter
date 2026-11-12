@@ -1,0 +1,25 @@
+# Manual, credential-free document recognition. Merge only after fixed-image review.
+services:
+  classifier:
+    profiles: [classifier-operator]
+    image: ${CLASSIFIER_IMAGE:?Set reviewed immutable classifier image}
+    user: "10001:10001"
+    restart: "no"
+    network_mode: none
+    read_only: true
+    tmpfs: ["/tmp:rw,noexec,nosuid,size=128m"]
+    mem_limit: 512m
+    memswap_limit: 512m
+    cpus: 1
+    pids_limit: 64
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    ulimits:
+      core: 0
+      nofile: {soft: 128, hard: 128}
+    volumes:
+      - type: bind
+        source: ${CLASSIFIER_INPUT_HOST_FILE:?Set one explicit input file}
+        target: /input/document
+        read_only: true
+        bind: {create_host_path: false}

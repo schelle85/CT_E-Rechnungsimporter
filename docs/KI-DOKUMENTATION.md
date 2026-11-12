@@ -11,22 +11,16 @@ Stand: 8. November 2026. Lebende Markdown-Dokumentation, noch kein Abschlussberi
 
 ## Aktueller Stand
 
-- Stand12.11.2026: AP00 abgeschlossen; AP01 vollständig durch den Kunden abgenommen.
-- AD-Kennwortanmeldung bleibt bestehen; SSO wurde verworfen.
-- AP02a–c hat ausdrückliches Go und wird auf dev/ap02 entwickelt.
-- AP02a: Azure Identity1.27.0/HTTPX0.28.1, geschützter Zertifikatsclient und manuelles
-  Betreiberprofil vorhanden; isolierte Tests, keine Kundenbereitstellung.
-- Keine neuen Graph-Secrets in Dauer-API/Nginx/Migrator; ausschließlich Graph-CLI.
-- AP02b: Paging/Stichtag/Anhangmetadaten und begrenzte Rohbytefunktion implementiert,
-  isoliert geprüft; reale gefilterte einmalige Leerabfrage0/0 durch ORGA bestätigt.
-- AP02c: getrennte persistente Folder-/Move-/Flag-Aktionen implementiert und auf
-  isolierter MariaDB geprüft. Revision003_graph_actions durch ORGA mit Backup
-  bereitgestellt, UUID/Bestand/Container erhalten. Noch keine Ordner-/Mailmutation.
-- 66Backendtests einschließlich Postwrite-Abgleichfehlern bestanden; vorherige API kompatibel
-  mit additivem003-Schema, kein alter Migrator gegen003. Operatorvertrag im AP02-Dokument.
-- Keine Klassifikation, SMB-Ausgabe, Benachrichtigung oder automatische Verarbeitung.
-- AP03+ bleibt ohne Go. Kein vollständiger VM-/Offsite-Restore nachgewiesen.
-- Aktueller Vertrag, Grenzen und Prüfbefehle: [AP02-Graph](AP02-GRAPH.md).
+- Stand12.11.2026: AP00/AP02 technisch abgeschlossen, AP01 durch den Kunden abgenommen.
+- AD-Kennwortanmeldung bleibt; SSO verworfen. Schema003 und fünf Inboxziele bereit.
+- Keine echte Mailmutation oder automatische Rechnungsverarbeitung aus AP02 ableiten.
+- AP03a–c freigegeben auf dev/ap03 von mainbc7181f.
+- AP03a: XRechnung3.0 UBL/CII, ZUGFeRD1.0 und Factur-X/ZUGFeRD2-Profile als
+  eigenständiger credentialfreier Formatkern mit15 isolierten Tests implementiert.
+- Textentscheidung und OCR noch in Arbeit; reine Testmailquelle noch nicht bereit.
+- Keine API-/DB-/Graphsecret-Erweiterung; Classifier separates manuelles Image.
+- AP04+ ohne Go. Kein SMB-Output, Worker, Routing oder Benachrichtigungsstart.
+- Verträge/Prüfung: [AP02](AP02-GRAPH.md), [AP03](AP03-RECOGNITION.md).
 
 ## Rollen
 

@@ -10,8 +10,8 @@
   08.11.2026 freigegeben; Graph-Grundanbindung ist der erste Einrichtungsschritt.
   Innerhalb eines freigegebenen AP koordiniert ORGA DEV/REVIEW bis zum Abschluss
   oder zu einer konkreten Frage/Blockade. AP01 ist seit 12.11.2026 vollständig
-  durch den Kunden abgenommen. AP02a–c ist seit 12.11.2026 freigegeben;
-  AP03 und spätere AP sind noch nicht freigegeben.
+  durch den Kunden abgenommen. AP02a–c ist technisch abgeschlossen.
+  AP03a–c ist seit12.11.2026 freigegeben; AP04 und spätere AP bleiben ohne Go.
 - Keine zusätzlichen Agenten oder Chats ohne entsprechenden Auftrag.
 
 ## Auftrag und vorhandene Lösungen

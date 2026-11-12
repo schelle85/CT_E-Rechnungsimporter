@@ -1,0 +1,43 @@
+{
+  "repository": "akretion/factur-x",
+  "commit": "650cfe34ec524ec39ea106a09df6d0cc259813a4",
+  "license": "BSD-3-Clause",
+  "files": {
+    "zugferd-basic.xml": {
+      "source": "tests/fixtures/xml/zugferd-basic.xml",
+      "sha256": "c42178ac1f44eec4d0406375406a3cfe95c5b01f52f62c76a539e851703d1f7b"
+    },
+    "zugferd-comfort.xml": {
+      "source": "tests/fixtures/xml/zugferd-comfort.xml",
+      "sha256": "a1886065e47a8a8680937a0f7c4f217da88fc76cf3f8f6b5d3378a9d794a63b9"
+    },
+    "zugferd-extended.xml": {
+      "source": "tests/fixtures/xml/zugferd-extended.xml",
+      "sha256": "eb3fc7cde4a5dc0136c0dcba5158e17216a5bca43ecf9dce6e46cb951721bb19"
+    },
+    "factur-x-minimum.xml": {
+      "source": "tests/fixtures/xml/factur-x-minimum.xml",
+      "sha256": "d8ffdb05dd8f4d4530cebcd1f04a934883a5a43c2ddf67a0dd1f46d4e5c926c2"
+    },
+    "factur-x-basicwl.xml": {
+      "source": "tests/fixtures/xml/factur-x-basicwl.xml",
+      "sha256": "0bdb1d8ef92dc233c163edc6f276878decba91d43c3f30012a343415c6f6ce25"
+    },
+    "factur-x-basic.xml": {
+      "source": "tests/fixtures/xml/factur-x-basic.xml",
+      "sha256": "52e2eff7f456184aa123b0f41257ce704425ca741eef90cfc04301db1d32212c"
+    },
+    "factur-x-en16931.xml": {
+      "source": "tests/fixtures/xml/factur-x-en16931.xml",
+      "sha256": "a1170c61c250e653e8fc520135797dd67d59f538254490dadd9b112ecafa1053"
+    },
+    "factur-x-extended.xml": {
+      "source": "tests/fixtures/xml/factur-x-extended.xml",
+      "sha256": "4b3b1b0deb893265acf853a0d8cd1ffb1c295f48f1967a28a87911f4488b2281"
+    },
+    "LICENSE.txt": {
+      "source": "LICENSE.txt",
+      "sha256": "cd6f2a43e65215c5a11a51161d2881f025ef1c984267fed20431aa49c763d90d"
+    }
+  }
+}
