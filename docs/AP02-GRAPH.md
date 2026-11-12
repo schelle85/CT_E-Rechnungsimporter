@@ -59,6 +59,10 @@ Schreibausgang bleibt ungewiss und muss später persistent abgeglichen werden.
 Vier zusätzliche Tests belegen Small-Piece/Slow-Trickle mit kontrollierter Uhr,
 blockierenden Read, blockierenden Tokenabruf und Prozessabbruch. Der frühere
 64KiB-Pufferfehler ist damit in Korrekturversuch1 adressiert.
+F1-Korrekturversuch2 beendet den Download-Empfangstimer ausdrücklich vor der
+Übergabe des fertigen Handles. Callerarbeit und verschachtelte spätere Graph-
+Aufrufe erben keinen Transporttimer. Zusätzliche Tests belegen dies und den
+Downloadabbruch bei kleinen Transportstücken samt geschlossenem Stream.
 
 ## Betreiberprofil – noch nicht anwenden
 

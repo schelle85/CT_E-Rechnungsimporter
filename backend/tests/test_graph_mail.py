@@ -222,6 +222,29 @@ class GraphMailTests(unittest.TestCase):
         with box.attachment_content("m1", "a1") as output:
             self.assertEqual(output.read(), b"")
 
+    def test_finished_download_does_not_lend_timer_to_caller(self):
+        import signal
+        box, remote = self.mailbox()
+        with box.attachment_content("m1", "a1") as output:
+            self.assertEqual(signal.getitimer(signal.ITIMER_REAL), (0.0, 0.0))
+            self.assertEqual(box.client.probe(), {"mailbox_access": "ok"})
+            self.assertEqual(output.read(), remote.raw)
+
+    def test_download_trickle_stops_at_receive_budget_and_closes_stream(self):
+        from test_graph_deadline import Trickle
+        box, remote = self.mailbox()
+        now = [0]
+        box.client.clock = lambda: now[0]
+        box.MAX_DOWNLOAD_SECONDS = 3
+        stream = Trickle(lambda: now.__setitem__(0, now[0] + 1))
+        remote.override = lambda r: httpx.Response(200, stream=stream) if r.url.path.endswith("/$value") else None
+        with self.assertRaises(GraphError) as raised:
+            with box.attachment_content("m1", "a1"):
+                self.fail("no partial content")
+        self.assertEqual(raised.exception.code, "graph_download_limit")
+        self.assertEqual(stream.consumed, 3)
+        self.assertTrue(stream.closed)
+
     def test_rescan_after_partial_page_failure_restarts_complete_scan(self):
         box, remote = self.mailbox()
         remote.messages["m2"] = message("m2", "2026-12-02T12:00:00Z")

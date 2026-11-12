@@ -177,21 +177,22 @@ class Mailbox:
             raise GraphError("graph_inbox_changed")
         url = self.client.root + "/messages/" + quote(current.id, safe="") + "/attachments/" + quote(value.id, safe="") + "/$value"
         started, count = self.client.clock(), 0
-        with TemporaryFile(mode="w+b") as output, request_deadline(self.MAX_DOWNLOAD_SECONDS):
-            with self.client._response("GET", url) as response:
-                if response.status_code != 200 or "Content-Range" in response.headers:
-                    raise GraphError("graph_incomplete_attachment", response.status_code)
-                header = response.headers.get("Content-Length")
-                try:
-                    if header is not None and (int(header) < 0 or int(header) > self.MAX_DOWNLOAD):
-                        raise GraphError("graph_download_limit")
-                except ValueError:
-                    raise GraphError("graph_invalid_response") from None
-                for chunk in response.iter_bytes():
-                    count += len(chunk)
-                    if count > self.MAX_DOWNLOAD or self.client.clock() - started > self.MAX_DOWNLOAD_SECONDS:
-                        raise GraphError("graph_download_limit")
-                    output.write(chunk)
+        with TemporaryFile(mode="w+b") as output:
+            with request_deadline(self.MAX_DOWNLOAD_SECONDS):
+                with self.client._response("GET", url) as response:
+                    if response.status_code != 200 or "Content-Range" in response.headers:
+                        raise GraphError("graph_incomplete_attachment", response.status_code)
+                    header = response.headers.get("Content-Length")
+                    try:
+                        if header is not None and (int(header) < 0 or int(header) > self.MAX_DOWNLOAD):
+                            raise GraphError("graph_download_limit")
+                    except ValueError:
+                        raise GraphError("graph_invalid_response") from None
+                    for chunk in response.iter_bytes():
+                        count += len(chunk)
+                        if count > self.MAX_DOWNLOAD or self.client.clock() - started >= self.MAX_DOWNLOAD_SECONDS:
+                            raise GraphError("graph_download_limit")
+                        output.write(chunk)
             # Graph attachment.size can include overhead; do not silently equate it to raw byte length.
             output.seek(0)
             yield output
