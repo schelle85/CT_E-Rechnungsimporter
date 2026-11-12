@@ -96,7 +96,7 @@ def has_date(lines):
 
 def decide_pages(pages, method="pdf_text"):
     if not pages or any(not usable(p) for p in pages):
-        return failed("ocr_required")
+        return failed("ocr_unreadable")
     types = {title(p) for p in pages}
     types.discard(None)
     lines = [line for page in pages for kind, block in sections(page) if kind != "terms" for line in block]
@@ -146,9 +146,13 @@ def extract_pages(data):
                         textpage.close()
                 finally:
                     page.close()
+            from classifier.ocr import complete_pages
+            pages, method = complete_pages(document, pages, usable, MAX_TEXT)
+            if sum(len(p) for p in pages) > MAX_TEXT:
+                raise RecognitionError("text_size_limit")
         finally:
             document.close()
-        return pages
+        return pages, method
     except RecognitionError:
         raise
     except Exception:
@@ -156,4 +160,5 @@ def extract_pages(data):
 
 
 def analyze_pdf(data):
-    return decide_pages(extract_pages(data))
+    pages, method = extract_pages(data)
+    return decide_pages(pages, method)

@@ -9,17 +9,19 @@ from pathlib import Path
 import resource
 import signal
 import stat
+import tempfile
 import time
 
 MAX_INPUT = 25 * 1024 * 1024
 WALLCLOCK = 120
 
 
-def child(send, data):
+def child(send, data, work_directory):
     os.setsid()
+    tempfile.tempdir = work_directory
     resource.setrlimit(resource.RLIMIT_AS, (512 * 1024 * 1024,) * 2)
     resource.setrlimit(resource.RLIMIT_CPU, (90, 90))
-    resource.setrlimit(resource.RLIMIT_FSIZE, (2 * 1024 * 1024,) * 2)
+    resource.setrlimit(resource.RLIMIT_FSIZE, (16 * 1024 * 1024,) * 2)
     resource.setrlimit(resource.RLIMIT_NOFILE, (128, 128))
     resource.setrlimit(resource.RLIMIT_CORE, (0, 0))
     logging.disable(logging.CRITICAL)
@@ -41,9 +43,10 @@ def child(send, data):
 
 def bounded_classify(data, seconds=WALLCLOCK):
     context = multiprocessing.get_context("spawn")
+    temporary = tempfile.TemporaryDirectory(prefix="ct-classifier-")
     receive, send = context.Pipe(duplex=False)
-    process = context.Process(target=child, args=(send, data))
-    common = {"original_sha256": hashlib.sha256(data).hexdigest(), "rule_version": "ap03-2"}
+    process = context.Process(target=child, args=(send, data, temporary.name))
+    common = {"original_sha256": hashlib.sha256(data).hexdigest(), "rule_version": "ap03-3"}
     started = time.monotonic()
     try:
         process.start()
@@ -75,6 +78,7 @@ def bounded_classify(data, seconds=WALLCLOCK):
                     time.sleep(0.03)
             process.join(1)
             process.close()
+        temporary.cleanup()
 
 
 def read_input(path):

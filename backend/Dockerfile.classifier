@@ -1,5 +1,12 @@
 FROM python:3.13-slim@sha256:e48f59cdba69a3cbd9ed2cf0f348d90d45a8d350d98134cf1070bc106ee9ed90
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 PIP_DISABLE_PIP_VERSION_CHECK=1
+COPY backend/requirements-classifier-native.lock /tmp/native.lock
+RUN apt-get update \
+    && xargs apt-get install -y --no-install-recommends < /tmp/native.lock \
+    && dpkg-query -W > /usr/local/share/classifier-native-packages.txt \
+    && sha256sum /usr/share/tesseract-ocr/5/tessdata/*.traineddata \
+       > /usr/local/share/classifier-model-hashes.txt \
+    && rm -rf /var/lib/apt/lists/*
 WORKDIR /work
 COPY backend/requirements-classifier.lock ./requirements.lock
 RUN pip install --no-cache-dir --only-binary=:all: -r requirements.lock

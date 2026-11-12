@@ -100,8 +100,8 @@ class TextPdfTests(unittest.TestCase):
 
     def test_b_f3_repetitive_long_text_never_allows_partial_success(self):
         for noise in (["A" * 40] * 20, ["ABCD" * 20] * 20, ["AAAA AAAA AAAA AAAA"] * 20):
-            self.check_pdf([noise], "failed", reason="ocr_required")
-            self.check_pdf([INVOICE, noise], "failed", reason="ocr_required")
+            self.check_pdf([noise], "failed", reason="ocr_unreadable")
+            self.check_pdf([INVOICE, noise], "failed", reason="ocr_unreadable")
         self.check_pdf([INVOICE[:5], INVOICE[5:]], "recognized", "PDF")
 
     def test_b_f1_generic_date_sections_remain_independent(self):
@@ -120,17 +120,17 @@ class TextPdfTests(unittest.TestCase):
     def test_b_f3_repetition_across_whitespace_and_lines(self):
         for separator in (" ", "  ", "\t"):
             noise = [separator.join(["ABCD"] * 4)] * 20
-            self.check_pdf([noise], "failed", reason="ocr_required")
-            self.check_pdf([INVOICE, noise], "failed", reason="ocr_required")
+            self.check_pdf([noise], "failed", reason="ocr_unreadable")
+            self.check_pdf([INVOICE, noise], "failed", reason="ocr_unreadable")
         self.check_pdf([INVOICE[:5], INVOICE[5:]], "recognized", "PDF")
 
     def test_missing_or_invalid_date_or_total_stays_ambiguous(self):
         self.check_pdf([[line for line in INVOICE if "Gesamtbetrag" not in line]], "failed", reason="ambiguous_invoice")
         self.check_pdf([[line.replace("12.11.2026", "32.13.2026") for line in INVOICE]], "failed", reason="ambiguous_invoice")
 
-    def test_blank_and_mixed_unreadable_pages_require_ocr(self):
-        self.check_pdf([[]], "failed", reason="ocr_required")
-        self.check_pdf([INVOICE, []], "failed", reason="ocr_required")
+    def test_blank_and_mixed_unreadable_pages_fail_after_ocr(self):
+        self.check_pdf([[]], "failed", reason="ocr_unreadable")
+        self.check_pdf([INVOICE, []], "failed", reason="ocr_unreadable")
 
     def test_real_pdfium_text_limit_is_closed(self):
         with patch("classifier.text_pdf.MAX_PAGE_TEXT", 20):

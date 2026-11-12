@@ -19,7 +19,9 @@ Stand: 8. November 2026. Lebende Markdown-Dokumentation, noch kein Abschlussberi
  20Formatfälle und unabhängige Quell-Teilabnahme auf6ce8f06.
 - AP03b: PDFium-Textentscheidung mit19 echten PDF-Tests und konservativen Gründen;
   drei Reviewbefunde gezielt korrigiert (Titelreihenfolge, Begleitabschnitte,
-  repetitive Textebene). OCR und reine Testmailquelle noch nicht bereit.
+  repetitive Textebene). B-F1/B-F3 nach gezieltem Versuch2 zur Nachprüfung geliefert.
+- AP03c: lokale PDFium/Tesseract-OCR mit15 echten OCR-Tests implementiert;
+  zusammen54 Classifiertests bestanden. Separate Testmailquelle noch nicht bereit.
 - Keine API-/DB-/Graphsecret-Erweiterung; Classifier separates manuelles Image.
 - AP04+ ohne Go. Kein SMB-Output, Worker, Routing oder Benachrichtigungsstart.
 - Verträge/Prüfung: [AP02](AP02-GRAPH.md), [AP03](AP03-RECOGNITION.md).

@@ -1,8 +1,11 @@
 ARG CLASSIFIER_IMAGE=invoice-importer-classifier:ap03-a
 FROM ${CLASSIFIER_IMAGE}
 USER root
+RUN apt-get update && apt-get install -y --no-install-recommends fonts-dejavu-core=2.37-8 \
+    && rm -rf /var/lib/apt/lists/*
 COPY backend/requirements-classifier-test.lock /tmp/requirements-test.lock
 RUN pip install --no-cache-dir -r /tmp/requirements-test.lock
 COPY backend/classifier_tests ./classifier_tests/
+RUN chmod 0555 classifier_tests/ocr_*_probe.py
 USER 10001:10001
 ENTRYPOINT ["python", "-m", "unittest", "discover", "-s", "classifier_tests", "-v"]

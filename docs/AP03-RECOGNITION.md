@@ -1,8 +1,8 @@
 # AP03 – Erkennungsumfang und Isolation
 
 Stand12.11.2026: AP03a–c freigegeben. Dieser erste Lieferstand enthält den
-strukturierten XML-/Hybrid-PDF-Kern und die PDF-Textklassifikation. OCR und zusätzliche
-streng lesende Testmailquelle folgen; keine Kundenbereitstellung oder echte
+strukturierten XML-/Hybrid-PDF-Kern, PDF-Textklassifikation und bedarfsweise lokale OCR.
+Die zusätzliche streng lesende Testmailquelle folgt; keine Kundenbereitstellung oder echte
 Testmailabholung. AP04+ und automatische Verarbeitung sind nicht freigegeben.
 
 ## Vorhandene Bausteine
@@ -38,7 +38,7 @@ CPU/RAM bleiben Betriebsaufwand, keine unbelegten Laufkostenbeträge.
 | Andere XML | Keine unterstützte Rechnungsstruktur, etwa Order-X oder generischesXML | ignored |
 | Bekannte Rechnung mit unbekanntem Namespace/Profil/Typcode | Kein sicher zugesagtes Format | Failed/unsupported_* |
 | Gewöhnliche Text-PDF | Eindeutiger Titel und mehrere passende Dokumentmerkmale | PDF-Rechnung, Zahlungsavis, irrelevant oder Failed |
-| Scan/fehlende brauchbare Textebene | OCR noch nicht Bestandteil von AP03b | Failed/ocr_required |
+| Scan/fehlende brauchbare Textebene | Begrenzte seitenbezogene OCR auf Arbeitsbildern | Dieselben Kategorien/Regeln; unlesbar oder Fehler ergibt Failed |
 
 Unterstützte Dokumenttypcodes:380/381/384/386/389; UBL-CreditNote381, UBL-Invoice
 die übrigen. XRechnung-Profil genau
@@ -66,7 +66,7 @@ Produktartefakt. Dateien werden niemals über ihren eingebetteten Namen geöffne
 PDFium über pypdfium2 5.15.2 extrahiert jede Seite begrenzt. Tatsächlicher Build
 PDFium159.0.8149.0, Featureflags leer, keinV8/XFA. Keine Formularinitialisierung
 oder externe Ressource. Maximal50.000Zeichen pro Seite/250.000 insgesamt; bei
-fehlendem oder unbrauchbarem Text kein Teilerfolg, sondern OCR-Bedarf. Original
+fehlendem oder unbrauchbarem Text kein Teilerfolg, sondern OCR der betroffenen Seiten. Original
 bleibt unverändert. Runtime-/Testlocks separat ergänzt; keine API-Abhängigkeit.
 
 Konservative Regelversionap03-2: gewöhnliche Rechnung benötigt Dokumenttitel,
@@ -101,6 +101,55 @@ eindeutig andere Dokumentarten, Negationen, einzelne Wörter/Bankangaben,
 widersprüchliche und späte Titel, erlaubte Begleitseiten, mehrseitige Summen,
 fehlendes/ungültiges Datum, Blanko-/Mischseiten, Größenlimit und echten begrenzten
 Worker mit PDFium. Strukturierte Hybridrechnungen behalten Vorrang.
+
+### AP03c: OCR auf Arbeitsbildern
+
+[PDFium](https://pypdfium2.readthedocs.io/en/stable/python_api.html) rendert ganze
+betroffene Seiten mit 200 DPI, Graustufen, ohne Formularinitialisierung und mit
+begrenztem Imagecache. Höchstens 10 OCR-Seiten, 8 Millionen Rasterpixel je Seite
+und 40 Millionen insgesamt; alle Dimensionen/Seitenbudgets vor dem ersten Rendern
+prüfen. PDFium berücksichtigt UserUnit nicht bei seiner DPI-Umrechnung; die
+Rasterpixelgrenze gilt trotzdem für die tatsächlich angeforderten Bitmaps.
+
+[Tesseract](https://tesseract-ocr.github.io/tessdoc/Command-Line-Usage.html)
+5.5.0 (`5.5.0-1+b1`), Leptonica1.84.1, Sprachpakete deu/eng/osd jeweils
+`1:4.1.0-2`, vollständig im Image. 71 native Zusatz-/geänderte Pakete gegen den
+festen Python-Basisdigest sind in `requirements-classifier-native.lock` gepinnt.
+`/usr/local/share/classifier-native-packages.txt` enthält das vollständige
+Debian-Inventar, `classifier-model-hashes.txt` die drei SHA256-Modellprüfsummen.
+APT-Rebuild setzt die Verfügbarkeit der fest gepinnten Debian-Pakete voraus;
+das geprüfte Image über seinen unveränderlichen Digest aufbewahren. Keine
+automatische Versionsauflösung oder Sprachmodelldownload im Kundenlauf.
+Tesseract/Modelle Apache2, Leptonica BSD-artig; Copyright-/Lizenzdateien der
+nativen Abhängigkeiten bleiben unter `/usr/share/doc/*/copyright` im Image.
+Python/PDFium-Lizenzen aus dem bisherigen separaten Lock weiterhin beachten.
+
+Feste lokale CLI-Argumente, deu+eng, PSM1 mit Orientierungserkennung, ein Thread,
+keine Shell oder Dokumentnamen als Schalter/Pfad. OCR-TSV nur in privatem
+Arbeitsverzeichnis, höchstens2MiB je Aufruf und20s; keine Textausgabe/Sidecars im
+Produktresultat. Begrenzte Wortkonfidenz dient nur als technische Lesbarkeitsgrenze
+(gewichteter Mittelwert mindestens55, maximal25% Zeichen in Wörtern unter40),
+niemals als Rechnungswahrscheinlichkeit. Dieselbe Wort-/Wiederholungsplausibilität
+und dieselben fachlichen Regeln wie beim Text-PDF anschließend anwenden.
+Methoden `pdf_text`, `ocr` oder `pdf_text_ocr`, Regelversion `ap03-3`.
+
+Der überwachende Elternprozess besitzt das private temporäre Wurzelverzeichnis.
+Nach Ergebnis, Fehler oder120s Gesamttimeout beendet er die private Workergruppe
+einschließlich OCR-Nachfahren und entfernt die Arbeitsdateien. Workergrenzen:
+512MiB Adressraum,90s CPU,16MiB pro Arbeitsdatei,128 Dateideskriptoren; OCR-Ausgabe
+hat zusätzlich ihr eigenes hartes2MiB-Dateilimit. Container mit init für verwaiste
+Nachfahren,128MiB tmpfs,512MiB RAM ohne zusätzlichen Swap,1 CPU/64 PIDs, UID10001,
+ohne Netz/Secrets/DB/SMB. Temporärdateien überleben keinen regulären Containerlauf.
+
+15 OCR-Tests verwenden echte Pillow-Rasterbilder in unabhängig mit reportlab
+erzeugten PDFs und echte Tesseract-Binaries: Deutsch/Umlaute, Englisch, Avis,
+90/180/270Grad-Drehung,3Grad-Schieflage, unlesbare niedrige Auflösung, Text-/Scan-
+Mischseiten und Konflikte. Saubere Textseiten starten keine OCR. Fehlende Modelle,
+leere Ergebnisse, Ausgabetext-/Datei-/Seiten-/Pixelgrenzen und tatsächliche Timeouts
+bleiben Failed. Ein echter Prozessgruppenfall startet OCR und absichtlich hängende
+Nachfahren; nach Abbruch weder laufende Nachfahren noch Arbeitsdateien. Originalhash
+bei Erfolg und Fehler unverändert. Keine allgemeine Qualitätsgarantie für unbekannte
+Kundenscans; unklare Ergebnisse bleiben Failed.
 
 Manueller Aufruf im Classifierimage: `python -m classifier.cli /input/document`.
 JSON enthält status, category, format, neutralen reason, method, rule_version
