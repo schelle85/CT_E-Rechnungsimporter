@@ -79,16 +79,27 @@ Fixtures; fünf native Linux-Dateitests werden unter Windows ausdrücklich
 Symlinks und fehlende/falsche Mounts auf lokalem Testdateisystem. Das ersetzt
 auch unter Linux keinen tatsächlichen CIFS-Nachweis.
 SQLAlchemy 2.1.8 entspricht dem vorhandenen Produktlock; tzdata 2026.6 wurde nur
-für die private Windows-Testumgebung verwendet. Linux-, echte MariaDB-/CIFS-
-und DMS-Betriebsnachweise stehen aus. Keine Kundenverbindung für diese Tests.
+für die private Windows-Testumgebung verwendet.
+
+Erster nativer Lauf aus fd477fa: alle 28 AP04-Tests unter Linux/Python 3.13.18
+bestanden, einschließlich der fünf Dateitests und der Registertests auf isolierter
+echter MariaDB 12.3. CLI-Migration001→004 zweimal mit erhaltener Instanz-ID und
+Bash-Syntaxprüfung bestanden. Der gesamte Backendlauf war dennoch fehlgeschlagen:
+ein bestehender AP03-Operatortest konnte den Helfer im allgemeinen Testimage nicht
+importieren (110 Tests, ein Importfehler). AP04-N1, Korrekturversuch1: vorhandenen
+Helfer gemäß bestehendem Testquellen-Testimage auch in Dockerfile.test übernehmen.
+Keine Helfer-/Erkennungslogik geändert. Gesamtnachprüfung steht aus; kein Gesamt-PASS.
+Echte CIFS- und DMS-Betriebsnachweise stehen weiterhin aus. Keine CIFS-Binds oder
+Kundengeheimnisse in diesem Lauf, keine Kundenmigration oder API-Umschaltung.
 
 Der vorhandene isolierte Docker-/MariaDB-Runner ist mit
 `scripts/test-storage-mariadb.sh` für Schema004 erweitert. Er erzeugt ausschließlich
 neue Testressourcen ohne Hostports, prüft wiederholtes Upgrade/Instanz-ID,
 Regressionen und Wiederaufnahme in drei getrennten Prozessen. API_IMAGE und
 TEST_IMAGE müssen unveränderliche sha256-IDs des festen Quellstandes sein.
-Noch nicht ausgeführt; auch native Bashprüfung steht aus. Kein Aufruf gegen die
-Kundendatenbank. Die erste tatsächliche CIFS-Probe braucht vorab Quellreview und
+Teilweise ausgeführt wie oben; die nach den Tests folgenden Prozess-/HTTP-
+Regressionsschritte waren beim ersten Lauf noch nicht erreicht. Kein Aufruf gegen
+die Kundendatenbank. Die erste tatsächliche CIFS-Probe braucht vorab Quellreview und
 eine separate synthetische Ablage außerhalb der Produktionskategorien.
 
 Primärquellen: [Python zoneinfo](https://docs.python.org/3/library/zoneinfo.html),

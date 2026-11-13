@@ -4,5 +4,6 @@ USER root
 COPY backend/requirements-test.lock /tmp/requirements-test.lock
 RUN pip install --no-cache-dir -r /tmp/requirements-test.lock
 COPY backend/tests /app/tests
+COPY deploy/run-test-source.py /app/operator/run-test-source.py
 USER 10001:10001
 CMD ["python", "-m", "unittest", "discover", "-s", "tests", "-v"]
