@@ -50,7 +50,7 @@ class StoragePlanTests(unittest.TestCase):
             self.assertIn("--" + token, result)
             self.assertLessEqual(len(result.encode("utf-8")), 255)
         for name in ["../evil.pdf", "..", ".hidden", "a/b.pdf", "a\\b.pdf", "a:stream.pdf", "NUL.pdf",
-                     "lpt¹.xml", "COM1", "A?.pdf", "trailing. ", "a\x00.pdf", "a\u202e.pdf", "ä" * 100 + ".pdf"]:
+                     "lpt¹.xml", "COM1", "CONIN$.txt", "A?.pdf", "trailing. ", "a\x00.pdf", "a\u202e.pdf", "ä" * 100 + ".pdf"]:
             with self.subTest(name=ascii(name)):
                 self.assertFalse(safe_leaf(name))
                 self.assertRegex(filename(name, token), r"^document-[0-9a-f]{32}\.[A-Za-z0-9]{1,12}$")
@@ -61,7 +61,7 @@ class StoragePlanTests(unittest.TestCase):
         self.assertNotEqual(first.duplicate_key(moment("2026-11-13T00:00:00Z")), second.duplicate_key(moment("2026-11-13T00:00:00Z")))
 
     def test_unrecognized_and_invalid_input_cannot_plan_a_write(self):
-        for changes in [dict(category="unknown"), dict(status="unknown"), dict(status="ignored"), dict(status="failed"),
+        for changes in [dict(category="unknown"), dict(category=[]), dict(status="unknown"), dict(status="ignored"), dict(status="failed"),
                         dict(byte_size=True), dict(byte_size=-1), dict(byte_size=25 * 1024 * 1024 + 1),
                         dict(sha256="not-a-hash"), dict(source_key=""), dict(original_name="\ud800.pdf")]:
             with self.subTest(changes=ascii(changes)), self.assertRaises(StorageError):

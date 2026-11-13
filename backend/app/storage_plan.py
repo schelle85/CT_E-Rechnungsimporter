@@ -11,7 +11,7 @@ CATEGORIES = frozenset({"E-Rechnung", "PDF", "Zahlungsavis", "Mahnung"})
 MAX_BYTES = 25 * 1024 * 1024
 _TOKEN = re.compile(r"[0-9a-f]{32}\Z")
 _SHA = re.compile(r"[0-9a-f]{64}\Z")
-_RESERVED = re.compile(r"(?:CON|PRN|AUX|NUL|COM[1-9¹²³]|LPT[1-9¹²³])\Z", re.I)
+_RESERVED = re.compile(r"(?:CON|PRN|AUX|NUL|CONIN\$|CONOUT\$|CLOCK\$|COM[1-9¹²³]|LPT[1-9¹²³])\Z", re.I)
 
 
 class StorageError(Exception):
@@ -38,20 +38,20 @@ def week_key(value):
 
 
 def target_directory(category, received_at):
-    if category not in CATEGORIES:
+    if not isinstance(category, str) or category not in CATEGORIES:
         raise StorageError("storage_category_invalid")
     received = aware_utc(received_at).astimezone(ZoneInfo("Europe/Berlin"))
     return f"{category}/{received.year}/{received.month}/KW{received.isocalendar().week}"
 
 
-def safe_leaf(name):
+def safe_leaf(name, *, max_bytes=180):
     if not isinstance(name, str) or not name or name.startswith((".", " ")) or name.endswith((".", " ")):
         return False
     if any(char in '<>:"/\\|?*' or unicodedata.category(char).startswith("C") for char in name):
         return False
     if _RESERVED.fullmatch(name.split(".", 1)[0].rstrip(" ")):
         return False
-    return len(name.encode("utf-8")) <= 180
+    return len(name.encode("utf-8")) <= max_bytes
 
 
 def filename(original_name, token, *, collision=False):
@@ -96,7 +96,7 @@ class StorageRequest:
         if not isinstance(self.sha256, str) or not _SHA.fullmatch(self.sha256):
             raise StorageError("storage_hash_invalid")
         object.__setattr__(self, "received_at", aware_utc(self.received_at))
-        if self.status != "recognized" or self.category not in CATEGORIES:
+        if self.status != "recognized" or not isinstance(self.category, str) or self.category not in CATEGORIES:
             raise StorageError("storage_not_recognized")
 
     @property

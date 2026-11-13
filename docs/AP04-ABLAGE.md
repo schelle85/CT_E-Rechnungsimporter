@@ -38,12 +38,15 @@ Jeder Staging-Owner erhält einen eigenen temporären Namen. Ein persistenter
 eindeutig abgelehntes EEXIST erlaubt einmal den reservierten Kollisionsnamen.
 Leaseablauf erlaubt nach publishing ausschließlich einen Abgleich.
 
-Geplant: vollständiges Staging auf demselben CIFS-Dateisystem außerhalb des
+Als Linux-Dateischicht implementiert, native Prüfung noch offen: vollständiges
+Staging auf demselben CIFS-Dateisystem außerhalb des
 DMS-Importbereichs, Größe/Hash/Flush prüfen, dann atomar mit
 `renameat2(RENAME_NOREPLACE)` veröffentlichen. Kein Copy-/Replace-Fallback. Mount
 muss im tatsächlichen Prozessnamespace zur erwarteten CIFS-Quelle gehören.
 Stagingausschluss durch das DMS ist vor produktiver Nutzung gesondert nachzuweisen;
-ein Punktpräfix ist kein Nachweis. Eine unklare Veröffentlichung mit anschließend
+ein Punktpräfix ist kein Nachweis. Der Stagingbereich muss ausschließlich dem
+Importer gehören; DMS und fremde Writer dürfen ihn weder verändern noch bereinigen.
+Eine unklare Veröffentlichung mit anschließend
 fehlender Datei darf wegen möglicher DMS-Entfernung weder wiederholt noch als
 erfolgreich bestätigt werden. DB und SMB besitzen keine gemeinsame Transaktion.
 
@@ -52,6 +55,11 @@ exakte Dublettenmerkmale und abgewiesene Eingaben sowie sechs SQLite-Testgruppen
 für Reservierung, Parallelität, Ownerwechsel, Kollisionsgrenze und dauerhafte
 Quellen-/Dublettenbelege unter Windows/Python3.14. Keine dieser Prüfungen belegt
 MariaDB-Sperrsemantik oder CIFS-Verhalten.
+Der Mountparser/-Gate besitzt zusätzlich einen synthetischen Test mit fd-/mountinfo-
+Fixtures; fünf native Linux-Dateitests werden unter Windows ausdrücklich
+übersprungen. Sie prüfen später unter anderem No-replace-Rennen, Flushfehler,
+Symlinks und fehlende/falsche Mounts auf lokalem Testdateisystem. Das ersetzt
+auch unter Linux keinen tatsächlichen CIFS-Nachweis.
 SQLAlchemy2.1.8 entspricht dem vorhandenen Produktlock; tzdata2026.6 wurde nur
 für die private Windows-Testumgebung verwendet. Linux-, echte MariaDB-/CIFS-
 und DMS-Betriebsnachweise stehen aus. Keine Kundenverbindung für diese Tests.
