@@ -13,7 +13,13 @@ Gesamtjournal mit Mail-, Anhangs- und Korrekturzuständen nach Migration004.
 Implementierter erster Baustein `processing_plan.py`: case-sensitive Immutable-
 Mail-/Anhangsidentität, vollständiges unveränderliches Manifest, Stichtagsgrenze,
 Annahme erlaubter AP03-Findings und Mailzielentscheidung. Sechs synthetische
-Testgruppen unter Windows/Python3.14 bestanden; noch kein Gesamtpfad-/Runtime-PASS.
+Testgruppen unter Windows/Python3.14 bestanden. Zusätzlich implementiert:
+`ProcessingStore` mit drei additiven Tabellen/Migration005, vollständigem Manifest,
+600s-Ownerlease pro begrenztem Quantum, ursprünglichen/aktuellen Entscheidungen,
+stabilen Effektreservierungen, Abschlussabsichten und Annahme bereits freigegebener
+Korrekturen. Elf weitere lokale SQLite-Testgruppen einschließlich Migration001→005
+zweimal, Ownerübernahme, verspäteter Rückgaben und Korrekturrevision bestanden.
+Zusammen17 lokale Tests; noch kein realer MariaDB-/Gesamtpfad-/Runtime-PASS für AP05.
 
 Neue Quellen ausschließlich direkte Inbox ab bestehendem Stichtag. Paging vor
 äußeren Wirkungen abschließen. Rohbytegröße/SHA stammen aus dem vollständigen
@@ -45,3 +51,7 @@ keine Graph-/DB-Secrets und keinen CIFS-Schreibbind. Enger vorhandener
 Host-Dateihandoff ohne Docker-Socket in App/API, keine neue Netzwerkplattform.
 Eingang5Minuten und Korrekturen15Minuten sollen denselben wiederaufnehmbaren
 Dienstpfad nutzen; vorerst nur begrenzte einmalige Aufrufe, kein Livejob.
+
+Der Betreiber hat DMS-Ausschluss und ausschließliche Importernutzung des
+Stagingbereichs bestätigt. Das ist eine Betreiberbestätigung, keine eigene
+DMS-Konfigurationsinspektion und keine automatische Produktionsaktivierung.

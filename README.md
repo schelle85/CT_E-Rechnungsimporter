@@ -23,7 +23,7 @@ Die automatische Rechnungsverarbeitung ist noch nicht aktiviert.**
 | AP02 – Graph und Postfacheingang | Abgeschlossen: echte Zertifikatsanmeldung und gefilterter Leerabruf bestätigt; fünf Inbox-Zielordner samt Wiederverwendung live geprüft. Paging, Anhangabruf und getrennte persistente Aktionen isoliert geprüft; additives Schema003 bereitgestellt. |
 | AP03 – Anhänge erkennen | Revision4: Quellprüfung bestanden, separates Runtimeimage gebaut und isolierter Dateinachtest abgeschlossen. Unbekannt sowie Mahnung/Zahlungserinnerung ergänzt. Fachliche Restfälle und Gesamtabnahme bleiben offen. |
 | AP04 – SMB-Ablage und Dubletten | Technisch im isolierten Grundlagenumfang abgeschlossen: Quellreview bestanden, 115 native Backendtests einschließlich aller 28 AP04-Tests sowie getrennt fünf synthetische Fälle auf echtem CIFS bestanden. Keine Produktivintegration. Siehe [AP04-Vertrag](docs/AP04-ABLAGE.md). |
-| AP05 – gemeinsamer Verarbeitungspfad | Seit 13.11. freigegeben, in Entwicklung. Identitäts-/Routingvertrag mit sechs lokalen Testgruppen geprüft; Integration/Persistenz/Runtime noch in Arbeit. Siehe [AP05-Vertrag](docs/AP05-PROCESSING.md). |
+| AP05 – gemeinsamer Verarbeitungspfad | Seit 13.11. freigegeben, in Entwicklung. Identitäts-/Routingvertrag und additives Gesamtjournal/Migration005 mit 17 lokalen Tests geprüft; Dienstintegration/Runtime noch in Arbeit. Siehe [AP05-Vertrag](docs/AP05-PROCESSING.md). |
 | AP06 und folgende Pakete | Noch nicht freigegeben. Automatische Verarbeitung und Dateiablage sind nicht aktiviert. |
 
 Der begrenzte Titelvariantennachtrag wurde unabhängig geprüft und aus `e49ccdb`

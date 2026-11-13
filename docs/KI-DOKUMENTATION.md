@@ -35,9 +35,11 @@ Stand: 13. November 2026. Lebende Markdown-Dokumentation, noch kein Gesamtabschl
 - Kein Kunden-Schema004, API-Wechsel oder Job aktiviert. Produktiver DMS-
   Stagingausschluss und exklusiver Zugriff bleiben Betreiberpunkte vor AP05-
   Veröffentlichung; kein allgemeiner DMS-/Gesamtpfad-PASS.
-- AP05a–c seit13.11. freigegeben. Identitäts-/Routingvertrag und Annahmegrenzen
-  eingefrorener Findings mit sechs lokalen Testgruppen geprüft; Integration,
-  additives Gesamtjournal und tatsächliche Runtime noch in Arbeit.
+- AP05a–c seit13.11. freigegeben. Identitäts-/Routingvertrag und additives
+  Gesamtjournal/Migration005 mit17 lokalen Testgruppen geprüft; gemeinsame
+  Dienstintegration und tatsächliche Runtime noch in Arbeit. Noch kein nativer
+  AP05-MariaDB-/Gesamtpfad-PASS. DMS-Ausschluss und exklusive Stagingnutzung vom
+  Betreiber inzwischen bestätigt; keine eigene DMS-Konfigurationsprüfung.
   AP03-Regeln bleiben unverändert, GUI/Freigabeschreibwege sind AP06. Keine
   Kundenmigration, API-/Compose-Umschaltung, Live-Mailmutation oder aktive Jobs.
   AP06+ ohne Go; Produktivautomatik bleibt AP08.
