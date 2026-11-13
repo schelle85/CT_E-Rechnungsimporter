@@ -28,8 +28,15 @@ Vorhandene Bausteine: Python/zoneinfo, Linux-CIFS sowie SQLAlchemy/Alembic/Maria
 Ein zusätzliches SMB-SDK oder Queue-System hat keine belegte Lücke zu schließen.
 `pathvalidate` wurde als vorhandene Dateinamenbibliothek geprüft; die begrenzte
 Annahme sicherer Namen mit generiertem Ersatz benötigt keine neue Abhängigkeit.
-Die vorhandene DB-Engine und Reservierungsmuster werden für ein additives
-Ablageregister wiederverwendet; Graphzustände bleiben unverändert.
+Die vorhandene DB-Engine und Reservierungsmuster werden im additiven
+`storage_operations`-Register samt Migration004 wiederverwendet; Graphzustände
+und Migration003 bleiben unverändert. Noch keine Kundenmigration ausgeführt.
+Quellenidentität und fachliche Wochenreservierung sind getrennt eindeutig.
+Konkurrenten eines unbestätigten Erstvorgangs warten; erst stored erlaubt duplicate.
+Jeder Staging-Owner erhält einen eigenen temporären Namen. Ein persistenter
+Übergang nach publishing erlaubt genau einen Publikationsversuch. Nur ein
+eindeutig abgelehntes EEXIST erlaubt einmal den reservierten Kollisionsnamen.
+Leaseablauf erlaubt nach publishing ausschließlich einen Abgleich.
 
 Geplant: vollständiges Staging auf demselben CIFS-Dateisystem außerhalb des
 DMS-Importbereichs, Größe/Hash/Flush prüfen, dann atomar mit
@@ -41,7 +48,10 @@ fehlender Datei darf wegen möglicher DMS-Entfernung weder wiederholt noch als
 erfolgreich bestätigt werden. DB und SMB besitzen keine gemeinsame Transaktion.
 
 Lokaler Nachweis: fünf synthetische Testgruppen für Datums-/Wochen-/Namensgrenzen,
-exakte Dublettenmerkmale und abgewiesene Eingaben unter Windows/Python3.14.
+exakte Dublettenmerkmale und abgewiesene Eingaben sowie sechs SQLite-Testgruppen
+für Reservierung, Parallelität, Ownerwechsel, Kollisionsgrenze und dauerhafte
+Quellen-/Dublettenbelege unter Windows/Python3.14. Keine dieser Prüfungen belegt
+MariaDB-Sperrsemantik oder CIFS-Verhalten.
 SQLAlchemy2.1.8 entspricht dem vorhandenen Produktlock; tzdata2026.6 wurde nur
 für die private Windows-Testumgebung verwendet. Linux-, echte MariaDB-/CIFS-
 und DMS-Betriebsnachweise stehen aus. Keine Kundenverbindung für diese Tests.
