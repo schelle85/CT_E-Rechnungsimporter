@@ -6,6 +6,7 @@ import json
 import os
 from pathlib import Path
 import re
+import selectors
 import signal
 import stat
 import subprocess
@@ -63,18 +64,49 @@ def profile(path):
 
 
 def command(args, timeout, *, json_output=False):
-    result = subprocess.run(DOCKER + args, env=ENVIRONMENT, stdin=subprocess.DEVNULL,
-                            stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, timeout=timeout)
-    if len(result.stdout) > 65536:
-        raise ValueError()
+    arguments = DOCKER + args
+    deadline = time.monotonic() + timeout
+    output = bytearray()
+    process = subprocess.Popen(arguments, env=ENVIRONMENT, stdin=subprocess.DEVNULL,
+        stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, start_new_session=True)
+    selector = selectors.DefaultSelector()
+    try:
+        selector.register(process.stdout, selectors.EVENT_READ)
+        while True:
+            remaining = deadline - time.monotonic()
+            if remaining <= 0 or not selector.select(remaining):
+                raise subprocess.TimeoutExpired(arguments, timeout)
+            chunk = os.read(process.stdout.fileno(), min(8192, 65537 - len(output)))
+            if not chunk:
+                break
+            output.extend(chunk)
+            if len(output) > 65536:
+                raise ValueError("processing_output_limit")
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            raise subprocess.TimeoutExpired(arguments, timeout)
+        returncode = process.wait(timeout=remaining)
+    except BaseException:
+        # Keep the leader unreaped until signalling its private group; no PID reuse.
+        try:
+            os.killpg(process.pid, signal.SIGKILL)
+        except ProcessLookupError:
+            pass
+        process.wait(timeout=5)
+        raise
+    finally:
+        selector.close()
+        process.stdout.close()
+    # Stderr is discarded directly, never captured. At most 65537 stdout bytes
+    # existed in memory, including the single-byte over-limit sentinel.
     if json_output:
-        value = json.loads(result.stdout)
+        value = json.loads(output)
         if not isinstance(value, dict):
             raise ValueError()
-        return result.returncode, value
-    if result.returncode:
+        return returncode, value
+    if returncode:
         raise ValueError()
-    return result.stdout.decode("utf-8").strip()
+    return output.decode("utf-8").strip()
 
 
 def handoff(coordinate, classify, key, working):

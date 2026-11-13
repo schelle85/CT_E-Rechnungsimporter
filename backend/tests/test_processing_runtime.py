@@ -5,7 +5,9 @@ import json
 from pathlib import Path, PurePosixPath
 import subprocess
 import sys
+import tempfile
 import time
+import tracemalloc
 import unittest
 from unittest.mock import patch
 from app.processing_cli import arguments, configuration, select as select_processing
@@ -20,6 +22,31 @@ IMAGE = "sha256:" + "a" * 64
 
 
 class ProcessingRuntimeTests(unittest.TestCase):
+    @unittest.skipUnless(sys.platform == "linux", "Actual pipe/process group limits require Linux")
+    def test_command_stream_is_bounded_and_timeout_kills_descendants_after_stdout_eof(self):
+        script = "import os;os.write(1,b'x'*(2*1024*1024))"
+        tracemalloc.start()
+        try:
+            with patch.object(operator, "DOCKER", [sys.executable, "-c", script]):
+                with self.assertRaisesRegex(ValueError, "processing_output_limit"):
+                    operator.command([], 5)
+            peak = tracemalloc.get_traced_memory()[1]
+        finally:
+            tracemalloc.stop()
+        self.assertLess(peak, 512*1024)
+        quiet = "import os;os.write(2,b'e'*(2*1024*1024));print('{}')"
+        with patch.object(operator, "DOCKER", [sys.executable, "-c", quiet]):
+            self.assertEqual(operator.command([], 5, json_output=True), (0, {}))
+        with tempfile.TemporaryDirectory() as directory:
+            marker = Path(directory) / "late-effect"
+            hanging = ("import os,time;from pathlib import Path;os.close(1);child=os.fork();"
+                       "time.sleep(0.4 if child==0 else 10);Path(" + repr(str(marker)) + ").write_text('late')")
+            with patch.object(operator, "DOCKER", [sys.executable, "-c", hanging]):
+                with self.assertRaises(subprocess.TimeoutExpired):
+                    operator.command([], 0.1)
+            time.sleep(0.5)
+            self.assertFalse(marker.exists())
+
     def test_cli_refuses_partial_resume_and_config_cannot_override_root_or_cutoff(self):
         with contextlib.redirect_stderr(io.StringIO()):
             for args in (["advance"], ["advance", "--message-key", "a"*64, "--owner", "b"*32],
