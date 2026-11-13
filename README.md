@@ -120,8 +120,9 @@ Diese Kundenabnahme betrifft AP01. AP03-Quellprüfung, separater Runtime-Nachtes
 fachliche Gesamtabnahme sind getrennte Schritte. Der Classifier-Nachtest hat keine
 laufende API-/Web-/Datenbankinstanz ersetzt und keinen Produktivworker gestartet.
 Erkannte PDF-/E-Rechnungen sollen künftig automatisch weiterlaufen; nur Unbekannt
-braucht Benutzerklärung. Korrekturoberfläche und Wiederaufnahmejob sind noch nicht
-implementiert; daraus folgt insbesondere keine laufende 15-Minuten-Funktion.
+braucht Benutzerklärung. Korrekturoberfläche und Freigabeschreibwege folgen in AP06.
+Der gemeinsame manuelle Wiederaufnahmepfad ist in AP05 implementiert und geprüft.
+Die 5-/15-Minuten-Zeitplanung bleibt inaktiv; dauerhafter Automatikbetrieb ist AP08.
 
 ## Unterlagen
 

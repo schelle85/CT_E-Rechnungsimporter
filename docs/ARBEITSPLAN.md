@@ -92,7 +92,7 @@ bestanden. Letzter vollständiger nativer Gesamtlauf: 155 Backendtests einschlie
 40 AP05-Gruppen ohne Fehler/Skips; spätere Ausgabegrenz-/Timeoutkorrektur gezielt
 nativ geprüft. Einmaliger synthetischer Handoff mit echter XML-/OCR-Klassifikation
 und echtem CIFS im exklusiven Testverzeichnis bestanden, einschließlich
-DMS-Entnahme, Belegwiederverwendung und Cleanup. Geschütztes Backup, additives
+simulierter DMS-Entnahme, Belegwiederverwendung und Cleanup. Geschütztes Backup, additives
 Kundenschema003→005, unveränderte Instanz/Konfiguration sowie sechs Inboxziele
 einschließlich Mahnung sind belegt. Echter Scan ab unverändertem Stichtag und
 manueller Operatorlauf bestätigen 0 passende Mails/0Quanten. API/GUI und die drei

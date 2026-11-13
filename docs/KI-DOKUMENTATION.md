@@ -43,7 +43,7 @@ Stand: 13. November 2026. Lebende Markdown-Dokumentation, noch kein Gesamtabschl
   Dienst-/Runtime-Quellreview S1/S2/R1 bestanden; gezielte native Ausgabegrenz- und
   Timeoutprüfung nach dem Gesamtlauf bestanden. Einmaliger ORGA-Handoff auf echtem
   CIFS im exklusiven Testverzeichnis bestanden: zwei Publikationen mit je einem
-  Versuch, bytegleiche Quellen, Fake-Graph-Ziel/Fahne und idle nach DMS-Entnahme.
+  Versuch, bytegleiche Quellen, Fake-Graph-Ziel/Fahne und idle nach simulierter DMS-Entnahme.
   Eigener Readback und unabhängiger Belegabgleich bestätigen Cleanup und unveränderte
   Kundencontainer. Der separate Kundenabschluss bestätigt nach Backup 003→005,
   gleiche Instanz/Konfiguration, HTTPSready und sechs Ordner. Echter Scan ab dem
