@@ -22,14 +22,19 @@ Stand: 13. November 2026. Lebende Markdown-Dokumentation, noch kein Gesamtabschl
   echte Mailmutation oder Frontend-/Jobaktivierung aus dem Dateinachtest ableiten.
 - Historische Ergebnisse und Originale erhalten. Details und technische Pins werden in
   den getrennten internen Lauf-/Abnahmebelegen geführt, nicht als Kundendaten im Repo.
-- AP04a–c seit 13.11. freigegeben, AP03 eingefroren. Ablagebibliothek, additives
-  Register/Migration004 und begrenzte CIFS-Dateischicht implementiert. Native
-  Gesamtnachprüfung aus c781896: 115 Backendtests ohne Fehler/Skips einschließlich
-  aller28 AP04-Tests bestanden. Bashprüfung, isolierte echte MariaDB-Migration/
-  Persistenz und API-Kompatibilität bestanden. AP04-N1(Testimage-Paketierung)
-  nach Versuch1 geschlossen. Echte CIFS-Probe, Quellabnahme und DMS-
-  Betriebsvoraussetzungen offen; kein Gesamt-PASS.
-  Keine Kundenmigration oder automatische Ablage aktiviert. AP05+ ohne Go.
+- AP04a–c technisch im isolierten Grundlagenumfang abgeschlossen, Quellreview
+  bestanden; AP03 eingefroren. Native Gesamtnachprüfung aus c781896: 115 Backendtests
+  ohne Fehler/Skips einschließlich aller 28 AP04-Tests bestanden. Bashprüfung,
+  isolierte echte MariaDB-Migration/Persistenz und API-Kompatibilität bestanden.
+- Getrennte echte CIFS-Probe durch ORGA: fünf synthetische Fälle bestanden,
+  Exit0 und vollständiges Erfolgsresultat; unveränderte Ablage, Dublette,
+  Größenkollision, No-replace und Wiederaufnahme nach simulierter DMS-Entfernung.
+  Unabhängiger Readback und Cleanup bestätigt, Kundencontainer unverändert gesund.
+  AP04-N1 sowie SMOKE-F1/SMOKE-F2 jeweils nach Korrektur1 geschlossen;
+  interne Belege und technische Pins bleiben außerhalb öffentlichen Gits.
+- Kein Kunden-Schema004, API-Wechsel oder Job aktiviert. Produktiver DMS-
+  Stagingausschluss und exklusiver Zugriff bleiben Betreiberpunkte vor AP05-
+  Veröffentlichung; kein allgemeiner DMS-/Gesamtpfad-PASS. AP05+ ohne Go.
 - Verträge: [AP02](AP02-GRAPH.md), [AP03](AP03-RECOGNITION.md), [AP04](AP04-ABLAGE.md).
   [Testquelle](AP03-TEST-SOURCE.md) nur manuell mit fester Ordner-/Parentbindung.
 

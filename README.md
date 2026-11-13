@@ -11,7 +11,8 @@ internen Webportal für Protokolle, Fehler und Dubletten.
 
 **Stand: 13. November 2026. AP01 ist durch den Kunden vollständig abgenommen.
 AP02a–c ist im vereinbarten Grundlagenumfang technisch abgeschlossen und
-bereitgestellt. Die automatische Rechnungsverarbeitung ist noch nicht aktiviert.**
+bereitgestellt. AP04 ist technisch im isolierten Grundlagenumfang abgeschlossen.
+Die automatische Rechnungsverarbeitung ist noch nicht aktiviert.**
 
 | Paket | Stand |
 | --- | --- |
@@ -21,7 +22,7 @@ bereitgestellt. Die automatische Rechnungsverarbeitung ist noch nicht aktiviert.
 | AP01 – Kundenabnahme | Gesamtabnahme nach Kundentermin durch den Betreiber bestätigt. Bestehende AD-Anmeldung bleibt; SSO wurde verworfen. |
 | AP02 – Graph und Postfacheingang | Abgeschlossen: echte Zertifikatsanmeldung und gefilterter Leerabruf bestätigt; fünf Inbox-Zielordner samt Wiederverwendung live geprüft. Paging, Anhangabruf und getrennte persistente Aktionen isoliert geprüft; additives Schema003 bereitgestellt. |
 | AP03 – Anhänge erkennen | Revision4: Quellprüfung bestanden, separates Runtimeimage gebaut und isolierter Dateinachtest abgeschlossen. Unbekannt sowie Mahnung/Zahlungserinnerung ergänzt. Fachliche Restfälle und Gesamtabnahme bleiben offen. |
-| AP04 – SMB-Ablage und Dubletten | Ablagebibliothek und additives Register implementiert. 115 native Backendtests einschließlich aller 28 AP04-Tests und isolierter MariaDB-Persistenz bestanden. Echte CIFS-Probe und Quellabnahme noch offen; keine Bereitstellung. Siehe [AP04-Vertrag](docs/AP04-ABLAGE.md). |
+| AP04 – SMB-Ablage und Dubletten | Technisch im isolierten Grundlagenumfang abgeschlossen: Quellreview bestanden, 115 native Backendtests einschließlich aller 28 AP04-Tests sowie getrennt fünf synthetische Fälle auf echtem CIFS bestanden. Keine Produktivintegration. Siehe [AP04-Vertrag](docs/AP04-ABLAGE.md). |
 | AP05 und folgende Pakete | Noch nicht freigegeben. Automatische Verarbeitung und Dateiablage sind nicht aktiviert. |
 
 Der begrenzte Titelvariantennachtrag wurde unabhängig geprüft und aus `e49ccdb`
@@ -32,6 +33,13 @@ fachliche Restfälle sind davon getrennt; eine Gesamtfreigabe folgt daraus nicht
 Die Mailzielpriorität für gemischte Anhänge ist seit 13.11.2026 fachlich bestätigt;
 siehe [Anforderungen](docs/ANFORDERUNGEN.md#mailabschluss-und-fahne). Ihre Umsetzung
 folgt im dafür freizugebenden AP05.
+
+AP04 liefert die geprüfte Ablagebibliothek und ein additives Ablageregister.
+Schema004 wurde nur isoliert geprüft; Kundenschema, API-Image und Jobs bleiben
+unverändert. Vor produktiver Veröffentlichung in AP05 muss der Betreiber den
+DMS-Ausschluss und exklusiven Zugriff auf den Stagingbereich nachweisen.
+Die synthetische CIFS-Probe bestätigt keinen DMS-Import oder vollständigen
+Verarbeitungspfad.
 
 Die angezeigten Rechnungsvorgänge sind weiterhin **synthetische Beispieldaten**.
 Anmeldung und Administration verwenden bereits die tatsächliche AD-Anbindung.
@@ -67,6 +75,12 @@ Bestehende frei lizenzierte Bibliotheken werden vor Eigenentwicklung geprüft.
 
 ## Prüfstand
 
+- AP04: Quellreview bestanden; 115 native Backendtests ohne Fehler oder Skips,
+  einschließlich aller 28 AP04-Tests, isolierter MariaDB-Migration/Persistenz und
+  API-Kompatibilität. Davon getrennt fünf echte CIFS-Fälle mit synthetischen Dateien
+  bestanden: unveränderte Ablage, Dublette, Größenkollision ohne Überschreiben,
+  No-replace sowie Wiederaufnahme nach simulierter DMS-Entfernung. Unabhängiger
+  Readback und Cleanup bestätigt; Kundencontainer unverändert gesund.
 - AP03: Erkennungs-, OCR- und Lesegrenzen synthetisch geprüft. Revision4 einschließlich
   der Abschnittsgrenzen unabhängig im Quellreview bestätigt; separates Runtimeimage
   aus diesem Stand gebaut und im isolierten Dateinachtest verwendet. Originale und

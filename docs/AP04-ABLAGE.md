@@ -1,7 +1,8 @@
 # AP04 – Ablagevertrag und Prüfstand
 
-Stand: 13.11.2026. AP04 ist freigegeben und in Entwicklung; automatische Ablage,
-Kundenmigration und Produktivjobs sind nicht aktiviert. AP03 bleibt eingefroren.
+Stand: 13.11.2026. **AP04 ist technisch im isolierten Grundlagenumfang abgeschlossen;
+Quellreview bestanden.** Schema004 wurde nicht in die Kundendatenbank migriert,
+kein Kunden-API-Image gewechselt und kein Job aktiviert. AP03 bleibt eingefroren.
 
 `backend/app/storage_plan.py` enthält die reine Planung für unveränderliche
 Anhangsdaten. Nur erkannte E-Rechnung/PDF/Zahlungsavis/Mahnung dürfen eine Ablage
@@ -51,9 +52,9 @@ abgelehnter Versuch vorliegen. Sonst bleibt der Vorgang operator_required.
 Das ist eine Bibliothek für den späteren Gesamtpfad; noch kein aktivierter
 API-Endpunkt, Operatorprofil, Postfachlauf oder Scheduler.
 
-Als Linux-Dateischicht implementiert, native Prüfung noch offen: vollständiges
-Staging auf demselben CIFS-Dateisystem außerhalb des
-DMS-Importbereichs, Größe/Hash/Flush prüfen, dann atomar mit
+Die native Linux-Dateischicht wurde isoliert und auf echtem CIFS mit synthetischen
+Dateien geprüft: vollständiges Staging auf demselben CIFS-Dateisystem außerhalb der
+Kategorieziele, Größe/Hash/Flush prüfen, dann atomar mit
 `renameat2(RENAME_NOREPLACE)` veröffentlichen. Kein Copy-/Replace-Fallback. Mount
 muss im tatsächlichen Prozessnamespace zur erwarteten CIFS-Quelle gehören.
 Stagingausschluss durch das DMS ist vor produktiver Nutzung gesondert nachzuweisen;
@@ -63,48 +64,52 @@ Eine unklare Veröffentlichung mit anschließend
 fehlender Datei darf wegen möglicher DMS-Entfernung weder wiederholt noch als
 erfolgreich bestätigt werden. DB und SMB besitzen keine gemeinsame Transaktion.
 
-Lokaler Nachweis: fünf synthetische Testgruppen für Datums-/Wochen-/Namensgrenzen,
-exakte Dublettenmerkmale und abgewiesene Eingaben sowie sechs SQLite-Testgruppen
-für Reservierung, Parallelität, Ownerwechsel, Kollisionsgrenze und dauerhafte
-Quellen-/Dublettenbelege unter Windows/Python3.14. Keine dieser Prüfungen belegt
-MariaDB-Sperrsemantik oder CIFS-Verhalten.
-Weitere zehn SQLite-/Dateidouble-Testgruppen prüfen den Ablauf einschließlich
-Absturz während Staging, vor/nach Rename, sofortiger DMS-Entfernung, verlorenem
-DB-Erfolgsbeleg und passendem fremdem Ziel. Ein Alembic-/SQLite-Test prüft additives,
-zweimaliges Upgrade und die Sperre gegen destruktiven Downgrade. Zusammen mit dem
-Mountfixture-Test bestehen 23 lokale Tests; weitere 5 native Tests sind übersprungen.
-Der Mountparser/-Gate besitzt zusätzlich einen synthetischen Test mit fd-/mountinfo-
-Fixtures; fünf native Linux-Dateitests werden unter Windows ausdrücklich
-übersprungen. Sie prüfen später unter anderem No-replace-Rennen, Flushfehler,
-Symlinks und fehlende/falsche Mounts auf lokalem Testdateisystem. Das ersetzt
-auch unter Linux keinen tatsächlichen CIFS-Nachweis.
-SQLAlchemy 2.1.8 entspricht dem vorhandenen Produktlock; tzdata 2026.6 wurde nur
-für die private Windows-Testumgebung verwendet.
+## Abgeschlossene Nachweise
 
-Erster nativer Lauf aus fd477fa: alle 28 AP04-Tests unter Linux/Python 3.13.18
-bestanden, einschließlich der fünf Dateitests und der Registertests auf isolierter
-echter MariaDB 12.3. CLI-Migration001→004 zweimal mit erhaltener Instanz-ID und
-Bash-Syntaxprüfung bestanden. Der gesamte Backendlauf war dennoch fehlgeschlagen:
-ein bestehender AP03-Operatortest konnte den Helfer im allgemeinen Testimage nicht
-importieren (110 Tests, ein Importfehler). AP04-N1, Korrekturversuch1: vorhandenen
-Helfer gemäß bestehendem Testquellen-Testimage auch in Dockerfile.test übernehmen.
-Keine Helfer-/Erkennungslogik geändert. AP04-N1 nach Versuch1 geschlossen:
-native Gesamtnachprüfung aus c781896 mit **115 Tests ohne Fehler oder Skips**,
-einschließlich aller28 AP04-Tests, bestanden. Drei-Prozess-Persistenz für Graph
-und Ablage, API-Neuerzeugung/Sitzungserhalt sowie Kompatibilität des bisherigen
-API-Images auf der additiven Testdatenbank ebenfalls bestanden. Testressourcen
-entfernt, bestehende Kundencontainer unverändert gesund.
-Echte CIFS- und DMS-Betriebsnachweise stehen weiterhin aus. Keine CIFS-Binds oder
-Kundengeheimnisse in diesem Lauf, keine Kundenmigration oder API-Umschaltung.
+Quellreview für Ablagebibliothek und abgegrenzte Probehelfer bestanden.
+**115 native Backendtests ohne Fehler oder Skips** aus `c781896`, einschließlich
+aller 28 AP04-Tests, unter Linux/Python 3.13.18 bestanden. Sie prüfen unter anderem
+Berliner Datums-/ISO-Wochengrenzen, exakte Dublettenmerkmale, unsichere Namen,
+konkurrierende Reservierungen, Ownerwechsel, Kollisionsgrenzen, Abbrüche vor/nach
+Veröffentlichung, sofortige DMS-Entfernung und fremde passende Zieldateien.
+Die fünf nativen Dateitests decken zusätzlich directory-fd-/No-replace-Rennen,
+unveränderte Bytes, Flushfehler, Symlinks und fehlende/falsche Mounts ab.
 
-Der vorhandene isolierte Docker-/MariaDB-Runner ist mit
-`scripts/test-storage-mariadb.sh` für Schema004 erweitert. Er erzeugt ausschließlich
-neue Testressourcen ohne Hostports, prüft wiederholtes Upgrade/Instanz-ID,
-Regressionen und Wiederaufnahme in drei getrennten Prozessen. API_IMAGE und
-TEST_IMAGE müssen unveränderliche sha256-IDs des festen Quellstandes sein.
-Vollständig isoliert ausgeführt wie oben. Kein Aufruf gegen
-die Kundendatenbank. Die erste tatsächliche CIFS-Probe braucht vorab Quellreview und
-eine separate synthetische Ablage außerhalb der Produktionskategorien.
+Der vorhandene `scripts/test-storage-mariadb.sh` erzeugte ausschließlich neue
+Testressourcen ohne Hostports. Auf echter isolierter MariaDB 12.3 bestanden
+CLI001→004 zweimal mit erhaltener Testinstanz-ID, Reservierungsparallelität,
+Graph-/Ablagepersistenz in drei getrennten Prozessen sowie API-Neuerzeugung,
+Sitzungserhalt und Kompatibilität des bisherigen API-Images. Bashprüfung bestanden;
+Testcontainer, Netz und Volume entfernt. Keine Kundendatenbank oder
+Kundengeheimnisse eingebunden. API_IMAGE und TEST_IMAGE sind dabei feste sha256-IDs.
+
+**Davon getrennt fünf synthetische Fälle auf echtem CIFS bestanden**, nach
+Quellreview durch ORGA ausgeführt, mit unprivilegiertem Writer und ausschließlich
+eigener Testablage außerhalb der Produktionskategorien:
+
+1. Normale Veröffentlichung mit unveränderten Bytes und passender Größe/SHA.
+2. Gleicher Originalname und gleiche Bytegröße als Dublette ohne Neupublikation.
+3. Andere Bytegröße mit eindeutigem Zusatz vor der Endung, ohne Überschreiben.
+4. Echtes No-replace-EEXIST gegen das eigene vorhandene synthetische Ziel.
+5. Wiederaufnahme und Dublette nach bestätigter simulierter DMS-Entfernung anhand
+   des dauerhaften Belegs, ohne erneute Veröffentlichung.
+
+Der Lauf endete mit Exit0 und vollständigem Erfolgsresultat. Unabhängiger
+ORGA-Readback bestätigt den korrekten Pfad PDF/2026/11/KW46, das nach der Simulation
+fehlende ursprüngliche Ziel und ausschließlich die eigene synthetische
+Kollisionsdatei plus den bewusst erhaltenen No-replace-Stagingbeleg. Keine Probe-
+oder Diagnosecontainer verblieben. Kundencontainer behalten IDs, Images,
+Startzeiten und Neustartzähler; API/DB bleiben gesund. Interne Lauf-/Image-/
+Helferpins und Belege werden getrennt vom öffentlichen Repository aufbewahrt.
+
+## Grenze zum Produktivbetrieb
+
+Der Abschluss gilt für den isolierten Grundlagenumfang von AP04. Kunden-Schema004,
+API-Umschaltung und Jobs wurden nicht aktiviert. Ein tatsächlicher produktiver
+DMS-Stagingausschluss und exklusiver Importerzugriff sind vor Veröffentlichung
+im später freizugebenden AP05 durch den Betreiber nachzuweisen. Die separate
+Testablage belegt weder diesen Ausschluss noch DMS-Import oder einen vollständigen
+Mail-/Verarbeitungspfad. AP05 und folgende Pakete bleiben ohne Go.
 
 Primärquellen: [Python zoneinfo](https://docs.python.org/3/library/zoneinfo.html),
 [Linux renameat2](https://man7.org/linux/man-pages/man2/rename.2.html),
