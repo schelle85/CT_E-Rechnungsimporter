@@ -7,7 +7,7 @@ umask 077
 [[ "$API_IMAGE" =~ ^sha256:[a-f0-9]{64}$ ]] || exit 2
 [[ "$TEST_IMAGE" =~ ^sha256:[a-f0-9]{64}$ ]] || exit 2
 expected_schema=${EXPECTED_SCHEMA:-002_security_configuration}
-[[ "$expected_schema" = 002_security_configuration || "$expected_schema" = 003_graph_actions || "$expected_schema" = 004_storage_operations ]] || exit 2
+[[ "$expected_schema" = 002_security_configuration || "$expected_schema" = 003_graph_actions || "$expected_schema" = 004_storage_operations || "$expected_schema" = 005_processing ]] || exit 2
 if [ -n "${OLD_API_IMAGE:-}" ]; then [[ "$OLD_API_IMAGE" =~ ^sha256:[a-f0-9]{64}$ ]] || exit 2; fi
 docker image inspect --format '{{json .RootFS.Layers}}' "$API_IMAGE" "$TEST_IMAGE" | python3 -c 'import json,sys; rows=[json.loads(x) for x in sys.stdin if x.strip()]; assert len(rows)==2 and rows[1][:len(rows[0])]==rows[0]; print("Immutable test image descends from exact API layers: PASS")'
 db_image=mariadb:12.3@sha256:d46e102fa8b9b72bfcdeb56f9dd538742092119dc8b11f31fe662605cd234cd9
@@ -77,7 +77,7 @@ test "$actual_schema" = "$expected_schema"
 printf 'Actual CLI001->002_security_configuration->%s twice, preserved metadata UUID=%s\n' "$actual_schema" "$after"
 db_run "$TEST_IMAGE" python -m unittest discover -s tests -v
 test "$(db_run "$API_IMAGE" python -c "$uuid_query")" = "$before"
-if [ "$expected_schema" = 003_graph_actions ] || [ "$expected_schema" = 004_storage_operations ]; then
+if [ "$expected_schema" = 003_graph_actions ] || [ "$expected_schema" = 004_storage_operations ] || [ "$expected_schema" = 005_processing ]; then
  persist_seed='from app.database import make_engine;from app.graph_state import ActionStore;e=make_engine();key,owner,send=ActionStore(e,clock=lambda:1000).claim("invoice@example.invalid","flag","persist-message","flagged");assert send;print("Graph write reservation committed in first process");e.dispose()'
  db_run "$API_IMAGE" python -c "$persist_seed"
  persist_resume='from app.database import make_engine;from app.graph_state import ActionStore,actions;from sqlalchemy import select;e=make_engine();s=ActionStore(e,clock=lambda:1301);key,owner,send=s.claim("invoice@example.invalid","flag","persist-message","flagged");assert not send;s.finish(key,owner,"done",result="persist-message");print("Second process reconciles expired reservation without permission to replay");e.dispose()'
@@ -85,7 +85,7 @@ if [ "$expected_schema" = 003_graph_actions ] || [ "$expected_schema" = 004_stor
  persist_verify='from app.database import make_engine;from app.graph_state import actions;from sqlalchemy import select;e=make_engine();c=e.connect();r=c.execute(select(actions).where(actions.c.resource=="persist-message")).mappings().one();assert r["state"]=="done" and r["result_id"]=="persist-message" and r["reservations"]==1;print("Third process reads exact durable completed Graph intent");c.close();e.dispose()'
  db_run "$API_IMAGE" python -c "$persist_verify"
 fi
-if [ "$expected_schema" = 004_storage_operations ]; then
+if [ "$expected_schema" = 004_storage_operations ] || [ "$expected_schema" = 005_processing ]; then
  storage_seed='from datetime import datetime,timezone;from app.database import make_engine;from app.storage_plan import StorageRequest;from app.storage_state import StorageStore
 e=make_engine();s=StorageStore(e,destination_key="d"*64,clock=lambda:1000);r=StorageRequest("isolated-persistence","source-1","synthetic.pdf",8,"a"*64,datetime(2026,11,13,tzinfo=timezone.utc),"PDF");row=s.claim(r);assert row["mode"]=="stage";s.begin_publication(r.key,row["owner"]);print("Storage publication reservation committed in first process");e.dispose()'
  db_run "$API_IMAGE" python -c "$storage_seed"
@@ -96,6 +96,27 @@ e=make_engine();s=StorageStore(e,destination_key="d"*64,clock=lambda:1301);r=Sto
 e=make_engine();c=e.connect();r=c.execute(select(operations).where(operations.c.original_name=="synthetic.pdf")).mappings().one();assert r["state"]=="operator_required" and r["publication_attempts"]==1 and r["owner"] is None;print("Third process reads durable unresolved storage receipt");c.close();e.dispose()'
  db_run "$API_IMAGE" python -c "$storage_verify"
 fi
+if [ "$expected_schema" = 005_processing ]; then
+ processing_seed='from datetime import datetime,timezone;from app.database import make_engine;from app.graph_mail import Message,Attachment;from app.processing_state import ProcessingStore
+e=make_engine();s=ProcessingStore(e,clock=lambda:1000);m=Message("persist-processing",datetime(2026,12,1,tzinfo=timezone.utc),"inbox","notFlagged");a=Attachment("persist-attachment","synthetic-processing.pdf",8,"application/pdf",False,"file");key=s.register("invoice@example.invalid",m,[a]);r=s.claim(key);ak=s.get_attachments(key)[0]["attachment_key"];s.content(key,ak,r["owner"],r["revision"],byte_size=8,sha256="a"*64);s.finding(key,ak,r["owner"],r["revision"],{"status":"recognized","category":"PDF","reason":"invoice_fields","method":"pdf_text","original_sha256":"a"*64,"rule_version":"ap03-4"});s.begin_storage(key,ak,r["owner"],r["revision"],"isolated-persistence","d"*64);print("Processing source/finding/effect reservation committed in first process");e.dispose()'
+ db_run "$API_IMAGE" python -c "$processing_seed"
+ processing_resume='from app.database import make_engine;from app.processing_state import ProcessingStore,messages;from sqlalchemy import select
+e=make_engine();s=ProcessingStore(e,clock=lambda:1601)
+with e.connect() as c: before=dict(c.execute(select(messages).where(messages.c.graph_id=="persist-processing")).mappings().one())
+key=before["message_key"];old=s.get_attachments(key)[0];r=s.claim(key);assert r["owner"]!=before["owner"];request=s.begin_storage(key,old["attachment_key"],r["owner"],r["revision"],"isolated-persistence","d"*64);assert request.key==old["effect_key"]
+try: s.active(key,before["owner"],before["revision"])
+except Exception as error: assert getattr(error,"code",None)=="processing_owner_conflict"
+else: raise AssertionError("Expired processing owner accepted")
+print("Second process takes lease; preserves exact attachment effect and fences stale owner");e.dispose()'
+ db_run "$API_IMAGE" python -c "$processing_resume"
+ processing_verify='from app.database import make_engine;from app.processing_state import messages,attachments;from sqlalchemy import select
+e=make_engine()
+with e.connect() as c:
+ row=c.execute(select(messages).where(messages.c.graph_id=="persist-processing")).mappings().one();att=c.execute(select(attachments).where(attachments.c.message_key==row["message_key"])).mappings().one();assert row["revision"]==0 and row["completed_revision"]==-1 and att["effect_state"]=="reserved" and att["original_finding"] and att["effect_key"]
+print("Third process sees preserved incomplete source and immutable reserved attachment effect");e.dispose()'
+ db_run "$API_IMAGE" python -c "$processing_verify"
+fi
+
 api_mounts=(
  --mount "type=bind,source=$temp_dir/app-password,target=/run/secrets/db_password,readonly"
  --mount "type=bind,source=$temp_dir/app-password,target=/run/secrets/ldap_bind_password,readonly"

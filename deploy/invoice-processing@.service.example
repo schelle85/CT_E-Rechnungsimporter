@@ -1,0 +1,11 @@
+# Disabled template; review and configure an immutable image before installation.
+[Unit]
+Description=Invoice importer bounded %i tick
+
+[Service]
+Type=oneshot
+User=root
+Environment=PROCESSING_IMAGE=sha256:REPLACE_WITH_REVIEWED_64_HEX_IMAGE_ID
+ExecStart=/usr/bin/python3 -I -B /etc/invoice-importer/run-processing.py %i --image ${PROCESSING_IMAGE} --profile /etc/invoice-importer/processing-host.json --max-quanta 20
+TimeoutStartSec=4h
+UMask=0077

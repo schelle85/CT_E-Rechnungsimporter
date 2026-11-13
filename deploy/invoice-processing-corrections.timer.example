@@ -1,0 +1,5 @@
+# Disabled example; consumes already approved decisions only.
+[Timer]
+OnCalendar=*:0/15
+Unit=invoice-processing@corrections.service
+Persistent=false

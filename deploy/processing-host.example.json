@@ -1,0 +1,12 @@
+{
+  "graph_config": "/etc/invoice-importer/graph.json",
+  "graph_credential": "/etc/invoice-importer/graph-credential.pem",
+  "processing_config": "/etc/invoice-importer/processing.json",
+  "db_password": "/etc/invoice-importer/db-password",
+  "db_host": "db",
+  "db_name": "importer",
+  "db_user": "importer",
+  "networks": ["invoice-importer_web", "invoice-importer_database"],
+  "storage_root": "/mnt/importer",
+  "storage_gid": 1001
+}

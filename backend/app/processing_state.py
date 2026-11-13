@@ -355,10 +355,12 @@ class ProcessingStore:
         now = int(self.clock())
         with self.engine.connect() as connection:
             query = sa.select(messages.c.message_key).where(sa.or_(messages.c.owner.is_(None), messages.c.lease_until <= now))
+            unfinished = sa.and_(messages.c.completed_revision < messages.c.revision,
+                messages.c.state != "operator_required", messages.c.next_attempt <= now)
             if mode == "inbox":
-                query = query.where(messages.c.completed_revision < messages.c.revision,
-                    messages.c.state != "operator_required", messages.c.next_attempt <= now)
+                query = query.where(unfinished, messages.c.revision == 0)
             else:
-                query = query.where(messages.c.completed_revision == messages.c.revision, sa.exists(sa.select(corrections.c.correction_key).where(
-                    corrections.c.message_key == messages.c.message_key, corrections.c.state == "approved", corrections.c.approved_at <= now)))
+                query = query.where(sa.or_(sa.and_(unfinished, messages.c.revision > 0),
+                    sa.and_(messages.c.completed_revision == messages.c.revision, sa.exists(sa.select(corrections.c.correction_key).where(
+                        corrections.c.message_key == messages.c.message_key, corrections.c.state == "approved", corrections.c.approved_at <= now)))))
             return list(connection.execute(query.order_by(messages.c.created_at, messages.c.message_key).limit(limit)).scalars())

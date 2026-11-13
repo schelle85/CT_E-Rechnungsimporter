@@ -1,0 +1,20 @@
+# Supply reviewed local tags or registry digests; verify resolved IDs before building.
+ARG BACKEND_IMAGE
+ARG CLASSIFIER_IMAGE
+FROM ${BACKEND_IMAGE} AS backend_dependencies
+FROM ${CLASSIFIER_IMAGE}
+USER root
+COPY --from=backend_dependencies /usr/local/lib/python3.13/site-packages/ /usr/local/lib/python3.13/site-packages/
+COPY --from=backend_dependencies /usr/local/bin/alembic /usr/local/bin/alembic
+COPY --from=backend_dependencies /usr/local/bin/uvicorn /usr/local/bin/uvicorn
+WORKDIR /app
+COPY backend/app/ ./app/
+COPY backend/classifier/ ./classifier/
+COPY backend/migrations/ ./migrations/
+COPY backend/alembic.ini ./
+COPY backend/requirements.lock ./requirements.lock
+COPY backend/requirements-classifier.lock ./requirements-classifier.lock
+RUN python -c "import importlib.metadata as m; from pathlib import Path; lines=Path('requirements.lock').read_text().splitlines()+Path('requirements-classifier.lock').read_text().splitlines(); assert all(m.version(n)==v for n,v in (line.split('==') for line in lines if line.strip()))"
+USER 10001:10001
+ENTRYPOINT []
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--no-server-header", "--no-access-log"]

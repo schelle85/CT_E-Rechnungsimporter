@@ -1,0 +1,7 @@
+{
+  "scope": "invoice-importer",
+  "storage_root": "/importer",
+  "expected_source": "//FILESERVER/importer$",
+  "staging_name": "_staging",
+  "staging_excluded": true
+}

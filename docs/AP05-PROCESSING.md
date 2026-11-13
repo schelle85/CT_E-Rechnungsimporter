@@ -36,7 +36,8 @@ Move-/Fahnenabschluss. Sichere Download-/Parserfehler bleiben am einzelnen Anhan
 ungewisse Publikationen sperren den Mailabschluss. Zehn zusätzliche Ablaufgruppen
 prüfen diese Verbindung mit synthetischem Graph, eingegebenen AP03-Findings und
 echten lokalen Dateien unter Linux. Unter Windows werden sie ausdrücklich
-übersprungen; native Ausführung und vollständige Runtimeprüfung stehen noch aus.
+übersprungen. Inzwischen bestehen37native synthetische AP05-Gruppen einschließlich
+zwölf Dienstgruppen; die vollständige Runtimeprüfung steht noch aus.
 Migration005 wurde noch nicht beim Kunden angewendet; isolierte Prüfläufe erhalten
 ein frisches Schema mit dem aktuellen Anhangsfehlerfeld.
 
@@ -77,13 +78,15 @@ Unklarheit vorgesehen. Strukturelle Hybrid-/Namespace-/Versionswidersprüche und
 mehrdeutige eingebettete Rechnungsstrukturen werden dadurch nicht übergangen.
 AP03-Entscheidungsregeln werden weder geändert noch aus Klicks automatisch gelernt.
 
-Geplante Runtime: vollständiges vorhandenes Classifier-/OCR-Image um vorhandene
-Backendteile ergänzen; dasselbe gepinnte Image in getrennten Rollen verwenden.
+Vorbereitete [Runtime](AP05-RUNTIME.md): vollständiges vorhandenes Classifier-/OCR-Image
+um vorhandene Backendteile ergänzen; dasselbe gepinnte Image in getrennten Rollen verwenden.
 Der Classifier erhält weiterhin nur opaken RO-Input, keinen Netzwerkzugriff,
 keine Graph-/DB-Secrets und keinen CIFS-Schreibbind. Enger vorhandener
 Host-Dateihandoff ohne Docker-Socket in App/API, keine neue Netzwerkplattform.
-Eingang5Minuten und Korrekturen15Minuten sollen denselben wiederaufnehmbaren
-Dienstpfad nutzen; vorerst nur begrenzte einmalige Aufrufe, kein Livejob.
+Eingang5Minuten und Korrekturen15Minuten nutzen in der vorbereiteten CLI denselben
+wiederaufnehmbaren Dienstpfad mit getrennten Fälligkeiten.27lokale Gruppen bestehen,
+13Linuxgruppen werden unter Windows übersprungen. Tatsächlicher neuer Image-/
+Hosthandoff-/MariaDB-Nachweis offen; vorerst nur manuelle Aufrufe/deaktivierte Vorlagen.
 
 Der Betreiber hat DMS-Ausschluss und ausschließliche Importernutzung des
 Stagingbereichs bestätigt. Das ist eine Betreiberbestätigung, keine eigene
