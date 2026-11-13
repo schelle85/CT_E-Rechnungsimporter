@@ -4,7 +4,9 @@ No customer sources/configuration, no production mount gate override, no runtime
 import base64
 from io import BytesIO
 import json
+import os
 from pathlib import Path
+import re
 import sys
 import httpx
 import sqlalchemy as sa
@@ -16,6 +18,7 @@ from app.processing import GraphProcessing, ProcessingService
 from app.processing_cli import arguments
 from app.processing_state import ProcessingStore, metadata as processing_metadata
 from app.storage_state import StorageStore, metadata as storage_metadata
+from app.storage_files import CifsFiles, parse_mounts, _parts
 from test_graph import CONFIG, Credential
 from test_graph_actions import ActionRemote
 from test_graph_mail import attachment, message
@@ -78,10 +81,20 @@ def main():
             aid = request.url.path.split("/")[-2]
             return httpx.Response(200, content=(CASE / aid).read_bytes())
     remote.override = respond
-    files = PathFiles()
-    files.stages = {name: base64.b64decode(data) for name,data in value["stages"].items()}
-    files.targets = {name: base64.b64decode(data) for name,data in value["targets"].items()}
-    files.published = value["published"]
+    cifs_source = os.environ.get("AP05_CIFS_SMOKE_SOURCE")
+    if cifs_source:
+        # Only an operator-created exclusive Test/AP05-UUID bind; never production categories.
+        files = CifsFiles("/destination", cifs_source, "_staging", staging_excluded=True)
+        mount = parse_mounts(Path("/proc/self/mountinfo").read_text())[files.identity[0]]
+        if mount["point"] != "/destination" or not re.fullmatch(r"/Test/AP05-[0-9a-f]{32}", mount["root"]):
+            raise ValueError("exclusive_test_bind_required")
+        if command == "init" and any(Path("/destination").iterdir()):
+            raise ValueError("exclusive_test_bind_not_empty")
+    else:
+        files = PathFiles()
+        files.stages = {name: base64.b64decode(data) for name,data in value["stages"].items()}
+        files.targets = {name: base64.b64decode(data) for name,data in value["targets"].items()}
+        files.published = value["published"]
     store = ProcessingStore(engine)
     with httpx.Client(transport=httpx.MockTransport(remote), trust_env=False) as http:
         client = GraphClient(CONFIG, Credential(), http, sleep=lambda _: None)
@@ -107,20 +120,43 @@ def main():
             assert any(finding["category"] == "E-Rechnung" for finding in findings)
             assert remote.messages["m1"]["parentFolderId"] == "folder-Nachfragen"
             assert remote.messages["m1"]["flag"]["flagStatus"] == "flagged"
-            assert len(files.published) == 2
+            published = [row for row in rows if row["storage_state"] == "stored"]
+            assert len(published) == 2
+            if cifs_source:
+                receipts = []
+                for row in published:
+                    receipt = service.storage.get(row["effect_key"])
+                    request = store.storage_request(store.get_message(key), row, "synthetic-runtime")
+                    assert receipt["publication_attempts"] == 1 and files.matches(row["storage_target"], request)
+                    receipts.append({"action_key": row["effect_key"], "original_sha256": row["raw_sha256"],
+                                     "byte_size": row["byte_size"], "publication_attempts": 1})
+                # Simulate DMS consumption only for the two just verified synthetic test receipts.
+                for row in published:
+                    parts = _parts(row["storage_target"])
+                    with files._directory(parts[:-1]) as parent:
+                        files.guard()
+                        os.unlink(parts[-1], dir_fd=parent)
+                        os.fsync(parent)
+            else:
+                assert len(files.published) == 2
+                receipts = []
+                files.targets.clear()
             # A later idle step after source/DMS consumption cannot publish again.
-            files.targets.clear()
             remote.attachments["m1"] = []
             result = {"ok": True, "stored": 2, "inline_exception": 1, "ocr": True, "target": "Nachfragen",
-                      "post_move_flag": True, "published": len(files.published)}
+                      "post_move_flag": True, "published": 2, "cifs": bool(cifs_source), "receipts": receipts}
         else:
             raise ValueError()
+    if not cifs_source:
+        value.update(stages={name:base64.b64encode(data).decode() for name,data in files.stages.items()},
+                     targets={name:base64.b64encode(data).decode() for name,data in files.targets.items()},
+                     published=files.published)
     value.update(messages=remote.messages, attachments=remote.attachments, folders=remote.folders,
-                 stages={name:base64.b64encode(data).decode() for name,data in files.stages.items()},
-                 targets={name:base64.b64encode(data).decode() for name,data in files.targets.items()},
-                 published=files.published, writes=value["writes"]+len(remote.writes),
+                 writes=value["writes"]+len(remote.writes),
                  downloads=value["downloads"]+sum(call.url.path.endswith("/$value") for call in remote.calls))
     save(value)
+    if cifs_source:
+        files.close()
     engine.dispose()
     print(json.dumps(result))
 
