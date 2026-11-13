@@ -117,7 +117,7 @@ class ProcessingService:
             owner, revision = message["owner"], message["revision"]
         else:
             message = self.store.active(key, owner, revision)
-        selected = None
+        selected, aid = None, None
         try:
             if finding is not None:
                 try:
@@ -187,7 +187,7 @@ class ProcessingService:
             identity_failure = reason in {"graph_before_cutoff", "graph_journal_identity_invalid", "graph_journal_parent_invalid",
                 "graph_journal_source_changed", "graph_journal_manifest_changed", "graph_identity_changed", "graph_inbox_changed"}
             rows = self.store.get_attachments(key)
-            row = next((value for value in rows if value["attachment_key"] == (selected or locals().get("aid"))), None)
+            row = next((value for value in rows if value["attachment_key"] == (selected or aid)), None)
             if row is not None and not row["effect_key"] and not message["close_key"] and not identity_failure:
                 self.store.failed(key, row["attachment_key"], owner, revision, reason)
                 self.store.release(key, owner, revision, error=reason)
