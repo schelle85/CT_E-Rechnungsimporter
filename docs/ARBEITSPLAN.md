@@ -81,16 +81,24 @@ danach folgen AD-Anmeldung, Administrationsgrundlage und gemeinsame Abnahme.
 | Teil | Ergebnis und Prüfung |
 | --- | --- |
 | AP05a | Mehrfachanhänge und Fahnen; bestätigte Mailpriorität Failed → unzugeordnet → Mahnung → Nachfragen → Zahlungsavis → Success umsetzen; Anhänge unabhängig passend ablegen |
-| AP05b | Persistente Zustände, Fünfminutenlauf und Wiederaufnahme ohne Doppelablage |
-| AP05c | Kontrollierter Gesamtpfad; Erfolg erst nach erforderlicher Ablage |
+| AP05b | Persistente Zustände und gemeinsamer Wiederaufnahmepfad ohne Doppelablage: Eingang alle fünf Minuten, freigegebene Kundenkorrekturen alle 15 Minuten; Bedienung folgt in AP06 |
+| AP05c | Kontrollierter Gesamtpfad; Erfolg erst nach erforderlicher Ablage und Mailaktionen |
 
-## AP06: Webprotokoll, Wiederholung und Archiv - DEV
+## AP06: Webprotokoll, Korrektur, Wiederholung und Archiv - DEV
 
 | Teil | Ergebnis und Prüfung |
 | --- | --- |
-| AP06a | Übersicht/Details mit Suchfiltern, Entscheidungen, Dateien, Dubletten und Fehlern |
-| AP06b | Geschützte Wiederholung fehlgeschlagener Vorgänge und Einstellungen |
+| AP06a | Übersicht/Details mit Suchfiltern, Entscheidungen, Dateien, Dubletten und Fehlern; Kachel „Prüfen“ durch „Unbekannt“ mit eigener Zuordnungsansicht ersetzen |
+| AP06b | Unbekannte Anhänge einzeln zuordnen und zur Verarbeitung freigeben; Status Freigegeben → In Verarbeitung → Verarbeitet, Rechte und bestätigtes Erkennungsfeedback nachvollziehbar speichern |
 | AP06c | Zwei Jahre aktiv, danach Webarchiv; keine zusätzliche Mailarchivierung |
+| AP06d | Geschützte Wiederholung technisch fehlgeschlagener Vorgänge und Einstellungen |
+
+Nur unbekannte Anhänge benötigen eine Kundenzuordnung. Erkannte Dokumente laufen
+automatisch weiter. Bestätigte Korrekturen als Beispiele für gezielt geprüfte
+Regeln oder Lieferantenvorlagen nutzen; kein automatisches Selbsttraining durch
+einen Klick. invoice2data nur bei belegtem Nutzen ergänzen. Der vereinbarte
+[GUI-/Erkennungsnachtrag](ANFORDERUNGEN.md#webkorrektur-und-erkennungsverbesserung)
+ist geplant; Oberfläche und Korrekturjob sind noch nicht implementiert oder aktiviert.
 
 ## AP07: Automatische Benachrichtigungen - DEV
 

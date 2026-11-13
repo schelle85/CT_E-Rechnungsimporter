@@ -115,6 +115,38 @@ Keine automatische Löschung ableiten. Die Anwendung übernimmt außer den verei
 Verarbeitungsschritten keine Mailarchivierung oder zeitgesteuerte Maillöschung.
 Die weitere Pflege des Postfachs bleibt eine organisatorische Aufgabe beim Kunden.
 
+## Webkorrektur und Erkennungsverbesserung
+
+Vereinbarter Nachtrag für AP05/AP06; noch keine implementierte Korrekturoberfläche
+oder aktivierter Korrekturjob:
+
+- Die Designkachel „Prüfen“ heißt künftig „Unbekannt“ und zählt nur Anhänge mit
+  offener Zuordnung. Erkannte PDF-/E-Rechnungen, Avise und Mahnungen benötigen
+  keine zusätzliche Bestätigung durch den Kunden.
+- In einer eigenen Ansicht Originalanhang, Dateiname und verständlichen Grund
+  anzeigen. Je unbekanntem Anhang PDF-Rechnung, Zahlungsavis,
+  Mahnung/Zahlungserinnerung oder Sonstiges/ignorieren wählen und anschließend
+  zur Verarbeitung freigeben. Die Verwaltungsgruppe darf korrigieren, die
+  Lesergruppe bleibt lesend; Rechte auch serverseitig prüfen. Widersprüchliche
+  E-Rechnungsstrukturen oder technische Fehler nicht durch eine Kategorieauswahl
+  ungeprüft übergehen.
+- Freigegebene Korrekturen alle 15 Minuten über denselben wiederaufnehmbaren
+  Verarbeitungspfad übernehmen. Passend auf SMB ablegen und das Mailziel nach
+  der bestätigten Priorität neu bestimmen; ursprüngliches Eingangsdatum und
+  bereits erfolgreiche Teilschritte erhalten. Keine Doppelablage durch Neustart
+  oder Mehrfachklick. Der normale Eingangslauf bleibt bei fünf Minuten.
+- Die GUI zeigt Freigegeben → In Verarbeitung → Verarbeitet. Erst nach den
+  erforderlichen Ablage- und Mailaktionen Verarbeitet melden. Offene weitere
+  Anhänge und technische Fehler bleiben erkennbar; eine gespeicherte
+  Kundenzuordnung allein ist noch kein Verarbeitungserfolg.
+- Alte Erkennungsentscheidung, Regelversion, bestätigte Kategorie, Benutzer und
+  Zeitpunkt nachvollziehbar speichern. Wiederkehrende Dokumentmuster anhand
+  dieser Beispiele mit kontrolliert geprüften Regeln oder Lieferantenvorlagen
+  besser erkennen. Eine Korrektur gilt zunächst für diesen Anhang und verändert
+  keine globalen Regeln automatisch. invoice2data bleibt eine mögliche Ergänzung
+  bei belegtem Nutzen; es ist derzeit nicht integriert. Kein neues ML-/LLM-System
+  und kein Selbsttraining durch einen einzelnen Korrekturklick.
+
 ## Benachrichtigungen
 
 Nur automatische Mails über die bestehende Graph-Anbindung; kein manueller Mail-Editor.

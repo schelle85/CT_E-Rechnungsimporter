@@ -73,6 +73,11 @@ Für den weiteren Ausbau vorgesehen: automatischer Graph-Postfachlauf,
 SMB-Ablage, Dublettenbehandlung, Mailzuordnung, Benachrichtigungen und Webarchiv.
 Bestehende frei lizenzierte Bibliotheken werden vor Eigenentwicklung geprüft.
 
+Der vereinbarte [GUI-/Erkennungsnachtrag](docs/ANFORDERUNGEN.md#webkorrektur-und-erkennungsverbesserung)
+gehört zu AP05/AP06: unbekannte Anhänge gezielt zuordnen, freigeben und verarbeiten;
+bestätigte Korrekturen für spätere geprüfte Erkennungsregeln nutzen. Diese
+Oberfläche und der 15-Minuten-Korrekturlauf sind noch nicht implementiert.
+
 ## Prüfstand
 
 - AP04: Quellreview bestanden; 115 native Backendtests ohne Fehler oder Skips,

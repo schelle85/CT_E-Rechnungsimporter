@@ -108,5 +108,11 @@ Nachfragen → Zahlungsavis → Success. Jeder erkannte Anhang wird unabhängig 
 passend abgelegt. Korrekturjob, Frontend und Umsetzung der Mailpriorität bleiben
 späteren freigegebenen AP vorbehalten.
 
-Eine Webkorrektur mit späterer Wiederaufnahme ist ein Vorschlag für AP05/AP06.
-Insbesondere ist noch keine 15-Minuten-Wiederaufnahme oder entsprechende Oberfläche aktiv.
+Der vereinbarte GUI-/Erkennungsnachtrag für AP05/AP06 ist in den
+[Anforderungen](ANFORDERUNGEN.md#webkorrektur-und-erkennungsverbesserung) und im
+Arbeitsplan ausdrücklich verankert: Kachel Unbekannt, Zuordnung je Anhang,
+Freigabe und gemeinsame Wiederaufnahme alle 15 Minuten sowie nachvollziehbare
+Korrekturbeispiele für später geprüfte Regeln/Vorlagen. Keine automatische
+Verallgemeinerung einzelner Klicks; invoice2data derzeit nicht integriert.
+Noch keine entsprechende Oberfläche oder 15-Minuten-Wiederaufnahme implementiert
+oder aktiviert. Diese Dokumentationspräzisierung erteilt kein neues AP-Go.
