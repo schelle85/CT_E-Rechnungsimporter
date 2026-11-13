@@ -69,7 +69,7 @@ bleiben der Korrekturfälligkeit zugeordnet. Kein Freigabe-CLI und kein Lernschr
 Ein Quantum: advance, bei Bedarf eine opake Datei, credentialfreie classifier.cli,
 Rückgabe an dieselbe Mail-/Anhangs-/Owner-/Revisions-/Hashbindung und advance.
 Koordinator je180s, Classifier außen150s bei bestehendem120s-Parserlimit;
-gemeinsames Arbeitsbudget510s plus höchstens30s abschließendes Containercleanup
+gemeinsames Arbeitsbudget500s plus höchstens40s für Prozessabbruch/Reap und letztes Cleanup
 bleibt unter600s-Quantenlease. Der Operator wiederholt keinen unklaren Befehl.
 Bei verlorener Rückgabe später neu claimen und dieselben inneren Journale abgleichen.
 Eine begrenzte Parserhandoffstörung wird am gebundenen Anhang als failed gespeichert;

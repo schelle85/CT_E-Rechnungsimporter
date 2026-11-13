@@ -243,7 +243,7 @@ def operate(mode, image, config, max_quanta=100):
         if not queue:
             break
         key = queue.popleft()
-        deadline = time.monotonic() + 510  # Reserve <=30s for final container cleanup; whole quantum <=540s.
+        deadline = time.monotonic() + 500  # Reserve <=40s for abort/reap plus final cleanup; whole quantum <=540s.
         with tempfile.TemporaryDirectory(prefix="invoice-processing-", dir="/dev/shm") as working:
             os.chown(working, 10001, 10001)
             os.chmod(working, 0o700)

@@ -34,6 +34,9 @@ class ProcessingRuntimeTests(unittest.TestCase):
         finally:
             tracemalloc.stop()
         self.assertLess(peak, 512*1024)
+        exact = "import os;os.write(1,b'x'*65536)"
+        with patch.object(operator, "DOCKER", [sys.executable, "-c", exact]):
+            self.assertEqual(len(operator.command([], 5)), 65536)
         quiet = "import os;os.write(2,b'e'*(2*1024*1024));print('{}')"
         with patch.object(operator, "DOCKER", [sys.executable, "-c", quiet]):
             self.assertEqual(operator.command([], 5, json_output=True), (0, {}))
