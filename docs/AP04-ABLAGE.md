@@ -1,6 +1,6 @@
 # AP04 – Ablagevertrag und Prüfstand
 
-Stand13.11.2026. AP04 ist freigegeben und in Entwicklung; automatische Ablage,
+Stand: 13.11.2026. AP04 ist freigegeben und in Entwicklung; automatische Ablage,
 Kundenmigration und Produktivjobs sind nicht aktiviert. AP03 bleibt eingefroren.
 
 `backend/app/storage_plan.py` enthält die reine Planung für unveränderliche
@@ -16,7 +16,7 @@ SHA256 dient nur Integritätsprüfung/Abgleich. Wiederaufnahmen müssen die zuer
 gespeicherte Quellen-/Wochenzuordnung behalten. Ein dauerhaft bestätigter
 Ablagebeleg bleibt auch nach Entfernung durch das DMS gültig.
 
-Sichere Blattnamen bis180 UTF8-Bytes bleiben erhalten. Ungültige oder problematische
+Sichere Blattnamen bis 180 UTF-8-Bytes bleiben erhalten. Ungültige oder problematische
 Windowsnamen, Traversal, Separatoren, ADS, Steuer-/Formatzeichen, führende
 Punkte/Leerzeichen und abschließende Punkte/Leerzeichen werden durch einen
 generierten Namen ersetzt. Eine sichere alphanumerische Endung bleibt erhalten.
@@ -37,6 +37,19 @@ Jeder Staging-Owner erhält einen eigenen temporären Namen. Ein persistenter
 Übergang nach publishing erlaubt genau einen Publikationsversuch. Nur ein
 eindeutig abgelehntes EEXIST erlaubt einmal den reservierten Kollisionsnamen.
 Leaseablauf erlaubt nach publishing ausschließlich einen Abgleich.
+Ein bekanntes EEXIST bleibt zusätzlich dauerhaft als abgelehnter Versuch erhalten.
+Register und Dateischicht sind an dieselbe CIFS-Quelle, denselben Pfad innerhalb
+der Freigabe und denselben Stagingbereich gebunden. Ein alter Quellenbeleg darf
+bei geändertem Ablagebereich nicht stillschweigend umgedeutet werden.
+
+`store_attachment(store, files, request, input_file)` verbindet Register und
+Dateischicht. Rückgaben sind stored, duplicate, busy, failed oder operator_required
+mit Aktionsschlüssel, ggf. relativem Ziel und neutralem Grund. Bei Wiederaufnahme
+einer unklaren Veröffentlichung reicht ein passendes Ziel allein nicht: eigene
+Stagingdatei muss fehlen, Größe/SHA müssen passen und es darf kein bekannter
+abgelehnter Versuch vorliegen. Sonst bleibt der Vorgang operator_required.
+Das ist eine Bibliothek für den späteren Gesamtpfad; noch kein aktivierter
+API-Endpunkt, Operatorprofil, Postfachlauf oder Scheduler.
 
 Als Linux-Dateischicht implementiert, native Prüfung noch offen: vollständiges
 Staging auf demselben CIFS-Dateisystem außerhalb des
@@ -55,14 +68,28 @@ exakte Dublettenmerkmale und abgewiesene Eingaben sowie sechs SQLite-Testgruppen
 für Reservierung, Parallelität, Ownerwechsel, Kollisionsgrenze und dauerhafte
 Quellen-/Dublettenbelege unter Windows/Python3.14. Keine dieser Prüfungen belegt
 MariaDB-Sperrsemantik oder CIFS-Verhalten.
+Weitere zehn SQLite-/Dateidouble-Testgruppen prüfen den Ablauf einschließlich
+Absturz während Staging, vor/nach Rename, sofortiger DMS-Entfernung, verlorenem
+DB-Erfolgsbeleg und passendem fremdem Ziel. Ein Alembic-/SQLite-Test prüft additives,
+zweimaliges Upgrade und die Sperre gegen destruktiven Downgrade. Zusammen mit dem
+Mountfixture-Test bestehen 23 lokale Tests; weitere 5 native Tests sind übersprungen.
 Der Mountparser/-Gate besitzt zusätzlich einen synthetischen Test mit fd-/mountinfo-
 Fixtures; fünf native Linux-Dateitests werden unter Windows ausdrücklich
 übersprungen. Sie prüfen später unter anderem No-replace-Rennen, Flushfehler,
 Symlinks und fehlende/falsche Mounts auf lokalem Testdateisystem. Das ersetzt
 auch unter Linux keinen tatsächlichen CIFS-Nachweis.
-SQLAlchemy2.1.8 entspricht dem vorhandenen Produktlock; tzdata2026.6 wurde nur
+SQLAlchemy 2.1.8 entspricht dem vorhandenen Produktlock; tzdata 2026.6 wurde nur
 für die private Windows-Testumgebung verwendet. Linux-, echte MariaDB-/CIFS-
 und DMS-Betriebsnachweise stehen aus. Keine Kundenverbindung für diese Tests.
+
+Der vorhandene isolierte Docker-/MariaDB-Runner ist mit
+`scripts/test-storage-mariadb.sh` für Schema004 erweitert. Er erzeugt ausschließlich
+neue Testressourcen ohne Hostports, prüft wiederholtes Upgrade/Instanz-ID,
+Regressionen und Wiederaufnahme in drei getrennten Prozessen. API_IMAGE und
+TEST_IMAGE müssen unveränderliche sha256-IDs des festen Quellstandes sein.
+Noch nicht ausgeführt; auch native Bashprüfung steht aus. Kein Aufruf gegen die
+Kundendatenbank. Die erste tatsächliche CIFS-Probe braucht vorab Quellreview und
+eine separate synthetische Ablage außerhalb der Produktionskategorien.
 
 Primärquellen: [Python zoneinfo](https://docs.python.org/3/library/zoneinfo.html),
 [Linux renameat2](https://man7.org/linux/man-pages/man2/rename.2.html),

@@ -4,11 +4,11 @@ import ctypes
 import errno
 import hashlib
 import os
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 import re
 import stat
 import sys
-from app.storage_plan import StorageError, safe_leaf
+from app.storage_plan import StorageError, digest, safe_leaf
 
 
 class StorageCollision(StorageError):
@@ -66,6 +66,18 @@ def rename_no_replace(source_fd, source, target_fd, target):
         raise StorageError("storage_publication_uncertain")
 
 
+def destination_binding(root, mount_id, staging_name):
+    mount = parse_mounts(Path("/proc/self/mountinfo").read_text(encoding="utf-8")).get(mount_id)
+    if not mount:
+        raise StorageError("storage_mount_changed")
+    try:
+        relative = PurePosixPath(root).relative_to(mount["point"])
+    except ValueError:
+        raise StorageError("storage_mount_path_invalid") from None
+    share_path = str(PurePosixPath(mount["root"]) / relative)
+    return digest([mount["source"].casefold(), share_path.casefold(), staging_name.casefold()])
+
+
 def _parts(relative):
     if not isinstance(relative, str):
         raise StorageError("storage_path_invalid")
@@ -108,6 +120,7 @@ class CifsFiles:
         try:
             self.identity = mount_identity(self.fd, expected_source)
             self.inode = os.fstat(self.fd).st_ino
+            self.destination_key = destination_binding(root, self.identity[0], staging_name)
         except BaseException:
             os.close(self.fd)
             raise

@@ -8,7 +8,7 @@ import sys
 import tempfile
 import unittest
 from unittest.mock import patch
-from app.storage_files import CifsFiles, StorageCollision, mount_identity, parse_mounts, rename_no_replace
+from app.storage_files import CifsFiles, StorageCollision, destination_binding, mount_identity, parse_mounts, rename_no_replace
 from app.storage_plan import StorageError
 from test_storage_plan import request
 
@@ -31,6 +31,12 @@ class MountGateTests(unittest.TestCase):
                     with self.assertRaises(StorageError):
                         mount_identity(7, "//files.example.invalid/import$")
         self.assertEqual(parse_mounts(MOUNTS)[41]["point"], "/synthetic share")
+        with patch.object(Path, "read_text", return_value=MOUNTS):
+            first = destination_binding("/synthetic share/Test/AP04", 41, "_staging")
+        bind = MOUNTS.replace("/ /synthetic\\040share", "/Test/AP04 /container")
+        with patch.object(Path, "read_text", return_value=bind):
+            self.assertEqual(destination_binding("/container", 41, "_staging"), first)
+            self.assertNotEqual(destination_binding("/container/other", 41, "_staging"), first)
         with self.assertRaises(StorageError):
             parse_mounts("invalid mount record")
 
@@ -49,6 +55,9 @@ class LinuxFileTests(unittest.TestCase):
         self.gate = patch("app.storage_files.mount_identity", side_effect=lambda fd, _: (41, os.fstat(fd).st_dev))
         self.gate.start()
         self.addCleanup(self.gate.stop)
+        self.binding = patch("app.storage_files.destination_binding", return_value="d" * 64)
+        self.binding.start()
+        self.addCleanup(self.binding.stop)
         self.files = CifsFiles(str(self.root), "//files.example.invalid/import$", "_staging", staging_excluded=True)
         self.addCleanup(self.files.close)
         self.stage = "a" * 96

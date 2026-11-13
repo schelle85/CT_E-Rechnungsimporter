@@ -7,7 +7,7 @@ umask 077
 [[ "$API_IMAGE" =~ ^sha256:[a-f0-9]{64}$ ]] || exit 2
 [[ "$TEST_IMAGE" =~ ^sha256:[a-f0-9]{64}$ ]] || exit 2
 expected_schema=${EXPECTED_SCHEMA:-002_security_configuration}
-[[ "$expected_schema" = 002_security_configuration || "$expected_schema" = 003_graph_actions ]] || exit 2
+[[ "$expected_schema" = 002_security_configuration || "$expected_schema" = 003_graph_actions || "$expected_schema" = 004_storage_operations ]] || exit 2
 if [ -n "${OLD_API_IMAGE:-}" ]; then [[ "$OLD_API_IMAGE" =~ ^sha256:[a-f0-9]{64}$ ]] || exit 2; fi
 docker image inspect --format '{{json .RootFS.Layers}}' "$API_IMAGE" "$TEST_IMAGE" | python3 -c 'import json,sys; rows=[json.loads(x) for x in sys.stdin if x.strip()]; assert len(rows)==2 and rows[1][:len(rows[0])]==rows[0]; print("Immutable test image descends from exact API layers: PASS")'
 db_image=mariadb:12.3@sha256:d46e102fa8b9b72bfcdeb56f9dd538742092119dc8b11f31fe662605cd234cd9
@@ -77,13 +77,24 @@ test "$actual_schema" = "$expected_schema"
 printf 'Actual CLI001->002_security_configuration->%s twice, preserved metadata UUID=%s\n' "$actual_schema" "$after"
 db_run "$TEST_IMAGE" python -m unittest discover -s tests -v
 test "$(db_run "$API_IMAGE" python -c "$uuid_query")" = "$before"
-if [ "$expected_schema" = 003_graph_actions ]; then
+if [ "$expected_schema" = 003_graph_actions ] || [ "$expected_schema" = 004_storage_operations ]; then
  persist_seed='from app.database import make_engine;from app.graph_state import ActionStore;e=make_engine();key,owner,send=ActionStore(e,clock=lambda:1000).claim("invoice@example.invalid","flag","persist-message","flagged");assert send;print("Graph write reservation committed in first process");e.dispose()'
  db_run "$API_IMAGE" python -c "$persist_seed"
  persist_resume='from app.database import make_engine;from app.graph_state import ActionStore,actions;from sqlalchemy import select;e=make_engine();s=ActionStore(e,clock=lambda:1301);key,owner,send=s.claim("invoice@example.invalid","flag","persist-message","flagged");assert not send;s.finish(key,owner,"done",result="persist-message");print("Second process reconciles expired reservation without permission to replay");e.dispose()'
  db_run "$API_IMAGE" python -c "$persist_resume"
  persist_verify='from app.database import make_engine;from app.graph_state import actions;from sqlalchemy import select;e=make_engine();c=e.connect();r=c.execute(select(actions).where(actions.c.resource=="persist-message")).mappings().one();assert r["state"]=="done" and r["result_id"]=="persist-message" and r["reservations"]==1;print("Third process reads exact durable completed Graph intent");c.close();e.dispose()'
  db_run "$API_IMAGE" python -c "$persist_verify"
+fi
+if [ "$expected_schema" = 004_storage_operations ]; then
+ storage_seed='from datetime import datetime,timezone;from app.database import make_engine;from app.storage_plan import StorageRequest;from app.storage_state import StorageStore
+e=make_engine();s=StorageStore(e,destination_key="d"*64,clock=lambda:1000);r=StorageRequest("isolated-persistence","source-1","synthetic.pdf",8,"a"*64,datetime(2026,11,13,tzinfo=timezone.utc),"PDF");row=s.claim(r);assert row["mode"]=="stage";s.begin_publication(r.key,row["owner"]);print("Storage publication reservation committed in first process");e.dispose()'
+ db_run "$API_IMAGE" python -c "$storage_seed"
+ storage_resume='from datetime import datetime,timezone;from app.database import make_engine;from app.storage_plan import StorageRequest;from app.storage_state import StorageStore
+e=make_engine();s=StorageStore(e,destination_key="d"*64,clock=lambda:1301);r=StorageRequest("isolated-persistence","source-1","synthetic.pdf",8,"a"*64,datetime(2026,11,13,tzinfo=timezone.utc),"PDF");row=s.claim(r);assert row["mode"]=="reconcile" and row["publication_attempts"]==1;s.finish(r.key,row["owner"],"operator_required",error="synthetic_unknown_publication");print("Second process cannot reacquire storage publication");e.dispose()'
+ db_run "$API_IMAGE" python -c "$storage_resume"
+ storage_verify='from app.database import make_engine;from app.storage_state import operations;from sqlalchemy import select
+e=make_engine();c=e.connect();r=c.execute(select(operations).where(operations.c.original_name=="synthetic.pdf")).mappings().one();assert r["state"]=="operator_required" and r["publication_attempts"]==1 and r["owner"] is None;print("Third process reads durable unresolved storage receipt");c.close();e.dispose()'
+ db_run "$API_IMAGE" python -c "$storage_verify"
 fi
 api_mounts=(
  --mount "type=bind,source=$temp_dir/app-password,target=/run/secrets/db_password,readonly"

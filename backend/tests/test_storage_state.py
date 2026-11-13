@@ -23,7 +23,7 @@ class StorageStateTests(unittest.TestCase):
         with self.engine.begin() as connection:
             connection.execute(operations.delete())
         self.now = [int(moment("2026-11-13T10:00:00Z").timestamp())]
-        self.store = StorageStore(self.engine, clock=lambda: self.now[0])
+        self.store = StorageStore(self.engine, destination_key="d" * 64, clock=lambda: self.now[0])
 
     def stored(self, item):
         row = self.store.claim(item)
@@ -67,6 +67,11 @@ class StorageStateTests(unittest.TestCase):
             self.assertNotEqual(row["target"], first["target"])
         with self.assertRaises(StorageError):
             self.store.claim(request(byte_size=9))  # Stable source cannot change content.
+        changed = StorageStore(self.engine, destination_key="e" * 64, clock=lambda: self.now[0])
+        with self.assertRaises(StorageError):
+            changed.claim(request())  # Nor can it silently move to another CIFS subtree.
+        with self.assertRaises(StorageError):
+            changed.claim(request(source_key="other-destination"))
 
     def test_expired_stager_is_fenced_but_publishing_is_never_reacquired(self):
         item = request()
