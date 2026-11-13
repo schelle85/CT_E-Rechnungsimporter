@@ -5,6 +5,16 @@ vorhandene Compose-Anwendung nicht und installieren/aktivieren keinen Timer.
 Kundenmigration, reale Mail-/CIFS-Aktionen und spätere dauerhafte Automatik brauchen
 den vereinbarten Quellen-/Laufabgleich mit ORGA. AP06-Freigabeerzeugung ist nicht enthalten.
 
+Prüfstand: Vollständiges Image mit unveränderten Classifier-/OCR-Quellen und
+Paket-/Modellhashes sowie41Lockversionen geprüft.155Backendgruppen einschließlich
+40AP05 ohneFehler/Skips auf neuer isolierterMariaDB bestanden. Separater echter
+Handoff mit XML-E-Rechnung, OCR-Rechnungs-PDF und Inlinebild ignoriert, zwei
+synthetischen Ablagen und Postmove-Fahne bestanden; späteridle ohneNeupublikation
+nach simulierterDMS-/Quellentfernung. Der tatsächliche Host-Cleanuppfad entfernt
+einen absichtlich blockierten Container bei skalierter0.5s-Frist; echteCLI ohne
+Konfiguration liefert neutralenFehler. KeineCIFS-/Live-Mailwirkung in diesenPrüfungen.
+Runtime-Quellreview und konkreter ORGA-Betriebsabgleich bleiben offen.
+
 ## Image und Herkunft
 
 backend/Dockerfile.processing baut auf dem vollständigen eingefrorenen

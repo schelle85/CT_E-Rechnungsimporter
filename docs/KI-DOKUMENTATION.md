@@ -36,11 +36,11 @@ Stand: 13. November 2026. Lebende Markdown-Dokumentation, noch kein Gesamtabschl
   Stagingausschluss und exklusiver Zugriff bleiben Betreiberpunkte vor AP05-
   Veröffentlichung; kein allgemeiner DMS-/Gesamtpfad-PASS.
 - AP05a–c seit13.11. freigegeben. Gemeinsamer Dienst mit Identitäts-/Routingvertrag,
-  Gesamtjournal/Migration005 und engen Graph-Erweiterungen:37 native synthetische
-  Gruppen bestanden, einschließlich zusätzlichem Anhang vor Abschluss und
-  Wiederaufnahme nach verlorener Quittung. Manuelle Runtime/CLI und frischer
-  Schema005-Testläufer vorbereitet; tatsächlicher Image-/Handoffnachweis offen. Noch kein
-  AP05-MariaDB-/Gesamtpfad-PASS. DMS-Ausschluss und exklusive Stagingnutzung vom
+  Gesamtjournal/Migration005 und engen Graph-Erweiterungen:155 native Backendgruppen
+  einschließlich40AP05 ohneFehler/Skips. Frische isolierteMariaDB-Migration/Persistenz,
+  API-Kompatibilität und getrennter Handoff mit echter eingefrorener XML-/OCR-Erkennung
+  bestanden. Dienst-Quellreview S1/S2 bestanden; Runtime-Quellreview und konkreter
+  Betriebsabgleich offen. Kein realer Mail-/CIFS-Gesamt-PASS. DMS-Ausschluss und exklusive Stagingnutzung vom
   Betreiber inzwischen bestätigt; keine eigene DMS-Konfigurationsprüfung.
   AP03-Regeln bleiben unverändert, GUI/Freigabeschreibwege sind AP06. Keine
   Kundenmigration, API-/Compose-Umschaltung, Live-Mailmutation oder aktive Jobs.

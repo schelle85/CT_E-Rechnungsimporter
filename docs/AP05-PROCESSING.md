@@ -4,42 +4,37 @@ Stand13.11.2026. AP05a–c ist freigegeben und in Entwicklung; keine neue
 Kundenmigration, API-/Compose-Umschaltung, Live-Mailaktion oder Jobaktivierung.
 GUI und Freigabeschreibwege bleiben AP06, Produktivautomatik bleibt AP08.
 
-Vorhandene Bausteine werden verbunden: AP02-Graphadapter und Aktionsjournal,
-eingefrorene AP03-Klassifikation mit PDF/XML/OCR und AP04-Ablagejournal/Dateischicht.
-SQLAlchemy/Alembic/MariaDB, Standardbibliothek und bestehende Dockerrollen reichen;
-keine neue Queue, Plattform oder Produktabhängigkeit. Geplant ist ein additives
-Gesamtjournal mit Mail-, Anhangs- und Korrekturzuständen nach Migration004.
+Vorhandene Bausteine sind verbunden: AP02-Graphadapter/Aktionsjournal, eingefrorene
+AP03-Klassifikation mit PDF/XML/OCR und AP04-Ablagejournal/Dateischicht. Vorhandene
+SQLAlchemy-/Alembic-/MariaDB-, Docker- und Standardbibliotheksbausteine reichen;
+keine neue Queue, Plattform oder Produktabhängigkeit.
 
-Implementierter erster Baustein `processing_plan.py`: case-sensitive Immutable-
-Mail-/Anhangsidentität, vollständiges unveränderliches Manifest, Stichtagsgrenze,
-Annahme erlaubter AP03-Findings und Mailzielentscheidung. Sechs synthetische
-Testgruppen unter Windows/Python3.14 bestanden. Zusätzlich implementiert:
-`ProcessingStore` mit drei additiven Tabellen/Migration005, vollständigem Manifest,
-600s-Ownerlease pro begrenztem Quantum, ursprünglichen/aktuellen Entscheidungen,
-stabilen Effektreservierungen, Abschlussabsichten und Annahme bereits freigegebener
-Korrekturen. Dreizehn weitere lokale SQLite-Testgruppen einschließlich Migration001→005
-zweimal, Ownerübernahme, verspäteter Rückgaben und Korrekturrevision bestanden.
-Zusammen mit sechs Graph-Integrationsgruppen bestehen 25 lokale AP05-Tests.
-Journal und Planner verwenden dieselbe MIME-/Findingprüfung. Die Zählausnahme
-wird erst aus vollständigem Inhalt und dessen validiertem AP03-Finding abgeleitet;
-der MIME-Parameter-/Leerraum-Gegenfall aus AP05-J1 bleibt geprüft.
-Der vorhandene Graphaktionstest bestand zusätzlich14 Gruppen, eine echte
-MariaDB-Konkurrenzgruppe blieb lokal übersprungen. Synchrone Transportdoubles
-verwenden dabei unter Windows Deadline-Stubs; keine nativen Zeitgrenzen oder
-realen Mailaktionen daraus ableiten. Noch kein realer MariaDB-/Gesamtpfad-/
-Runtime-PASS für AP05.
+Implementiert sind der Identitäts-/Routingvertrag, drei additive Tabellen in
+Migration005, der gemeinsame Dienst ProcessingService.advance und die manuelle
+[Runtime](AP05-RUNTIME.md). Das Journal bindet vollständiges Manifest, tatsächliche
+Originalbytes, ursprüngliche Findings, wirksame Korrekturen und stabile Effektkeys.
+600s-Ownerlease gilt je begrenztem Quantum; verspätete Owner/Rückgaben werden
+abgewiesen. Vor Mailmutation und vor Abschlussquittung werden Quelle und
+Anhangsmanifest erneut geprüft. Sichere Anhangsfehler lassen erfolgreiche
+Geschwister weiterlaufen; ungewisse Publikationen sperren den Mailabschluss.
 
-Der gemeinsame Dienst `ProcessingService.advance` ist als nächster Teilstand
-implementiert: begrenzter opaker Dateihandoff, Annahme der gebundenen Findings,
-unabhängige Anhangsablage, Receiptprüfung vor erneutem Download sowie bewachter
-Move-/Fahnenabschluss. Sichere Download-/Parserfehler bleiben am einzelnen Anhang;
-ungewisse Publikationen sperren den Mailabschluss. Zehn zusätzliche Ablaufgruppen
-prüfen diese Verbindung mit synthetischem Graph, eingegebenen AP03-Findings und
-echten lokalen Dateien unter Linux. Unter Windows werden sie ausdrücklich
-übersprungen. Inzwischen bestehen37native synthetische AP05-Gruppen einschließlich
-zwölf Dienstgruppen; die vollständige Runtimeprüfung steht noch aus.
-Migration005 wurde noch nicht beim Kunden angewendet; isolierte Prüfläufe erhalten
-ein frisches Schema mit dem aktuellen Anhangsfehlerfeld.
+Prüfstand:155 native Backendgruppen ohne Fehler/Skips, darunter40AP05-Gruppen,
+auf einer neu erzeugten isolierten MariaDB. Migration001→005zweimal,
+Metadatenidentität, getrennte Prozesspersistenz und API-Kompatibilität bestanden.
+Zusätzlich echter Zweiroles-Handoff desselben vollständigen Processingimages:
+XML-E-Rechnung, OCR-Rechnungs-PDF und ignoriertes Inlinebild, zwei Ablagen mit
+unveränderten Bytes sowie bestätigtes ZielNachfragen/Fahne im synthetischen Graph.
+Nach simulierter DMS-/Quellentfernung kein erneutes Publizieren. Classifierquellen,
+Paket-/Modellhashes und sämtliche41Lockversionen gegen die eingefrorene Basis
+geprüft. Absichtlich blockierter Container wird durch denselben Host-Cleanuppfad
+beendet; fehlende Konfiguration der echten CLI bleibt ein neutraler Fehler.
+
+Diese Prüfungen verwendeten Fake-Graph und synthetische Datei-/CIFS-Doubles;
+keine echten Mailaktionen oder produktive CIFS-Publikation daraus ableiten.
+Dienst-Quellreview einschließlich S1/S2 bestanden; Runtime-Quellreview und
+konkreter ORGA-Abgleich bleiben offen. Kunden-Schema/Compose unverändert,
+Migration005 nur in frischer Test-DB angewendet. Unter Windows bestehen27
+Gruppen;13POSIX-Gruppen werden dort bewusst übersprungen.
 
 Graphziele enthalten jetzt zusätzlich Mahnung. Für AP05-Abschlussrevisionen gibt
 es eng bewachte neue Aktionsidentitäten; alte Standardschlüssel bleiben gleich,
@@ -85,8 +80,8 @@ keine Graph-/DB-Secrets und keinen CIFS-Schreibbind. Enger vorhandener
 Host-Dateihandoff ohne Docker-Socket in App/API, keine neue Netzwerkplattform.
 Eingang5Minuten und Korrekturen15Minuten nutzen in der vorbereiteten CLI denselben
 wiederaufnehmbaren Dienstpfad mit getrennten Fälligkeiten.27lokale Gruppen bestehen,
-13Linuxgruppen werden unter Windows übersprungen. Tatsächlicher neuer Image-/
-Hosthandoff-/MariaDB-Nachweis offen; vorerst nur manuelle Aufrufe/deaktivierte Vorlagen.
+13Linuxgruppen werden unter Windows übersprungen. Image-, echter Handoff- und
+isolierter MariaDB-Nachweis liegen vor; weiterhin nur manuelle Aufrufe/deaktivierte Vorlagen.
 
 Der Betreiber hat DMS-Ausschluss und ausschließliche Importernutzung des
 Stagingbereichs bestätigt. Das ist eine Betreiberbestätigung, keine eigene
