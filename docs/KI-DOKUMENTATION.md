@@ -36,7 +36,7 @@ Stand: 13. November 2026. Lebende Markdown-Dokumentation, noch kein Gesamtabschl
   Stagingausschluss und exklusiver Zugriff bleiben Betreiberpunkte vor AP05-
   Veröffentlichung; kein allgemeiner DMS-/Gesamtpfad-PASS.
 - AP05a–c seit13.11. freigegeben. Identitäts-/Routingvertrag und additives
-  Gesamtjournal/Migration005 und enge Graph-Erweiterungen mit24 lokalen
+  Gesamtjournal/Migration005 und enge Graph-Erweiterungen mit25 lokalen
   Testgruppen geprüft; gemeinsame
   Dienstintegration und tatsächliche Runtime noch in Arbeit. Noch kein nativer
   AP05-MariaDB-/Gesamtpfad-PASS. DMS-Ausschluss und exklusive Stagingnutzung vom
@@ -44,6 +44,10 @@ Stand: 13. November 2026. Lebende Markdown-Dokumentation, noch kein Gesamtabschl
   AP03-Regeln bleiben unverändert, GUI/Freigabeschreibwege sind AP06. Keine
   Kundenmigration, API-/Compose-Umschaltung, Live-Mailmutation oder aktive Jobs.
   AP06+ ohne Go; Produktivautomatik bleibt AP08.
+- Signaturzählung ohne manuelle Hashlisten: nur file+inline+normalisierter
+  image-MIME und vollständiges hashgebundenes AP03-ignored/unsupported_attachment
+  werden nach Findingannahme ausgenommen. Alle anderen Fälle bleiben gezählt/offen.
+  J1-MIME-Gegenfall weiterhin geprüft, AP03 unverändert.
 - Verträge: [AP02](AP02-GRAPH.md), [AP03](AP03-RECOGNITION.md), [AP04](AP04-ABLAGE.md), [AP05](AP05-PROCESSING.md).
   [Testquelle](AP03-TEST-SOURCE.md) nur manuell mit fester Ordner-/Parentbindung.
 

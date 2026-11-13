@@ -17,12 +17,12 @@ Testgruppen unter Windows/Python3.14 bestanden. Zusätzlich implementiert:
 `ProcessingStore` mit drei additiven Tabellen/Migration005, vollständigem Manifest,
 600s-Ownerlease pro begrenztem Quantum, ursprünglichen/aktuellen Entscheidungen,
 stabilen Effektreservierungen, Abschlussabsichten und Annahme bereits freigegebener
-Korrekturen. Zwölf weitere lokale SQLite-Testgruppen einschließlich Migration001→005
+Korrekturen. Dreizehn weitere lokale SQLite-Testgruppen einschließlich Migration001→005
 zweimal, Ownerübernahme, verspäteter Rückgaben und Korrekturrevision bestanden.
-Zusammen mit sechs Graph-Integrationsgruppen bestehen 24 lokale AP05-Tests.
-Journal und Planner verwenden dieselbe MIME-/Signaturprüfung; bestätigter Rohhash
-und Inlinebild bleiben zwingend. Der Regressionstest umfasst Parameter/Leerraum
-im MIME-Wert sowie Ablehnung unbestätigter Hashes, Inline-PDF und nicht-inline Bild.
+Zusammen mit sechs Graph-Integrationsgruppen bestehen 25 lokale AP05-Tests.
+Journal und Planner verwenden dieselbe MIME-/Findingprüfung. Die Zählausnahme
+wird erst aus vollständigem Inhalt und dessen validiertem AP03-Finding abgeleitet;
+der MIME-Parameter-/Leerraum-Gegenfall aus AP05-J1 bleibt geprüft.
 Der vorhandene Graphaktionstest bestand zusätzlich14 Gruppen, eine echte
 MariaDB-Konkurrenzgruppe blieb lokal übersprungen. Synchrone Transportdoubles
 verwenden dabei unter Windows Deadline-Stubs; keine nativen Zeitgrenzen oder
@@ -50,10 +50,16 @@ wird vor jeder neuen Fehlerroute abgeglichen. Nach bestätigtem Move erforderlic
 Fahne setzen und Ziel/Fahne gemeinsam nachprüfen. Erfolg erst nach erforderlichen
 Ablage- und Mailaktionen.
 
-Inline/MIME allein beweisen kein Signaturlogo. Nur ein Inlinebild mit tatsächlichem
-Hash in einer geschützten bestätigten Signaturhashliste wird von der Mehrfachzählung
-ausgenommen. Unbestätigte Inlineanhänge einschließlich PDF/XML bleiben in
-Verarbeitung/Zählung; ohne bestätigte Liste wird kein Anhang als Signatur ausgeblendet.
+Eine Zählausnahme benötigt gemeinsam Graph-Typ file, isInline, normalisierten
+image-MIME und ein auf die vollständig geladenen Originalbytes hashgebundenes
+AP03-Finding ignored/reason=unsupported_attachment. Erst finding(), nicht Listing
+oder content(), leitet den gespeicherten Bool ab. Keine manuelle Hashliste,
+Signaturpflege oder neue Bild-/Bodyanalyse. Alle Anlagen bleiben im Manifest.
+Andere Findings/Typen, fehlender oder abweichender Hash, unvollständiger Download
+und nicht-inline Bilder bleiben gezählt bzw. technisch offen. PDF/XML mit falschem
+image-MIME werden weiterhin klassifiziert/verarbeitet und nicht ausgeblendet.
+Das ist eine Zählkonvention für bereits durch AP03 ignorierte Inlinebilder,
+kein semantischer Beweis für Bildinhalt; AP03 einschließlich OCR bleibt unverändert.
 
 Manuelle Entscheidungen sind nur für gespeicherte gewöhnliche Dokumentart-
 Unklarheit vorgesehen. Strukturelle Hybrid-/Namespace-/Versionswidersprüche und

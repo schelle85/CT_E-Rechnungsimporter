@@ -21,15 +21,22 @@ def attachment_key(mailbox, message_id, attachment_id):
     return digest([message_key(mailbox, message_id), identifier(attachment_id)])
 
 
-def signature_image(attachment, original_sha256=None, approved_hashes=()):
+def signature_image(attachment, finding=None, original_sha256=None):
     mime = (attachment.content_type or "").split(";", 1)[0].strip().lower()
-    return attachment.inline and mime.startswith("image/") and original_sha256 is not None and original_sha256 in approved_hashes
+    if attachment.kind != "file" or not attachment.inline or not mime.startswith("image/"):
+        return False
+    try:
+        value = checked_finding(finding, original_sha256)
+    except ProcessingError:
+        return False
+    return value["status"] == "ignored" and value["reason"] == "unsupported_attachment"
 
 
-def requires_flag(attachments, raw_hashes=None, signature_hashes=()):
+def requires_flag(attachments, raw_hashes=None, findings=None):
     raw_hashes = raw_hashes or {}
+    findings = findings or {}
     values = {item.id: item for item in attachments}
-    return sum(not signature_image(item, raw_hashes.get(item.id), signature_hashes) for item in values.values()) > 1
+    return sum(not signature_image(item, findings.get(item.id), raw_hashes.get(item.id)) for item in values.values()) > 1
 
 
 def source_manifest(mailbox, message, attachments):

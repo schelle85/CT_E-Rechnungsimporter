@@ -128,34 +128,61 @@ class ProcessingStateTests(unittest.TestCase):
         with self.assertRaises(ProcessingError):
             self.store.finish_close(two, claim["owner"], 0, parent_id=intent["destination_id"], flagged=False, intent_key=intent["intent_key"])
 
-    def test_signature_needs_confirmed_raw_hash_not_inline_metadata(self):
+    def test_content_cannot_claim_signature_without_a_finding(self):
         owner, revision = self.claim()
         key = self.store.get_attachments(self.key)[0]["attachment_key"]
-        with self.assertRaises(ProcessingError):
+        with self.assertRaises(TypeError):
             self.store.content(self.key, key, owner, revision, byte_size=7, sha256="a" * 64, signature=True)
+        self.store.content(self.key, key, owner, revision, byte_size=7, sha256="a" * 64)
+        self.assertEqual(self.store.get_attachments(self.key)[0]["signature"], 0)
 
     def test_confirmed_signature_mime_normalization_matches_planner(self):
         document = attachment()
         logo = attachment("logo", inline=True, content_type=" Image/PNG; charset=binary ")
-        confirmed = {"a" * 64}
-        self.assertFalse(requires_flag([document, logo], {"logo": "a" * 64}, confirmed))
-        key = self.store.register(self.mailbox, mail(id="signature-positive"), [document, logo], signature_hashes=confirmed)
+        finding = {"status": "ignored", "category": None, "reason": "unsupported_attachment", "method": "structure",
+                   "original_sha256": "a" * 64, "rule_version": "ap03-4"}
+        self.assertFalse(requires_flag([document, logo], {"logo": "a" * 64}, {"logo": finding}))
+        key = self.store.register(self.mailbox, mail(id="signature-positive"), [document, logo])
         claim = self.store.claim(key)
         row = next(value for value in self.store.get_attachments(key) if value["graph_id"] == "logo")
-        self.store.content(key, row["attachment_key"], claim["owner"], 0, byte_size=7, sha256="a" * 64, signature=True)
+        self.store.content(key, row["attachment_key"], claim["owner"], 0, byte_size=7, sha256="a" * 64)
+        self.assertEqual(next(value for value in self.store.get_attachments(key) if value["graph_id"] == "logo")["signature"], 0)
+        self.store.finding(key, row["attachment_key"], claim["owner"], 0, finding)
         saved = next(value for value in self.store.get_attachments(key) if value["graph_id"] == "logo")
         self.assertEqual(saved["signature"], 1)
-        for index, (mime, inline, checksum) in enumerate((("image/png", True, "b" * 64),
-                ("application/pdf", True, "a" * 64), ("image/png", False, "a" * 64))):
+        for index, (mime, inline, status, category, reason) in enumerate((
+                ("application/pdf", True, "ignored", None, "unsupported_attachment"),
+                ("image/png", False, "ignored", None, "unsupported_attachment"),
+                ("image/png", True, "recognized", "PDF", "invoice_fields"),
+                ("image/png", True, "unknown", None, "ambiguous_pdf"),
+                ("image/png", True, "failed", None, "pdf_structure"),
+                ("image/png", True, "ignored", None, "irrelevant_document_type"))):
             rejected = attachment("logo", content_type=mime, inline=inline)
-            self.assertTrue(requires_flag([document, rejected], {"logo": checksum}, confirmed))
+            result = dict(finding, status=status, category=category, reason=reason)
+            self.assertTrue(requires_flag([document, rejected], {"logo": "a" * 64}, {"logo": result}))
             message_key = self.store.register(self.mailbox, mail(id="signature-negative-" + str(index)),
-                [document, rejected], signature_hashes=confirmed)
+                [document, rejected])
             owner = self.store.claim(message_key)["owner"]
             row = next(value for value in self.store.get_attachments(message_key) if value["graph_id"] == "logo")
-            with self.assertRaises(ProcessingError) as failure:
-                self.store.content(message_key, row["attachment_key"], owner, 0, byte_size=7, sha256=checksum, signature=True)
-            self.assertEqual(failure.exception.code, "processing_signature_unconfirmed")
+            self.store.content(message_key, row["attachment_key"], owner, 0, byte_size=7, sha256="a" * 64)
+            self.store.finding(message_key, row["attachment_key"], owner, 0, result)
+            saved = next(value for value in self.store.get_attachments(message_key) if value["graph_id"] == "logo")
+            self.assertEqual(saved["signature"], 0)
+
+    def test_signature_finding_requires_complete_content_and_matching_frozen_hash(self):
+        key = self.store.register(self.mailbox, mail(id="bad-signature"), [attachment("logo", inline=True, content_type="image/png")])
+        owner = self.store.claim(key)["owner"]
+        row = self.store.get_attachments(key)[0]
+        finding = {"status": "ignored", "category": None, "reason": "unsupported_attachment",
+                   "original_sha256": "a" * 64, "rule_version": "ap03-4"}
+        self.assertTrue(requires_flag([attachment(), attachment("logo", inline=True, content_type="image/png")],
+                                     {"logo": "a" * 64}))
+        with self.assertRaises(ProcessingError):
+            self.store.finding(key, row["attachment_key"], owner, 0, finding)
+        self.store.content(key, row["attachment_key"], owner, 0, byte_size=7, sha256="b" * 64)
+        with self.assertRaises(ProcessingError):
+            self.store.finding(key, row["attachment_key"], owner, 0, finding)
+        self.assertEqual(self.store.get_attachments(key)[0]["signature"], 0)
 
     def test_correction_generation_reuses_source_and_keeps_original_finding(self):
         owner, revision = self.claim()

@@ -51,11 +51,13 @@ class ProcessingPlanTests(unittest.TestCase):
         signature = attachment("signature", inline=True, content_type="image/png")
         first, second = attachment(), attachment("a2", inline=True)
         snapshot = source_manifest("invoice@example.invalid", mail(), [first, first, signature])
-        self.assertFalse(requires_flag([first, first, signature], {"signature": "a" * 64}, {"a" * 64}))
+        finding = {"status": "ignored", "category": None, "reason": "unsupported_attachment",
+                   "original_sha256": "a" * 64, "rule_version": "ap03-4"}
+        self.assertFalse(requires_flag([first, first, signature], {"signature": "a" * 64}, {"signature": finding}))
         self.assertTrue(requires_flag([first, signature]))  # Inline/image metadata alone is no signature proof.
         self.assertEqual(len(snapshot["attachments"]), 2)
         two = source_manifest("invoice@example.invalid", mail(), [signature, second, first])
-        self.assertTrue(requires_flag([signature, second, first], {"signature": "a" * 64}, {"a" * 64}))
+        self.assertTrue(requires_flag([signature, second, first], {"signature": "a" * 64}, {"signature": finding}))
         self.assertEqual(two["manifest_key"], source_manifest("invoice@example.invalid", mail(), [first, second, signature])["manifest_key"])
         with self.assertRaises(ProcessingError):
             source_manifest("invoice@example.invalid", mail(), [first, replace(first, size=1000)])

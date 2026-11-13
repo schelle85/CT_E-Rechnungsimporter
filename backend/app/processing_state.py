@@ -19,7 +19,6 @@ messages = sa.Table("processing_messages", metadata,
     sa.Column("source_parent", sa.Text, nullable=False),
     sa.Column("current_parent", sa.Text, nullable=False),
     sa.Column("manifest_key", sa.String(64), nullable=False),
-    sa.Column("signature_hashes", sa.Text, nullable=False),
     sa.Column("state", sa.String(24), nullable=False),
     sa.Column("revision", sa.Integer, nullable=False),
     sa.Column("completed_revision", sa.Integer, nullable=False),
@@ -90,18 +89,15 @@ class ProcessingStore:
             return [dict(row) for row in connection.execute(sa.select(attachments).where(
                 attachments.c.message_key == key).order_by(attachments.c.attachment_key)).mappings()]
 
-    def register(self, mailbox, message, values, *, signature_hashes=()):
+    def register(self, mailbox, message, values):
         snapshot = source_manifest(mailbox, message, values)
-        for value in signature_hashes:
-            if not isinstance(value, str) or len(value) != 64 or any(char not in "0123456789abcdef" for char in value):
-                raise ProcessingError("processing_signature_policy_invalid")
         key, now = snapshot["message_key"], int(self.clock())
         try:
             with self.engine.begin() as connection:
                 connection.execute(messages.insert().values(message_key=key, mailbox_key=digest([mailbox.lower()]),
                     graph_id=message.id, received_at=snapshot["received_at"], source_parent=message.parent_id,
                     current_parent=message.parent_id, manifest_key=snapshot["manifest_key"],
-                    signature_hashes=encoded(sorted(set(signature_hashes))), state="registered", revision=0,
+                    state="registered", revision=0,
                     completed_revision=-1, lease_until=0, next_attempt=now, created_at=now, updated_at=now))
                 for value in snapshot["attachments"]:
                     connection.execute(attachments.insert().values(attachment_key=attachment_key(mailbox, message.id, value[0]),
@@ -157,22 +153,19 @@ class ProcessingStore:
             attachments.c.message_key == message_key).with_for_update()).mappings().one()
         return dict(row)
 
-    def content(self, message_key, key, owner, revision, *, byte_size, sha256, signature=False):
+    def content(self, message_key, key, owner, revision, *, byte_size, sha256):
         if (type(byte_size) is not int or not 0 <= byte_size <= 26214400 or not isinstance(sha256, str)
                 or len(sha256) != 64 or any(char not in "0123456789abcdef" for char in sha256)):
             raise ProcessingError("processing_content_invalid")
         with self.engine.begin() as connection:
-            message = self._owned(connection, message_key, owner, revision)
+            self._owned(connection, message_key, owner, revision)
             row = self._attachment(connection, message_key, key)
             if row["raw_sha256"] is not None and (row["raw_sha256"] != sha256 or row["byte_size"] != byte_size):
                 raise ProcessingError("processing_content_changed")
-            source = json.loads(row["source"])
-            if signature and not signature_image(Attachment(*source), sha256, json.loads(message["signature_hashes"])):
-                raise ProcessingError("processing_signature_unconfirmed")
             if row["original_finding"] is not None:
                 return  # A fresh content verification cannot reset a finding/manual decision.
             self._write(connection, attachments, attachments.c.attachment_key, key,
-                dict(raw_sha256=sha256, byte_size=byte_size, signature=int(signature), state="classifying",
+                dict(raw_sha256=sha256, byte_size=byte_size, state="classifying",
                      class_owner=owner, class_revision=revision), message_key, owner, revision)
 
     def finding(self, message_key, key, owner, revision, value):
@@ -184,8 +177,9 @@ class ProcessingStore:
             value = checked_finding(value, row["raw_sha256"])
             if row["original_finding"] is not None and row["original_finding"] != encoded(value):
                 raise ProcessingError("processing_finding_conflict")
+            signature = signature_image(Attachment(*json.loads(row["source"])), value, row["raw_sha256"])
             self._write(connection, attachments, attachments.c.attachment_key, key,
-                dict(state="classified", original_finding=encoded(value), effective_status=value["status"], category=value["category"],
+                dict(state="classified", original_finding=encoded(value), effective_status=value["status"], category=value["category"], signature=int(signature),
                      class_owner=None, class_revision=None), message_key, owner, revision)
 
     def ignore(self, message_key, key, owner, revision, reason):
