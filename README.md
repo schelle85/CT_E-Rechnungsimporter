@@ -9,7 +9,7 @@ internen Webportal für Protokolle, Fehler und Dubletten.
 
 ## Projektstatus
 
-**Stand: 12. November 2026. AP01 ist durch den Kunden vollständig abgenommen.
+**Stand: 13. November 2026. AP01 ist durch den Kunden vollständig abgenommen.
 AP02a–c ist im vereinbarten Grundlagenumfang technisch abgeschlossen und
 bereitgestellt. Die automatische Rechnungsverarbeitung ist noch nicht aktiviert.**
 
@@ -27,6 +27,10 @@ Der begrenzte Titelvariantennachtrag wurde unabhängig geprüft und aus `e49ccdb
 als separates Runtimeimage gebaut. Die zusätzlichen Pre-Notifikations- und datierten
 Mahnungsüberschriften wurden im isolierten Dateinachtest bestätigt. Verbleibende
 fachliche Restfälle sind davon getrennt; eine Gesamtfreigabe folgt daraus nicht.
+
+Die Mailzielpriorität für gemischte Anhänge ist seit 13.11.2026 fachlich bestätigt;
+siehe [Anforderungen](docs/ANFORDERUNGEN.md#mailabschluss-und-fahne). Ihre Umsetzung
+folgt im dafür freizugebenden AP05.
 
 Die angezeigten Rechnungsvorgänge sind weiterhin **synthetische Beispieldaten**.
 Anmeldung und Administration verwenden bereits die tatsächliche AD-Anbindung.

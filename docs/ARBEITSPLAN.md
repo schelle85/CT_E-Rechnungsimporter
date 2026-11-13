@@ -1,6 +1,6 @@
 # Arbeitspakete
 
-Stand: 12. November 2026. **AP00 ist im definierten Grundbereitstellungsumfang abgeschlossen;
+Stand: 13. November 2026. **AP00 ist im definierten Grundbereitstellungsumfang abgeschlossen;
 AP01 ist vollständig durch den Kunden abgenommen. AP02a–c ist technisch abgeschlossen;
 AP03a–c ist freigegeben und in Entwicklung, AP04 bis AP10 sind noch nicht freigegeben.** AP10 ist für die spätere wöchentliche Wartung ergänzt.
 ORGA koordiniert, DEV implementiert, REVIEW prüft.
@@ -80,7 +80,7 @@ danach folgen AD-Anmeldung, Administrationsgrundlage und gemeinsame Abnahme.
 
 | Teil | Ergebnis und Prüfung |
 | --- | --- |
-| AP05a | Mehrfachanhänge, Fahnen und Mailpriorität; Sonderfall neue Anhänge plus Dubletten vorher klären |
+| AP05a | Mehrfachanhänge und Fahnen; bestätigte Mailpriorität Failed → unzugeordnet → Mahnung → Nachfragen → Zahlungsavis → Success umsetzen; Anhänge unabhängig passend ablegen |
 | AP05b | Persistente Zustände, Fünfminutenlauf und Wiederaufnahme ohne Doppelablage |
 | AP05c | Kontrollierter Gesamtpfad; Erfolg erst nach erforderlicher Ablage |
 
@@ -141,6 +141,8 @@ AP10-Einrichtung und Prüfung vor der Finalisierung der Abschlussunterlagen ber�
 AP00 → AP01 → AP02 → AP03 → AP04 → AP05 → AP06 → AP07 → AP08 → AP09.
 Dokumentation wird während aller Pakete gepflegt; AP09 finalisiert sie.
 
-Noch für die betroffenen Pakete festzulegen: Umgang mit gemischten Dubletten-Mails,
-Ende der Zertifikatswarnserie nach gültigem Zertifikatswechsel und Sicherungsumfang
-externer SMB-Daten. Diese offenen Punkte blockieren nicht pauschal unabhängige Arbeit.
+Mailpriorität einschließlich Unbekannt, Mahnung und gemischter Dubletten-Mails ist
+seit 13.11.2026 bestätigt; Details in den [Anforderungen](ANFORDERUNGEN.md#mailabschluss-und-fahne).
+Noch für die betroffenen Pakete festzulegen: Ende der Zertifikatswarnserie nach
+gültigem Zertifikatswechsel und Sicherungsumfang externer SMB-Daten. Diese offenen
+Punkte blockieren nicht pauschal unabhängige Arbeit.

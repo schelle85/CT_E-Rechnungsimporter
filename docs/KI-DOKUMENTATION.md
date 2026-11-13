@@ -1,6 +1,6 @@
 # KI-Dokumentation
 
-Stand: 12. November 2026. Lebende Markdown-Dokumentation, noch kein Gesamtabschlussbericht.
+Stand: 13. November 2026. Lebende Markdown-Dokumentation, noch kein Gesamtabschlussbericht.
 
 ## Wiedereinstieg
 
@@ -72,7 +72,6 @@ Primärquellen: [Graph SDKs](https://learn.microsoft.com/en-us/graph/sdks/sdks-o
 
 ## Offene Punkte
 
-- Mailabschluss bei neuen Anhängen und Dubletten in derselben Mail.
 - Ende der Warnserie nach geprüftem gültigem Zertifikatswechsel.
 - Tatsächliche Anschlussinformationen, SMB-Sicherungsumfang und Betriebszuständigkeiten.
 
@@ -91,8 +90,11 @@ Mahnung umfasst Zahlungserinnerung. Gezielte Titel-/Label-/Avisregeln in vorhand
 Pipeline, CLI-/Testoperator-Allowlisten ergänzt. Quellreview bestanden, separates
 Runtimeimage gebaut und isolierter Dateinachtest durchgeführt; historische Daten
 unverändert. Fachliche Restfälle offen. Erkannte PDF-/E-Rechnungen laufen künftig
-automatisch; Benutzerklärung nur bei Unbekannt. Korrekturjob, Frontend und
-Mischmail-Priorität bleiben späteren freigegebenen AP vorbehalten.
+automatisch; Benutzerklärung nur bei Unbekannt. Die Mailzielpriorität ist seit
+13.11.2026 bestätigt: Failed → unzugeordnet (Unbekannt/Dublette) → Mahnung →
+Nachfragen → Zahlungsavis → Success. Jeder erkannte Anhang wird unabhängig davon
+passend abgelegt. Korrekturjob, Frontend und Umsetzung der Mailpriorität bleiben
+späteren freigegebenen AP vorbehalten.
 
 Eine Webkorrektur mit späterer Wiederaufnahme ist ein Vorschlag für AP05/AP06.
 Insbesondere ist noch keine 15-Minuten-Wiederaufnahme oder entsprechende Oberfläche aktiv.

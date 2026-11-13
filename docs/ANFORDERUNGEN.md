@@ -1,6 +1,7 @@
 # Anforderungen
 
-Stand: 7. November 2026. Vereinbarter Umfang, noch nicht implementiert.
+Stand: 13. November 2026. Vereinbarter Sollumfang; den tatsächlichen
+Umsetzungsstand zeigt die [README](../README.md).
 Echte Postfach-, Gruppen-, Empfänger- und Verbindungswerte werden separat konfiguriert.
 
 ## Betrieb und Eingang
@@ -61,8 +62,9 @@ Historie. Dubletten nicht erneut ablegen; E-Mail nach `unzugeordnet` verschieben
 und im Web als Dublette kennzeichnen. Name und Größe bleiben auch nach einer
 erforderlichen Umbenennung des gespeicherten Originals nachvollziehbar.
 
-**Noch offen:** genaue Regel für eine E-Mail mit neuen relevanten Anhängen und
-Dubletten gleichzeitig. Die Regel vor Implementierung dieses Sonderfalls festlegen.
+**Bestätigt am 13.11.2026:** Neue relevante Anhänge auch bei gleichzeitig vorhandenen
+Dubletten passend ablegen; Dubletten überspringen. Die Mail kommt nach
+`unzugeordnet`, sofern kein Verarbeitungsfehler mit höherer Priorität vorliegt.
 
 ## Mailabschluss und Fahne
 
@@ -72,9 +74,20 @@ gewöhnlicher Rechnungs-PDFs ist nicht mehr vorgesehen. Nur bei `unknown` muss
 der Benutzer die Dokumentart klären; das Ziel ist `unzugeordnet`.
 
 Die Mail erst nach den erforderlichen erfolgreichen Schritten abschließen.
-Die Mischmail-Priorität für unterschiedliche Kategorien, Unbekannt, Fehler und
-Dubletten bleibt vor AP05 zu klären. Ignorierte Anhänge sind kein technischer
-Fehler. Dieser Dokumentvertrag startet keinen Worker oder Korrekturjob.
+Am **13.11.2026 bestätigt**: Für die gesamte Mail gilt die höchste vorliegende
+Zielordner-Priorität:
+
+1. `Failed`: erforderliche Verarbeitung fehlgeschlagen.
+2. `unzugeordnet`: mindestens ein Anhang noch unbekannt oder eine Dublette vorhanden.
+3. `Mahnung`: Mahnung oder Zahlungserinnerung enthalten.
+4. `Nachfragen`: gewöhnliche PDF-Rechnung enthalten.
+5. `Zahlungsavis`: Zahlungsavis enthalten.
+6. `Success`: ausschließlich E-Rechnungen als relevante Anhänge erfolgreich abgelegt.
+
+Jeden erkannten Anhang unabhängig vom Mailziel passend ablegen. Ignorierte
+Anhänge sind kein technischer Fehler; Mails ohne relevante Anhänge kommen nach
+`unzugeordnet`. Nach Klärung unbekannter Anhänge das Mailziel erneut nach dieser
+Priorität bestimmen. Dieser Dokumentvertrag startet keinen Worker oder Korrekturjob.
 
 Bei mehreren tatsächlichen Anhängen eine Outlook-Fahne setzen. Eingebettete
 Signaturbilder nicht mitzählen. Die Fahne muss nach dem Verschieben erhalten bleiben.
