@@ -1,9 +1,11 @@
 # AP05 – manueller Runtimebetrieb vor Aktivierung
 
-Diese Dateien bereiten einen begrenzten isoliert prüfbaren Lauf vor. Sie ändern die
-vorhandene Compose-Anwendung nicht und installieren/aktivieren keinen Timer.
-Kundenmigration, reale Mail-/CIFS-Aktionen und spätere dauerhafte Automatik brauchen
-den vereinbarten Quellen-/Laufabgleich mit ORGA. AP06-Freigabeerzeugung ist nicht enthalten.
+Der begrenzte manuelle Operator ist nach Quellen-/Runtime-/CIFS-Prüfung
+bereitgestellt. Nach geschütztem Backup wurde Kundenschema005 angewendet;
+API/GUI und laufende Dienste blieben unverändert. Sechs Inboxziele sind vorhanden.
+Echter Scan mit unverändertem Stichtag und manueller Tick bestätigen 0 passende Mails
+und 0 Quanten. Kein Timer/Cron ist aktiviert. Weitere Liveaktionen benötigen den
+konkreten ORGA-Abgleich; dauerhafte Automatik bleibt AP08, Freigabeerzeugung AP06.
 
 Prüfstand: Vollständiges Image mit unveränderten Classifier-/OCR-Quellen und
 Paket-/Modellhashes sowie41Lockversionen geprüft.155Backendgruppen einschließlich
@@ -22,7 +24,10 @@ exklusiven Testverzeichnis ausgeführt. Zwei bytegleiche Publikationen mit je ei
 Versuch, OCR, Inlinebild-Ausnahme, Fake-Graph-Abschluss/Fahne und idle nach
 simulierter DMS-Entnahme bestanden. Eigener Readback bestätigt entfernte
 Testressourcen und unveränderte Kundencontainer. Keine echte Mail oder Kunden-DB
-war Teil dieser Sonde. Der abschließende manuelle Kundenbetrieb wird separat belegt.
+war Teil dieser Sonde. Der getrennte Kundenabschluss belegt Schema005 bei gleicher
+Instanz/Konfiguration, HTTPSready, sechs Ordner und einen manuellen 0eligible-Tick.
+Die vier neuen Tabellen blieben leer. Finaler Hostreadback bestätigt unveränderte
+Kundencontainer, entfernte Probecontainer, inaktive Zeitplanung und gepinnten Hostcode.
 
 ## Image und Herkunft
 

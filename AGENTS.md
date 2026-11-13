@@ -12,9 +12,11 @@
   oder zu einer konkreten Frage/Blockade. AP01 ist seit 12.11.2026 vollständig
   durch den Kunden abgenommen. AP02a–c ist technisch abgeschlossen.
   AP03 ist eingefroren. AP04 ist technisch im isolierten Grundlagenumfang
-  abgeschlossen. AP05a–c ist seit13.11.2026 freigegeben, zunächst lokal/isoliert
-  integrieren und prüfen. Keine Kundenmigration, Live-Mailmutation oder
-  Jobaktivierung ohne konkreten Quellreview-/ORGA-Abgleich. AP06 und spätere AP
+  abgeschlossen. AP05a–c ist seit 13.11.2026 im definierten manuellen Umfang
+  technisch abgeschlossen: Quellen-/Runtimeprüfung, synthetische echte CIFS-Probe,
+  Kundenschema005, sechs Inboxziele und manueller 0eligible-Tick belegt. API/GUI
+  bleiben unverändert; keine Verarbeitung alter Mails oder Timeraktivierung.
+  Weitere Liveaktionen benötigen den konkreten ORGA-Abgleich. AP06 und spätere AP
   bleiben ohne Go; dauerhafter Produktivautomatikbetrieb gehört in AP08.
 - Keine zusätzlichen Agenten oder Chats ohne entsprechenden Auftrag.
 

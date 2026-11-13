@@ -12,7 +12,8 @@ Stand: 13. November 2026. Lebende Markdown-Dokumentation, noch kein Gesamtabschl
 ## Aktueller Stand
 
 - AP00/AP02 technisch abgeschlossen, AP01 durch den Kunden abgenommen.
-- AD-Kennwortanmeldung bleibt; SSO verworfen. Schema003 und fünf Inboxziele bereit.
+- AD-Kennwortanmeldung bleibt; SSO verworfen. Kundenschema005 und sechs Inboxziele
+  einschließlich Mahnung sind nach AP05 bereitgestellt.
 - AP03-Revision4 samt Titelvariantennachtrag: Quellreview auf `e49ccdb` bestanden,
   B-F1 bleibt nach Versuch3 geschlossen. Separates Runtimeimage gebaut und isolierter
   abschließender Dateinachtest durchgeführt; weitere fachliche Restfälle bleiben offen.
@@ -44,8 +45,13 @@ Stand: 13. November 2026. Lebende Markdown-Dokumentation, noch kein Gesamtabschl
   CIFS im exklusiven Testverzeichnis bestanden: zwei Publikationen mit je einem
   Versuch, bytegleiche Quellen, Fake-Graph-Ziel/Fahne und idle nach DMS-Entnahme.
   Eigener Readback und unabhängiger Belegabgleich bestätigen Cleanup und unveränderte
-  Kundencontainer. Manueller Kundenabschluss noch separat zu belegen; keine echte
-  Kundenmail war Teil dieser Sonde. DMS-Ausschluss und exklusive Stagingnutzung vom
+  Kundencontainer. Der separate Kundenabschluss bestätigt nach Backup 003→005,
+  gleiche Instanz/Konfiguration, HTTPSready und sechs Ordner. Echter Scan ab dem
+  unveränderten Stichtag findet 0 Mails/0 Anhänge; manueller Tick mit max-quanta 1
+  liefert 0 Quanten/keinen Rest. Vier neue Tabellen leer, eine zusätzliche Graphaktion
+  für Mahnung. Host-/Timerreadback bestanden, API/GUI unverändert. AP05 ist im
+  definierten manuellen Umfang technisch abgeschlossen. Keine echte Kundenmail
+  wurde verarbeitet; produktives _staging blieb unangetastet. DMS-Ausschluss und exklusive Stagingnutzung vom
   Betreiber inzwischen bestätigt; keine eigene DMS-Konfigurationsprüfung.
   AP03-Regeln bleiben unverändert, GUI/Freigabeschreibwege sind AP06. Keine
   API-/GUI-Umschaltung, Live-Mailmutation oder aktive Jobs aus dieser Sonde.

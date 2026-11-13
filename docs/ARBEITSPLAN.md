@@ -2,7 +2,10 @@
 
 Stand: 13. November 2026. **AP00 ist im definierten Grundbereitstellungsumfang abgeschlossen;
 AP01 ist vollständig durch den Kunden abgenommen. AP02a–c ist technisch abgeschlossen;
-AP03a–c ist freigegeben und in Entwicklung, AP04 bis AP10 sind noch nicht freigegeben.** AP10 ist für die spätere wöchentliche Wartung ergänzt.
+AP03 ist eingefroren, AP04 ist im Grundlagenumfang technisch abgeschlossen.
+AP05a–c ist im definierten manuellen Umfang technisch abgeschlossen und bereitgestellt.
+AP06 und spätere Pakete bleiben ohne Go; dauerhafter Automatikbetrieb gehört in AP08.**
+AP10 ist für die spätere wöchentliche Wartung ergänzt.
 ORGA koordiniert, DEV implementiert, REVIEW prüft.
 Die Repositoryvorbereitung ist kein Beginn der Anwendungsentwicklung.
 
@@ -89,9 +92,13 @@ bestanden. Letzter vollständiger nativer Gesamtlauf: 155 Backendtests einschlie
 40 AP05-Gruppen ohne Fehler/Skips; spätere Ausgabegrenz-/Timeoutkorrektur gezielt
 nativ geprüft. Einmaliger synthetischer Handoff mit echter XML-/OCR-Klassifikation
 und echtem CIFS im exklusiven Testverzeichnis bestanden, einschließlich
-DMS-Entnahme, Belegwiederverwendung und Cleanup. Der manuelle Kundenabschluss
-mit Schema-/Graph-/Operator-Readback wird separat nachgewiesen. Keine Aktivierung
-der 5-/15-Minuten-Zeitplanung; dauerhafter Automatikbetrieb bleibt AP08.
+DMS-Entnahme, Belegwiederverwendung und Cleanup. Geschütztes Backup, additives
+Kundenschema003→005, unveränderte Instanz/Konfiguration sowie sechs Inboxziele
+einschließlich Mahnung sind belegt. Echter Scan ab unverändertem Stichtag und
+manueller Operatorlauf bestätigen 0 passende Mails/0Quanten. API/GUI und die drei
+laufenden Dienste bleiben unverändert; keine Timer oder produktive Dateipublikation.
+Damit ist AP05 im definierten manuellen Umfang technisch abgeschlossen.
+Die 5-/15-Minuten-Zeitplanung bleibt inaktiv; dauerhafter Automatikbetrieb ist AP08.
 
 ## AP06: Webprotokoll, Korrektur, Wiederholung und Archiv - DEV
 

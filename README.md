@@ -12,6 +12,8 @@ internen Webportal für Protokolle, Fehler und Dubletten.
 **Stand: 13. November 2026. AP01 ist durch den Kunden vollständig abgenommen.
 AP02a–c ist im vereinbarten Grundlagenumfang technisch abgeschlossen und
 bereitgestellt. AP04 ist technisch im isolierten Grundlagenumfang abgeschlossen.
+AP05 ist im definierten manuellen Umfang technisch abgeschlossen und bereitgestellt:
+Schema005, sechs Inboxziele und begrenzter manueller Leerlauf sind belegt.
 Die automatische Rechnungsverarbeitung ist noch nicht aktiviert.**
 
 | Paket | Stand |
@@ -22,8 +24,8 @@ Die automatische Rechnungsverarbeitung ist noch nicht aktiviert.**
 | AP01 – Kundenabnahme | Gesamtabnahme nach Kundentermin durch den Betreiber bestätigt. Bestehende AD-Anmeldung bleibt; SSO wurde verworfen. |
 | AP02 – Graph und Postfacheingang | Abgeschlossen: echte Zertifikatsanmeldung und gefilterter Leerabruf bestätigt; fünf Inbox-Zielordner samt Wiederverwendung live geprüft. Paging, Anhangabruf und getrennte persistente Aktionen isoliert geprüft; additives Schema003 bereitgestellt. |
 | AP03 – Anhänge erkennen | Revision4: Quellprüfung bestanden, separates Runtimeimage gebaut und isolierter Dateinachtest abgeschlossen. Unbekannt sowie Mahnung/Zahlungserinnerung ergänzt. Fachliche Restfälle und Gesamtabnahme bleiben offen. |
-| AP04 – SMB-Ablage und Dubletten | Technisch im isolierten Grundlagenumfang abgeschlossen: Quellreview bestanden, 115 native Backendtests einschließlich aller 28 AP04-Tests sowie getrennt fünf synthetische Fälle auf echtem CIFS bestanden. Keine Produktivintegration. Siehe [AP04-Vertrag](docs/AP04-ABLAGE.md). |
-| AP05 – gemeinsamer Verarbeitungspfad | Technisch geprüft: 155 native Backendtests einschließlich 40 AP05-Gruppen ohne Fehler/Skips, danach gezielte Ausgabegrenz-/Timeoutprüfung. Dienst-/Runtime-/Helperreview, echte XML-/OCR-Klassifikation und einmaliger synthetischer Handoff auf echtem CIFS bestanden. Je Datei eine Publikation, Postmove-Fahne und Wiederaufnahme nach DMS-Entnahme belegt. Manueller Kundenabschluss in Arbeit; keine Automatik aktiviert. Siehe [AP05-Vertrag](docs/AP05-PROCESSING.md) und [Runtime](docs/AP05-RUNTIME.md). |
+| AP04 – SMB-Ablage und Dubletten | Grundlagen technisch abgeschlossen: Quellreview, 115 native Backendtests einschließlich aller 28 AP04-Tests sowie fünf synthetische Fälle auf echtem CIFS bestanden. In AP05 in den gemeinsamen manuellen Pfad integriert. Siehe [AP04-Vertrag](docs/AP04-ABLAGE.md). |
+| AP05 – gemeinsamer Verarbeitungspfad | Im definierten manuellen Umfang technisch abgeschlossen. 155 native Backendtests einschließlich 40 AP05-Gruppen, gezielte Ausgabegrenz-/Timeoutprüfung und echter synthetischer CIFS-Handoff bestanden. Schema005 bereitgestellt, Mahnung als sechstes Inboxziel ergänzt; echter Scan und manueller Tick bestätigen 0 passende Mails/0 Quanten. API/GUI unverändert, keine Timer oder produktive Dateipublikation. Siehe [AP05-Vertrag](docs/AP05-PROCESSING.md) und [Runtime](docs/AP05-RUNTIME.md). |
 | AP06 und folgende Pakete | Noch nicht freigegeben. Automatische Verarbeitung und Dateiablage sind nicht aktiviert. |
 
 Der begrenzte Titelvariantennachtrag wurde unabhängig geprüft und aus `e49ccdb`
@@ -58,7 +60,7 @@ Das blau-weiße E-Favicon ist eingebunden und über HTTPS geprüft.
   Abmeldung und erneute Prüfung von Kontostatus und Gruppenrechten.
 - Geschützte LDAP-Konfiguration mit Kandidatenprüfung, Versionshistorie und
   Betreiber-Rückweg. Geheimniswerte werden nicht zurückangezeigt.
-- Host-SMB-Mounts für die spätere Dokumentablage und vorhandene TLS-Zertifikate;
+- Geprüfte Host-SMB-Mounts für Dokumentablage und vorhandene TLS-Zertifikate;
   Quellcode und Datenbank liegen auf lokalem VM-Speicher.
 - Manuelle Graph-Betreiberprofile: Lesen ohne Datenbankzugriff, Aktionen mit
   persistentem Journal und Migration ausschließlich im internen Datenbanknetz.
@@ -69,8 +71,9 @@ Der Zugang erfolgt ausschließlich im Kundennetz beziehungsweise über die
 vorgesehene VPN und die konfigurierte HTTPS-Adresse. Tatsächliche Hostnamen,
 Konten und Zugangsdaten werden separat verwaltet.
 
-Für den weiteren Ausbau vorgesehen: automatischer Graph-Postfachlauf,
-SMB-Ablage, Dublettenbehandlung, Mailzuordnung, Benachrichtigungen und Webarchiv.
+Der gemeinsame manuelle Backendpfad verbindet Graph, Erkennung, SMB-Ablage,
+Dubletten und Mailabschluss. Webprotokoll, Korrekturoberfläche, Benachrichtigungen,
+Archiv und der dauerhafte automatische Betrieb folgen in den jeweiligen AP.
 Bestehende frei lizenzierte Bibliotheken werden vor Eigenentwicklung geprüft.
 
 Der vereinbarte [GUI-/Erkennungsnachtrag](docs/ANFORDERUNGEN.md#webkorrektur-und-erkennungsverbesserung)

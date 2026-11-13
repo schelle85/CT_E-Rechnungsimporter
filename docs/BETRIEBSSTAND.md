@@ -1,9 +1,18 @@
 # Betriebsstand
 
-Stand: 8. November 2026. Dieser Nachweis beschreibt geprüfte Infrastruktur und
-den geprüften Graph-Anschluss. AP00-Grundbereitschaft und AP01a/b sind nach
-unabhängiger Prüfung bestätigt. Die installierte Webvorschau ist synthetisch;
-AD-Anmeldung und Administration werden in AP01c/d/e umgesetzt.
+Stand: 13. November 2026. AP00/AP02 sind technisch abgeschlossen, AP01 ist durch
+den Kunden vollständig abgenommen. AP03 ist eingefroren; AP04-Grundlagen und
+AP05 im definierten manuellen Umfang sind technisch abgeschlossen. Kundenschema005,
+sechs Inboxziele einschließlich Mahnung und manueller 0eligible-Lauf sind belegt.
+Instanz/Konfiguration und laufende API/Web/DB bleiben erhalten, HTTPS ist ready.
+Die Webvorgänge sind weiterhin synthetische Vorschau; AD-Anmeldung und
+Administration verwenden die tatsächliche Anbindung. Timer sind nicht aktiviert.
+AP06 und spätere Pakete bleiben ohne Go; dauerhafter Automatikbetrieb ist AP08.
+
+Die folgenden datierten Infrastruktur- und Einrichtungsergebnisse dokumentieren
+historische Teilstände, insbesondere AP00/AP01a/b vom 8. November mit Nachträgen.
+Sie ersetzen nicht den aktuellen [Arbeitsplan](ARBEITSPLAN.md),
+[AP05-Vertrag](AP05-PROCESSING.md) und [manuellen Runtime-Stand](AP05-RUNTIME.md).
 
 ## AP00: SSH-Zugang
 
@@ -143,7 +152,7 @@ geprüft und anhand der Betriebsbelege im vereinbarten A/B-Umfang abgenommen.
 - Bestehende CIFS- und Credentialrechte nachgelesen. Vorschau ohne Graph-,
   LDAP- oder Rechnungszugriff; Administrations-GET/POST liefern403.
 
-## Noch nicht nachgewiesen
+## Damalige offene Punkte des AP00/AP01a/b-Stands
 
 Die Infrastrukturtests und Graph-Einzelproben ersetzen keine Anwendungsabnahme.
 Echte LDAP-Benutzeranmeldung, wirksame Gruppenrechte, sichere Sitzungen und
@@ -155,3 +164,9 @@ Die TLS-Probe mit identischem Material belegt keinen externen 60-Tage-Erneuerung
 oder tatsächlichen Zertifikatsfehler-Rollback.
 Nach Neustart durchgängiger Wiederanlauf und vollständiger Restore sind offen.
 Wöchentliche Wartung ist geplant, noch kein Skript/Timer auf dem Server installiert.
+
+Aktueller Abgleich: Anmeldung, Gruppenrechte und Administration sind inzwischen
+in AP01 abgenommen; Graphaktionen in AP02 und der gemeinsame manuelle Pfad in AP05
+geprüft. Die historischen Aussagen „folgen erst“ sind dadurch überholt. Durchgängiger
+Wiederanlauf, vollständiger Restore und dauerhafte Automatik bleiben den späteren
+freizugebenden Paketen zugeordnet; AP05 aktiviert keine Wartung oder Timer.

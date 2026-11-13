@@ -1,7 +1,7 @@
 # AP05 – gemeinsamer Verarbeitungspfad
 
-Stand 13.11.2026. Der gemeinsame Pfad ist implementiert und technisch geprüft.
-Der Abschluss der manuellen Kundenbereitstellung wird separat nachgewiesen.
+Stand 13.11.2026. AP05 ist im definierten manuellen Umfang technisch abgeschlossen
+und bereitgestellt. Der gemeinsame Pfad ist implementiert und unabhängig geprüft.
 GUI und Freigabeschreibwege bleiben AP06, Produktivautomatik bleibt AP08.
 
 Vorhandene Bausteine sind verbunden: AP02-Graphadapter/Aktionsjournal, eingefrorene
@@ -40,11 +40,19 @@ Der CIFS-Test verwendete private SQLite und synthetische Quellen; er ist kein
 Nachweis einer verarbeiteten echten Kundenmail oder einer DMS-Konfigurationsprüfung.
 Dienst-/Runtime-Quellreview einschließlich S1/S2/R1 bestanden; gezielte native
 Ausgabegrenz-/Timeout-/Cleanupproben einschließlich exakt65536Bytes bestanden.
-Der CIFS-Helperreview ist ebenfalls bestanden. Der endgültige Kunden-Schema-/
-ReadOnly-Graph-/Operator-Readback bleibt bis zum separaten ORGA-Beleg offen.
+Der CIFS-Helperreview ist ebenfalls bestanden. ORGA hat nach geschütztem Backup
+Kundenschema003 über die additiven Migrationen004/005 auf005 gebracht. Instanz,
+Konfigurationskopf und vorhandene Zähler blieben erhalten. Mahnung wurde über den
+bestehenden Ordnerpfad als sechstes Inboxziel ergänzt und separat zurückgelesen.
+Der echte vollständige Scan ab 01.12.2026, 00:00 Europe/Berlin, fand 0 Mails/0 Anhänge;
+derselbe manuelle Hostoperator lieferte bei max-quanta 1 genau 0 Quanten/keinen Rest.
+Die vier neuen Tabellen sind leer; zusätzliche Graphaktion nur für Mahnung.
+API/GUI, laufende Container und Zeitplanung bleiben unverändert, HTTPS ist ready.
+Es wurde keine echte Kundenmail verarbeitet und kein produktives _staging angelegt.
 POSIX-Datei- und Prozessgrenzen wurden nativ unter Linux geprüft.
 
-Graphziele enthalten jetzt zusätzlich Mahnung. Für AP05-Abschlussrevisionen gibt
+Die sechs festgelegten Graphziele einschließlich Mahnung sind bereitgestellt.
+Für AP05-Abschlussrevisionen gibt
 es eng bewachte neue Aktionsidentitäten; alte Standardschlüssel bleiben gleich,
 erfolgreiche neue Revisionsbelege werden bei späterem Zielwechsel nicht zurückgesetzt.
 Der JournalMailbox-Abruf prüft bekannte Quelle/Ordner/Empfang und das gespeicherte
