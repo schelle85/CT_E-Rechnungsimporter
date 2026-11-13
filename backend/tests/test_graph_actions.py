@@ -91,9 +91,9 @@ class GraphActionTests(unittest.TestCase):
 
     def test_folders_create_once_and_reuse_full_paging(self):
         self.assertEqual(set(self.api.ensure_folders()), set(FOLDERS))
-        self.assertEqual(len(self.remote.writes), 5)
+        self.assertEqual(len(self.remote.writes), 6)
         self.assertEqual(set(self.api.ensure_folders()), set(FOLDERS))
-        self.assertEqual(len(self.remote.writes), 5)
+        self.assertEqual(len(self.remote.writes), 6)
         rows = list(self.remote.folders.values())
         collection = self.client.root + "/mailFolders/inbox/childFolders"
         def pages(request):
@@ -104,7 +104,7 @@ class GraphActionTests(unittest.TestCase):
             self.assertEqual(request.url.params["includeHiddenFolders"], "true")
             return httpx.Response(200, json={"value": rows[:3], "@odata.nextLink": collection + "?$skiptoken=next"})
         self.remote.override = pages
-        self.assertEqual(len(self.api.folders()), 5)
+        self.assertEqual(len(self.api.folders()), 6)
 
     def test_ambiguous_hidden_or_wrong_parent_folder_never_mutates(self):
         for problem in ("duplicate", "hidden", "parent"):
@@ -121,10 +121,10 @@ class GraphActionTests(unittest.TestCase):
 
     def test_folder_timeout_after_apply_reconciles_without_second_post(self):
         self.remote.write_failure = "after"
-        self.assertEqual(len(self.api.ensure_folders()), 5)
-        self.assertEqual(len(self.remote.writes), 5)
+        self.assertEqual(len(self.api.ensure_folders()), 6)
+        self.assertEqual(len(self.remote.writes), 6)
         self.api.ensure_folders()
-        self.assertEqual(len(self.remote.writes), 5)
+        self.assertEqual(len(self.remote.writes), 6)
 
     def test_flag_move_are_separate_and_keep_immutable_id_and_flag(self):
         self.ready_folders()
@@ -203,8 +203,8 @@ class GraphActionTests(unittest.TestCase):
             self.api.ensure_folders()
         self.remote.write_failure = None
         self.remote.after_write_reads_fail = False
-        self.assertEqual(len(GraphActions(self.client, ActionStore(self.engine)).ensure_folders()), 5)
-        self.assertEqual(len(self.remote.writes), 5)
+        self.assertEqual(len(GraphActions(self.client, ActionStore(self.engine)).ensure_folders()), 6)
+        self.assertEqual(len(self.remote.writes), 6)
 
     def test_crash_before_write_is_not_replayed_after_lease(self):
         with patch.object(self.api, "folders", side_effect=RuntimeError("synthetic crash before write")):
@@ -260,7 +260,7 @@ class GraphActionTests(unittest.TestCase):
                     if kind == "folder":
                         successes = [r for r in self.remote.writes if json.loads(r.content).get("displayName") == "Success"]
                         self.assertEqual(len(successes), 1)
-                        self.assertEqual(len(self.remote.writes), 5)
+                        self.assertEqual(len(self.remote.writes), 6)
                     else:
                         self.assertEqual(len(self.remote.writes), 1)
 

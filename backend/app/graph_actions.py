@@ -3,7 +3,7 @@ from urllib.parse import quote
 from app.graph import GraphError
 from app.graph_mail import Mailbox, identifier
 
-FOLDERS = ("Success", "Failed", "Nachfragen", "Zahlungsavis", "unzugeordnet")
+FOLDERS = ("Success", "Failed", "Nachfragen", "Zahlungsavis", "unzugeordnet", "Mahnung")
 
 
 class GraphActions:
@@ -37,14 +37,22 @@ class GraphActions:
             result[canonical] = folder_id
         return result
 
-    def _run(self, kind, resource, target, desired, mutate):
-        key, owner, may_send = self.store.claim(self.client.config.mailbox, kind, resource, target)
+    def _run(self, kind, resource, target, desired, mutate, *, intent_key=None, guard=None):
+        if intent_key is not None and guard is None:
+            raise GraphError("graph_intent_guard_required")
+        if guard is not None:
+            guard()
+        key, owner, may_send = self.store.claim(self.client.config.mailbox, kind, resource, target, intent_key=intent_key)
+        if owner is None:
+            return resource
         mutation_started = False
         try:
             result = desired()
             if result is None:
                 if not may_send:
                     raise GraphError("graph_action_operator_required", uncertain=True)
+                if guard is not None:
+                    guard()
                 mutation_started = True
                 mutate()
                 result = desired()
@@ -74,7 +82,7 @@ class GraphActions:
             raise GraphError(error.code, error.status,
                              uncertain=error.uncertain or mutation_started or not may_send) from None
 
-    def ensure_folders(self):
+    def ensure_folders(self, *, guard=None):
         result = {}
         for name in FOLDERS:
             def desired(name=name):
@@ -82,9 +90,11 @@ class GraphActions:
             def mutate(name=name):
                 # Reconcile again immediately before the one permitted POST.
                 if name not in self.folders():
+                    if guard is not None:
+                        guard()
                     self.client._write("POST", self.client.root + "/mailFolders/inbox/childFolders",
                                        {"displayName": name, "isHidden": False}, expected=201)
-            result[name] = self._run("folder", name, name, desired, mutate)
+            result[name] = self._run("folder", name, name, desired, mutate, guard=guard)
         return result
 
     def _allowed_message(self, message_id, folders):
@@ -93,7 +103,7 @@ class GraphActions:
             raise GraphError("graph_invalid_source_folder")
         return current
 
-    def flag(self, message_id):
+    def flag(self, message_id, *, intent_key=None, guard=None):
         message_id = identifier(message_id)
         def desired():
             current = self._allowed_message(message_id, self.folders())
@@ -105,21 +115,28 @@ class GraphActions:
             if current.flag == "complete":
                 raise GraphError("graph_existing_completed_flag")
             if current.flag != "flagged":
+                if guard is not None:
+                    guard()
                 self.client._write("PATCH", self.client.root + "/messages/" + quote(current.id, safe=""),
                                    {"flag": {"flagStatus": "flagged"}}, expected=200)
-        return self._run("flag", message_id, "flagged", desired, mutate)
+        return self._run("flag", message_id, "flagged", desired, mutate, intent_key=intent_key, guard=guard)
 
-    def move(self, message_id, destination):
+    def move(self, message_id, destination, *, intent_key=None, source_parent=None, destination_id=None, guard=None):
         message_id = identifier(message_id)
         if destination not in FOLDERS:
             raise GraphError("graph_invalid_destination")
+        if intent_key is None and (source_parent is not None or destination_id is not None):
+            raise GraphError("graph_intent_guard_required")
         def state():
             folders = self.folders()
             target = folders.get(destination)
             if target is None:
                 raise GraphError("graph_destination_missing")
+            if destination_id is not None and target != destination_id:
+                raise GraphError("graph_destination_changed")
             current = self._allowed_message(message_id, folders)
-            if current.parent_id not in (self.mailbox.inbox_id(), target):
+            source = self.mailbox.inbox_id() if source_parent is None else source_parent
+            if source not in {self.mailbox.inbox_id(), *folders.values()} or current.parent_id not in (source, target):
                 raise GraphError("graph_invalid_source_folder")
             return current, target
         def desired():
@@ -128,6 +145,8 @@ class GraphActions:
         def mutate():
             current, target = state()
             if current.parent_id != target:
+                if guard is not None:
+                    guard()
                 self.client._write("POST", self.client.root + "/messages/" + quote(current.id, safe="") + "/move",
                                    {"destinationId": target}, expected=201)
-        return self._run("move", message_id, destination, desired, mutate)
+        return self._run("move", message_id, destination, desired, mutate, intent_key=intent_key, guard=guard)

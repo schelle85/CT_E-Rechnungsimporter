@@ -32,9 +32,14 @@ class ActionStore:
     def __init__(self, engine, clock=time.time):
         self.engine, self.clock = engine, clock
 
-    def claim(self, mailbox, kind, resource, target):
+    def claim(self, mailbox, kind, resource, target, *, intent_key=None):
         mailbox_key = hashlib.sha256(mailbox.lower().encode()).hexdigest()
-        key = hashlib.sha256(json.dumps([mailbox_key, kind, resource], separators=(",", ":")).encode()).hexdigest()
+        identity = [mailbox_key, kind, resource]
+        if intent_key is not None:
+            if not isinstance(intent_key, str) or len(intent_key) != 64 or any(c not in "0123456789abcdef" for c in intent_key):
+                raise GraphError("graph_intent_invalid")
+            identity.append(intent_key)
+        key = hashlib.sha256(json.dumps(identity, separators=(",", ":")).encode()).hexdigest()
         now, owner = int(self.clock()), uuid4().hex
         try:
             with self.engine.begin() as connection:
@@ -47,12 +52,17 @@ class ActionStore:
             row = connection.execute(sa.select(actions).where(actions.c.action_key == key).with_for_update()).mappings().one()
             if row["target"] != target or row["resource"] != resource or row["kind"] != kind:
                 raise GraphError("graph_action_conflict")
+            if intent_key is not None and row["state"] == "done":
+                return key, None, False  # Historical revision receipt: never reset or reapply it.
             if row["owner"] and row["lease_until"] > now:
                 raise GraphError("graph_action_busy")
             may_send = row["state"] == "pending" and row["reservations"] == 0
-            connection.execute(actions.update().where(actions.c.action_key == key).values(
+            result = connection.execute(actions.update().where(actions.c.action_key == key,
+                actions.c.owner == row["owner"], actions.c.lease_until == row["lease_until"], actions.c.state == row["state"]).values(
                 state="sending" if may_send else "checking", reservations=1,
                 owner=owner, lease_until=now + self.LEASE_SECONDS, updated_at=now))
+            if result.rowcount != 1:
+                raise GraphError("graph_action_busy")
         return key, owner, may_send
 
     def finish(self, key, owner, state, *, result=None, error=None):

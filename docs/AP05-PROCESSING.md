@@ -19,7 +19,20 @@ Testgruppen unter Windows/Python3.14 bestanden. Zusätzlich implementiert:
 stabilen Effektreservierungen, Abschlussabsichten und Annahme bereits freigegebener
 Korrekturen. Elf weitere lokale SQLite-Testgruppen einschließlich Migration001→005
 zweimal, Ownerübernahme, verspäteter Rückgaben und Korrekturrevision bestanden.
-Zusammen17 lokale Tests; noch kein realer MariaDB-/Gesamtpfad-/Runtime-PASS für AP05.
+Zusammen mit sechs Graph-Integrationsgruppen bestehen 23 lokale AP05-Tests.
+Der vorhandene Graphaktionstest bestand zusätzlich14 Gruppen, eine echte
+MariaDB-Konkurrenzgruppe blieb lokal übersprungen. Synchrone Transportdoubles
+verwenden dabei unter Windows Deadline-Stubs; keine nativen Zeitgrenzen oder
+realen Mailaktionen daraus ableiten. Noch kein realer MariaDB-/Gesamtpfad-/
+Runtime-PASS für AP05.
+
+Graphziele enthalten jetzt zusätzlich Mahnung. Für AP05-Abschlussrevisionen gibt
+es eng bewachte neue Aktionsidentitäten; alte Standardschlüssel bleiben gleich,
+erfolgreiche neue Revisionsbelege werden bei späterem Zielwechsel nicht zurückgesetzt.
+Der JournalMailbox-Abruf prüft bekannte Quelle/Ordner/Empfang und das gespeicherte
+Manifest. Neue Anhänge oder geänderte Metadaten werden abgewiesen; fehlende schon
+abgelegte Geschwister invalidieren deren Receipt nicht. Der bisherige Mailbox-
+Standard bleibt Inbox-only, der gebundene Reader darf keine neuen Ordner scannen.
 
 Neue Quellen ausschließlich direkte Inbox ab bestehendem Stichtag. Paging vor
 äußeren Wirkungen abschließen. Rohbytegröße/SHA stammen aus dem vollständigen
