@@ -1,4 +1,5 @@
 import hashlib
+import os
 from pathlib import Path
 import sys
 import tempfile
@@ -31,10 +32,17 @@ class ProcessingServiceTests(unittest.TestCase):
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)
         self.root = Path(self.temp.name)
-        self.engine = sa.create_engine("sqlite:///" + str(self.root / "pipeline.sqlite"))
+        if os.environ.get("INTEGRATION_DB") == "1":
+            from app.database import make_engine
+            self.engine = make_engine()  # Only the fresh, isolated marked-resource runner sets this.
+        else:
+            self.engine = sa.create_engine("sqlite:///" + str(self.root / "pipeline.sqlite"))
         self.addCleanup(self.engine.dispose)
         for metadata in (processing_metadata, storage_metadata, graph_metadata):
             metadata.create_all(self.engine)
+            with self.engine.begin() as connection:
+                for table in reversed(metadata.sorted_tables):
+                    connection.execute(table.delete())
         self.now = [1000]
         self.store = ProcessingStore(self.engine, clock=lambda: self.now[0])
         self.files = PathFiles()
@@ -206,6 +214,34 @@ class ProcessingServiceTests(unittest.TestCase):
         self.submit(key, request, directory, override={"original_sha256": "f" * 64})
         self.assertEqual(self.finish(key).status, "failed")
         self.assertEqual(self.files.published, [])
+
+    def test_new_attachment_between_last_storage_and_close_blocks_mail_mutation(self):
+        key = self.add_mail("m1", [(b"invoice", "recognized", "E-Rechnung", "invoice_xml_structure", {})])
+        request, directory = self.first_step(key)
+        self.assertEqual(self.submit(key, request, directory).status, "progress")
+        before = self.store.get_attachments(key)[0]
+        self.remote.attachments["m1"].append(attachment("new", name="new.pdf"))
+        self.assertEqual(self.finish(key).status, "operator_required")
+        self.assertEqual(self.remote.writes, [])
+        self.assertEqual(self.remote.messages["m1"]["parentFolderId"], "inbox")
+        after = self.store.get_attachments(key)[0]
+        self.assertEqual(after["effect_key"], before["effect_key"])
+        self.assertEqual(after["storage_state"], "stored")
+        self.assertEqual(len(self.files.published), 1)
+        self.assertEqual(self.store.get_message(key)["completed_revision"], -1)
+
+    def test_new_attachment_after_lost_move_ack_cannot_be_acknowledged_done(self):
+        key = self.add_mail("m1", [(b"invoice", "recognized", "E-Rechnung", "invoice_xml_structure", {})])
+        with patch.object(self.store, "finish_close", side_effect=Crash()):
+            with self.assertRaises(Crash):
+                self.finish(key)
+        writes = len(self.remote.writes)
+        self.now[0] += 601
+        self.remote.attachments["m1"].append(attachment("new", name="new.pdf"))
+        self.assertEqual(self.finish(key).status, "operator_required")
+        self.assertEqual(len(self.remote.writes), writes)
+        self.assertEqual(len(self.files.published), 1)
+        self.assertEqual(self.store.get_message(key)["completed_revision"], -1)
 
     def test_duplicate_does_not_prevent_new_sibling_storage(self):
         key = self.add_mail("m1", [(b"same-size-1", "recognized", "PDF", "invoice_fields", {"name": "duplicate.pdf"}),

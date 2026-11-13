@@ -43,11 +43,28 @@ class GraphProcessing:
     def folders(self, guard):
         return self.actions.ensure_folders(guard=guard)
 
-    def finish(self, message, intent, guard):
+    def check_manifest(self, message, attachments, intent=None):
+        current = Mailbox(self.client).message(message["graph_id"])
+        allowed = {message["current_parent"]}
+        if intent is not None:
+            allowed.add(intent["destination_id"])
+        if current.parent_id not in allowed or current.received_at.isoformat() != message["received_at"]:
+            raise GraphError("graph_journal_source_changed")
+        # A previously reserved move may already have applied. Only its bound target
+        # may substitute for the old parent, never a freely supplied read folder.
+        receipt = dict(message, current_parent=current.parent_id)
+        self.reader(receipt, attachments).attachments(message["graph_id"])
+
+    def finish(self, message, intent, guard, attachments):
+        def checked_guard():
+            guard()
+            self.check_manifest(message, attachments, intent)
+            guard()
         self.actions.move(message["graph_id"], intent["destination"], intent_key=intent["intent_key"],
-                          source_parent=intent["source_parent"], destination_id=intent["destination_id"], guard=guard)
+                          source_parent=intent["source_parent"], destination_id=intent["destination_id"], guard=checked_guard)
         if intent["flag_required"]:
-            self.actions.flag(message["graph_id"], intent_key=intent["intent_key"], guard=guard)
+            self.actions.flag(message["graph_id"], intent_key=intent["intent_key"], guard=checked_guard)
+        checked_guard()  # Do not acknowledge completion from the old manifest after a write.
         current = Mailbox(self.client).message(message["graph_id"])
         if (current.received_at.isoformat() != message["received_at"] or current.parent_id != intent["destination_id"]
                 or intent["flag_required"] and current.flag != "flagged"):
@@ -207,9 +224,13 @@ class ProcessingService:
     def _finish(self, message, owner, revision):
         key = message["message_key"]
         guard = lambda: self.store.active(key, owner, revision)
+        guard()
+        attachments = self.store.get_attachments(key)
+        previous = json.loads(message["close_payload"]) if message["close_payload"] else None
+        self.graph.check_manifest(message, attachments, previous)
         folders = self.graph.folders(guard)
         intent = self.store.prepare_close(key, owner, revision, folders)
         effect_guard = lambda: self.store.active(key, owner, revision, close_key=intent["intent_key"])
-        current = self.graph.finish(message, intent, effect_guard)
+        current = self.graph.finish(message, intent, effect_guard, attachments)
         self.store.finish_close(key, owner, revision, parent_id=current.parent_id, flagged=current.flag == "flagged", intent_key=intent["intent_key"])
         return ProcessingResult(intent["outcome"], key)
