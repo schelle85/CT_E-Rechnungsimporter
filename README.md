@@ -23,7 +23,8 @@ Die automatische Rechnungsverarbeitung ist noch nicht aktiviert.**
 | AP02 – Graph und Postfacheingang | Abgeschlossen: echte Zertifikatsanmeldung und gefilterter Leerabruf bestätigt; fünf Inbox-Zielordner samt Wiederverwendung live geprüft. Paging, Anhangabruf und getrennte persistente Aktionen isoliert geprüft; additives Schema003 bereitgestellt. |
 | AP03 – Anhänge erkennen | Revision4: Quellprüfung bestanden, separates Runtimeimage gebaut und isolierter Dateinachtest abgeschlossen. Unbekannt sowie Mahnung/Zahlungserinnerung ergänzt. Fachliche Restfälle und Gesamtabnahme bleiben offen. |
 | AP04 – SMB-Ablage und Dubletten | Technisch im isolierten Grundlagenumfang abgeschlossen: Quellreview bestanden, 115 native Backendtests einschließlich aller 28 AP04-Tests sowie getrennt fünf synthetische Fälle auf echtem CIFS bestanden. Keine Produktivintegration. Siehe [AP04-Vertrag](docs/AP04-ABLAGE.md). |
-| AP05 und folgende Pakete | Noch nicht freigegeben. Automatische Verarbeitung und Dateiablage sind nicht aktiviert. |
+| AP05 – gemeinsamer Verarbeitungspfad | Seit 13.11. freigegeben, in Entwicklung. Identitäts-/Routingvertrag mit sechs lokalen Testgruppen geprüft; Integration/Persistenz/Runtime noch in Arbeit. Siehe [AP05-Vertrag](docs/AP05-PROCESSING.md). |
+| AP06 und folgende Pakete | Noch nicht freigegeben. Automatische Verarbeitung und Dateiablage sind nicht aktiviert. |
 
 Der begrenzte Titelvariantennachtrag wurde unabhängig geprüft und aus `e49ccdb`
 als separates Runtimeimage gebaut. Die zusätzlichen Pre-Notifikations- und datierten
@@ -32,7 +33,7 @@ fachliche Restfälle sind davon getrennt; eine Gesamtfreigabe folgt daraus nicht
 
 Die Mailzielpriorität für gemischte Anhänge ist seit 13.11.2026 fachlich bestätigt;
 siehe [Anforderungen](docs/ANFORDERUNGEN.md#mailabschluss-und-fahne). Ihre Umsetzung
-folgt im dafür freizugebenden AP05.
+befindet sich im freigegebenen AP05 in Entwicklung.
 
 AP04 liefert die geprüfte Ablagebibliothek und ein additives Ablageregister.
 Schema004 wurde nur isoliert geprüft; Kundenschema, API-Image und Jobs bleiben

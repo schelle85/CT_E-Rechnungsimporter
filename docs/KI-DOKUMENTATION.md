@@ -34,8 +34,14 @@ Stand: 13. November 2026. Lebende Markdown-Dokumentation, noch kein Gesamtabschl
   interne Belege und technische Pins bleiben außerhalb öffentlichen Gits.
 - Kein Kunden-Schema004, API-Wechsel oder Job aktiviert. Produktiver DMS-
   Stagingausschluss und exklusiver Zugriff bleiben Betreiberpunkte vor AP05-
-  Veröffentlichung; kein allgemeiner DMS-/Gesamtpfad-PASS. AP05+ ohne Go.
-- Verträge: [AP02](AP02-GRAPH.md), [AP03](AP03-RECOGNITION.md), [AP04](AP04-ABLAGE.md).
+  Veröffentlichung; kein allgemeiner DMS-/Gesamtpfad-PASS.
+- AP05a–c seit13.11. freigegeben. Identitäts-/Routingvertrag und Annahmegrenzen
+  eingefrorener Findings mit sechs lokalen Testgruppen geprüft; Integration,
+  additives Gesamtjournal und tatsächliche Runtime noch in Arbeit.
+  AP03-Regeln bleiben unverändert, GUI/Freigabeschreibwege sind AP06. Keine
+  Kundenmigration, API-/Compose-Umschaltung, Live-Mailmutation oder aktive Jobs.
+  AP06+ ohne Go; Produktivautomatik bleibt AP08.
+- Verträge: [AP02](AP02-GRAPH.md), [AP03](AP03-RECOGNITION.md), [AP04](AP04-ABLAGE.md), [AP05](AP05-PROCESSING.md).
   [Testquelle](AP03-TEST-SOURCE.md) nur manuell mit fester Ordner-/Parentbindung.
 
 ## Rollen

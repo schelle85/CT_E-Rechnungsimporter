@@ -11,9 +11,11 @@
   Innerhalb eines freigegebenen AP koordiniert ORGA DEV/REVIEW bis zum Abschluss
   oder zu einer konkreten Frage/Blockade. AP01 ist seit 12.11.2026 vollständig
   durch den Kunden abgenommen. AP02a–c ist technisch abgeschlossen.
-  AP03 ist eingefroren. AP04a–c ist seit13.11.2026 freigegeben;
-  AP05 und spätere AP bleiben ohne Go. AP04 zunächst isoliert implementieren und
-  prüfen; echte synthetische SMB-Schreibprobe erst nach festem Quellreview.
+  AP03 ist eingefroren. AP04 ist technisch im isolierten Grundlagenumfang
+  abgeschlossen. AP05a–c ist seit13.11.2026 freigegeben, zunächst lokal/isoliert
+  integrieren und prüfen. Keine Kundenmigration, Live-Mailmutation oder
+  Jobaktivierung ohne konkreten Quellreview-/ORGA-Abgleich. AP06 und spätere AP
+  bleiben ohne Go; dauerhafter Produktivautomatikbetrieb gehört in AP08.
 - Keine zusätzlichen Agenten oder Chats ohne entsprechenden Auftrag.
 
 ## Auftrag und vorhandene Lösungen
