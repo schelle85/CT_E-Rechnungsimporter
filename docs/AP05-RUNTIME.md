@@ -13,7 +13,11 @@ synthetischen Ablagen und Postmove-Fahne bestanden; späteridle ohneNeupublikati
 nach simulierterDMS-/Quellentfernung. Der tatsächliche Host-Cleanuppfad entfernt
 einen absichtlich blockierten Container bei skalierter0.5s-Frist; echteCLI ohne
 Konfiguration liefert neutralenFehler. KeineCIFS-/Live-Mailwirkung in diesenPrüfungen.
-Runtime-Quellreview und konkreter ORGA-Betriebsabgleich bleiben offen.
+Dienst-/Runtime-Quellreview bestanden. Der Host liest inzwischen schon beim Empfang
+begrenzt, akzeptiert exakt65536Bytes und beendet beiÜberlauf/Timeout seine private
+Clientprozessgruppe; gezielte native Speicher-/EOF-/Cleanup-Prüfungen bestanden.
+Das tatsächliche alte Kundenimage ist zusätzlich auf frischem005 kompatibel.
+Konkreter CIFS-/ORGA-Betriebsabgleich bleibt offen.
 
 ## Image und Herkunft
 

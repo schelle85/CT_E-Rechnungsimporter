@@ -39,8 +39,10 @@ Stand: 13. November 2026. Lebende Markdown-Dokumentation, noch kein Gesamtabschl
   Gesamtjournal/Migration005 und engen Graph-Erweiterungen:155 native Backendgruppen
   einschließlich40AP05 ohneFehler/Skips. Frische isolierteMariaDB-Migration/Persistenz,
   API-Kompatibilität und getrennter Handoff mit echter eingefrorener XML-/OCR-Erkennung
-  bestanden. Dienst-Quellreview S1/S2 bestanden; Runtime-Quellreview und konkreter
-  Betriebsabgleich offen. Kein realer Mail-/CIFS-Gesamt-PASS. DMS-Ausschluss und exklusive Stagingnutzung vom
+  bestanden. Tatsächliches altes Kundenimage zusätzlich auf frischem005 kompatibel.
+  Dienst-/Runtime-Quellreview S1/S2/R1 bestanden; gezielte native Ausgabegrenz- und
+  Timeoutprüfung nach dem Gesamtlauf bestanden. Konkreter CIFS-/Betriebsabgleich
+  offen. Kein realer Mail-/CIFS-Gesamt-PASS. DMS-Ausschluss und exklusive Stagingnutzung vom
   Betreiber inzwischen bestätigt; keine eigene DMS-Konfigurationsprüfung.
   AP03-Regeln bleiben unverändert, GUI/Freigabeschreibwege sind AP06. Keine
   Kundenmigration, API-/Compose-Umschaltung, Live-Mailmutation oder aktive Jobs.

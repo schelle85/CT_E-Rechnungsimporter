@@ -31,8 +31,9 @@ beendet; fehlende Konfiguration der echten CLI bleibt ein neutraler Fehler.
 
 Diese Prüfungen verwendeten Fake-Graph und synthetische Datei-/CIFS-Doubles;
 keine echten Mailaktionen oder produktive CIFS-Publikation daraus ableiten.
-Dienst-Quellreview einschließlich S1/S2 bestanden; Runtime-Quellreview und
-konkreter ORGA-Abgleich bleiben offen. Kunden-Schema/Compose unverändert,
+Dienst-/Runtime-Quellreview einschließlich S1/S2/R1 bestanden; gezielte native
+Ausgabegrenz-/Timeout-/Cleanupproben einschließlich exakt65536Bytes bestanden.
+Konkreter CIFS-/ORGA-Betriebsabgleich bleibt offen. Kunden-Schema/Compose unverändert,
 Migration005 nur in frischer Test-DB angewendet. Unter Windows bestehen27
 Gruppen;13POSIX-Gruppen werden dort bewusst übersprungen.
 
