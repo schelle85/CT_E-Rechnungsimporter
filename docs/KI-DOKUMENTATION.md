@@ -32,20 +32,23 @@ Stand: 13. November 2026. Lebende Markdown-Dokumentation, noch kein Gesamtabschl
   Unabhängiger Readback und Cleanup bestätigt, Kundencontainer unverändert gesund.
   AP04-N1 sowie SMOKE-F1/SMOKE-F2 jeweils nach Korrektur1 geschlossen;
   interne Belege und technische Pins bleiben außerhalb öffentlichen Gits.
-- Kein Kunden-Schema004, API-Wechsel oder Job aktiviert. Produktiver DMS-
-  Stagingausschluss und exklusiver Zugriff bleiben Betreiberpunkte vor AP05-
-  Veröffentlichung; kein allgemeiner DMS-/Gesamtpfad-PASS.
+- AP04-Abschlussstand: Schema004 war nur isoliert geprüft, API und Jobs blieben
+  unverändert. Spätere AP05-Bereitstellungswerte werden separat nachgewiesen.
 - AP05a–c seit13.11. freigegeben. Gemeinsamer Dienst mit Identitäts-/Routingvertrag,
   Gesamtjournal/Migration005 und engen Graph-Erweiterungen:155 native Backendgruppen
   einschließlich40AP05 ohneFehler/Skips. Frische isolierteMariaDB-Migration/Persistenz,
   API-Kompatibilität und getrennter Handoff mit echter eingefrorener XML-/OCR-Erkennung
   bestanden. Tatsächliches altes Kundenimage zusätzlich auf frischem005 kompatibel.
   Dienst-/Runtime-Quellreview S1/S2/R1 bestanden; gezielte native Ausgabegrenz- und
-  Timeoutprüfung nach dem Gesamtlauf bestanden. Konkreter CIFS-/Betriebsabgleich
-  offen. Kein realer Mail-/CIFS-Gesamt-PASS. DMS-Ausschluss und exklusive Stagingnutzung vom
+  Timeoutprüfung nach dem Gesamtlauf bestanden. Einmaliger ORGA-Handoff auf echtem
+  CIFS im exklusiven Testverzeichnis bestanden: zwei Publikationen mit je einem
+  Versuch, bytegleiche Quellen, Fake-Graph-Ziel/Fahne und idle nach DMS-Entnahme.
+  Eigener Readback und unabhängiger Belegabgleich bestätigen Cleanup und unveränderte
+  Kundencontainer. Manueller Kundenabschluss noch separat zu belegen; keine echte
+  Kundenmail war Teil dieser Sonde. DMS-Ausschluss und exklusive Stagingnutzung vom
   Betreiber inzwischen bestätigt; keine eigene DMS-Konfigurationsprüfung.
   AP03-Regeln bleiben unverändert, GUI/Freigabeschreibwege sind AP06. Keine
-  Kundenmigration, API-/Compose-Umschaltung, Live-Mailmutation oder aktive Jobs.
+  API-/GUI-Umschaltung, Live-Mailmutation oder aktive Jobs aus dieser Sonde.
   AP06+ ohne Go; Produktivautomatik bleibt AP08.
 - Signaturzählung ohne manuelle Hashlisten: nur file+inline+normalisierter
   image-MIME und vollständiges hashgebundenes AP03-ignored/unsupported_attachment
@@ -121,8 +124,9 @@ unverändert. Fachliche Restfälle offen. Erkannte PDF-/E-Rechnungen laufen kün
 automatisch; Benutzerklärung nur bei Unbekannt. Die Mailzielpriorität ist seit
 13.11.2026 bestätigt: Failed → unzugeordnet (Unbekannt/Dublette) → Mahnung →
 Nachfragen → Zahlungsavis → Success. Jeder erkannte Anhang wird unabhängig davon
-passend abgelegt. Korrekturjob, Frontend und Umsetzung der Mailpriorität bleiben
-späteren freigegebenen AP vorbehalten.
+passend abgelegt. Der gemeinsame Verarbeitungspfad einschließlich Mailpriorität
+und bereits freigegebener Korrekturen ist inzwischen in AP05 implementiert;
+Frontend und Freigabeschreibwege bleiben AP06.
 
 Der vereinbarte GUI-/Erkennungsnachtrag für AP05/AP06 ist in den
 [Anforderungen](ANFORDERUNGEN.md#webkorrektur-und-erkennungsverbesserung) und im
@@ -130,5 +134,6 @@ Arbeitsplan ausdrücklich verankert: Kachel Unbekannt, Zuordnung je Anhang,
 Freigabe und gemeinsame Wiederaufnahme alle 15 Minuten sowie nachvollziehbare
 Korrekturbeispiele für später geprüfte Regeln/Vorlagen. Keine automatische
 Verallgemeinerung einzelner Klicks; invoice2data derzeit nicht integriert.
-Noch keine entsprechende Oberfläche oder 15-Minuten-Wiederaufnahme implementiert
-oder aktiviert. Diese Dokumentationspräzisierung erteilt kein neues AP-Go.
+Die entsprechende Oberfläche und Freigabeerzeugung sind noch nicht implementiert.
+Die manuelle Wiederaufnahme ist implementiert und geprüft; 5-/15-Minuten-Timer
+sind nicht aktiviert. Diese Dokumentationspräzisierung erteilt kein neues AP-Go.

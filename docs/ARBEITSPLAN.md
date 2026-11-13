@@ -84,6 +84,15 @@ danach folgen AD-Anmeldung, Administrationsgrundlage und gemeinsame Abnahme.
 | AP05b | Persistente Zustände und gemeinsamer Wiederaufnahmepfad ohne Doppelablage: Eingang alle fünf Minuten, freigegebene Kundenkorrekturen alle 15 Minuten; Bedienung folgt in AP06 |
 | AP05c | Kontrollierter Gesamtpfad; Erfolg erst nach erforderlicher Ablage und Mailaktionen |
 
+Prüfstand 13.11.2026: Implementierung sowie Dienst-, Runtime- und CIFS-Helperreview
+bestanden. Letzter vollständiger nativer Gesamtlauf: 155 Backendtests einschließlich
+40 AP05-Gruppen ohne Fehler/Skips; spätere Ausgabegrenz-/Timeoutkorrektur gezielt
+nativ geprüft. Einmaliger synthetischer Handoff mit echter XML-/OCR-Klassifikation
+und echtem CIFS im exklusiven Testverzeichnis bestanden, einschließlich
+DMS-Entnahme, Belegwiederverwendung und Cleanup. Der manuelle Kundenabschluss
+mit Schema-/Graph-/Operator-Readback wird separat nachgewiesen. Keine Aktivierung
+der 5-/15-Minuten-Zeitplanung; dauerhafter Automatikbetrieb bleibt AP08.
+
 ## AP06: Webprotokoll, Korrektur, Wiederholung und Archiv - DEV
 
 | Teil | Ergebnis und Prüfung |
@@ -98,7 +107,9 @@ automatisch weiter. Bestätigte Korrekturen als Beispiele für gezielt geprüfte
 Regeln oder Lieferantenvorlagen nutzen; kein automatisches Selbsttraining durch
 einen Klick. invoice2data nur bei belegtem Nutzen ergänzen. Der vereinbarte
 [GUI-/Erkennungsnachtrag](ANFORDERUNGEN.md#webkorrektur-und-erkennungsverbesserung)
-ist geplant; Oberfläche und Korrekturjob sind noch nicht implementiert oder aktiviert.
+ist geplant; Oberfläche und Freigabeschreibwege sind noch nicht implementiert.
+Der gemeinsame manuelle Verarbeitungspfad für bereits freigegebene Korrekturen
+ist in AP05 implementiert und geprüft. Seine Zeitplanung ist nicht aktiviert.
 
 ## AP07: Automatische Benachrichtigungen - DEV
 

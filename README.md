@@ -23,7 +23,7 @@ Die automatische Rechnungsverarbeitung ist noch nicht aktiviert.**
 | AP02 – Graph und Postfacheingang | Abgeschlossen: echte Zertifikatsanmeldung und gefilterter Leerabruf bestätigt; fünf Inbox-Zielordner samt Wiederverwendung live geprüft. Paging, Anhangabruf und getrennte persistente Aktionen isoliert geprüft; additives Schema003 bereitgestellt. |
 | AP03 – Anhänge erkennen | Revision4: Quellprüfung bestanden, separates Runtimeimage gebaut und isolierter Dateinachtest abgeschlossen. Unbekannt sowie Mahnung/Zahlungserinnerung ergänzt. Fachliche Restfälle und Gesamtabnahme bleiben offen. |
 | AP04 – SMB-Ablage und Dubletten | Technisch im isolierten Grundlagenumfang abgeschlossen: Quellreview bestanden, 115 native Backendtests einschließlich aller 28 AP04-Tests sowie getrennt fünf synthetische Fälle auf echtem CIFS bestanden. Keine Produktivintegration. Siehe [AP04-Vertrag](docs/AP04-ABLAGE.md). |
-| AP05 – gemeinsamer Verarbeitungspfad | In Prüfung: letzter Gesamtlauf 155 native Backendtests einschließlich 40 AP05-Gruppen ohne Fehler/Skips; danach gezielte Ausgabegrenz-/Timeoutprüfung bestanden. Frische Schema005-Migration/Persistenz und tatsächliches altes Kundenimage kompatibel. Vollständiges Image und getrennter echter XML-/OCR-Handoff synthetisch geprüft; Dienst-/Runtime-Quellreview bestanden. Konkreter CIFS-/Betriebsabgleich offen, keine Kundenmigration oder Aktivierung. Siehe [AP05-Vertrag](docs/AP05-PROCESSING.md) und [Runtime](docs/AP05-RUNTIME.md). |
+| AP05 – gemeinsamer Verarbeitungspfad | Technisch geprüft: 155 native Backendtests einschließlich 40 AP05-Gruppen ohne Fehler/Skips, danach gezielte Ausgabegrenz-/Timeoutprüfung. Dienst-/Runtime-/Helperreview, echte XML-/OCR-Klassifikation und einmaliger synthetischer Handoff auf echtem CIFS bestanden. Je Datei eine Publikation, Postmove-Fahne und Wiederaufnahme nach DMS-Entnahme belegt. Manueller Kundenabschluss in Arbeit; keine Automatik aktiviert. Siehe [AP05-Vertrag](docs/AP05-PROCESSING.md) und [Runtime](docs/AP05-RUNTIME.md). |
 | AP06 und folgende Pakete | Noch nicht freigegeben. Automatische Verarbeitung und Dateiablage sind nicht aktiviert. |
 
 Der begrenzte Titelvariantennachtrag wurde unabhängig geprüft und aus `e49ccdb`
@@ -33,14 +33,13 @@ fachliche Restfälle sind davon getrennt; eine Gesamtfreigabe folgt daraus nicht
 
 Die Mailzielpriorität für gemischte Anhänge ist seit 13.11.2026 fachlich bestätigt;
 siehe [Anforderungen](docs/ANFORDERUNGEN.md#mailabschluss-und-fahne). Ihre Umsetzung
-befindet sich im freigegebenen AP05 in Entwicklung.
+ist im gemeinsamen AP05-Verarbeitungspfad implementiert und geprüft.
 
 AP04 liefert die geprüfte Ablagebibliothek und ein additives Ablageregister.
-Schema004 wurde nur isoliert geprüft; Kundenschema, API-Image und Jobs bleiben
-unverändert. Vor produktiver Veröffentlichung in AP05 muss der Betreiber den
-DMS-Ausschluss und exklusiven Zugriff auf den Stagingbereich nachweisen.
-Die synthetische CIFS-Probe bestätigt keinen DMS-Import oder vollständigen
-Verarbeitungspfad.
+Die anschließende AP05-Integration ist isoliert sowie mit synthetischen Quellen
+auf echtem CIFS geprüft. DMS-Ausschluss und exklusive Importernutzung des
+Stagingbereichs wurden vom Betreiber bestätigt. Daraus folgt keine eigene
+DMS-Konfigurationsprüfung oder Verarbeitung einer echten Kundenmail.
 
 Die angezeigten Rechnungsvorgänge sind weiterhin **synthetische Beispieldaten**.
 Anmeldung und Administration verwenden bereits die tatsächliche AD-Anbindung.
@@ -76,8 +75,9 @@ Bestehende frei lizenzierte Bibliotheken werden vor Eigenentwicklung geprüft.
 
 Der vereinbarte [GUI-/Erkennungsnachtrag](docs/ANFORDERUNGEN.md#webkorrektur-und-erkennungsverbesserung)
 gehört zu AP05/AP06: unbekannte Anhänge gezielt zuordnen, freigeben und verarbeiten;
-bestätigte Korrekturen für spätere geprüfte Erkennungsregeln nutzen. Diese
-Oberfläche und der 15-Minuten-Korrekturlauf sind noch nicht implementiert.
+bestätigte Korrekturen für spätere geprüfte Erkennungsregeln nutzen. Oberfläche und
+Freigabeschreibwege bleiben AP06. Der gemeinsame manuelle Pfad zur Verarbeitung
+bereits freigegebener Korrekturen ist implementiert; seine Zeitplanung ist inaktiv.
 
 ## Prüfstand
 

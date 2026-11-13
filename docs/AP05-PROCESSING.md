@@ -1,7 +1,7 @@
 # AP05 – gemeinsamer Verarbeitungspfad
 
-Stand13.11.2026. AP05a–c ist freigegeben und in Entwicklung; keine neue
-Kundenmigration, API-/Compose-Umschaltung, Live-Mailaktion oder Jobaktivierung.
+Stand 13.11.2026. Der gemeinsame Pfad ist implementiert und technisch geprüft.
+Der Abschluss der manuellen Kundenbereitstellung wird separat nachgewiesen.
 GUI und Freigabeschreibwege bleiben AP06, Produktivautomatik bleibt AP08.
 
 Vorhandene Bausteine sind verbunden: AP02-Graphadapter/Aktionsjournal, eingefrorene
@@ -29,13 +29,20 @@ Paket-/Modellhashes und sämtliche41Lockversionen gegen die eingefrorene Basis
 geprüft. Absichtlich blockierter Container wird durch denselben Host-Cleanuppfad
 beendet; fehlende Konfiguration der echten CLI bleibt ein neutraler Fehler.
 
-Diese Prüfungen verwendeten Fake-Graph und synthetische Datei-/CIFS-Doubles;
-keine echten Mailaktionen oder produktive CIFS-Publikation daraus ableiten.
+Der Gesamtlauf verwendete Fake-Graph und synthetische Datei-Doubles. Zusätzlich
+hat ORGA den gleichen Handoff einmal mit echtem CIFS in einem ausschließlich neu
+angelegten Testunterverzeichnis geprüft: XML und OCR-PDF wurden bytegleich mit
+je genau einem Publikationsversuch abgelegt. Die Inlinebild-Ausnahme sowie
+Nachfragen und die Fahne nach dem Move wurden im Fake-Graph bestätigt. Nach
+simulierter DMS-Entnahme blieb der Vorgang idle ohne erneute Publikation.
+Eigener Readback bestätigt vollständigen Cleanup und unveränderte Kundencontainer.
+Der CIFS-Test verwendete private SQLite und synthetische Quellen; er ist kein
+Nachweis einer verarbeiteten echten Kundenmail oder einer DMS-Konfigurationsprüfung.
 Dienst-/Runtime-Quellreview einschließlich S1/S2/R1 bestanden; gezielte native
 Ausgabegrenz-/Timeout-/Cleanupproben einschließlich exakt65536Bytes bestanden.
-Konkreter CIFS-/ORGA-Betriebsabgleich bleibt offen. Kunden-Schema/Compose unverändert,
-Migration005 nur in frischer Test-DB angewendet. Unter Windows bestehen27
-Gruppen;13POSIX-Gruppen werden dort bewusst übersprungen.
+Der CIFS-Helperreview ist ebenfalls bestanden. Der endgültige Kunden-Schema-/
+ReadOnly-Graph-/Operator-Readback bleibt bis zum separaten ORGA-Beleg offen.
+POSIX-Datei- und Prozessgrenzen wurden nativ unter Linux geprüft.
 
 Graphziele enthalten jetzt zusätzlich Mahnung. Für AP05-Abschlussrevisionen gibt
 es eng bewachte neue Aktionsidentitäten; alte Standardschlüssel bleiben gleich,
@@ -80,9 +87,9 @@ Der Classifier erhält weiterhin nur opaken RO-Input, keinen Netzwerkzugriff,
 keine Graph-/DB-Secrets und keinen CIFS-Schreibbind. Enger vorhandener
 Host-Dateihandoff ohne Docker-Socket in App/API, keine neue Netzwerkplattform.
 Eingang5Minuten und Korrekturen15Minuten nutzen in der vorbereiteten CLI denselben
-wiederaufnehmbaren Dienstpfad mit getrennten Fälligkeiten.27lokale Gruppen bestehen,
-13Linuxgruppen werden unter Windows übersprungen. Image-, echter Handoff- und
-isolierter MariaDB-Nachweis liegen vor; weiterhin nur manuelle Aufrufe/deaktivierte Vorlagen.
+wiederaufnehmbaren Dienstpfad mit getrennten Fälligkeiten. Image, echter Handoff,
+isolierte MariaDB und die begrenzte echte CIFS-Probe sind belegt. Die Vorlagen für
+die Zeitplanung bleiben deaktiviert; derzeit sind nur manuelle Aufrufe vorgesehen.
 
 Der Betreiber hat DMS-Ausschluss und ausschließliche Importernutzung des
 Stagingbereichs bestätigt. Das ist eine Betreiberbestätigung, keine eigene

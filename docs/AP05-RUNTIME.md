@@ -17,7 +17,12 @@ Dienst-/Runtime-Quellreview bestanden. Der Host liest inzwischen schon beim Empf
 begrenzt, akzeptiert exakt65536Bytes und beendet beiÜberlauf/Timeout seine private
 Clientprozessgruppe; gezielte native Speicher-/EOF-/Cleanup-Prüfungen bestanden.
 Das tatsächliche alte Kundenimage ist zusätzlich auf frischem005 kompatibel.
-Konkreter CIFS-/ORGA-Betriebsabgleich bleibt offen.
+Zusätzlich hat ORGA den vorhandenen Handoff einmal mit echtem CIFS in einem neuen
+exklusiven Testverzeichnis ausgeführt. Zwei bytegleiche Publikationen mit je einem
+Versuch, OCR, Inlinebild-Ausnahme, Fake-Graph-Abschluss/Fahne und idle nach
+simulierter DMS-Entnahme bestanden. Eigener Readback bestätigt entfernte
+Testressourcen und unveränderte Kundencontainer. Keine echte Mail oder Kunden-DB
+war Teil dieser Sonde. Der abschließende manuelle Kundenbetrieb wird separat belegt.
 
 ## Image und Herkunft
 
