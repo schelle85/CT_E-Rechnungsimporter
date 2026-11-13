@@ -29,6 +29,17 @@ verwenden dabei unter Windows Deadline-Stubs; keine nativen Zeitgrenzen oder
 realen Mailaktionen daraus ableiten. Noch kein realer MariaDB-/Gesamtpfad-/
 Runtime-PASS für AP05.
 
+Der gemeinsame Dienst `ProcessingService.advance` ist als nächster Teilstand
+implementiert: begrenzter opaker Dateihandoff, Annahme der gebundenen Findings,
+unabhängige Anhangsablage, Receiptprüfung vor erneutem Download sowie bewachter
+Move-/Fahnenabschluss. Sichere Download-/Parserfehler bleiben am einzelnen Anhang;
+ungewisse Publikationen sperren den Mailabschluss. Zehn zusätzliche Ablaufgruppen
+prüfen diese Verbindung mit synthetischem Graph, eingegebenen AP03-Findings und
+echten lokalen Dateien unter Linux. Unter Windows werden sie ausdrücklich
+übersprungen; native Ausführung und vollständige Runtimeprüfung stehen noch aus.
+Migration005 wurde noch nicht beim Kunden angewendet; isolierte Prüfläufe erhalten
+ein frisches Schema mit dem aktuellen Anhangsfehlerfeld.
+
 Graphziele enthalten jetzt zusätzlich Mahnung. Für AP05-Abschlussrevisionen gibt
 es eng bewachte neue Aktionsidentitäten; alte Standardschlüssel bleiben gleich,
 erfolgreiche neue Revisionsbelege werden bei späterem Zielwechsel nicht zurückgesetzt.

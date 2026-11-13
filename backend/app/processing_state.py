@@ -52,6 +52,7 @@ attachments = sa.Table("processing_attachments", metadata,
     sa.Column("effect_state", sa.String(16)),
     sa.Column("storage_state", sa.String(24)),
     sa.Column("storage_target", sa.Text),
+    sa.Column("error_code", sa.String(64)),
     sa.CheckConstraint("signature IN (0,1) AND (byte_size IS NULL OR byte_size BETWEEN 0 AND 26214400)", name="processing_attachment_bounds"),
     sa.CheckConstraint("state IN ('pending','classifying','classified')", name="processing_attachment_state"))
 
@@ -148,6 +149,29 @@ class ProcessingStore:
                      state="operator_required" if blocked else ("closing" if row["close_key"] else "processing"),
                      updated_at=int(self.clock())), key, owner, revision)
 
+    def active(self, key, owner, revision, *, close_key=None, attachment_key=None, effect_key=None):
+        with self.engine.begin() as connection:
+            message = self._owned(connection, key, owner, revision)
+            if close_key is not None and message["close_key"] != close_key:
+                raise ProcessingError("processing_close_conflict")
+            if attachment_key is not None:
+                row = self._attachment(connection, key, attachment_key)
+                if row["effect_key"] != effect_key or not row["effect_payload"]:
+                    raise ProcessingError("processing_storage_conflict")
+            return message
+
+    def failed(self, message_key, key, owner, revision, reason):
+        with self.engine.begin() as connection:
+            self._owned(connection, message_key, owner, revision)
+            row = self._attachment(connection, message_key, key)
+            if row["effect_key"]:
+                raise ProcessingError("processing_effect_uncertain")
+            original = row["original_finding"] or encoded({"status": "failed", "category": None,
+                "reason": reason, "method": "source_or_handoff"})
+            self._write(connection, attachments, attachments.c.attachment_key, key,
+                dict(state="classified", original_finding=original, effective_status="failed", category=None,
+                     class_owner=None, class_revision=None, error_code=reason), message_key, owner, revision)
+
     def _attachment(self, connection, message_key, key):
         row = connection.execute(sa.select(attachments).where(attachments.c.attachment_key == key,
             attachments.c.message_key == message_key).with_for_update()).mappings().one()
@@ -192,15 +216,19 @@ class ProcessingStore:
                 dict(state="classified", original_finding=encoded({"status": "ignored", "category": None, "reason": reason,
                      "method": "source_policy"}), effective_status="ignored"), message_key, owner, revision)
 
+    @staticmethod
+    def storage_request(message, row, scope):
+        source = json.loads(row["source"])
+        return StorageRequest(scope, row["attachment_key"], source[1], row["byte_size"], row["raw_sha256"],
+                              datetime.fromisoformat(message["received_at"]), row["category"])
+
     def begin_storage(self, message_key, key, owner, revision, scope, destination_key):
         with self.engine.begin() as connection:
             message = self._owned(connection, message_key, owner, revision)
             row = self._attachment(connection, message_key, key)
             if row["effective_status"] != "recognized" or row["raw_sha256"] is None:
                 raise ProcessingError("processing_not_recognized")
-            source = json.loads(row["source"])
-            request = StorageRequest(scope, key, source[1], row["byte_size"], row["raw_sha256"],
-                                     datetime.fromisoformat(message["received_at"]), row["category"])
+            request = self.storage_request(message, row, scope)
             payload = encoded({"request": request.immutable, "source_key": key, "destination_key": destination_key})
             if row["effect_key"] and (row["effect_key"] != request.key or row["effect_payload"] != payload):
                 raise ProcessingError("processing_storage_conflict")
@@ -217,7 +245,12 @@ class ProcessingStore:
                 raise ProcessingError("processing_storage_conflict")
             if row["effect_state"] == "done" and row["storage_state"] != result.status:
                 raise ProcessingError("processing_storage_conflict")
-            state = "reserved" if result.status == "busy" else "uncertain" if result.status == "operator_required" else "done"
+            if result.status == "busy":
+                state = "reserved"
+            elif result.status == "operator_required":
+                state = "blocked" if row["effect_state"] in {"uncertain", "blocked"} else "uncertain"
+            else:
+                state = "done"
             self._write(connection, attachments, attachments.c.attachment_key, key,
                 dict(effect_state=state, storage_state=result.status, storage_target=result.target), message_key, owner, revision)
 
