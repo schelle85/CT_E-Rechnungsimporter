@@ -162,4 +162,9 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as error:
+        print(json.dumps({"ok": False, "code": getattr(error, "code", "synthetic_probe_failed"),
+                          "error_type": type(error).__name__}))
+        raise SystemExit(1)
