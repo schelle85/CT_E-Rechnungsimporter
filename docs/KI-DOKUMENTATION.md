@@ -22,8 +22,10 @@ Stand: 13. November 2026. Lebende Markdown-Dokumentation, noch kein Gesamtabschl
   echte Mailmutation oder Frontend-/Jobaktivierung aus dem Dateinachtest ableiten.
 - Historische Ergebnisse und Originale erhalten. Details und technische Pins werden in
   den getrennten internen Lauf-/Abnahmebelegen geführt, nicht als Kundendaten im Repo.
-- AP04+ ohne Go. Automatische SMB-Ablage, Routing und Benachrichtigungen bleiben spätere Pakete.
-- Verträge: [AP02](AP02-GRAPH.md), [AP03](AP03-RECOGNITION.md).
+- AP04a–c seit13.11. freigegeben, AP03 eingefroren. Reine Pfad-/Namensplanung
+  mit fünf synthetischen Testgruppen lokal geprüft; Persistenz/native Ablage noch
+  in Arbeit. Keine Kundenmigration oder automatische Ablage aktiviert. AP05+ ohne Go.
+- Verträge: [AP02](AP02-GRAPH.md), [AP03](AP03-RECOGNITION.md), [AP04](AP04-ABLAGE.md).
   [Testquelle](AP03-TEST-SOURCE.md) nur manuell mit fester Ordner-/Parentbindung.
 
 ## Rollen

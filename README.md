@@ -21,7 +21,8 @@ bereitgestellt. Die automatische Rechnungsverarbeitung ist noch nicht aktiviert.
 | AP01 – Kundenabnahme | Gesamtabnahme nach Kundentermin durch den Betreiber bestätigt. Bestehende AD-Anmeldung bleibt; SSO wurde verworfen. |
 | AP02 – Graph und Postfacheingang | Abgeschlossen: echte Zertifikatsanmeldung und gefilterter Leerabruf bestätigt; fünf Inbox-Zielordner samt Wiederverwendung live geprüft. Paging, Anhangabruf und getrennte persistente Aktionen isoliert geprüft; additives Schema003 bereitgestellt. |
 | AP03 – Anhänge erkennen | Revision4: Quellprüfung bestanden, separates Runtimeimage gebaut und isolierter Dateinachtest abgeschlossen. Unbekannt sowie Mahnung/Zahlungserinnerung ergänzt. Fachliche Restfälle und Gesamtabnahme bleiben offen. |
-| AP04 und folgende Pakete | Noch nicht freigegeben. Automatische Verarbeitung und Dateiablage sind nicht aktiviert. |
+| AP04 – SMB-Ablage und Dubletten | Seit13.11. freigegeben, in Entwicklung. Reine Pfad-/Namensplanung lokal geprüft; native Ablage und Persistenz noch in Arbeit. Siehe [AP04-Vertrag](docs/AP04-ABLAGE.md). |
+| AP05 und folgende Pakete | Noch nicht freigegeben. Automatische Verarbeitung und Dateiablage sind nicht aktiviert. |
 
 Der begrenzte Titelvariantennachtrag wurde unabhängig geprüft und aus `e49ccdb`
 als separates Runtimeimage gebaut. Die zusätzlichen Pre-Notifikations- und datierten
