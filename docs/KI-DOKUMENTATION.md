@@ -36,7 +36,7 @@ Stand: 13. November 2026. Lebende Markdown-Dokumentation, noch kein Gesamtabschl
   Stagingausschluss und exklusiver Zugriff bleiben Betreiberpunkte vor AP05-
   Veröffentlichung; kein allgemeiner DMS-/Gesamtpfad-PASS.
 - AP05a–c seit13.11. freigegeben. Identitäts-/Routingvertrag und additives
-  Gesamtjournal/Migration005 und enge Graph-Erweiterungen mit23 lokalen
+  Gesamtjournal/Migration005 und enge Graph-Erweiterungen mit24 lokalen
   Testgruppen geprüft; gemeinsame
   Dienstintegration und tatsächliche Runtime noch in Arbeit. Noch kein nativer
   AP05-MariaDB-/Gesamtpfad-PASS. DMS-Ausschluss und exklusive Stagingnutzung vom

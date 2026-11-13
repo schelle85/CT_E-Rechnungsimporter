@@ -7,7 +7,7 @@ import unittest
 import sqlalchemy as sa
 from alembic.migration import MigrationContext
 from alembic.operations import Operations
-from app.processing_plan import ProcessingError
+from app.processing_plan import ProcessingError, requires_flag
 from app.processing_state import ProcessingStore, attachments, corrections, metadata
 from app.storage import StorageResult
 from test_processing_plan import attachment, mail
@@ -133,6 +133,29 @@ class ProcessingStateTests(unittest.TestCase):
         key = self.store.get_attachments(self.key)[0]["attachment_key"]
         with self.assertRaises(ProcessingError):
             self.store.content(self.key, key, owner, revision, byte_size=7, sha256="a" * 64, signature=True)
+
+    def test_confirmed_signature_mime_normalization_matches_planner(self):
+        document = attachment()
+        logo = attachment("logo", inline=True, content_type=" Image/PNG; charset=binary ")
+        confirmed = {"a" * 64}
+        self.assertFalse(requires_flag([document, logo], {"logo": "a" * 64}, confirmed))
+        key = self.store.register(self.mailbox, mail(id="signature-positive"), [document, logo], signature_hashes=confirmed)
+        claim = self.store.claim(key)
+        row = next(value for value in self.store.get_attachments(key) if value["graph_id"] == "logo")
+        self.store.content(key, row["attachment_key"], claim["owner"], 0, byte_size=7, sha256="a" * 64, signature=True)
+        saved = next(value for value in self.store.get_attachments(key) if value["graph_id"] == "logo")
+        self.assertEqual(saved["signature"], 1)
+        for index, (mime, inline, checksum) in enumerate((("image/png", True, "b" * 64),
+                ("application/pdf", True, "a" * 64), ("image/png", False, "a" * 64))):
+            rejected = attachment("logo", content_type=mime, inline=inline)
+            self.assertTrue(requires_flag([document, rejected], {"logo": checksum}, confirmed))
+            message_key = self.store.register(self.mailbox, mail(id="signature-negative-" + str(index)),
+                [document, rejected], signature_hashes=confirmed)
+            owner = self.store.claim(message_key)["owner"]
+            row = next(value for value in self.store.get_attachments(message_key) if value["graph_id"] == "logo")
+            with self.assertRaises(ProcessingError) as failure:
+                self.store.content(message_key, row["attachment_key"], owner, 0, byte_size=7, sha256=checksum, signature=True)
+            self.assertEqual(failure.exception.code, "processing_signature_unconfirmed")
 
     def test_correction_generation_reuses_source_and_keeps_original_finding(self):
         owner, revision = self.claim()

@@ -17,9 +17,12 @@ Testgruppen unter Windows/Python3.14 bestanden. Zusätzlich implementiert:
 `ProcessingStore` mit drei additiven Tabellen/Migration005, vollständigem Manifest,
 600s-Ownerlease pro begrenztem Quantum, ursprünglichen/aktuellen Entscheidungen,
 stabilen Effektreservierungen, Abschlussabsichten und Annahme bereits freigegebener
-Korrekturen. Elf weitere lokale SQLite-Testgruppen einschließlich Migration001→005
+Korrekturen. Zwölf weitere lokale SQLite-Testgruppen einschließlich Migration001→005
 zweimal, Ownerübernahme, verspäteter Rückgaben und Korrekturrevision bestanden.
-Zusammen mit sechs Graph-Integrationsgruppen bestehen 23 lokale AP05-Tests.
+Zusammen mit sechs Graph-Integrationsgruppen bestehen 24 lokale AP05-Tests.
+Journal und Planner verwenden dieselbe MIME-/Signaturprüfung; bestätigter Rohhash
+und Inlinebild bleiben zwingend. Der Regressionstest umfasst Parameter/Leerraum
+im MIME-Wert sowie Ablehnung unbestätigter Hashes, Inline-PDF und nicht-inline Bild.
 Der vorhandene Graphaktionstest bestand zusätzlich14 Gruppen, eine echte
 MariaDB-Konkurrenzgruppe blieb lokal übersprungen. Synchrone Transportdoubles
 verwenden dabei unter Windows Deadline-Stubs; keine nativen Zeitgrenzen oder

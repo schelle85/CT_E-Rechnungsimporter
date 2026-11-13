@@ -5,8 +5,9 @@ import time
 from uuid import uuid4
 import sqlalchemy as sa
 from sqlalchemy.exc import IntegrityError
+from app.graph_mail import Attachment
 from app.processing_plan import (AttachmentOutcome, ProcessingError, attachment_key, checked_finding,
-                                 correction_allowed, mail_decision, source_manifest)
+                                 correction_allowed, mail_decision, signature_image, source_manifest)
 from app.storage_plan import StorageRequest, digest
 
 metadata = sa.MetaData()
@@ -166,7 +167,7 @@ class ProcessingStore:
             if row["raw_sha256"] is not None and (row["raw_sha256"] != sha256 or row["byte_size"] != byte_size):
                 raise ProcessingError("processing_content_changed")
             source = json.loads(row["source"])
-            if signature and not (source[4] and (source[3] or "").lower().startswith("image/") and sha256 in json.loads(message["signature_hashes"])):
+            if signature and not signature_image(Attachment(*source), sha256, json.loads(message["signature_hashes"])):
                 raise ProcessingError("processing_signature_unconfirmed")
             if row["original_finding"] is not None:
                 return  # A fresh content verification cannot reset a finding/manual decision.
