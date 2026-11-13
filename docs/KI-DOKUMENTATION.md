@@ -23,9 +23,12 @@ Stand: 13. November 2026. Lebende Markdown-Dokumentation, noch kein Gesamtabschl
 - Historische Ergebnisse und Originale erhalten. Details und technische Pins werden in
   den getrennten internen Lauf-/Abnahmebelegen geführt, nicht als Kundendaten im Repo.
 - AP04a–c seit 13.11. freigegeben, AP03 eingefroren. Ablagebibliothek, additives
-  Register/Migration004 und begrenzte CIFS-Dateischicht implementiert. 23 lokale
-  Tests bestanden, 5 native Tests übersprungen. Echtes MariaDB/CIFS, Bashprüfung
-  und DMS-Betriebsvoraussetzungen offen; kein Gesamt-PASS.
+  Register/Migration004 und begrenzte CIFS-Dateischicht implementiert. Native
+  Gesamtnachprüfung aus c781896: 115 Backendtests ohne Fehler/Skips einschließlich
+  aller28 AP04-Tests bestanden. Bashprüfung, isolierte echte MariaDB-Migration/
+  Persistenz und API-Kompatibilität bestanden. AP04-N1(Testimage-Paketierung)
+  nach Versuch1 geschlossen. Echte CIFS-Probe, Quellabnahme und DMS-
+  Betriebsvoraussetzungen offen; kein Gesamt-PASS.
   Keine Kundenmigration oder automatische Ablage aktiviert. AP05+ ohne Go.
 - Verträge: [AP02](AP02-GRAPH.md), [AP03](AP03-RECOGNITION.md), [AP04](AP04-ABLAGE.md).
   [Testquelle](AP03-TEST-SOURCE.md) nur manuell mit fester Ordner-/Parentbindung.

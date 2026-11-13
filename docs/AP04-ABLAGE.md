@@ -88,7 +88,12 @@ Bash-Syntaxprüfung bestanden. Der gesamte Backendlauf war dennoch fehlgeschlage
 ein bestehender AP03-Operatortest konnte den Helfer im allgemeinen Testimage nicht
 importieren (110 Tests, ein Importfehler). AP04-N1, Korrekturversuch1: vorhandenen
 Helfer gemäß bestehendem Testquellen-Testimage auch in Dockerfile.test übernehmen.
-Keine Helfer-/Erkennungslogik geändert. Gesamtnachprüfung steht aus; kein Gesamt-PASS.
+Keine Helfer-/Erkennungslogik geändert. AP04-N1 nach Versuch1 geschlossen:
+native Gesamtnachprüfung aus c781896 mit **115 Tests ohne Fehler oder Skips**,
+einschließlich aller28 AP04-Tests, bestanden. Drei-Prozess-Persistenz für Graph
+und Ablage, API-Neuerzeugung/Sitzungserhalt sowie Kompatibilität des bisherigen
+API-Images auf der additiven Testdatenbank ebenfalls bestanden. Testressourcen
+entfernt, bestehende Kundencontainer unverändert gesund.
 Echte CIFS- und DMS-Betriebsnachweise stehen weiterhin aus. Keine CIFS-Binds oder
 Kundengeheimnisse in diesem Lauf, keine Kundenmigration oder API-Umschaltung.
 
@@ -97,8 +102,7 @@ Der vorhandene isolierte Docker-/MariaDB-Runner ist mit
 neue Testressourcen ohne Hostports, prüft wiederholtes Upgrade/Instanz-ID,
 Regressionen und Wiederaufnahme in drei getrennten Prozessen. API_IMAGE und
 TEST_IMAGE müssen unveränderliche sha256-IDs des festen Quellstandes sein.
-Teilweise ausgeführt wie oben; die nach den Tests folgenden Prozess-/HTTP-
-Regressionsschritte waren beim ersten Lauf noch nicht erreicht. Kein Aufruf gegen
+Vollständig isoliert ausgeführt wie oben. Kein Aufruf gegen
 die Kundendatenbank. Die erste tatsächliche CIFS-Probe braucht vorab Quellreview und
 eine separate synthetische Ablage außerhalb der Produktionskategorien.
 
