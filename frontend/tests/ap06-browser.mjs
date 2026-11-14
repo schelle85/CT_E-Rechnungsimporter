@@ -9,7 +9,10 @@ const BASE="https://ui:8443",out="/out";
 const proof={scope:"isolated actual API/Nginx/browser; synthetic journals and directory; one private RO PDF",browser_mode:process.env.AP06_HEADED==='1'?'headed_xvfb':'headless',cases:[]};
 const sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 const hash=data=>createHash("sha256").update(data).digest("hex");
+const progress=stage=>console.log(JSON.stringify({progress:stage,mode:proof.browser_mode}));
+progress('launch');
 const browser=await chromium.launch({channel:"chromium",headless:process.env.AP06_HEADED!=='1',args:["--no-sandbox","--disable-dev-shm-usage"]});
+progress('browser_ready');
 async function login(page,username){
   await page.goto(BASE,{waitUntil:"networkidle"});
   await page.getByLabel("Benutzername oder UPN").fill(username);
@@ -53,10 +56,12 @@ try{
   page.on('requestfailed',request=>browserDiagnostics.push(request.failure()?.errorText||'request_failed'));
   const errors=[];page.on("pageerror",error=>errors.push(error.message));
   await login(page,"reader");const state=await get(reader,"/api/test/state");
+  progress('reader_authenticated');
   assert.equal((await get(reader,"/api/processes/stats")).unknown_open,4);
   const detail=await get(reader,"/api/processes/"+state.active),pdf=detail.attachments.find(a=>a.name==="Test-PDF.pdf");
   const route="/api/attachments/"+pdf.id+"/original";
   const original=await reader.request.get(BASE+route);assert.equal(original.status(),200);
+  progress('original_received');
   assert.equal(hash(await original.body()),state.original_sha256);
   assert.equal(original.headers()["content-type"],"application/pdf");
   assert.equal(original.headers()["x-frame-options"],"SAMEORIGIN");
@@ -65,9 +70,12 @@ try{
   const portal=await reader.request.get(BASE);assert.equal(portal.headers()["x-frame-options"],"DENY");
   assert.match(portal.headers()["content-security-policy"],/frame-ancestors 'none'/);
   await open(page,state.active,"Test-PDF.pdf");
+  progress('pdf_dialog_open');
   assert.equal(await page.getByRole("button",{name:"Zuordnung freigeben",exact:true}).count(),0);
   await page.locator("iframe.original-frame").waitFor();
   await sleep(2200);await free(reader);
+  progress('pdf_response_finished');
+  await page.screenshot({path:out+"/private-reader-before-probe.png",fullPage:true});
   const embedded=await page.locator("iframe.original-frame").evaluate(frame=>!!frame.contentDocument?.querySelector('embed[type="application/pdf"]'));
   assert.equal(embedded,true,"Native PDF embed element was not created");
   proof.pdf_browser_diagnostics=browserDiagnostics;
