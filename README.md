@@ -26,7 +26,8 @@ Die automatische Rechnungsverarbeitung ist noch nicht aktiviert.**
 | AP03 – Anhänge erkennen | Revision4: Quellprüfung bestanden, separates Runtimeimage gebaut und isolierter Dateinachtest abgeschlossen. Unbekannt sowie Mahnung/Zahlungserinnerung ergänzt. Fachliche Restfälle und Gesamtabnahme bleiben offen. |
 | AP04 – SMB-Ablage und Dubletten | Grundlagen technisch abgeschlossen: Quellreview, 115 native Backendtests einschließlich aller 28 AP04-Tests sowie fünf synthetische Fälle auf echtem CIFS bestanden. In AP05 in den gemeinsamen manuellen Pfad integriert. Siehe [AP04-Vertrag](docs/AP04-ABLAGE.md). |
 | AP05 – gemeinsamer Verarbeitungspfad | Im definierten manuellen Umfang technisch abgeschlossen. 155 native Backendtests einschließlich 40 AP05-Gruppen, gezielte Ausgabegrenz-/Timeoutprüfung und echter synthetischer CIFS-Handoff bestanden. Schema005 bereitgestellt, Mahnung als sechstes Inboxziel ergänzt; echter Scan und manueller Tick bestätigen 0 passende Mails/0 Quanten. API/GUI unverändert, keine Timer oder produktive Dateipublikation. Siehe [AP05-Vertrag](docs/AP05-PROCESSING.md) und [Runtime](docs/AP05-RUNTIME.md). |
-| AP06 und folgende Pakete | Noch nicht freigegeben. Automatische Verarbeitung und Dateiablage sind nicht aktiviert. |
+| AP06 – Webprotokoll, Korrektur und PDF-Vorschau | Seit14.11.2026 freigegeben, in Entwicklung. Erste lesende Journalprojektion mit7lokalen Gruppen geprüft; API-/Frontendverdrahtung, Schreibgrenzen und Vorschau folgen. Noch keine neue Oberfläche bereitgestellt. Siehe [AP06](docs/AP06-WEB.md). |
+| AP07 und folgende Pakete | Noch nicht freigegeben. Zeitplanung und dauerhafte automatische Verarbeitung sind inaktiv. |
 
 Der begrenzte Titelvariantennachtrag wurde unabhängig geprüft und aus `e49ccdb`
 als separates Runtimeimage gebaut. Die zusätzlichen Pre-Notifikations- und datierten

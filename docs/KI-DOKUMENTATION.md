@@ -1,6 +1,6 @@
 # KI-Dokumentation
 
-Stand: 13. November 2026. Lebende Markdown-Dokumentation, noch kein Gesamtabschlussbericht.
+Stand: 14. November 2026. Lebende Markdown-Dokumentation, noch kein Gesamtabschlussbericht.
 
 ## Wiedereinstieg
 
@@ -55,7 +55,11 @@ Stand: 13. November 2026. Lebende Markdown-Dokumentation, noch kein Gesamtabschl
   Betreiber inzwischen bestätigt; keine eigene DMS-Konfigurationsprüfung.
   AP03-Regeln bleiben unverändert, GUI/Freigabeschreibwege sind AP06. Keine
   API-/GUI-Umschaltung, Live-Mailmutation oder aktive Jobs aus dieser Sonde.
-  AP06+ ohne Go; Produktivautomatik bleibt AP08.
+  AP06 ist seit14.11. einschließlich PDF-Vorschau freigegeben; Produktivautomatik bleibt AP08.
+- AP06 in Entwicklung auf Basis818cc76: lesende Journalprojektionen mit sieben
+  lokalen SQLite-Testgruppen bestanden. API/Frontend/Preview und kontrollierte
+  Schreibwege noch nicht als vollständig oder bereitgestellt behandeln.
+  DMS ist vollständig außerhalb Auftrag/Prüfung/Abnahme. Kein AP07-/AP08-Go.
 - Signaturzählung ohne manuelle Hashlisten: nur file+inline+normalisierter
   image-MIME und vollständiges hashgebundenes AP03-ignored/unsupported_attachment
   werden nach Findingannahme ausgenommen. Alle anderen Fälle bleiben gezählt/offen.

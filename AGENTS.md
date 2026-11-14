@@ -16,8 +16,11 @@
   technisch abgeschlossen: Quellen-/Runtimeprüfung, synthetische echte CIFS-Probe,
   Kundenschema005, sechs Inboxziele und manueller 0eligible-Tick belegt. API/GUI
   bleiben unverändert; keine Verarbeitung alter Mails oder Timeraktivierung.
-  Weitere Liveaktionen benötigen den konkreten ORGA-Abgleich. AP06 und spätere AP
-  bleiben ohne Go; dauerhafter Produktivautomatikbetrieb gehört in AP08.
+  AP06a–d einschließlich PDF-Vorschau ist seit14.11.2026 freigegeben und in Arbeit.
+  Vor Kundenmigration/Deployment fester Quellreview und konkreter ORGA-Abgleich.
+  AP07 und spätere AP bleiben ohne Go; dauerhafte Automatik gehört in AP08.
+  DMS-Anbindung, -Konfiguration und -Prüfung liegen außerhalb unseres Auftrags
+  und sind keine Abnahmebedingung. AP03 und Stichtag bleiben unverändert.
 - Keine zusätzlichen Agenten oder Chats ohne entsprechenden Auftrag.
 
 ## Auftrag und vorhandene Lösungen
