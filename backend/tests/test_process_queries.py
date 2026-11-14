@@ -203,3 +203,13 @@ class ProcessQueryTests(unittest.TestCase):
         calls.clear()
         self.assertEqual(queries.stats()['messages'],1)
         self.assertEqual(len(calls),1)
+
+    def test_error_filter_matches_failed_and_operator_required_counter(self):
+        failed=self.mail('failed',[('a1','failed.pdf','failed',None,'processing_classifier_unavailable')])
+        blocked=self.mail('blocked',close=False)
+        owned=self.store.claim(blocked)
+        self.store.release(blocked,owned['owner'],0,blocked=True,error='graph_journal_source_changed')
+        self.mail('ordinary-unknown')
+        result=self.queries.list(state='errors')
+        self.assertEqual(result['total'],self.queries.stats()['errors'])
+        self.assertEqual({row['id'] for row in result['items']},{failed,blocked})

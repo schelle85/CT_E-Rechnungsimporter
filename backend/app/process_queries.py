@@ -13,7 +13,7 @@ from app.storage_plan import CATEGORIES, digest
 from app.storage_state import operations
 
 BERLIN = ZoneInfo("Europe/Berlin")
-STATES = {"registered", "processing", "closing", "waiting_correction", "done", "failed", "operator_required", "unknown"}
+STATES = {"registered", "processing", "closing", "waiting_correction", "done", "failed", "operator_required", "unknown", "errors"}
 
 
 def archive_boundary(now):
@@ -83,7 +83,7 @@ class ProcessQueries:
             return sa.exists(sa.select(attachments.c.attachment_key).where(
                 attachments.c.message_key == messages.c.message_key, *criteria).correlate(messages))
         if state:
-            parts.append(has(self.unassigned()) if state == "unknown" else messages.c.state == state)
+            parts.append(has(self.unassigned()) if state == "unknown" else messages.c.state.in_(("failed", "operator_required")) if state == "errors" else messages.c.state == state)
         if category:
             parts.append(has(attachments.c.category == category))
         if duplicate is not None:

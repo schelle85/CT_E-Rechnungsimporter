@@ -1,0 +1,10 @@
+# Reuse an explicitly reviewed local dependency image; verify its resolved ID before build.
+ARG BACKEND_IMAGE
+FROM ${BACKEND_IMAGE}
+WORKDIR /app
+COPY backend/app/ ./app/
+COPY backend/migrations/ ./migrations/
+COPY backend/alembic.ini backend/requirements.lock ./
+RUN python -c "import importlib.metadata as m; from pathlib import Path; assert all(m.version(n)==v for n,v in (line.split('==') for line in Path('requirements.lock').read_text().splitlines() if line.strip()))"
+USER 10001:10001
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "1", "--no-server-header", "--no-access-log"]

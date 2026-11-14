@@ -127,3 +127,21 @@ HTTP200 muss vor blockierter Auslieferung erreicht sein und der Test sammelt
 seine Antworttask auch im Fehlerfall vor Fixturecleanup ein. Die ursprüngliche
 zweite Fehlermeldung war ein Timeout, kein zweiter Adapteraufruf. Die beiden
 fehlgeschlagenen Gruppen werden gezielt nativ nachgeprüft; die5PASS bleiben7ab7214.
+
+Gezielte nativeKorrekturen auf65fbd4e: R1/R2beidePASS. DeterministischeR3-Probe
+unter unverändertemMariaDB REPEATABLE READ: alterProduktstand77e963c zeigt beide
+Verstöße; korrigierterStand liefert409bei konkurrierenderRetryabsicht und denselben
+Beleg beiidentischerApprovalrequest. ZweiVorschau-DeltagruppenP1/P2PASS;5positive
+Vorschaugruppenbleiben7ab7214zugeordnet. KeinneuerbreiterGesamtlaufbehauptet.
+
+Frontend jetzt an echte APIgebunden: aktiveVorgänge/Suche/Filter/Pagination,
+Unknown-Anhangsliste, lesbaresArchiv und großerDialog mitnativerPDFiframe sowie
+NeuerTab/Download. KeinefiktivenAbsender/Betreffwerte oderDemos imNormalportal.
+Kategorie ohne Vorauswahl, ausdrücklicheEinzelanhangfreigabe, persistenterStatus,
+Original-/aktuellerBefund/Feedback, Dubletten-/Datei-/Fehler-/Retrybelege getrennt.
+Readerliest; Mutationen nurAdminbei serverseitigangezeigterZulässigkeit. Vorhandene
+LDAPverwaltungbleibt; neueSchaltersteuern tatsächlicheWebfunktionen. Fehlerkachel
+undneuererrors-Filter nutzen dieselbenbeidenMailzustände;10lokaleProjektionsgruppen
+PASS. NochkeinFrontend-Build-/Browser-PASS. FürgezieltenOffline-APIbau kann
+Dockerfile.runtime vorhandenegeprüfteAbhängigkeiten mitunverändertemLock übernehmen;
+aufgelösteBasis-ID undLayerabstammungvorBauprüfen. Kundendiensteunverändert.

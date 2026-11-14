@@ -11,6 +11,14 @@ Stand: 14. November 2026. Lebende Markdown-Dokumentation, noch kein Gesamtabschl
 
 ## Aktueller Stand
 
+AP06 ist in Entwicklung: echte Journal-API, getrennte Original-/aktuelle Findings,
+Freigabe/Retry/Versionsteuerung und geschützter Originalabruf sind implementiert.
+Gezielte native006-, HTTP-, Sperr-/Retry- und Vorschau-Lebensdauernachweise liegen
+vor; Zuordnung und Grenzen im [AP06-Vertrag](AP06-WEB.md). Die echte Oberfläche
+ist jetzt verdrahtet, ihr Build-/Browser- und Betriebsnachweis steht noch aus.
+Kundenportal und Kundenschema005 sind noch nicht umgeschaltet. Keine Timeraktivierung.
+
+
 - AP00/AP02 technisch abgeschlossen, AP01 durch den Kunden abgenommen.
 - AD-Kennwortanmeldung bleibt; SSO verworfen. Kundenschema005 und sechs Inboxziele
   einschließlich Mahnung sind nach AP05 bereitgestellt.
