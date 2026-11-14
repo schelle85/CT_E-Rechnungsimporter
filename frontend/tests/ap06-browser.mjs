@@ -6,10 +6,10 @@ import https from "node:https";
 import { chromium } from "playwright";
 
 const BASE="https://ui:8443",out="/out";
-const proof={scope:"isolated actual API/Nginx/browser; synthetic journals and directory; one private RO PDF",cases:[]};
+const proof={scope:"isolated actual API/Nginx/browser; synthetic journals and directory; one private RO PDF",browser_mode:process.env.AP06_HEADED==='1'?'headed_xvfb':'headless',cases:[]};
 const sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 const hash=data=>createHash("sha256").update(data).digest("hex");
-const browser=await chromium.launch({channel:"chromium",headless:true,args:["--no-sandbox","--disable-dev-shm-usage"]});
+const browser=await chromium.launch({channel:"chromium",headless:process.env.AP06_HEADED!=='1',args:["--no-sandbox","--disable-dev-shm-usage"]});
 async function login(page,username){
   await page.goto(BASE,{waitUntil:"networkidle"});
   await page.getByLabel("Benutzername oder UPN").fill(username);
