@@ -48,6 +48,9 @@ const contexts=[];
 try{
   const reader=await browser.newContext({ignoreHTTPSErrors:true,acceptDownloads:true,viewport:{width:1440,height:1050}});contexts.push(reader);
   const page=await reader.newPage();page.setDefaultTimeout(20000);
+  const browserDiagnostics=[];
+  page.on('console',msg=>{if(msg.type()==='error')browserDiagnostics.push(msg.text())});
+  page.on('requestfailed',request=>browserDiagnostics.push(request.failure()?.errorText||'request_failed'));
   const errors=[];page.on("pageerror",error=>errors.push(error.message));
   await login(page,"reader");const state=await get(reader,"/api/test/state");
   assert.equal((await get(reader,"/api/processes/stats")).unknown_open,4);
@@ -67,6 +70,11 @@ try{
   await sleep(2200);await free(reader);
   const embedded=await page.locator("iframe.original-frame").evaluate(frame=>!!frame.contentDocument?.querySelector('embed[type="application/pdf"]'));
   assert.equal(embedded,true,"Native PDF embed element was not created");
+  proof.pdf_browser_diagnostics=browserDiagnostics;
+  proof.pdf_frames=await Promise.all(page.frames().map(async frame=>({url:frame.url(),viewer:await frame.evaluate(()=>{
+    const viewer=document.querySelector('pdf-viewer');
+    return viewer?{progress:viewer.loadProgress,loaded:viewer.loaded,plugin:!!viewer.shadowRoot?.querySelector('embed')}:null;
+  }).catch(()=>null)})));
   await page.screenshot({path:out+"/private-reader-pdf.png",fullPage:true});
   const popupPromise=page.waitForEvent("popup");await page.getByRole("link",{name:"In neuem Tab öffnen",exact:true}).click();
   const popup=await popupPromise;await popup.waitForLoadState("domcontentloaded");await sleep(1200);
@@ -74,6 +82,7 @@ try{
   const downloadPromise=page.waitForEvent("download");await page.getByRole("link",{name:"Original herunterladen",exact:true}).click();
   const download=await downloadPromise;assert.equal(hash(await readFile(await download.path())),state.original_sha256);await download.delete();
   await close(page);await nav(page,"Unbekannt");
+  await page.locator("tbody tr").first().waitFor();
   assert.equal(await page.locator("tbody tr").count(),4);
   await page.setViewportSize({width:420,height:900});await open(page,state.active,"Test-PDF.pdf");await sleep(1000);
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true);
