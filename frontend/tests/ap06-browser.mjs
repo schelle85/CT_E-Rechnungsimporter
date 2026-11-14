@@ -13,7 +13,7 @@ const browser=await chromium.launch({channel:"chromium",headless:true,args:["--n
 async function login(page,username){
   await page.goto(BASE,{waitUntil:"networkidle"});
   await page.getByLabel("Benutzername oder UPN").fill(username);
-  await page.getByLabel("Kennwort",{exact:true}).fill("synthetic-user-password");
+  await page.getByLabel("Kennwort").fill("synthetic-user-password");
   await page.getByRole("button",{name:"Anmelden",exact:true}).click();
   await page.getByRole("heading",{name:"Übersicht",level:1,exact:true}).waitFor();
 }
