@@ -158,7 +158,7 @@ Vertrag und Grenzen: [AP07](AP07-NOTIFICATIONS.md).
 
 | Teil | Ergebnis |
 | --- | --- |
-| AP09a | Kundenanleitung als PDF mit den tatsächlich verfügbaren Bedienwegen |
+| AP09a | Kundenunterlagen zusammenführen; das vollständige Nutzerhandbuch aus AP11 als führende Kundenanleitung übernehmen |
 | AP09b | Technische Dokumentation für Betreiber/Kunde, als Markdown-Quelle und PDF |
 | AP09c | KI-Dokumentation als Markdown mit festem Stand, Invarianten und Wiedereinstieg |
 | AP09d | Inhalt gegen Liefercommit prüfen, PDFs rendern/sichten, finale Unterlagen hochladen |
@@ -181,13 +181,38 @@ Kein Wartungsskript oder Timer ist bereits installiert. Keine ungeprüften
 Anwendungs-/Datenbankschemaupgrades aus der Linux-Wartungsfreigabe ableiten.
 AP10-Einrichtung und Prüfung vor der Finalisierung der Abschlussunterlagen berücksichtigen.
 
+## AP11: Handbuch zum Produkt - ORGA / DEV / REVIEW
+
+Am 14.11.2026 ausdrücklich als eigenes Arbeitspaket ergänzt. Status: geplant;
+die Erstellung beginnt mit dem gesonderten AP11-Go.
+
+| Teil | Ergebnis und Prüfung |
+| --- | --- |
+| AP11a | Alle tatsächlich gelieferten Bereiche, Begriffe und Bedienwege erfassen; Unterschiede zwischen Lesen und Verwaltung erklären |
+| AP11b | Anmeldung, Übersicht, Vorgänge, Suche/Filter, Kategorien, Mailordner und Mehrfachanhänge schrittweise erklären |
+| AP11c | Unbekannt-Zuordnung, PDF-Vorschau, Korrekturen, technische Wiederholung, Dubletten und Archiv mit Beispielen erklären |
+| AP11d | Administration einschließlich Berichten, Empfängern, Benachrichtigungen, Zertifikatshinweisen und erlaubten Einstellungen erklären |
+| AP11e | Alltagsszenarien, häufige Fragen, typische Fehlermeldungen und den Weg zur Betreuung ergänzen; Grenzen und erwartete Wartezustände benennen |
+| AP11f | Pflegbare Markdown-Quelle und vollständige PDF mit Inhaltsverzeichnis, passenden Bildschirmbildern und eindeutigem Produktstand erstellen |
+| AP11g | Jeden beschriebenen Bedienweg am Lieferstand abgleichen; PDF vollständig rendern/sichten, REVIEW und Kundenrückmeldung einarbeiten |
+
+Das Handbuch umfasst sämtliche verfügbaren Softwarefunktionen für Nutzer und
+kundenseitige Administratoren. Bildschirmbilder verwenden den geprüften
+Auslieferungsstand und geeignete neutrale beziehungsweise synthetische Beispiele.
+AP09a übernimmt diese eine führende Nutzeranleitung; technische Dokumentation und
+KI-Dokumentation bleiben eigene Lieferungen. Umfang und Ausgabe siehe
+[Dokumentationsplan](DOKUMENTATIONSPLAN.md).
+
 ## Reihenfolge und offene Punkte
 
-AP00 → AP01 → AP02 → AP03 → AP04 → AP05 → AP06 → AP07 → AP08 → AP09.
-Dokumentation wird während aller Pakete gepflegt; AP09 finalisiert sie.
+AP00 → AP01 → AP02 → AP03 → AP04 → AP05 → AP06 → AP07 → AP08 → AP11 → AP09.
+AP11 beschreibt den geprüften Funktionsstand nach AP08. Die Einrichtung und
+Prüfung von AP10 wird bei den betroffenen Betriebsunterlagen berücksichtigt;
+der laufende Wochenbetrieb ist kein Endtermin für das Handbuch.
+Dokumentation wird während aller Pakete gepflegt; AP09 finalisiert das Lieferpaket.
 
 Mailpriorität einschließlich Unbekannt, Mahnung und gemischter Dubletten-Mails ist
 seit 13.11.2026 bestätigt; Details in den [Anforderungen](ANFORDERUNGEN.md#mailabschluss-und-fahne).
-Noch für die betroffenen Pakete festzulegen: Ende der Zertifikatswarnserie nach
-gültigem Zertifikatswechsel und Sicherungsumfang externer SMB-Daten. Diese offenen
-Punkte blockieren nicht pauschal unabhängige Arbeit.
+Das Ende einer Zertifikatswarnserie ist bestätigt: erst nach erfolgreicher frischer
+Anmeldung mit einem gültigen Nachfolger. Der vorhandene bestätigte Sicherungsweg
+wird in den Betriebsunterlagen mit seinen Zuständigkeiten festgehalten.
