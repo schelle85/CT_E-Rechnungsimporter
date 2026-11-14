@@ -24,8 +24,9 @@ def retry_plan(connection, message, rows, now, *, lock=False):
     if (message['created_at'] < archive_boundary(now) or message['owner'] and message['lease_until'] > now
             or message['error_code'] in IDENTITY_ERRORS):
         return None
-    if connection.execute(sa.select(corrections.c.correction_key).where(
-            corrections.c.message_key==message['message_key'],corrections.c.state=='approved')).first():
+    query=sa.select(corrections.c.correction_key).where(
+        corrections.c.message_key==message['message_key'],corrections.c.state=='approved')
+    if connection.execute(query.with_for_update() if lock else query).first():
         return None
     if message['completed_revision'] < message['revision']:
         if message['state']!='operator_required' and not message['error_code']:
@@ -101,16 +102,19 @@ class DecisionStore:
         payload=digest([expected_revision,finding_revision,finding_key,source_sha256,decision,actor])
         request_key=digest([key,request_id])
         now=int(self.clock())
+        # Immutable FK lookup is outside the decision transaction: it cannot create
+        # a REPEATABLE READ snapshot before waiting for the mail's exclusive lock.
+        with self.engine.connect() as lookup:
+            raw=lookup.execute(sa.select(attachments.c.message_key).where(attachments.c.attachment_key==key)).first()
+        if raw is None:raise AccessError(404,'Anhang nicht vorhanden.')
         with self.processing.decision_transaction() as connection:
-            raw=connection.execute(sa.select(attachments.c.message_key).where(attachments.c.attachment_key==key)).first()
-            if raw is None:raise AccessError(404,'Anhang nicht vorhanden.')
             message=self.processing._message(connection,raw[0])
             row=self.processing._attachment(connection,raw[0],key)
-            previous=connection.execute(sa.select(corrections).where(corrections.c.correction_key==request_key)).mappings().first()
+            previous=connection.execute(sa.select(corrections).where(corrections.c.correction_key==request_key).with_for_update()).mappings().first()
             if previous:
                 if previous['request_payload']!=payload:raise AccessError(409,'Anforderung widerspricht dem vorhandenen Beleg.')
                 return correction_receipt(previous)
-            if connection.execute(sa.select(corrections.c.correction_key).where(corrections.c.attachment_key==key)).first():
+            if connection.execute(sa.select(corrections.c.correction_key).where(corrections.c.attachment_key==key).with_for_update()).first():
                 raise AccessError(409,'Für diesen Anhang liegt bereits eine Freigabe vor.')
             current=json.loads(row['effective_finding'] or row['original_finding'] or '{}')
             try:checked_finding(current,row['raw_sha256'])
@@ -122,7 +126,7 @@ class DecisionStore:
                     or not correction_allowed(current) or row['effect_key'] or row['raw_sha256']!=source_sha256
                     or row['finding_revision']!=finding_revision or digest(current)!=finding_key):
                 raise AccessError(409,'Vorgang oder Befund wurde geändert; bitte neu laden.')
-            if connection.execute(sa.select(retries.c.request_key).where(retries.c.message_key==raw[0],retries.c.state=='requested')).first():
+            if connection.execute(sa.select(retries.c.request_key).where(retries.c.message_key==raw[0],retries.c.state=='requested').with_for_update()).first():
                 raise AccessError(409,'Für diesen Vorgang ist bereits eine Wiederholung freigegeben.')
             values=dict(correction_key=request_key,attachment_key=key,message_key=raw[0],expected_finding=finding_key,
                 expected_revision=finding_revision,request_payload=payload,decision=decision,approved_by=actor,approved_at=now,
@@ -137,18 +141,18 @@ class DecisionStore:
         request_key=digest([key,request_id])
         now=int(self.clock())
         with self.processing.decision_transaction() as connection:
-            raw=connection.execute(sa.select(messages.c.message_key).where(messages.c.message_key==key)).first()
+            raw=connection.execute(sa.select(messages).where(messages.c.message_key==key).with_for_update()).mappings().first()
             if raw is None:raise AccessError(404,'Vorgang nicht vorhanden.')
-            message=self.processing._message(connection,key)
-            previous=connection.execute(sa.select(retries).where(retries.c.request_key==request_key)).mappings().first()
+            message=dict(raw)
+            previous=connection.execute(sa.select(retries).where(retries.c.request_key==request_key).with_for_update()).mappings().first()
             if previous:
                 if previous['request_payload']!=payload:raise AccessError(409,'Anforderung widerspricht dem vorhandenen Beleg.')
                 return retry_receipt(previous)
             if not self._controls(connection,lock=True)['retry_enabled']:raise AccessError(409,'Technische Wiederholung ist deaktiviert.')
             if message['revision']!=expected_revision:raise AccessError(409,'Vorgang wurde geändert; bitte neu laden.')
-            if connection.execute(sa.select(retries.c.request_key).where(retries.c.message_key==key,retries.c.state=='requested')).first():
+            if connection.execute(sa.select(retries.c.request_key).where(retries.c.message_key==key,retries.c.state=='requested').with_for_update()).first():
                 raise AccessError(409,'Für diesen Vorgang ist bereits eine Wiederholung freigegeben.')
-            rows=[dict(row) for row in connection.execute(sa.select(attachments).where(attachments.c.message_key==key)).mappings()]
+            rows=[dict(row) for row in connection.execute(sa.select(attachments).where(attachments.c.message_key==key).with_for_update()).mappings()]
             plan=retry_plan(connection,message,rows,now,lock=True)
             if plan is None:raise AccessError(409,'Dieser Zustand erlaubt keine sichere technische Wiederholung.')
             values=dict(request_key=request_key,message_key=key,request_payload=payload,expected_revision=expected_revision,
@@ -164,7 +168,7 @@ class DecisionStore:
             message=self.processing._message(connection,key)
             request=connection.execute(sa.select(retries).where(retries.c.message_key==key,retries.c.state=='requested').with_for_update()).mappings().first()
             if request is None:return None
-            rows=[dict(row) for row in connection.execute(sa.select(attachments).where(attachments.c.message_key==key)).mappings()]
+            rows=[dict(row) for row in connection.execute(sa.select(attachments).where(attachments.c.message_key==key).with_for_update()).mappings()]
             plan=retry_plan(connection,message,rows,now,lock=True)
             if message['revision']!=request['expected_revision'] or plan is None or encoded(plan)!=request['plan']:
                 connection.execute(retries.update().where(retries.c.request_key==request['request_key']).values(

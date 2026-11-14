@@ -110,3 +110,11 @@ die ausdrücklich freigegebene Folgegeneration gebunden. Offene Retrybelege der
 Revision0 bleiben im Korrekturmodus auch nach Unterbrechung/Verzögerung auswählbar.
 Zwei gezielte Reproduktionen und insgesamt12Decisiongruppen lokalPASS; nativer
 Delta- und unabhängiger Nachreview folgen. Keine neue Mail-/Ablagewirkung ausgelöst.
+
+AP06-R3 Quellkorrekturversuch1: unveränderlicher Attachment→Mail-Verweis wird
+außerhalb der Entscheidungstransaktion gelesen. Innerhalb steht zuerst die
+exklusive Mailsperre; anschließende mutable Beleg-/Anhangsabfragen lesen aktuell
+mit FOR UPDATE. Retry beginnt direkt mit der gesperrten Mailabfrage. Derselbe
+Vertrag gilt für die interne bereits-freigegeben-Grenze und Retryübernahme.
+Keine globale Änderung des Isolationsgrads.12Decisiongruppen lokalPASS; die
+gezielt angehaltene native MariaDB-Gegenprobe des Reviews steht noch aus.

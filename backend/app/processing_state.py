@@ -382,21 +382,22 @@ class ProcessingStore:
         if (decision not in {"PDF", "Zahlungsavis", "Mahnung", "ignored"} or not isinstance(approval_id, str) or not approval_id
                 or len(approval_id) > 128 or not isinstance(actor, str) or not actor or len(actor) > 512 or type(approved_at) is not int):
             raise ProcessingError("processing_correction_invalid")
+        with self.engine.connect() as lookup:
+            raw = lookup.execute(sa.select(attachments.c.message_key).where(attachments.c.attachment_key == attachment_key)).mappings().one()
         with self.decision_transaction() as connection:
-            raw = connection.execute(sa.select(attachments).where(attachments.c.attachment_key == attachment_key)).mappings().one()
             self._message(connection, raw["message_key"])
             row = self._attachment(connection, raw["message_key"], attachment_key)
             finding = json.loads(row["effective_finding"] or "{}")
             key = digest([attachment_key, approval_id])
             values = dict(correction_key=key, attachment_key=attachment_key, message_key=row["message_key"],
                 expected_finding=digest(finding), expected_revision=row["finding_revision"], decision=decision, approved_by=actor, approved_at=approved_at, state="approved")
-            previous = connection.execute(sa.select(corrections).where(corrections.c.attachment_key == attachment_key)).mappings().first()
+            previous = connection.execute(sa.select(corrections).where(corrections.c.attachment_key == attachment_key).with_for_update()).mappings().first()
             if previous:
                 if any(previous[name] != value for name, value in values.items() if name != "state"):
                     raise ProcessingError("processing_correction_conflict")
                 return key
             if connection.execute(sa.select(retries.c.request_key).where(retries.c.message_key == row["message_key"],
-                    retries.c.state == "requested")).first():
+                    retries.c.state == "requested").with_for_update()).first():
                 raise ProcessingError("processing_predecessor_unresolved")
             if row["effective_status"] != "unknown" or not correction_allowed(finding):
                 raise ProcessingError("processing_correction_forbidden")
@@ -410,7 +411,7 @@ class ProcessingStore:
             if (message["completed_revision"] != message["revision"] or message["owner"]
                     or message["state"] not in {"waiting_correction", "done", "failed"}):
                 raise ProcessingError("processing_predecessor_unresolved")
-            if connection.execute(sa.select(retries.c.request_key).where(retries.c.message_key == key, retries.c.state == "requested")).first():
+            if connection.execute(sa.select(retries.c.request_key).where(retries.c.message_key == key, retries.c.state == "requested").with_for_update()).first():
                 raise ProcessingError("processing_predecessor_unresolved")
             approved = connection.execute(sa.select(corrections).where(corrections.c.message_key == key,
                 corrections.c.state == "approved", corrections.c.approved_at <= now).with_for_update()).mappings().all()
