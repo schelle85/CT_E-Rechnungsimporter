@@ -2,13 +2,13 @@
 import unittest
 from app.processing_state import ProcessingStore, metadata as processing_metadata
 from app.storage_state import StorageStore, metadata as storage_metadata
-from test_preview import SecurityTests
-from test_process_queries import ProcessQueryTests
+import test_preview as security_fixture
+import test_process_queries as query_fixture
 
 
 class ProcessApiTests(unittest.IsolatedAsyncioTestCase):
     async def asyncSetUp(self):
-        await SecurityTests.asyncSetUp(self)
+        await security_fixture.SecurityTests.asyncSetUp(self)
         with self.engine.begin() as connection:
             for metadata in (processing_metadata,storage_metadata):
                 for table in reversed(metadata.sorted_tables):
@@ -18,11 +18,11 @@ class ProcessApiTests(unittest.IsolatedAsyncioTestCase):
         self.store=ProcessingStore(self.engine,clock=lambda:self.now[0])
         self.storage=StorageStore(self.engine,destination_key="d"*64,clock=lambda:self.now[0])
 
-    asyncTearDown=SecurityTests.asyncTearDown
-    challenge=SecurityTests.challenge
-    headers=SecurityTests.headers
-    login=SecurityTests.login
-    mail=ProcessQueryTests.mail
+    asyncTearDown=security_fixture.SecurityTests.asyncTearDown
+    challenge=security_fixture.SecurityTests.challenge
+    headers=security_fixture.SecurityTests.headers
+    login=security_fixture.SecurityTests.login
+    mail=query_fixture.ProcessQueryTests.mail
 
     async def test_both_roles_read_real_empty_then_persisted_data(self):
         for role in ("reader","admin"):

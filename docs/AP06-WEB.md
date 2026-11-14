@@ -37,3 +37,12 @@ AD-/Sitzungsgrenze. Die frühere Demo-API entfällt. Bestehende Sicherheitstests
 adressieren jetzt /api/processes; drei neue HTTP-Gruppen prüfen echte leere und
 gefüllte Journale, beide Rollen, Gruppenentzug und neutrale Eingabefehler.
 Syntaxprüfung erfolgt; native HTTP-Ausführung ist für diesen Commit noch offen.
+
+AP06-L1/L2, jeweils gezielter Korrekturversuch1: Der blockierte Mailzustand
+operator_required hat jetzt Vorrang vor einer lediglich begonnenen Korrektur.
+Der Korrekturbeleg bleibt unverändert. Auswahl, Archivkennzeichen, Leaseanzeige
+und Freigabemöglichkeit verwenden pro Abfrage denselben Zeit-Snapshot.
+Neun lokale SQLite-Gruppen bestanden, darunter beide gezielten Reproduktionen.
+Am vorausgehenden API-Stand17ce54c bestanden native Linux-HTTP-/Sicherheitsprüfungen:
+26 unterschiedliche Tests, durch importierte Testklassen49 Ausführungen. Die
+Testimports sind bereinigt; kein MariaDB-/Browser-/Deployment-PASS daraus.

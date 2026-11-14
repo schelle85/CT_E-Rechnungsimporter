@@ -70,14 +70,14 @@ class ProcessQueries:
                 corrections.c.attachment_key == attachments.c.attachment_key)))
 
     def conditions(self, *, view="active", search="", state=None, category=None, duplicate=None,
-                   received_from=None, received_to=None):
+                   received_from=None, received_to=None, now=None):
         if view not in {"active", "archive"} or not isinstance(search, str) or len(search) > 200:
             raise AccessError(422, "Ungültiger Filter.")
         if state is not None and state not in STATES or category is not None and category not in CATEGORIES:
             raise AccessError(422, "Ungültiger Filter.")
         if duplicate is not None and type(duplicate) is not bool:
             raise AccessError(422, "Ungültiger Filter.")
-        boundary = archive_boundary(self.clock())
+        boundary = archive_boundary(self.clock() if now is None else now)
         parts = [messages.c.created_at >= boundary if view == "active" else messages.c.created_at < boundary]
         def has(*criteria):
             return sa.exists(sa.select(attachments.c.attachment_key).where(
@@ -112,15 +112,18 @@ class ProcessQueries:
         if type(page) is not int or not 1 <= page <= 100000 or type(page_size) is not int or not 1 <= page_size <= 50:
             raise AccessError(422, "Ungültige Seitenauswahl.")
 
-    def attachment(self, row, message, approval=None, receipt=None):
+    def attachment(self, row, message, approval=None, receipt=None, *, now=None):
+        now = self.clock() if now is None else now
         source = json.loads(row["source"])
         current = finding(row)
         original = json.loads(row["original_finding"]) if row["original_finding"] else None
         complete = message["completed_revision"] == message["revision"]
-        active = bool(message["owner"] and message["lease_until"] > int(self.clock()))
+        active = bool(message["owner"] and message["lease_until"] > int(now))
         if row["effective_status"] == "failed" or row["storage_state"] == "failed":
             status = "failed"
         elif row["storage_state"] == "operator_required":
+            status = "operator_required"
+        elif message["state"] == "operator_required":
             status = "operator_required"
         elif approval and approval["state"] == "approved":
             status = "approved"
@@ -134,7 +137,7 @@ class ProcessQueries:
             status = "waiting"
         allowed = (row["effective_status"] == "unknown" and current and correction_allowed(current) and not approval
             and row["raw_sha256"] is not None and complete and not active
-            and message["created_at"] >= archive_boundary(self.clock()))
+            and message["created_at"] >= archive_boundary(now))
         return {
             "id": row["attachment_key"], "message_id": message["message_key"], "name": source[1],
             "kind": source[5], "inline": source[4], "byte_size": row["byte_size"], "sha256": row["raw_sha256"],
@@ -162,14 +165,15 @@ class ProcessQueries:
             corrections.c.message_key.in_(keys))).mappings()}
         return rows, approvals
 
-    def summary(self, row, children, approvals):
+    def summary(self, row, children, approvals, *, now=None):
+        now = self.clock() if now is None else now
         closing = json.loads(row["close_payload"]) if row["close_payload"] else {}
         open_unknown = sum(child["effective_status"] == "unknown" and child["attachment_key"] not in approvals for child in children)
         return {
             "id": row["message_key"], "received_at": row["received_at"], "created_at": row["created_at"],
             "updated_at": row["updated_at"], "state": row["state"], "revision": row["revision"],
-            "completed_revision": row["completed_revision"], "archived": row["created_at"] < archive_boundary(self.clock()),
-            "owner_active": bool(row["owner"] and row["lease_until"] > int(self.clock())),
+            "completed_revision": row["completed_revision"], "archived": row["created_at"] < archive_boundary(now),
+            "owner_active": bool(row["owner"] and row["lease_until"] > int(now)),
             "attachment_count": len(children), "unknown_open": open_unknown,
             "duplicate_count": sum(child["storage_state"] == "duplicate" for child in children),
             "stored_count": sum(child["storage_state"] == "stored" for child in children),
@@ -183,7 +187,8 @@ class ProcessQueries:
 
     def list(self, *, page=1, page_size=25, **filters):
         self.page_values(page, page_size)
-        conditions = self.conditions(**filters)
+        now = self.clock()
+        conditions = self.conditions(now=now, **filters)
         with self.snapshot() as connection:
             total = connection.execute(sa.select(sa.func.count()).select_from(messages).where(*conditions)).scalar_one()
             rows = [dict(row) for row in connection.execute(sa.select(messages).where(*conditions)
@@ -192,11 +197,12 @@ class ProcessQueries:
             grouped = {row["message_key"]: [] for row in rows}
             for child in children:
                 grouped[child["message_key"]].append(child)
-            return {"items": [self.summary(row, grouped[row["message_key"]], approvals) for row in rows],
+            return {"items": [self.summary(row, grouped[row["message_key"]], approvals, now=now) for row in rows],
                     "total": total, "page": page, "page_size": page_size, "synthetic": False}
 
     def detail(self, key):
         key_value(key)
+        now = self.clock()
         with self.snapshot() as connection:
             raw = connection.execute(sa.select(messages).where(messages.c.message_key == key)).mappings().first()
             if raw is None:
@@ -206,12 +212,13 @@ class ProcessQueries:
             effect_keys = [row["effect_key"] for row in children if row["effect_key"]]
             receipts = {row["action_key"]: dict(row) for row in connection.execute(sa.select(operations).where(
                 operations.c.action_key.in_(effect_keys))).mappings()} if effect_keys else {}
-            return {**self.summary(message, children, approvals), "attachments": [
-                self.attachment(row, message, approvals.get(row["attachment_key"]), receipts.get(row["effect_key"])) for row in children]}
+            return {**self.summary(message, children, approvals, now=now), "attachments": [
+                self.attachment(row, message, approvals.get(row["attachment_key"]), receipts.get(row["effect_key"]), now=now) for row in children]}
 
     def unknown(self, *, page=1, page_size=25, view="active", search=""):
         self.page_values(page, page_size)
-        conditions = self.conditions(view=view, search=search)
+        now = self.clock()
+        conditions = self.conditions(view=view, search=search, now=now)
         with self.snapshot() as connection:
             query = sa.select(attachments.c.attachment_key).join(messages, attachments.c.message_key == messages.c.message_key).where(
                 *conditions, self.unassigned())
@@ -224,11 +231,12 @@ class ProcessQueries:
             parents = {row["message_key"]: dict(row) for row in connection.execute(sa.select(messages).where(
                 messages.c.message_key.in_({row["message_key"] for row in rows}))).mappings()}
             by_id = {row["attachment_key"]: row for row in rows}
-            return {"items": [self.attachment(by_id[key], parents[by_id[key]["message_key"]]) for key in ids],
+            return {"items": [self.attachment(by_id[key], parents[by_id[key]["message_key"]], now=now) for key in ids],
                     "total": total, "page": page, "page_size": page_size}
 
     def stats(self, **filters):
-        conditions = self.conditions(**filters)
+        now = self.clock()
+        conditions = self.conditions(now=now, **filters)
         with self.snapshot() as connection:
             selected = sa.select(messages.c.message_key).where(*conditions)
             scope = attachments.c.message_key.in_(selected)

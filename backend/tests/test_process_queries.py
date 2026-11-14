@@ -155,3 +155,43 @@ class ProcessQueryTests(unittest.TestCase):
             observed=reader.execute(sa.select(messages.c.revision).where(messages.c.message_key==key)).scalar_one()
         self.assertEqual((original,observed),(0,0))
         self.assertEqual(self.queries.detail(key)["revision"],1)
+
+    def test_l1_blocked_correction_is_not_shown_as_running(self):
+        key=self.mail()
+        aid=self.store.get_attachments(key)[0]['attachment_key']
+        self.store.approved_correction(aid,'l1','PDF','synthetic-admin',self.now[0])
+        revision=self.store.start_corrections(key)
+        owned=self.store.claim(key)
+        self.assertEqual(self.queries.detail(key)['attachments'][0]['status'],'processing')
+        self.store.release(key,owned['owner'],revision,blocked=True,error='graph_journal_source_changed')
+        detail=self.queries.detail(key)
+        self.assertEqual(detail['state'],'operator_required')
+        self.assertEqual(detail['attachments'][0]['status'],'operator_required')
+        self.assertEqual(detail['attachments'][0]['approval']['state'],'processing')
+        self.assertFalse(detail['owner_active'])
+
+    def test_l2_one_time_snapshot_for_selection_display_and_permissions(self):
+        key=self.mail()
+        cutoff=archive_boundary(self.now[0])
+        with self.engine.begin() as c:
+            c.execute(messages.update().where(messages.c.message_key==key).values(created_at=cutoff))
+        calls=[]
+        def moving_clock():
+            calls.append(True)
+            return self.now[0]+len(calls)-1
+        queries=ProcessQueries(self.engine,clock=moving_clock)
+        result=queries.list()
+        self.assertEqual(result['total'],1)
+        self.assertFalse(result['items'][0]['archived'])
+        self.assertEqual(len(calls),1)
+        calls.clear()
+        detail=queries.detail(key)
+        self.assertFalse(detail['archived'])
+        self.assertTrue(detail['attachments'][0]['can_correct'])
+        self.assertEqual(len(calls),1)
+        calls.clear()
+        self.assertTrue(queries.unknown()['items'][0]['can_correct'])
+        self.assertEqual(len(calls),1)
+        calls.clear()
+        self.assertEqual(queries.stats()['messages'],1)
+        self.assertEqual(len(calls),1)
