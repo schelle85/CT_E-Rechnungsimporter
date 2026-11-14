@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Alert, Badge, Button, Group, Modal, Paper, Select, Stack, Text, Title } from "@mantine/core";
 import { api, ApiError } from "./api";
-import { type PendingIntent, readPending, queuePending, rejectPending, resolvePending, intentPath, receiptMatches } from "./pending-intents";
+import { type PendingIntent, readPending, queuePending, beginPendingSend, closeRejectedPending, rejectPending, resolvePending, intentPath, receiptMatches } from "./pending-intents";
 import { type ProcessDetail, type ProcessingSettings, StatusBadge, dateTime, labels, reasonText } from "./processTypes";
 
 export default function ProcessDialog({ detail, initialAttachment, settings, canEdit, identity, csrfToken, onClose, onChanged }: {
@@ -28,14 +28,16 @@ export default function ProcessDialog({ detail, initialAttachment, settings, can
   async function submitIntent(intent: PendingIntent) {
     if (!canEdit || busy) return;
     setBusy(true); setNotice("");
+    let attempted = intent;
     try {
-      const receipt = await api<Record<string, unknown>>(intentPath(intent), { method: "POST", body: JSON.stringify(intent.payload) }, csrfToken);
-      if (!await receiptMatches(intent, receipt)) throw new Error("Die Antwort bestätigt die ursprüngliche Anforderung nicht eindeutig.");
-      resolvePending(sessionStorage, identity, intent.messageId); setPending(null); setDecision(null);
-      await onChanged(); setNotice(intent.kind === "approve" ? "Zuordnung bestätigt. Der Verarbeitungsstatus folgt den tatsächlichen Belegen." : "Technische Wiederholung im Protokoll bestätigt.");
+      attempted = beginPendingSend(sessionStorage, identity, intent); setPending(attempted);
+      const receipt = await api<Record<string, unknown>>(intentPath(attempted), { method: "POST", body: JSON.stringify(attempted.payload) }, csrfToken);
+      if (!await receiptMatches(attempted, receipt)) throw new Error("Die Antwort bestätigt die ursprüngliche Anforderung nicht eindeutig.");
+      resolvePending(sessionStorage, identity, attempted.messageId); setPending(null); setDecision(null);
+      await onChanged(); setNotice(attempted.kind === "approve" ? "Zuordnung bestätigt. Der Verarbeitungsstatus folgt den tatsächlichen Belegen." : "Technische Wiederholung im Protokoll bestätigt.");
     } catch (error) {
       if (error instanceof ApiError && [400, 409, 422].includes(error.status)) {
-        try { setPending(rejectPending(sessionStorage, identity, intent)); } catch { /* Keep the original pending intent. */ }
+        try { setPending(rejectPending(sessionStorage, identity, attempted)); } catch { /* Keep the original pending intent. */ }
       }
       setNotice(error instanceof Error ? error.message : "Die Antwort ist nicht bestätigt. Bitte die ursprüngliche Anforderung abgleichen.");
     } finally { setBusy(false); }
@@ -59,7 +61,7 @@ export default function ProcessDialog({ detail, initialAttachment, settings, can
   }
   async function closeRejected() {
     if (!pending?.rejected || busy) return;
-    try { resolvePending(sessionStorage, identity, pending.messageId); setPending(null); await onChanged(); setNotice("Abgewiesene Anforderung geschlossen. Eine neue Aktion muss ausdrücklich gewählt werden."); }
+    try { closeRejectedPending(sessionStorage, identity, pending.messageId); setPending(null); await onChanged(); setNotice("Abgewiesene Anforderung geschlossen. Eine neue Aktion muss ausdrücklich gewählt werden."); }
     catch (error) { setNotice(error instanceof Error ? error.message : "Anforderung konnte nicht geschlossen werden."); }
   }
   const url = row ? "/api/attachments/" + row.id + "/original" : "";

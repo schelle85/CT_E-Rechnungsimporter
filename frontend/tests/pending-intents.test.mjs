@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { createHash } from "node:crypto";
-import { queuePending, readPending, receiptMatches, rejectPending, resolvePending, intentPath } from "../src/pending-intents.ts";
+import { queuePending, beginPendingSend, closeRejectedPending, readPending, receiptMatches, rejectPending, resolvePending, intentPath } from "../src/pending-intents.ts";
 const messageId="a".repeat(64), targetId="b".repeat(64);
 const memory=()=>{const values=new Map();return {getItem:k=>values.get(k)??null,setItem:(k,v)=>values.set(k,v),removeItem:k=>values.delete(k)}};
 const approval=()=>({kind:"approve",messageId,targetId,payload:{request_id:"approval-uuid",expected_revision:0,finding_revision:0,finding_key:"c".repeat(64),source_sha256:"d".repeat(64),decision:"Mahnung"}});
@@ -31,4 +31,23 @@ test("matching server receipt is bound to original request and target",async()=>
 });
 test("storage refusal prevents sending an untracked new intent",()=>{
   assert.throws(()=>queuePending({getItem:()=>null,setItem:()=>{throw new Error("unavailable")},removeItem:()=>{}},"guid",retry()),/unavailable/);
+});
+for(const make of [approval,retry])test(make().kind+" rejection then accepted lost response cannot close pending intent",()=>{
+  const storage=memory(),intent=queuePending(storage,"guid",make());
+  const rejected=rejectPending(storage,"guid",intent);
+  const sending=beginPendingSend(storage,"guid",rejected);
+  assert.equal(sending.rejected,false);
+  assert.deepEqual(sending.payload,intent.payload);
+  // The server may have accepted; its response is lost, then the dialog reloads.
+  const reloaded=readPending(storage,"guid",messageId);
+  assert.equal(reloaded.rejected,false);
+  assert.throws(()=>closeRejectedPending(storage,"guid",messageId),/unbestätigte/);
+  assert.deepEqual(readPending(storage,"guid",messageId).payload,intent.payload);
+  let sent=0;
+  const denied={getItem:storage.getItem,setItem:()=>{throw new Error("storage refused")},removeItem:storage.removeItem};
+  assert.throws(()=>{beginPendingSend(denied,"guid",reloaded);sent++},/storage refused/);
+  assert.equal(sent,0);
+  rejectPending(storage,"guid",reloaded);
+  closeRejectedPending(storage,"guid",messageId);
+  assert.equal(readPending(storage,"guid",messageId),null);
 });

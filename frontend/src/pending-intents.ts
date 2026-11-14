@@ -33,6 +33,20 @@ export function queuePending(storage: IntentStorage, identity: string, intent: P
   storage.setItem(storageKey(identity, intent.messageId), raw);
   return JSON.parse(raw) as PendingIntent;
 }
+export function beginPendingSend(storage: IntentStorage, identity: string, intent: PendingIntent): PendingIntent {
+  const current = readPending(storage, identity, intent.messageId);
+  if (!current || JSON.stringify([current.kind, current.targetId, current.payload]) !== JSON.stringify([intent.kind, intent.targetId, intent.payload]))
+    throw new Error("Die ursprüngliche Anforderung ist nicht sicher verfügbar.");
+  const sending = { ...current, rejected: false };
+  // Persist before sending: an earlier rejection cannot close a newly uncertain outcome.
+  storage.setItem(storageKey(identity, current.messageId), JSON.stringify(sending));
+  return sending;
+}
+export function closeRejectedPending(storage: IntentStorage, identity: string, messageId: string) {
+  const current = readPending(storage, identity, messageId);
+  if (!current?.rejected) throw new Error("Eine unbestätigte Anforderung kann nicht geschlossen werden.");
+  storage.removeItem(storageKey(identity, messageId));
+}
 export function rejectPending(storage: IntentStorage, identity: string, intent: PendingIntent): PendingIntent {
   const marked = { ...intent, rejected: true };
   storage.setItem(storageKey(identity, intent.messageId), JSON.stringify(marked));
