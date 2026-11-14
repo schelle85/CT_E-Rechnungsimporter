@@ -76,3 +76,10 @@ aktuell gibt es daraus noch keine Originaldateiroute oder fertige Oberfläche.
 Lokale Nachweise:10 neue Decision-/Migration-/Konkurrenzgruppen,13 bestehende
 ProcessingState-Gruppen und9 Projektionsgruppen bestanden. Native006-/MariaDB-
 und neue HTTP-Schreibtests stehen am festen Commit noch aus. Kundenschema bleibt005.
+
+NativeLinux/MariaDB zum festen006-Standf3d6e6c: neue Processing-/Testimages offline
+gebaut, eingefrorene Classifierlayer unverändert. Frische echte CLI001→006 zweimal
+mit gleicher Instanzkennung bestanden.53 gezielte Tests ausgeführt:52PASS,
+ein HTTP-Testfehler durch uneinheitliche Testuhren (API real, Consumer eingefroren).
+AP06-T1 Versuch1 vereinheitlicht beide Uhren ausschließlich im HTTP-Testfixture;
+gezielter nativer Nachweis folgt. Tatsächlicher alter005→006-Pfad noch offen.

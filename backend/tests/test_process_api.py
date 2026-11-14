@@ -16,6 +16,7 @@ class ProcessApiTests(unittest.IsolatedAsyncioTestCase):
             connection.execute(controls.insert().values(singleton=1,version=1,preview_enabled=1,retry_enabled=1,actor="fixture",updated_at=0))
         import time
         self.now=[int(time.time())]
+        self.runtime.store.clock=lambda:self.now[0]
         self.store=ProcessingStore(self.engine,clock=lambda:self.now[0])
         self.storage=StorageStore(self.engine,destination_key="d"*64,clock=lambda:self.now[0])
 
