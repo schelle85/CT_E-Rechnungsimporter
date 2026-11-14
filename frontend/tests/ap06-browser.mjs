@@ -12,7 +12,13 @@ const sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 const hash=data=>createHash("sha256").update(data).digest("hex");
 const progress=stage=>console.log(JSON.stringify({progress:stage,mode:proof.browser_mode}));
 progress('launch');
-const browser=await chromium.launch({channel:"chromium",headless:process.env.AP06_HEADED!=='1',args:["--no-sandbox","--disable-dev-shm-usage"]});
+const browserArgs=["--no-sandbox","--disable-dev-shm-usage"];
+if(process.env.AP06_TLS_TEST_SPKI){
+  assert.match(process.env.AP06_TLS_TEST_SPKI,/^[A-Za-z0-9+/]{43}=$/);
+  browserArgs.push('--ignore-certificate-errors-spki-list='+process.env.AP06_TLS_TEST_SPKI);
+  proof.synthetic_tls_key_pinned=true;
+}
+const browser=await chromium.launch({channel:"chromium",headless:process.env.AP06_HEADED!=='1',args:browserArgs});
 progress('browser_ready');
 async function login(page,username){
   await page.goto(BASE,{waitUntil:"networkidle"});
