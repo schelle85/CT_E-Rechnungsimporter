@@ -70,6 +70,12 @@ try{
   assert.equal(original.headers()["cache-control"],"no-store");
   const portal=await reader.request.get(BASE);assert.equal(portal.headers()["x-frame-options"],"DENY");
   assert.match(portal.headers()["content-security-policy"],/frame-ancestors 'none'/);
+  if(process.env.AP06_HEADED==='1'){
+    const control=await reader.newPage();
+    await control.goto('file:///test-input/original.pdf',{waitUntil:'domcontentloaded'});await sleep(2200);
+    execFileSync('python3',['/tool/x11-screen.py',out+'/private-x11-file-control.png'],{timeout:10000});
+    await control.close();progress('private_file_control_captured');
+  }
   await open(page,state.active,"Test-PDF.pdf");
   progress('pdf_dialog_open');
   assert.equal(await page.getByRole("button",{name:"Zuordnung freigeben",exact:true}).count(),0);
