@@ -71,8 +71,14 @@ nach frischer geprüfter Anmeldung mit genau dem gültigen Nachfolger; tatsächl
 Zertifikatslesen und dieser Nachweis folgen in B.
 
 Reine Störungsplanung unterstützt Bündelung, beobachtete Ausfalldauer, einmalige
-Erholung und Wiederholungsabstand. Meldungsmitgliedschaft und Reservierung werden
-atomar verknüpft. Ein alter gespeicherter Fehler ist keine neue Verfügbarkeitsmessung.
+Erholung und Wiederholungsabstand. Ausfallwiederholungen warten den konfigurierten
+Abstand seit der tatsächlichen dauerhaften Reservierung derselben Episode ab,
+auch nach verspätetem Nachholen und bei ungewissem Ausgang. Der Store prüft diese
+Grenze erneut unter der gemeinsamen Sperre; ein veralteter paralleler Plan wird
+unreserviert aufgeschoben. Ausfallmitgliedschaft bindet genau eine Incidentepisode
+im vorhandenen JSON-Feld, auch vor Erstkonfiguration. Keine Schemaänderung dafür.
+Meldungsmitgliedschaft und Reservierung werden atomar verknüpft.
+Ein alter gespeicherter Fehler ist keine neue Verfügbarkeitsmessung.
 Der tatsächliche API-/Graph-Beobachter und Versand folgen; kein unabhängiger
 VM-/SMB-/Offsiteüberwachungsdienst wird behauptet.
 
@@ -82,7 +88,7 @@ CLI-Abbruchfristen und Bindungen stehen noch zur nativen Prüfung an.
 
 ## Lokaler Prüfstand
 
-19 gezielte Gruppen bestanden: idempotente additive006→007-Übernahme und
+Erster A-Lieferstand:19 gezielte Gruppen bestanden; idempotente additive006→007-Übernahme und
 unveränderte Altwerte, Einmalreservierung/Parallelität, Planrevision und Pflichtslot,
 Request-/Scope-/Actorbindung, Abbruch und verspätete Resultate, Quote/Backoff,
 verschlüsselte Ablagegrenze, Kalender/DST, exakte Warnschwellen, Berichtskörnung
@@ -93,6 +99,15 @@ gepoolten SQLitehandles. Testfixture auf NullPool korrigiert und gezielt bestand
 anschließend erforderlicher Gesamtlauf des vervollständigten A-Stands:19/19PASS.
 Keine nativen MariaDB-/Graph-/Kryptografie-/Browserergebnisse aus diesen lokalen
 Prüfungen ableiten. Bestehende AP03–AP06-Ergebnisse behalten ihre Quellen/Zähler.
+
+Gezielte Korrektur AP07-A1: verspäteter Ausfallversuch eine Sekunde vor der
+nächsten Periodengrenze, weiterhin gesperrt bei1s und24h−1s, freigegeben exakt24h
+nach tatsächlicher Reservierung; unknown, Einstellungen, konkurrierende vorbereitete
+Pläne, Episodenwechsel und separate Erholung geprüft. Erster Lauf21/22 bestanden;
+ein zusätzlicher Test erwartete Neuplanung trotz noch aktivem Owner. Nur seine
+Vorbedingung durch ausdrückliche Ownerfreigabe berichtigt, enge Nachprüfung1/1PASS.
+Keine funktionale Produktänderung nach diesem ersten Lauf und kein vollständiges
+22/22-Ergebnis behauptet. Native Nachprüfung auf festem Korrekturpin steht aus.
 
 Nächste Pakete: B für begrenzten Graphsender, Zertifikat/Wechselproof, eigenen
 Schlüssel und CLI; C für neue API-/Web-/Loginbedienung und gezielte Browserprüfung.

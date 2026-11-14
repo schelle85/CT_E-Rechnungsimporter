@@ -128,18 +128,27 @@ class NotificationStore:
             created_at=now, updated_at=now))
 
     def _write_plan(self, c, row, head, slot, data, as_of, origin, members=()):
-        if len(members) > 100 or len(set(members)) != len(members):
+        if (len(members) > 100 or len(set(members)) != len(members)
+                or slot.kind == "outage" and len(members) != 1):
             raise NotificationError("notification_members_invalid", 422)
+        membership = []
         for member in members:
             checked_key(member)
-            if not c.execute(sa.select(monitor.c.monitor_key).where(monitor.c.monitor_key == member,
-                    monitor.c.scope_key == row["scope_key"],monitor.c.kind == "incident").with_for_update()).first():
+            source = c.execute(sa.select(monitor).where(monitor.c.monitor_key == member,
+                monitor.c.scope_key == row["scope_key"],monitor.c.kind == "incident").with_for_update()).mappings().first()
+            if source is None:
                 raise NotificationError("notification_monitor_changed")
+            membership.append(dict(key=member,episode=json.loads(source["payload"])["episode"])
+                if slot.kind == "outage" else member)
+        previous_members = json.loads(row["monitor_keys"])
+        if slot.kind == "outage" and previous_members and previous_members != membership:
+            raise NotificationError("notification_monitor_changed")
         config = self._configuration(head)
         now = int(self.clock())
         if not config["recipients"]:
             c.execute(outbox.update().where(outbox.c.slot_key == row["slot_key"],
-                outbox.c.reservations == 0).values(error_code="notification_settings_missing"))
+                outbox.c.reservations == 0).values(error_code="notification_settings_missing",
+                    monitor_keys=canonical(membership)))
             return
         payload = make_payload(slot, row["slot_key"], config, data, as_of, origin=origin)
         digest = identity(payload)
@@ -148,7 +157,7 @@ class NotificationStore:
             outbox.c.reservations == 0, outbox.c.plan_revision == row["plan_revision"]).values(
             config_version=head["version"], plan_revision=revision,
             payload_cipher=self._encrypt(payload), payload_hash=digest, state="prepared",
-            monitor_keys=canonical(sorted(members)),
+            monitor_keys=canonical(membership if slot.kind == "outage" else sorted(membership)),
             due_at=slot.due, stale_at=slot.stale, error_code=None,
             owner=None, lease_until=0, updated_at=now))
         if changed.rowcount != 1:
@@ -285,14 +294,31 @@ class NotificationStore:
                 return False
             if not self._eligible(c, row, head, now):
                 return False
-            for member in json.loads(row["monitor_keys"]):
-                source = c.execute(sa.select(monitor).where(monitor.c.monitor_key == member,
+            members = json.loads(row["monitor_keys"])
+            if row["kind"] == "outage" and (len(members) != 1 or not isinstance(members[0],dict)):
+                raise NotificationError("notification_monitor_changed")
+            sources = []
+            for member in members:
+                member_key = member["key"] if row["kind"] == "outage" else member
+                source = c.execute(sa.select(monitor).where(monitor.c.monitor_key == member_key,
                     monitor.c.scope_key == row["scope_key"],monitor.c.kind == "incident").with_for_update()).mappings().first()
                 if source is None:
                     raise NotificationError("notification_monitor_changed")
                 payload = json.loads(source["payload"])
+                if row["kind"] == "outage":
+                    if not payload["active"] or payload["episode"] != member["episode"]:
+                        raise NotificationError("notification_monitor_changed")
+                    last = payload["last_reserved_at"]
+                    until = last+self._configuration(head)["outage_repeat_hours"]*3600 if last is not None else 0
+                    if now < until:
+                        c.execute(outbox.update().where(outbox.c.slot_key == row["slot_key"],outbox.c.reservations == 0).values(
+                            not_before=max(row["not_before"],until),error_code="notification_outage_repeat_deferred",
+                            owner=None,lease_until=0,updated_at=now))
+                        return False
+                sources.append((member_key,source,payload))
+            for member_key,source,payload in sources:
                 payload["last_reserved_at"] = now
-                c.execute(monitor.update().where(monitor.c.monitor_key == member).values(
+                c.execute(monitor.update().where(monitor.c.monitor_key == member_key).values(
                     payload=canonical(payload),revision=source["revision"]+1,updated_at=now))
             c.execute(outbox.update().where(outbox.c.slot_key == row["slot_key"],
                 outbox.c.reservations == 0, outbox.c.owner == ticket["owner"]).values(

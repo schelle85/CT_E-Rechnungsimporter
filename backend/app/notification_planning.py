@@ -27,6 +27,9 @@ def outage_slot(token, observation, config, now):
         # Cached old failures are a stale status, not a fresh availability claim.
         if now-observation["last_seen"] > 300:
             return None
+        last = observation["last_reserved_at"]
+        if last is not None and now < last+period:
+            return None
         due = first+config["outage_after_minutes"]*60
         cycle = max(0,(now-due)//period)
         return Slot("outage",first+cycle*period,first+(cycle+1)*period,
