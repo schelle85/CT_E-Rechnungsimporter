@@ -102,3 +102,11 @@ am API-Service. Ausschließlich exakte Originalroute SAMEORIGIN/frame-ancestorss
 keine Proxydateipufferung, endliche Proxyzeiten; übriges Portal bleibt DENY.
 Sieben neue native Prüfgruppen vorbereitet; SyntaxPASS, Ausführung noch offen.
 Frontend und tatsächlicher großer PDF-Browserdialog folgen. Kein Deployment-PASS.
+
+AP06-R1/R2 jeweils Korrekturversuch1: Bei übernommenen Entscheidungen setzt ein
+technischer Retry die bestehende Zuordnung fort, statt erneut zu klassifizieren.
+Freigeber/Zeit/Erstbefund bleiben erhalten; der vorhandene Korrekturbeleg wird an
+die ausdrücklich freigegebene Folgegeneration gebunden. Offene Retrybelege der
+Revision0 bleiben im Korrekturmodus auch nach Unterbrechung/Verzögerung auswählbar.
+Zwei gezielte Reproduktionen und insgesamt12Decisiongruppen lokalPASS; nativer
+Delta- und unabhängiger Nachreview folgen. Keine neue Mail-/Ablagewirkung ausgelöst.

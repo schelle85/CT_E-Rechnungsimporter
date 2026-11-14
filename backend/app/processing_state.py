@@ -451,7 +451,9 @@ class ProcessingStore:
             else:
                 query = query.where(sa.or_(sa.exists(sa.select(retries.c.request_key).where(
                     retries.c.message_key == messages.c.message_key, retries.c.state == "requested")),
-                    sa.and_(unfinished, messages.c.revision > 0),
+                    sa.and_(unfinished, sa.or_(messages.c.revision > 0,
+                        sa.exists(sa.select(retries.c.request_key).where(retries.c.message_key == messages.c.message_key,
+                            retries.c.state == "processing",retries.c.applied_revision == messages.c.revision)))) ,
                     sa.and_(messages.c.completed_revision == messages.c.revision, sa.exists(sa.select(corrections.c.correction_key).where(
                         corrections.c.message_key == messages.c.message_key, corrections.c.state == "approved", corrections.c.approved_at <= now)))))
             return list(connection.execute(query.order_by(messages.c.created_at, messages.c.message_key).limit(limit)).scalars())

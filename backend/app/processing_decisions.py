@@ -37,7 +37,14 @@ def retry_plan(connection, message, rows, now, *, lock=False):
         if row['error_code'] in IDENTITY_ERRORS:
             return None
         if row['effective_status']=='failed' and not row['effect_key'] and json.loads(row['source'])[5]=='file':
-            actions.append([row['attachment_key'],'classify'])
+            query=sa.select(corrections).where(corrections.c.attachment_key==row['attachment_key'])
+            approved=connection.execute(query.with_for_update() if lock else query).mappings().first()
+            if approved:
+                if approved['applied_revision'] is None or approved['state'] not in {'processing','failed'} or approved['decision']=='ignored':
+                    return None
+                actions.append([row['attachment_key'],'decision'])
+            else:
+                actions.append([row['attachment_key'],'classify'])
         elif row['storage_state']=='failed' and row['effective_status']=='recognized' and row['effect_key'] and row['effect_payload']:
             query=sa.select(operations).where(operations.c.action_key==row['effect_key'])
             receipt=connection.execute(query.with_for_update() if lock else query).mappings().first()
@@ -173,6 +180,13 @@ class DecisionStore:
                 if action=='classify':
                     values=dict(effective_finding=None,effective_status=None,category=None,state='pending',finding_revision=revision,
                         class_owner=None,class_revision=None,error_code=None)
+                elif action=='decision':
+                    approved=connection.execute(sa.select(corrections).where(corrections.c.attachment_key==aid).with_for_update()).mappings().one()
+                    values=dict(effective_status='recognized',category=approved['decision'],state='classified',
+                        class_owner=None,class_revision=None,error_code=None)
+                    connection.execute(corrections.update().where(corrections.c.correction_key==approved['correction_key']).values(
+                        state='processing',applied_revision=revision))
+                    log(connection,approved['approved_by'],'attachment_correction_resume',now,approved['correction_key'])
                 else:
                     values=dict(storage_state=None,effect_state='reserved',error_code=None)
                     row=next(row for row in rows if row['attachment_key']==aid)

@@ -192,3 +192,51 @@ class DecisionTests(unittest.TestCase):
         for field in ('action_key','input_key','target','path_key','dedupe_key','publication_attempts'):
             self.assertEqual(after[field],before[field])
         self.assertEqual(self.store.get_attachments(key)[0]['effect_key'],row['effect_key'])
+
+    def test_r1_applied_customer_decision_survives_download_failure_and_retry(self):
+        key=self.mail()
+        self.approve(key,decision='Mahnung')
+        aid=self.store.get_attachments(key)[0]['attachment_key']
+        original=self.store.get_attachments(key)[0]['original_finding']
+        revision=self.store.start_corrections(key)
+        owned=self.store.claim(key)
+        self.store.failed(key,aid,owned['owner'],revision,'graph_transport_error')
+        self.close(key,owned['owner'],revision)
+        self.retry(key)
+        revision=self.decisions.consume_retry(key)
+        row=self.store.get_attachments(key)[0]
+        self.assertEqual((row['effective_status'],row['category']),('recognized','Mahnung'))
+        self.assertEqual(row['original_finding'],original)
+        self.assertEqual(row['finding_revision'],0)
+        owned=self.store.claim(key)
+        request=self.store.begin_storage(key,aid,owned['owner'],revision,'query-tests','d'*64)
+        receipt=self.storage.claim(request)
+        self.storage.begin_publication(request.key,receipt['owner'])
+        self.storage.finish(request.key,receipt['owner'],'stored')
+        from app.storage import StorageResult
+        self.store.stored(key,aid,owned['owner'],revision,StorageResult(request.key,'stored',receipt['target']))
+        self.close(key,owned['owner'],revision)
+        row=self.queries.detail(key)['attachments'][0]
+        self.assertEqual((row['status'],row['category']),('processed','Mahnung'))
+        self.assertEqual(row['approval']['state'],'processed')
+        self.assertEqual(row['storage_receipt']['publication_attempts'],1)
+
+    def test_r2_open_revision_zero_retry_remains_due_after_interruption_and_delay(self):
+        key=self.mail(close=False)
+        owned=self.store.claim(key)
+        self.store.release(key,owned['owner'],0,blocked=True,error='graph_transport_error')
+        self.retry(key)
+        self.assertEqual(self.decisions.consume_retry(key),0)
+        owned=self.store.claim(key)
+        self.store.release(key,owned['owner'],0,delay=10)
+        self.assertNotIn(key,self.store.due('corrections'))
+        self.now[0]+=10
+        self.assertIn(key,self.store.due('corrections'))
+        self.assertIsNone(self.decisions.consume_retry(key))
+        owned=self.store.claim(key)
+        self.assertEqual(owned['revision'],0)
+        self.close(key,owned['owner'],0)
+        with self.engine.connect() as c:
+            records=c.execute(sa.select(retries).where(retries.c.message_key==key)).mappings().all()
+        self.assertEqual(len(records),1)
+        self.assertEqual((records[0]['state'],records[0]['applied_revision']),('processed',0))
