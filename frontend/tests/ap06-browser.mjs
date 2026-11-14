@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import https from "node:https";
+import { execFileSync } from "node:child_process";
 import { chromium } from "playwright";
 
 const BASE="https://ui:8443",out="/out";
@@ -75,6 +76,7 @@ try{
   await page.locator("iframe.original-frame").waitFor();
   await sleep(2200);await free(reader);
   progress('pdf_response_finished');
+  if(process.env.AP06_HEADED==='1')execFileSync('python3',['/tool/x11-screen.py',out+'/private-x11-before-playwright.png'],{timeout:10000});
   await page.screenshot({path:out+"/private-reader-before-probe.png",fullPage:true});
   const embedded=await page.locator("iframe.original-frame").evaluate(frame=>!!frame.contentDocument?.querySelector('embed[type="application/pdf"]'));
   assert.equal(embedded,true,"Native PDF embed element was not created");
@@ -85,6 +87,7 @@ try{
   await page.screenshot({path:out+"/private-reader-pdf.png",fullPage:true});
   const popupPromise=page.waitForEvent("popup");await page.getByRole("link",{name:"In neuem Tab öffnen",exact:true}).click();
   const popup=await popupPromise;await popup.waitForLoadState("domcontentloaded");await sleep(1200);
+  if(process.env.AP06_HEADED==='1')execFileSync('python3',['/tool/x11-screen.py',out+'/private-x11-newtab.png'],{timeout:10000});
   assert.ok(popup.url().includes(route));await popup.screenshot({path:out+"/private-reader-newtab.png"});await popup.close();
   const downloadPromise=page.waitForEvent("download");await page.getByRole("link",{name:"Original herunterladen",exact:true}).click();
   const download=await downloadPromise;assert.equal(hash(await readFile(await download.path())),state.original_sha256);await download.delete();
