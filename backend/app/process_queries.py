@@ -8,7 +8,7 @@ from zoneinfo import ZoneInfo
 import sqlalchemy as sa
 from app.errors import AccessError
 from app.processing_plan import correction_allowed
-from app.processing_state import attachments, corrections, messages
+from app.processing_state import attachments, corrections, messages, findings, retries, controls
 from app.storage_plan import CATEGORIES, digest
 from app.storage_state import operations
 
@@ -32,7 +32,7 @@ def key_value(key):
 
 
 def finding(row):
-    raw = row.get("effective_finding") or row.get("original_finding")
+    raw = row.get("effective_finding")
     return json.loads(raw) if raw else None
 
 
@@ -112,7 +112,7 @@ class ProcessQueries:
         if type(page) is not int or not 1 <= page <= 100000 or type(page_size) is not int or not 1 <= page_size <= 50:
             raise AccessError(422, "Ungültige Seitenauswahl.")
 
-    def attachment(self, row, message, approval=None, receipt=None, *, now=None):
+    def attachment(self, row, message, approval=None, receipt=None, *, now=None, retry_pending=False):
         now = self.clock() if now is None else now
         source = json.loads(row["source"])
         current = finding(row)
@@ -136,14 +136,15 @@ class ProcessQueries:
         else:
             status = "waiting"
         allowed = (row["effective_status"] == "unknown" and current and correction_allowed(current) and not approval
-            and row["raw_sha256"] is not None and complete and not active
+            and row["raw_sha256"] is not None and complete and not message["owner"] and not retry_pending
+            and message["state"] in {"waiting_correction", "done", "failed"}
             and message["created_at"] >= archive_boundary(now))
         return {
             "id": row["attachment_key"], "message_id": message["message_key"], "name": source[1],
             "kind": source[5], "inline": source[4], "byte_size": row["byte_size"], "sha256": row["raw_sha256"],
             "status": status, "recognition_status": row["effective_status"], "category": row["category"],
             "original_finding": original, "current_finding": current,
-            "finding_key": digest(current) if current else None,
+            "finding_key": digest(current) if current else None, "finding_revision": row["finding_revision"],
             "can_correct": bool(allowed),
             "can_read_original": bool(source[5] == "file" and row["raw_sha256"] is not None and row["byte_size"] is not None),
             "signature_exception": bool(row["signature"]), "storage_state": row["storage_state"],
@@ -212,8 +213,19 @@ class ProcessQueries:
             effect_keys = [row["effect_key"] for row in children if row["effect_key"]]
             receipts = {row["action_key"]: dict(row) for row in connection.execute(sa.select(operations).where(
                 operations.c.action_key.in_(effect_keys))).mappings()} if effect_keys else {}
-            return {**self.summary(message, children, approvals, now=now), "attachments": [
-                self.attachment(row, message, approvals.get(row["attachment_key"]), receipts.get(row["effect_key"]), now=now) for row in children]}
+            from app.processing_decisions import retry_plan, retry_receipt
+            requests=[dict(row) for row in connection.execute(sa.select(retries).where(retries.c.message_key==key)
+                .order_by(retries.c.requested_at,retries.c.request_key)).mappings()]
+            pending=any(row["state"]=="requested" for row in requests)
+            setting=connection.execute(sa.select(controls.c.retry_enabled).where(controls.c.singleton==1)).scalar_one_or_none()
+            history=[{"attachment_id":row["attachment_key"],"revision":row["revision"],"finding":json.loads(row["finding"]),
+                      "recorded_at":row["recorded_at"]} for row in connection.execute(sa.select(findings).where(
+                          findings.c.attachment_key.in_([row["attachment_key"] for row in children]))
+                          .order_by(findings.c.revision,findings.c.recorded_at,findings.c.finding_key)).mappings()]
+            return {**self.summary(message, children, approvals, now=now),
+                "retry_requests":[retry_receipt(row) for row in requests], "finding_history":history,
+                "can_retry":bool(setting and not pending and retry_plan(connection,message,children,now)), "attachments": [
+                self.attachment(row, message, approvals.get(row["attachment_key"]), receipts.get(row["effect_key"]), now=now, retry_pending=pending) for row in children]}
 
     def unknown(self, *, page=1, page_size=25, view="active", search=""):
         self.page_values(page, page_size)
@@ -230,8 +242,10 @@ class ProcessQueries:
             rows = [dict(row) for row in connection.execute(sa.select(attachments).where(attachments.c.attachment_key.in_(ids))).mappings()]
             parents = {row["message_key"]: dict(row) for row in connection.execute(sa.select(messages).where(
                 messages.c.message_key.in_({row["message_key"] for row in rows}))).mappings()}
+            pending=set(connection.execute(sa.select(retries.c.message_key).where(
+                retries.c.message_key.in_(parents),retries.c.state=="requested")).scalars())
             by_id = {row["attachment_key"]: row for row in rows}
-            return {"items": [self.attachment(by_id[key], parents[by_id[key]["message_key"]], now=now) for key in ids],
+            return {"items": [self.attachment(by_id[key], parents[by_id[key]["message_key"]], now=now, retry_pending=by_id[key]["message_key"] in pending) for key in ids],
                     "total": total, "page": page, "page_size": page_size}
 
     def stats(self, **filters):

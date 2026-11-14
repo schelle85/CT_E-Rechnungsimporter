@@ -1,4 +1,5 @@
 """Additive source/attachment/revision journal. External effects retain their own journals."""
+from contextlib import contextmanager
 from datetime import datetime
 import json
 import time
@@ -43,6 +44,8 @@ attachments = sa.Table("processing_attachments", metadata,
     sa.Column("byte_size", sa.BigInteger),
     sa.Column("signature", sa.SmallInteger, nullable=False),
     sa.Column("original_finding", sa.Text),
+    sa.Column("effective_finding", sa.Text),
+    sa.Column("finding_revision", sa.Integer, nullable=False, server_default="0"),
     sa.Column("effective_status", sa.String(16)),
     sa.Column("category", sa.String(16)),
     sa.Column("class_owner", sa.String(32)),
@@ -61,6 +64,8 @@ corrections = sa.Table("processing_corrections", metadata,
     sa.Column("attachment_key", sa.String(64), sa.ForeignKey("processing_attachments.attachment_key"), unique=True, nullable=False),
     sa.Column("message_key", sa.String(64), sa.ForeignKey("processing_messages.message_key"), nullable=False),
     sa.Column("expected_finding", sa.String(64), nullable=False),
+    sa.Column("expected_revision", sa.Integer, nullable=False, server_default="0"),
+    sa.Column("request_payload", sa.String(64)),
     sa.Column("decision", sa.String(16), nullable=False),
     sa.Column("approved_by", sa.Text, nullable=False),
     sa.Column("approved_at", sa.BigInteger, nullable=False),
@@ -68,6 +73,38 @@ corrections = sa.Table("processing_corrections", metadata,
     sa.Column("applied_revision", sa.Integer),
     sa.CheckConstraint("decision IN ('PDF','Zahlungsavis','Mahnung','ignored')", name="processing_correction_decision"),
     sa.CheckConstraint("state IN ('approved','processing','processed','failed')", name="processing_correction_state"))
+
+
+findings = sa.Table("processing_finding_history", metadata,
+    sa.Column("finding_key", sa.String(64), primary_key=True),
+    sa.Column("attachment_key", sa.String(64), sa.ForeignKey("processing_attachments.attachment_key"), nullable=False),
+    sa.Column("revision", sa.Integer, nullable=False),
+    sa.Column("finding", sa.Text, nullable=False),
+    sa.Column("recorded_at", sa.BigInteger, nullable=False))
+
+retries = sa.Table("processing_retry_requests", metadata,
+    sa.Column("request_key", sa.String(64), primary_key=True),
+    sa.Column("message_key", sa.String(64), sa.ForeignKey("processing_messages.message_key"), nullable=False),
+    sa.Column("request_payload", sa.String(64), nullable=False),
+    sa.Column("expected_revision", sa.Integer, nullable=False),
+    sa.Column("plan", sa.Text, nullable=False),
+    sa.Column("previous_state", sa.String(24), nullable=False),
+    sa.Column("actor", sa.String(512), nullable=False),
+    sa.Column("requested_at", sa.BigInteger, nullable=False),
+    sa.Column("state", sa.String(24), nullable=False),
+    sa.Column("applied_revision", sa.Integer),
+    sa.Column("finished_at", sa.BigInteger),
+    sa.Column("error_code", sa.String(64)),
+    sa.CheckConstraint("state IN ('requested','processing','processed','failed')", name="processing_retry_state"))
+
+controls = sa.Table("processing_web_controls", metadata,
+    sa.Column("singleton", sa.SmallInteger, primary_key=True, autoincrement=False),
+    sa.Column("version", sa.Integer, nullable=False),
+    sa.Column("preview_enabled", sa.SmallInteger, nullable=False),
+    sa.Column("retry_enabled", sa.SmallInteger, nullable=False),
+    sa.Column("actor", sa.String(512), nullable=False),
+    sa.Column("updated_at", sa.BigInteger, nullable=False),
+    sa.CheckConstraint("singleton = 1 AND version >= 1 AND preview_enabled IN (0,1) AND retry_enabled IN (0,1)", name="processing_web_controls_bounds"))
 
 
 def encoded(value):
@@ -79,6 +116,35 @@ class ProcessingStore:
 
     def __init__(self, engine, clock=time.time):
         self.engine, self.clock = engine, clock
+
+    @contextmanager
+    def decision_transaction(self):
+        # SQLite ignores FOR UPDATE; acquire the same write boundary before reading.
+        with self.engine.connect() as connection:
+            if self.engine.dialect.name == "sqlite":
+                connection.exec_driver_sql("BEGIN IMMEDIATE")
+            else:
+                connection.begin()
+            try:
+                yield connection
+                connection.commit()
+            except BaseException:
+                connection.rollback()
+                raise
+
+    @staticmethod
+    def _decision_log(connection, actor, action, now, key, result="ok"):
+        from app.schema import audit
+        connection.execute(audit.insert().values(occurred_at=int(now),actor=actor[:256],action=action,
+            result=result,changed_fields=encoded([key]),config_id=None))
+
+    def _finding_values(self, connection, row, value):
+        raw = encoded(value)
+        key = digest([row["attachment_key"], row["finding_revision"], value])
+        if not connection.execute(sa.select(findings.c.finding_key).where(findings.c.finding_key == key)).first():
+            connection.execute(findings.insert().values(finding_key=key, attachment_key=row["attachment_key"],
+                revision=row["finding_revision"], finding=raw, recorded_at=int(self.clock())))
+        return dict(original_finding=row["original_finding"] or raw, effective_finding=raw)
 
     def get_message(self, key):
         with self.engine.connect() as connection:
@@ -144,6 +210,13 @@ class ProcessingStore:
     def release(self, key, owner, revision, *, error=None, blocked=False, delay=0):
         with self.engine.begin() as connection:
             row = self._owned(connection, key, owner, revision)
+            if blocked:
+                for retry in connection.execute(sa.select(retries).where(retries.c.message_key == key,
+                        retries.c.applied_revision == revision,retries.c.state == "processing")).mappings():
+                    self._decision_log(connection,retry["actor"],"processing_retry_result",self.clock(),retry["request_key"],"failed")
+                connection.execute(retries.update().where(retries.c.message_key == key,
+                    retries.c.applied_revision == revision, retries.c.state == "processing").values(
+                        state="failed", finished_at=int(self.clock()), error_code=error))
             self._write(connection, messages, messages.c.message_key, key,
                 dict(owner=None, lease_until=0, error_code=error, next_attempt=int(self.clock()) + delay,
                      state="operator_required" if blocked else ("closing" if row["close_key"] else "processing"),
@@ -166,10 +239,9 @@ class ProcessingStore:
             row = self._attachment(connection, message_key, key)
             if row["effect_key"]:
                 raise ProcessingError("processing_effect_uncertain")
-            original = row["original_finding"] or encoded({"status": "failed", "category": None,
-                "reason": reason, "method": "source_or_handoff"})
+            value = {"status": "failed", "category": None, "reason": reason, "method": "source_or_handoff"}
             self._write(connection, attachments, attachments.c.attachment_key, key,
-                dict(state="classified", original_finding=original, effective_status="failed", category=None,
+                dict(self._finding_values(connection, row, value), state="classified", effective_status="failed", category=None,
                      class_owner=None, class_revision=None, error_code=reason), message_key, owner, revision)
 
     def _attachment(self, connection, message_key, key):
@@ -186,7 +258,7 @@ class ProcessingStore:
             row = self._attachment(connection, message_key, key)
             if row["raw_sha256"] is not None and (row["raw_sha256"] != sha256 or row["byte_size"] != byte_size):
                 raise ProcessingError("processing_content_changed")
-            if row["original_finding"] is not None:
+            if row["effective_finding"] is not None or row["effective_status"] is not None:
                 return  # A fresh content verification cannot reset a finding/manual decision.
             self._write(connection, attachments, attachments.c.attachment_key, key,
                 dict(raw_sha256=sha256, byte_size=byte_size, state="classifying",
@@ -199,11 +271,11 @@ class ProcessingStore:
             if row["class_owner"] != owner or row["class_revision"] != revision:
                 raise ProcessingError("processing_finding_stale")
             value = checked_finding(value, row["raw_sha256"])
-            if row["original_finding"] is not None and row["original_finding"] != encoded(value):
+            if row["effective_finding"] is not None and row["effective_finding"] != encoded(value):
                 raise ProcessingError("processing_finding_conflict")
             signature = signature_image(Attachment(*json.loads(row["source"])), value, row["raw_sha256"])
             self._write(connection, attachments, attachments.c.attachment_key, key,
-                dict(state="classified", original_finding=encoded(value), effective_status=value["status"], category=value["category"], signature=int(signature),
+                dict(self._finding_values(connection, row, value), state="classified", effective_status=value["status"], category=value["category"], signature=int(signature),
                      class_owner=None, class_revision=None), message_key, owner, revision)
 
     def ignore(self, message_key, key, owner, revision, reason):
@@ -213,8 +285,8 @@ class ProcessingStore:
             if row["original_finding"] is not None:
                 raise ProcessingError("processing_finding_conflict")
             self._write(connection, attachments, attachments.c.attachment_key, key,
-                dict(state="classified", original_finding=encoded({"status": "ignored", "category": None, "reason": reason,
-                     "method": "source_policy"}), effective_status="ignored"), message_key, owner, revision)
+                dict(self._finding_values(connection, row, {"status": "ignored", "category": None, "reason": reason,
+                     "method": "source_policy"}), state="classified", effective_status="ignored"), message_key, owner, revision)
 
     @staticmethod
     def storage_request(message, row, scope):
@@ -289,31 +361,43 @@ class ProcessingStore:
             self._write(connection, messages, messages.c.message_key, key,
                 dict(state=payload["outcome"], current_parent=parent_id, completed_revision=revision,
                      owner=None, lease_until=0, updated_at=int(self.clock())), key, owner, revision)
+            for retry in connection.execute(sa.select(retries).where(retries.c.message_key == key,
+                    retries.c.applied_revision == revision,retries.c.state == "processing")).mappings():
+                self._decision_log(connection,retry["actor"],"processing_retry_result",self.clock(),retry["request_key"],
+                    "failed" if payload["outcome"] == "failed" else "processed")
+            connection.execute(retries.update().where(retries.c.message_key == key,
+                retries.c.applied_revision == revision, retries.c.state == "processing").values(
+                    state="failed" if payload["outcome"] == "failed" else "processed", finished_at=int(self.clock())))
             pending = connection.execute(sa.select(corrections).where(corrections.c.message_key == key,
                 corrections.c.applied_revision == revision, corrections.c.state == "processing")).mappings().all()
             for correction in pending:
                 row = self._attachment(connection, key, correction["attachment_key"])
                 state = "processed" if row["effective_status"] == "ignored" or row["storage_state"] in {"stored", "duplicate"} else "failed"
                 connection.execute(corrections.update().where(corrections.c.correction_key == correction["correction_key"]).values(state=state))
+                if correction["request_payload"]:
+                    self._decision_log(connection,correction["approved_by"],"attachment_correction_result",self.clock(),correction["correction_key"],state)
 
     def approved_correction(self, attachment_key, approval_id, decision, actor, approved_at):
         """Internal consumption boundary for already approved decisions; no HTTP/GUI approval route."""
         if (decision not in {"PDF", "Zahlungsavis", "Mahnung", "ignored"} or not isinstance(approval_id, str) or not approval_id
                 or len(approval_id) > 128 or not isinstance(actor, str) or not actor or len(actor) > 512 or type(approved_at) is not int):
             raise ProcessingError("processing_correction_invalid")
-        with self.engine.begin() as connection:
+        with self.decision_transaction() as connection:
             raw = connection.execute(sa.select(attachments).where(attachments.c.attachment_key == attachment_key)).mappings().one()
             self._message(connection, raw["message_key"])
             row = self._attachment(connection, raw["message_key"], attachment_key)
-            finding = json.loads(row["original_finding"]) if row["original_finding"] else {}
+            finding = json.loads(row["effective_finding"] or "{}")
             key = digest([attachment_key, approval_id])
             values = dict(correction_key=key, attachment_key=attachment_key, message_key=row["message_key"],
-                expected_finding=digest(finding), decision=decision, approved_by=actor, approved_at=approved_at, state="approved")
+                expected_finding=digest(finding), expected_revision=row["finding_revision"], decision=decision, approved_by=actor, approved_at=approved_at, state="approved")
             previous = connection.execute(sa.select(corrections).where(corrections.c.attachment_key == attachment_key)).mappings().first()
             if previous:
                 if any(previous[name] != value for name, value in values.items() if name != "state"):
                     raise ProcessingError("processing_correction_conflict")
                 return key
+            if connection.execute(sa.select(retries.c.request_key).where(retries.c.message_key == row["message_key"],
+                    retries.c.state == "requested")).first():
+                raise ProcessingError("processing_predecessor_unresolved")
             if row["effective_status"] != "unknown" or not correction_allowed(finding):
                 raise ProcessingError("processing_correction_forbidden")
             connection.execute(corrections.insert().values(**values))
@@ -321,10 +405,12 @@ class ProcessingStore:
 
     def start_corrections(self, key):
         now = int(self.clock())
-        with self.engine.begin() as connection:
+        with self.decision_transaction() as connection:
             message = self._message(connection, key)
             if (message["completed_revision"] != message["revision"] or message["owner"]
                     or message["state"] not in {"waiting_correction", "done", "failed"}):
+                raise ProcessingError("processing_predecessor_unresolved")
+            if connection.execute(sa.select(retries.c.request_key).where(retries.c.message_key == key, retries.c.state == "requested")).first():
                 raise ProcessingError("processing_predecessor_unresolved")
             approved = connection.execute(sa.select(corrections).where(corrections.c.message_key == key,
                 corrections.c.state == "approved", corrections.c.approved_at <= now).with_for_update()).mappings().all()
@@ -338,15 +424,18 @@ class ProcessingStore:
                 raise ProcessingError("processing_owner_conflict")
             for item in approved:
                 row = self._attachment(connection, key, item["attachment_key"])
-                original = json.loads(row["original_finding"])
-                if (row["effective_status"] != "unknown" or digest(original) != item["expected_finding"]
-                        or not correction_allowed(original) or row["effect_key"]):
+                current = json.loads(row["effective_finding"] or "{}")
+                if (row["effective_status"] != "unknown" or digest(current) != item["expected_finding"]
+                        or row["finding_revision"] != item["expected_revision"]
+                        or not correction_allowed(current) or row["effect_key"]):
                     raise ProcessingError("processing_correction_conflict")
                 connection.execute(attachments.update().where(attachments.c.attachment_key == row["attachment_key"]).values(
                     effective_status="ignored" if item["decision"] == "ignored" else "recognized",
                     category=None if item["decision"] == "ignored" else item["decision"]))
                 connection.execute(corrections.update().where(corrections.c.correction_key == item["correction_key"]).values(
                     state="processing", applied_revision=revision))
+                if item["request_payload"]:
+                    self._decision_log(connection,item["approved_by"],"attachment_correction_consume",now,item["correction_key"])
             return revision
 
     def due(self, mode, *, limit=50):
@@ -360,7 +449,9 @@ class ProcessingStore:
             if mode == "inbox":
                 query = query.where(unfinished, messages.c.revision == 0)
             else:
-                query = query.where(sa.or_(sa.and_(unfinished, messages.c.revision > 0),
+                query = query.where(sa.or_(sa.exists(sa.select(retries.c.request_key).where(
+                    retries.c.message_key == messages.c.message_key, retries.c.state == "requested")),
+                    sa.and_(unfinished, messages.c.revision > 0),
                     sa.and_(messages.c.completed_revision == messages.c.revision, sa.exists(sa.select(corrections.c.correction_key).where(
                         corrections.c.message_key == messages.c.message_key, corrections.c.state == "approved", corrections.c.approved_at <= now)))))
             return list(connection.execute(query.order_by(messages.c.created_at, messages.c.message_key).limit(limit)).scalars())

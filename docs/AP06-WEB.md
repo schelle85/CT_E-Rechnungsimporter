@@ -51,3 +51,28 @@ AP06-M1: Migration005 verwendet nun ausdrücklich ihre eingefrorenen ursprüngli
 Tabellendefinitionen (processing_schema005). Dadurch fügt ausschließlich006 neue
 AP06-Strukturen hinzu. Der vorhandene005-Migrationskettennachweis und weitere
 12ProcessingState-Gruppen bestanden lokal; nativer006-Nachweis folgt separat.
+
+Freigabe-/Retryteilstand006: aktuelle Findingkopie und Generation getrennt vom
+unveränderlichen Erstbefund; additive Findinghistorie, Retrybelege und versionierte
+Websteuerung. Approval und Übernahme prüfen denselben aktuellen Befund samt Hash
+und Generation. Webanfragen werden je Request-ID idempotent belegt, auch nach
+Übernahme. Freigeber/Zeit stammen vom Server; Absicht, Übernahme und Ergebnis
+werden atomar im bestehenden Audit verknüpft. Archiv bleibt schreibgeschützt.
+
+Technischer Retry erzeugt ausschließlich eine Absicht im bestehenden manuellen
+Korrekturmodus. Neue Befundgeneration nur nach abgeschlossenem Vorgänger.
+Bestehende unklare Wirkungen werden in derselben Revision mit unveränderten Keys,
+Receipts und Publikationszählern abgeglichen. Eine vor Publikation gescheiterte
+Ablage darf nur mit belegtem Zähler0 und ohne aktiven Storageowner zurück auf
+pending; erfolgreiche oder reservierte Veröffentlichungen werden nicht genullt.
+Bereits wirksame Kundenzuordnungen bleiben erhalten. Kein Scheduler/Job aktiviert.
+
+GET/PUT /api/admin/processing steuert ausschließlich neue technische Retryfreigaben
+und neue Vorschauabrufe. Ein bereits freigegebener Retry bleibt ein dauerhafter
+Auftrag. POST-Freigaben/Retry und PUT nutzen vorhandene admin-/Origin-/CSRF-Grenze.
+Die Vorschauoption wird mit dem folgenden Originalabrufteil wirksam verdrahtet;
+aktuell gibt es daraus noch keine Originaldateiroute oder fertige Oberfläche.
+
+Lokale Nachweise:10 neue Decision-/Migration-/Konkurrenzgruppen,13 bestehende
+ProcessingState-Gruppen und9 Projektionsgruppen bestanden. Native006-/MariaDB-
+und neue HTTP-Schreibtests stehen am festen Commit noch aus. Kundenschema bleibt005.

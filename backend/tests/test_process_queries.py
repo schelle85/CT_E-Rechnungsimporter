@@ -1,6 +1,7 @@
 from datetime import datetime, timezone
 import hashlib
 import json
+import os
 from pathlib import Path
 import tempfile
 import unittest
@@ -19,12 +20,19 @@ class ProcessQueryTests(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)
-        self.engine = sa.create_engine("sqlite:///"+str(Path(self.temp.name)/"read.sqlite"))
+        if os.environ.get("INTEGRATION_DB")=="1":
+            from app.database import make_engine
+            self.engine=make_engine()
+        else:
+            self.engine = sa.create_engine("sqlite:///"+str(Path(self.temp.name)/"read.sqlite"))
         self.addCleanup(self.engine.dispose)
         with self.engine.connect() as connection:
-            connection.exec_driver_sql("PRAGMA journal_mode=WAL")
+            if self.engine.dialect.name=="sqlite":connection.exec_driver_sql("PRAGMA journal_mode=WAL")
         metadata.create_all(self.engine)
         storage_metadata.create_all(self.engine)
+        with self.engine.begin() as connection:
+            for group in (metadata,storage_metadata):
+                for table in reversed(group.sorted_tables):connection.execute(table.delete())
         self.now = [int(datetime(2030,3,1,tzinfo=timezone.utc).timestamp())]
         self.store = ProcessingStore(self.engine,clock=lambda:self.now[0])
         self.storage = StorageStore(self.engine,destination_key="d"*64,clock=lambda:self.now[0])

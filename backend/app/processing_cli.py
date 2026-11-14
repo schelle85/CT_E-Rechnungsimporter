@@ -14,6 +14,7 @@ from app.graph_state import ActionStore
 from app.processing import GraphProcessing, ProcessingService
 from app.processing_plan import ProcessingError
 from app.processing_state import ProcessingStore
+from app.processing_decisions import DecisionStore
 from app.storage_files import CifsFiles
 from app.storage_plan import StorageError
 from app.storage_state import StorageStore
@@ -50,6 +51,7 @@ def select(service, mode, limit):
     selected = service.store.due(mode, limit=limit)
     if mode == "corrections":
         for key in selected:
+            DecisionStore(service.store).consume_retry(key)
             row = service.store.get_message(key)
             if row["completed_revision"] == row["revision"]:
                 service.store.start_corrections(key)
