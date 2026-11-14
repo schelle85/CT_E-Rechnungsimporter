@@ -167,14 +167,19 @@ class OriginalTests(unittest.IsolatedAsyncioTestCase):
             await asyncio.sleep(0.01)
         disconnected.set();await asyncio.wait_for(task,3)
         self.clean()
-        self.manager.worker=good_worker;self.manager.response_seconds=1.5
+        self.manager.worker=good_worker;self.manager.response_seconds=6
         entered=asyncio.Event()
         async def stalled(message):
+            if message['type']=='http.response.start':self.assertEqual(message['status'],200)
             if message['type']=='http.response.body':entered.set();await asyncio.Event().wait()
         task=asyncio.create_task(self.direct(aid,stalled))
-        await asyncio.wait_for(entered.wait(),1.4)
-        result=await asyncio.wait_for(asyncio.gather(task,return_exceptions=True),3)
-        self.assertIsInstance(result[0],BaseException)
+        try:
+            await asyncio.wait_for(entered.wait(),5)
+            result=await asyncio.wait_for(asyncio.gather(task,return_exceptions=True),8)
+            self.assertIsInstance(result[0],BaseException)
+        finally:
+            if not task.done():task.cancel()
+            await asyncio.gather(task,return_exceptions=True)
         self.clean()
 
     async def test_revision_change_during_fetch_rejects_output(self):

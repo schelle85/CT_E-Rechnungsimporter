@@ -118,3 +118,12 @@ mit FOR UPDATE. Retry beginnt direkt mit der gesperrten Mailabfrage. Derselbe
 Vertrag gilt für die interne bereits-freigegeben-Grenze und Retryübernahme.
 Keine globale Änderung des Isolationsgrads.12Decisiongruppen lokalPASS; die
 gezielt angehaltene native MariaDB-Gegenprobe des Reviews steht noch aus.
+
+Vorschaukorrekturen jeVersuch1: AP06-P1 ergänzt ausschließlich die vorhandene
+URL-/Pagingvalidierung im GET-only-Adapter; keine generische Methodendelegation.
+AP06-P2 betrifft separat den Testablauf mit dem good_worker-Spawnstub (dieser
+benutzt den Graphadapter nicht): ausreichende Anlaufzeit vor dem Transferlimit,
+HTTP200 muss vor blockierter Auslieferung erreicht sein und der Test sammelt
+seine Antworttask auch im Fehlerfall vor Fixturecleanup ein. Die ursprüngliche
+zweite Fehlermeldung war ein Timeout, kein zweiter Adapteraufruf. Die beiden
+fehlgeschlagenen Gruppen werden gezielt nativ nachgeprüft; die5PASS bleiben7ab7214.

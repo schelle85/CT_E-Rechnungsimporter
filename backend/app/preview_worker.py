@@ -17,6 +17,9 @@ class ReadOnlyGraph:
         self._client=client
         self.config,self.root,self.clock=client.config,client.root,client.clock
 
+    def _checked_url(self, *args, **kwargs):
+        return self._client._checked_url(*args,**kwargs)
+
     def _json(self, method, *args, **kwargs):
         if method!='GET':raise GraphError('preview_write_forbidden')
         return self._client._json(method,*args,**kwargs)
