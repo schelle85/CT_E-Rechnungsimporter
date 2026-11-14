@@ -14,9 +14,14 @@
   AP03 ist eingefroren. AP04 ist technisch im isolierten Grundlagenumfang
   abgeschlossen. AP05a–c ist seit 13.11.2026 im definierten manuellen Umfang
   technisch abgeschlossen: Quellen-/Runtimeprüfung, synthetische echte CIFS-Probe,
-  Kundenschema005, sechs Inboxziele und manueller 0eligible-Tick belegt. API/GUI
-  bleiben unverändert; keine Verarbeitung alter Mails oder Timeraktivierung.
-  AP06a–d einschließlich PDF-Vorschau ist seit14.11.2026 freigegeben und in Arbeit.
+  Kundenschema005, sechs Inboxziele und manueller 0eligible-Tick belegt. Zum
+  AP05-Abschluss blieben API/GUI unverändert; keine Verarbeitung alter Mails oder Timeraktivierung.
+  AP06a–d einschließlich PDF-Vorschau ist seit14.11.2026 freigegeben, technisch
+  abgeschlossen und bereitgestellt: native006-/HTTP-/Konkurrenznachweise und fünf
+  isolierte Browsergruppen einschließlich tatsächlicher PDF-Sichtprüfung bestanden.
+  Kundenmigration auf006 und getrenntes Rücklesen von Instanz/Konfiguration,
+  API/Web/DB, HTTPS-Journalmodus, Zugriffsschutz und leerem Journal bestätigt.
+  Keine neue tatsächliche AP06-Kundenanmeldung behaupten.
   Vor Kundenmigration/Deployment fester Quellreview und konkreter ORGA-Abgleich.
   AP07 und spätere AP bleiben ohne Go; dauerhafte Automatik gehört in AP08.
   DMS-Anbindung, -Konfiguration und -Prüfung liegen außerhalb unseres Auftrags

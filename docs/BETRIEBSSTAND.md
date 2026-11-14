@@ -1,18 +1,35 @@
 # Betriebsstand
 
-Stand: 13. November 2026. AP00/AP02 sind technisch abgeschlossen, AP01 ist durch
+Stand: 14. November 2026. AP00/AP02 sind technisch abgeschlossen, AP01 ist durch
 den Kunden vollständig abgenommen. AP03 ist eingefroren; AP04-Grundlagen und
-AP05 im definierten manuellen Umfang sind technisch abgeschlossen. Kundenschema005,
-sechs Inboxziele einschließlich Mahnung und manueller 0eligible-Lauf sind belegt.
-Instanz/Konfiguration und laufende API/Web/DB bleiben erhalten, HTTPS ist ready.
-Die Webvorgänge sind weiterhin synthetische Vorschau; AD-Anmeldung und
-Administration verwenden die tatsächliche Anbindung. Timer sind nicht aktiviert.
-AP06 und spätere Pakete bleiben ohne Go; dauerhafter Automatikbetrieb ist AP08.
+AP05 im definierten manuellen Umfang sind technisch abgeschlossen. Sechs Inboxziele
+einschließlich Mahnung und der damalige manuelle Leerlauf sind belegt.
+AP06a–d samt PDF-Vorschau ist technisch abgeschlossen und bereitgestellt.
+Additives Schema 006 wurde nach geschütztem Backup übernommen; bestehende
+Tabellenwerte, Instanzkennung und Konfigurationskopf sind erhalten. API/Web sind
+auf die geprüften Images aus `3fd5fef` umgeschaltet, der Datenbankcontainer blieb
+unverändert. Das manuelle Processingprofil wurde auf das zugehörige neue
+Processingimage aktualisiert; kein dauerhafter Processingdienst wurde gestartet.
+
+Separates Betreiber-Rücklesen bestätigt HTTPS im Journalmodus, HTTP 308,
+geschützte Vorgangsliste mit HTTP 401 und die Originalroute mit HTTP 401/SAMEORIGIN/no-store.
+Das echte Verarbeitungsjournal ist leer. Vollständiger Graph-GET-Scan findet
+0 passende Mails/0 Anhänge ab dem unveränderten Stichtag. Keine alten Mails
+registriert, verschoben oder gekennzeichnet. API läuft als UID 10001 mit genau
+zwei zusätzlichen RO-Graphdateien; privates Vorschautmpfs ist leer.
+
+Davon getrennt bestanden fünf isolierte Browsergruppen samt tatsächlicher
+PDF-Sicht im Dialog/neuen Tab, Rollen, Freigabe/Retry trotz Antwortverlust und
+begrenzten Originalantworten. Die bestehende AD-Anbindung bleibt erhalten;
+eine erneute tatsächliche Kundenanmeldung für AP06 wurde nicht durchgeführt.
+AP07 und spätere Pakete bleiben ohne Go; Timer sind nicht aktiviert.
+DMS-Anbindung, -Konfiguration und -Prüfung liegen außerhalb des Auftrags.
 
 Die folgenden datierten Infrastruktur- und Einrichtungsergebnisse dokumentieren
 historische Teilstände, insbesondere AP00/AP01a/b vom 8. November mit Nachträgen.
 Sie ersetzen nicht den aktuellen [Arbeitsplan](ARBEITSPLAN.md),
-[AP05-Vertrag](AP05-PROCESSING.md) und [manuellen Runtime-Stand](AP05-RUNTIME.md).
+[AP05-Vertrag](AP05-PROCESSING.md), [manuellen Runtime-Stand](AP05-RUNTIME.md)
+und aktuellen [AP06-Vertrag](AP06-WEB.md).
 
 ## AP00: SSH-Zugang
 

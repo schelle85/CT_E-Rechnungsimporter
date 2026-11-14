@@ -1,8 +1,9 @@
 # Dokumentationslieferungen
 
-Stand: 7. November 2026. Die folgenden Abschlussunterlagen sind beauftragt.
-Es existiert noch keine fertige Anwendung; die finalen PDFs werden erst zum
-Projektabschluss aus dem geprüften Lieferstand erzeugt.
+Stand: 14. November 2026. Die folgenden Abschlussunterlagen sind beauftragt.
+Die Anwendung ist bis AP06 einschließlich Journal, Korrekturen und PDF-Vorschau
+technisch abgeschlossen und bereitgestellt. Die finalen PDFs werden erst in AP09
+zum Projektabschluss aus dem dann geprüften Lieferstand erzeugt.
 
 ## AP09a: Kundenanleitung als PDF
 

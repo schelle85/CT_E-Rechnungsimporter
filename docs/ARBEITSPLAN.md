@@ -1,10 +1,12 @@
 # Arbeitspakete
 
-Stand: 13. November 2026. **AP00 ist im definierten Grundbereitstellungsumfang abgeschlossen;
+Stand: 14. November 2026. **AP00 ist im definierten Grundbereitstellungsumfang abgeschlossen;
 AP01 ist vollständig durch den Kunden abgenommen. AP02a–c ist technisch abgeschlossen;
 AP03 ist eingefroren, AP04 ist im Grundlagenumfang technisch abgeschlossen.
 AP05a–c ist im definierten manuellen Umfang technisch abgeschlossen und bereitgestellt.
-AP06 und spätere Pakete bleiben ohne Go; dauerhafter Automatikbetrieb gehört in AP08.**
+AP06a–d samt PDF-Vorschau ist technisch abgeschlossen und bereitgestellt;
+Kundenmigration auf006 und getrenntes Rücklesen bestanden. AP07 und spätere Pakete bleiben ohne Go;
+dauerhafter Automatikbetrieb gehört in AP08.**
 AP10 ist für die spätere wöchentliche Wartung ergänzt.
 ORGA koordiniert, DEV implementiert, REVIEW prüft.
 Die Repositoryvorbereitung ist kein Beginn der Anwendungsentwicklung.
@@ -84,7 +86,7 @@ danach folgen AD-Anmeldung, Administrationsgrundlage und gemeinsame Abnahme.
 | Teil | Ergebnis und Prüfung |
 | --- | --- |
 | AP05a | Mehrfachanhänge und Fahnen; bestätigte Mailpriorität Failed → unzugeordnet → Mahnung → Nachfragen → Zahlungsavis → Success umsetzen; Anhänge unabhängig passend ablegen |
-| AP05b | Persistente Zustände und gemeinsamer Wiederaufnahmepfad ohne Doppelablage: Eingang alle fünf Minuten, freigegebene Kundenkorrekturen alle 15 Minuten; Bedienung folgt in AP06 |
+| AP05b | Persistente Zustände und gemeinsamer manueller Wiederaufnahmepfad ohne Doppelablage; Bedienung in AP06 implementiert. Geplante 5-/15-Minuten-Timer bleiben inaktiv. |
 | AP05c | Kontrollierter Gesamtpfad; Erfolg erst nach erforderlicher Ablage und Mailaktionen |
 
 Prüfstand 13.11.2026: Implementierung sowie Dienst-, Runtime- und CIFS-Helperreview
@@ -104,19 +106,30 @@ Die 5-/15-Minuten-Zeitplanung bleibt inaktiv; dauerhafter Automatikbetrieb ist A
 
 | Teil | Ergebnis und Prüfung |
 | --- | --- |
-| AP06a | Übersicht/Details mit Suchfiltern, Entscheidungen, Dateien, Dubletten und Fehlern; Kachel „Prüfen“ durch „Unbekannt“ mit eigener Zuordnungsansicht ersetzen |
-| AP06b | Unbekannte Anhänge einzeln zuordnen und zur Verarbeitung freigeben; Status Freigegeben → In Verarbeitung → Verarbeitet, Rechte und bestätigtes Erkennungsfeedback nachvollziehbar speichern |
-| AP06c | Zwei Jahre aktiv, danach Webarchiv; keine zusätzliche Mailarchivierung |
-| AP06d | Geschützte Wiederholung technisch fehlgeschlagener Vorgänge und Einstellungen |
+| AP06a | Implementiert und isoliert geprüft: echte Journalübersicht/Details, Suche/Filter/Seitenwahl, einzelne unbekannte Anhänge, Fehler/Dubletten/Belege und großer geschützter PDFdialog mit Tab-/Downloadfallback |
+| AP06b | Implementiert und isoliert geprüft: ausdrückliche generationgebundene Zuordnung je Anhang; Erstbefund, aktueller Befund, Freigeber und Verlauf getrennt. Freigegeben → In Verarbeitung → Verarbeitet erst nach erforderlichen Wirkungsbelegen. Antwortverlust/Reload/Neuanmeldung geprüft. |
+| AP06c | Implementiert und isoliert geprüft: zwei Kalenderjahre aktiv, danach schreibgeschütztes Webarchiv; keine Löschung oder Mailarchivierung |
+| AP06d | Implementiert und isoliert geprüft: dauerhafte technische Retryabsicht, Wiederverwendung bestehender Quellen-/Wirkungsbelege sowie versionierte Vorschau-/Retryeinstellungen |
 
 Nur unbekannte Anhänge benötigen eine Kundenzuordnung. Erkannte Dokumente laufen
-automatisch weiter. Bestätigte Korrekturen als Beispiele für gezielt geprüfte
+im gemeinsamen manuellen Verarbeitungspfad ohne zusätzliche Freigabe weiter.
+Bestätigte Korrekturen als Beispiele für gezielt geprüfte
 Regeln oder Lieferantenvorlagen nutzen; kein automatisches Selbsttraining durch
 einen Klick. invoice2data nur bei belegtem Nutzen ergänzen. Der vereinbarte
 [GUI-/Erkennungsnachtrag](ANFORDERUNGEN.md#webkorrektur-und-erkennungsverbesserung)
-ist geplant; Oberfläche und Freigabeschreibwege sind noch nicht implementiert.
+ist mit Oberfläche und Freigabeschreibwegen implementiert und isoliert geprüft.
 Der gemeinsame manuelle Verarbeitungspfad für bereits freigegebene Korrekturen
 ist in AP05 implementiert und geprüft. Seine Zeitplanung ist nicht aktiviert.
+
+Abschlussnachweis vom 14.11.2026: Quellreview, gezielte native Migration-/Sicherheits-/
+Konkurrenz-/Vorschauprüfungen und fünf tatsächliche Browsergruppen bestanden.
+PDF-Sicht im Dialog und neuen Tab bestätigt. Zwei langsame 25-MiB-Abrufe bleiben
+im Vorschauspeicher mit 128 MiB begrenzt; dritter Abruf mit HTTP 503, Frist/Cleanup bestanden.
+Kundenmigration auf006 und neue API/Web sind davon getrennt bereitgestellt und
+zurückgelesen: Instanz/Konfiguration und Datenbank erhalten, HTTPS-Journalmodus,
+Zugriffsschutz, vollständiger Graph-GET-Leerscan und inaktive Timer bestätigt.
+Keine erneute tatsächliche AP06-Kundenanmeldung aus diesem Betriebsnachweis ableiten.
+DMS-Anbindung, -Konfiguration und -Prüfung sind keine Auftrags-/Abnahmebestandteile.
 
 ## AP07: Automatische Benachrichtigungen - DEV
 

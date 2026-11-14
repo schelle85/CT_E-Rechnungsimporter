@@ -11,23 +11,31 @@ Stand: 14. November 2026. Lebende Markdown-Dokumentation, noch kein Gesamtabschl
 
 ## Aktueller Stand
 
-AP06 ist in Entwicklung: echte Journal-API, getrennte Original-/aktuelle Findings,
-Freigabe/Retry/Versionsteuerung und geschützter Originalabruf sind implementiert.
-Gezielte native006-, HTTP-, Sperr-/Retry- und Vorschau-Lebensdauernachweise liegen
-vor; Zuordnung und Grenzen im [AP06-Vertrag](AP06-WEB.md). Die echte Oberfläche
-ist jetzt verdrahtet, ihr Build-/Browser- und Betriebsnachweis steht noch aus.
-Kundenportal und Kundenschema005 sind noch nicht umgeschaltet. Keine Timeraktivierung.
+AP06a–d samt PDF-Vorschau ist technisch abgeschlossen und bereitgestellt. Echte Journalansichten,
+getrennte Erst-/aktuelle Befunde, generationgebundene Freigabe und Retry,
+versionierte Einstellungen sowie geschützter Originalabruf sind implementiert.
+Gezielte native006-, HTTP-, Sperr-/Retry- und Vorschau-Lebensdauernachweise sowie
+fünf vollständige Browsergruppen liegen vor. Die tatsächliche PDF-Seite wurde
+im Dialog und neuen Tab einzeln visuell bestätigt. Produktlaufzeit aus `3fd5fef`;
+spätere Testkorrekturen verändern weder Anwendung noch Migrationen/Deployment.
+Zuordnung und Grenzen im [AP06-Vertrag](AP06-WEB.md). Kundenportal und API sind
+umgeschaltet, Schema006 unter Erhalt von Altzeilen/Instanz/Konfiguration bestätigt.
+Getrenntes Betreiber-Rücklesen: Datenbank erhalten, HTTPS-Journalmodus und
+Zugriffsschutz, vollständiger Graph-GET-Leerscan und inaktive Timer bestätigt.
+Das echte Journal ist leer. Eine neue tatsächliche Kundenanmeldung für AP06 wurde
+nicht durchgeführt; vollständige Rollen-/Bedienprüfungen erfolgten isoliert.
+Keine Timeraktivierung, kein AP07-/AP08-Go und keine DMS-Abnahmebedingung.
 
 
 - AP00/AP02 technisch abgeschlossen, AP01 durch den Kunden abgenommen.
-- AD-Kennwortanmeldung bleibt; SSO verworfen. Kundenschema005 und sechs Inboxziele
-  einschließlich Mahnung sind nach AP05 bereitgestellt.
+- AD-Kennwortanmeldung bleibt; SSO verworfen. Kundenschema006 ist nach AP06
+  bereitgestellt; die sechs Inboxziele einschließlich Mahnung stammen aus AP05.
 - AP03-Revision4 samt Titelvariantennachtrag: Quellreview auf `e49ccdb` bestanden,
   B-F1 bleibt nach Versuch3 geschlossen. Separates Runtimeimage gebaut und isolierter
   abschließender Dateinachtest durchgeführt; weitere fachliche Restfälle bleiben offen.
 - `unknown` für lesbare unklare Zuordnung; Mahnung umfasst Zahlungserinnerung.
   Titel-/Label-/Avisregeln und Übergabeverträge geprüft. Fachliche Restfälle bleiben offen.
-- Bestehende API/Web/DB und Produktivprofile unverändert; keine automatische Verarbeitung,
+- Beim historischen AP03-Dateinachtest blieben API/Web/DB und Produktivprofile unverändert; keine automatische Verarbeitung,
   echte Mailmutation oder Frontend-/Jobaktivierung aus dem Dateinachtest ableiten.
 - Historische Ergebnisse und Originale erhalten. Details und technische Pins werden in
   den getrennten internen Lauf-/Abnahmebelegen geführt, nicht als Kundendaten im Repo.
@@ -59,20 +67,23 @@ Kundenportal und Kundenschema005 sind noch nicht umgeschaltet. Keine Timeraktivi
   liefert 0 Quanten/keinen Rest. Vier neue Tabellen leer, eine zusätzliche Graphaktion
   für Mahnung. Host-/Timerreadback bestanden, API/GUI unverändert. AP05 ist im
   definierten manuellen Umfang technisch abgeschlossen. Keine echte Kundenmail
-  wurde verarbeitet; produktives _staging blieb unangetastet. DMS-Ausschluss und exklusive Stagingnutzung vom
-  Betreiber inzwischen bestätigt; keine eigene DMS-Konfigurationsprüfung.
-  AP03-Regeln bleiben unverändert, GUI/Freigabeschreibwege sind AP06. Keine
+  wurde verarbeitet; produktives _staging blieb unangetastet. Historische Angaben zur
+  exklusiven Stagingnutzung sind keine eigene DMS-Konfigurationsprüfung und kein
+  aktuelles Freigabegate. AP03-Regeln bleiben unverändert. Zum AP05-Nachweis keine
   API-/GUI-Umschaltung, Live-Mailmutation oder aktive Jobs aus dieser Sonde.
   AP06 ist seit14.11. einschließlich PDF-Vorschau freigegeben; Produktivautomatik bleibt AP08.
-- AP06 in Entwicklung auf Basis818cc76: lesende Journalprojektionen mit sieben
-  lokalen SQLite-Testgruppen bestanden. API/Frontend/Preview und kontrollierte
-  Schreibwege noch nicht als vollständig oder bereitgestellt behandeln.
+- AP06 auf Basis `818cc76` technisch abgeschlossen und bereitgestellt: Journal-API und echte Oberfläche,
+  kontrollierte Schreibwege, PDFdialog/Originaldownload und schreibgeschütztes Archiv.
+  Additives Schema 006 erhält bestehende Daten/Instanzkennung; tatsächlicher alter 005-Pfad
+  und Rückweg der alten API auf 006 separat geprüft. Antwortverlust/Neuanmeldung,
+  Teilvorgänge und langsame Originalantworten über Nginx im Browser bestanden.
+  Kundenmigration/Bereitstellung und separates Betreiber-Rücklesen bestanden.
   DMS ist vollständig außerhalb Auftrag/Prüfung/Abnahme. Kein AP07-/AP08-Go.
 - Signaturzählung ohne manuelle Hashlisten: nur file+inline+normalisierter
   image-MIME und vollständiges hashgebundenes AP03-ignored/unsupported_attachment
   werden nach Findingannahme ausgenommen. Alle anderen Fälle bleiben gezählt/offen.
   J1-MIME-Gegenfall weiterhin geprüft, AP03 unverändert.
-- Verträge: [AP02](AP02-GRAPH.md), [AP03](AP03-RECOGNITION.md), [AP04](AP04-ABLAGE.md), [AP05](AP05-PROCESSING.md).
+- Verträge: [AP02](AP02-GRAPH.md), [AP03](AP03-RECOGNITION.md), [AP04](AP04-ABLAGE.md), [AP05](AP05-PROCESSING.md), [AP06](AP06-WEB.md).
   [Testquelle](AP03-TEST-SOURCE.md) nur manuell mit fester Ordner-/Parentbindung.
 
 ## Rollen
@@ -144,7 +155,7 @@ automatisch; Benutzerklärung nur bei Unbekannt. Die Mailzielpriorität ist seit
 Nachfragen → Zahlungsavis → Success. Jeder erkannte Anhang wird unabhängig davon
 passend abgelegt. Der gemeinsame Verarbeitungspfad einschließlich Mailpriorität
 und bereits freigegebener Korrekturen ist inzwischen in AP05 implementiert;
-Frontend und Freigabeschreibwege bleiben AP06.
+Frontend und Freigabeschreibwege sind inzwischen in AP06 implementiert und isoliert geprüft.
 
 Der vereinbarte GUI-/Erkennungsnachtrag für AP05/AP06 ist in den
 [Anforderungen](ANFORDERUNGEN.md#webkorrektur-und-erkennungsverbesserung) und im
@@ -152,6 +163,6 @@ Arbeitsplan ausdrücklich verankert: Kachel Unbekannt, Zuordnung je Anhang,
 Freigabe und gemeinsame Wiederaufnahme alle 15 Minuten sowie nachvollziehbare
 Korrekturbeispiele für später geprüfte Regeln/Vorlagen. Keine automatische
 Verallgemeinerung einzelner Klicks; invoice2data derzeit nicht integriert.
-Die entsprechende Oberfläche und Freigabeerzeugung sind noch nicht implementiert.
+Die entsprechende Oberfläche und Freigabeerzeugung sind in AP06 implementiert und isoliert geprüft.
 Die manuelle Wiederaufnahme ist implementiert und geprüft; 5-/15-Minuten-Timer
 sind nicht aktiviert. Diese Dokumentationspräzisierung erteilt kein neues AP-Go.

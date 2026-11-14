@@ -13,8 +13,11 @@ internen Webportal für Protokolle, Fehler und Dubletten.
 AP02a–c ist im vereinbarten Grundlagenumfang technisch abgeschlossen und
 bereitgestellt. AP04 ist technisch im isolierten Grundlagenumfang abgeschlossen.
 AP05 ist im definierten manuellen Umfang technisch abgeschlossen und bereitgestellt:
-Schema005, sechs Inboxziele und begrenzter manueller Leerlauf sind belegt.
-Die automatische Rechnungsverarbeitung ist noch nicht aktiviert.**
+Sechs Inboxziele und begrenzter manueller Leerlauf sind belegt.
+AP06 mit echten Journalansichten, Korrekturen, technischen Wiederholungen und
+PDF-Vorschau ist technisch abgeschlossen und bereitgestellt. Schema006 und
+neue API/Web sind mit erhaltener Instanz/Konfiguration bestätigt. Das echte
+Journal ist derzeit leer. Automatische Verarbeitung ist nicht aktiviert.**
 
 | Paket | Stand |
 | --- | --- |
@@ -25,8 +28,8 @@ Die automatische Rechnungsverarbeitung ist noch nicht aktiviert.**
 | AP02 – Graph und Postfacheingang | Abgeschlossen: echte Zertifikatsanmeldung und gefilterter Leerabruf bestätigt; fünf Inbox-Zielordner samt Wiederverwendung live geprüft. Paging, Anhangabruf und getrennte persistente Aktionen isoliert geprüft; additives Schema003 bereitgestellt. |
 | AP03 – Anhänge erkennen | Revision4: Quellprüfung bestanden, separates Runtimeimage gebaut und isolierter Dateinachtest abgeschlossen. Unbekannt sowie Mahnung/Zahlungserinnerung ergänzt. Fachliche Restfälle und Gesamtabnahme bleiben offen. |
 | AP04 – SMB-Ablage und Dubletten | Grundlagen technisch abgeschlossen: Quellreview, 115 native Backendtests einschließlich aller 28 AP04-Tests sowie fünf synthetische Fälle auf echtem CIFS bestanden. In AP05 in den gemeinsamen manuellen Pfad integriert. Siehe [AP04-Vertrag](docs/AP04-ABLAGE.md). |
-| AP05 – gemeinsamer Verarbeitungspfad | Im definierten manuellen Umfang technisch abgeschlossen. 155 native Backendtests einschließlich 40 AP05-Gruppen, gezielte Ausgabegrenz-/Timeoutprüfung und echter synthetischer CIFS-Handoff bestanden. Schema005 bereitgestellt, Mahnung als sechstes Inboxziel ergänzt; echter Scan und manueller Tick bestätigen 0 passende Mails/0 Quanten. API/GUI unverändert, keine Timer oder produktive Dateipublikation. Siehe [AP05-Vertrag](docs/AP05-PROCESSING.md) und [Runtime](docs/AP05-RUNTIME.md). |
-| AP06 – Webprotokoll, Korrektur und PDF-Vorschau | In Entwicklung: echte Journal-API, generationgebundene Freigabe/Retry und Originalabruf implementiert, gezielte native Nachweise und additives006 isoliert geprüft. Echte Oberfläche mit großem PDFdialog jetzt verdrahtet; Build-/Browser-/Betriebsnachweise noch offen. Kundenoberfläche und Schema005 bleiben bis zur Freigabe unverändert. Siehe [AP06](docs/AP06-WEB.md). |
+| AP05 – gemeinsamer Verarbeitungspfad | Im definierten manuellen Umfang technisch abgeschlossen. 155 native Backendtests einschließlich 40 AP05-Gruppen, gezielte Ausgabegrenz-/Timeoutprüfung und echter synthetischer CIFS-Handoff bestanden. Schema005 und sechstes Inboxziel Mahnung bereitgestellt; Scan/manueller Tick bestätigen 0 passende Mails/0 Quanten. Zum AP05-Abschluss blieben API/GUI unverändert. Keine Timer oder produktive Dateipublikation. Siehe [AP05-Vertrag](docs/AP05-PROCESSING.md) und [Runtime](docs/AP05-RUNTIME.md). |
+| AP06 – Webprotokoll, Korrektur und PDF-Vorschau | Technisch abgeschlossen und bereitgestellt: echte Journalansichten, generationgebundene Freigabe/Retry, Einstellungen, Archiv und großer PDFdialog. Native006-/Sicherheits-/Konkurrenzprüfungen sowie fünf isolierte Browsergruppen mit sichtbarer Original-PDF bestanden. Kundenmigration auf006, Dienstpins, HTTPS und leeres echtes Journal getrennt zurückgelesen. Siehe [AP06](docs/AP06-WEB.md). |
 | AP07 und folgende Pakete | Noch nicht freigegeben. Zeitplanung und dauerhafte automatische Verarbeitung sind inaktiv. |
 
 Der begrenzte Titelvariantennachtrag wurde unabhängig geprüft und aus `e49ccdb`
@@ -40,13 +43,14 @@ ist im gemeinsamen AP05-Verarbeitungspfad implementiert und geprüft.
 
 AP04 liefert die geprüfte Ablagebibliothek und ein additives Ablageregister.
 Die anschließende AP05-Integration ist isoliert sowie mit synthetischen Quellen
-auf echtem CIFS geprüft. DMS-Ausschluss und exklusive Importernutzung des
-Stagingbereichs wurden vom Betreiber bestätigt. Daraus folgt keine eigene
-DMS-Konfigurationsprüfung oder Verarbeitung einer echten Kundenmail.
+auf echtem CIFS geprüft. Historische Entnahmeproben prüfen die Wiederaufnahme
+anhand bestehender Ablagebelege. DMS-Anbindung, -Konfiguration und -Prüfung liegen
+vollständig außerhalb des Auftrags und sind keine AP06-Abnahmebedingung.
 
-Die angezeigten Rechnungsvorgänge sind weiterhin **synthetische Beispieldaten**.
-Anmeldung und Administration verwenden bereits die tatsächliche AD-Anbindung.
-Das blau-weiße E-Favicon ist eingebunden und über HTTPS geprüft.
+AP06 zeigt ausschließlich tatsächlich gespeicherte Journalvorgänge; eine leere
+Datenbank ergibt eine leere Ansicht. Die frühere Demo-API ist entfernt.
+Die Kundenoberfläche ist auf AP06 umgeschaltet. Anmeldung und Administration
+verwenden die bestehende AD-Anbindung; das E-Favicon ist über HTTPS geprüft.
 
 ## Aufbau und verfügbare Funktionen
 
@@ -65,26 +69,52 @@ Das blau-weiße E-Favicon ist eingebunden und über HTTPS geprüft.
   Quellcode und Datenbank liegen auf lokalem VM-Speicher.
 - Manuelle Graph-Betreiberprofile: Lesen ohne Datenbankzugriff, Aktionen mit
   persistentem Journal und Migration ausschließlich im internen Datenbanknetz.
-  Der Graph-Schlüssel ist ausschließlich den benötigenden CLI-Prozessen lesend
-  zugänglich; die laufende Web-API erhält ihn nicht.
+  Für den geschützten Originalabruf erhält der API-Service zusätzlich genau zwei
+  nur lesbare Einzeldateien für Graph-Konfiguration und Zertifikatsanmeldung.
+  Der Vorschauprozess erlaubt ausschließlich GET. Der Migrationsdienst erhält
+  diese Bindungen nicht; API und Migration erhalten weder CIFS noch Docker-Socket.
+- Echte Journalübersicht mit Suche, Filtern und Seitenwahl; Details zeigen Erstbefund,
+  aktuellen Befund, Freigaben, Wiederholungen, Ablagebelege und verständliche Fehler.
+- Unbekannte Anhänge einzeln ausdrücklich zuordnen; technische Wiederholungen
+  getrennt freigeben. Schreibaktionen benötigen Verwaltungsrechte und CSRF-Nachweis.
+- PDF-Originale im großen Dialog lesen, im neuen Tab öffnen oder unverändert
+  herunterladen. Andere Formate werden als Download angeboten. Zwei gleichzeitige
+  Originalantworten bis je 25 MiB, privater Vorschauspeicher mit 128 MiB und feste Fristen.
+- Reines Webarchiv nach zwei Kalenderjahren; keine Datenlöschung oder Mailbewegung.
 
 Der Zugang erfolgt ausschließlich im Kundennetz beziehungsweise über die
 vorgesehene VPN und die konfigurierte HTTPS-Adresse. Tatsächliche Hostnamen,
 Konten und Zugangsdaten werden separat verwaltet.
 
 Der gemeinsame manuelle Backendpfad verbindet Graph, Erkennung, SMB-Ablage,
-Dubletten und Mailabschluss. Webprotokoll, Korrekturoberfläche, Benachrichtigungen,
-Archiv und der dauerhafte automatische Betrieb folgen in den jeweiligen AP.
+Dubletten und Mailabschluss. Webprotokoll, Korrekturoberfläche und Archiv sind in
+AP06 implementiert und isoliert geprüft. Benachrichtigungen und der dauerhafte
+automatische Betrieb folgen erst in den dafür freizugebenden Paketen.
 Bestehende frei lizenzierte Bibliotheken werden vor Eigenentwicklung geprüft.
 
 Der vereinbarte [GUI-/Erkennungsnachtrag](docs/ANFORDERUNGEN.md#webkorrektur-und-erkennungsverbesserung)
 gehört zu AP05/AP06: unbekannte Anhänge gezielt zuordnen, freigeben und verarbeiten;
 bestätigte Korrekturen für spätere geprüfte Erkennungsregeln nutzen. Oberfläche und
-Freigabeschreibwege bleiben AP06. Der gemeinsame manuelle Pfad zur Verarbeitung
-bereits freigegebener Korrekturen ist implementiert; seine Zeitplanung ist inaktiv.
+Freigabeschreibwege sind implementiert. Eine Freigabe erzeugt zunächst einen
+dauerhaften Auftrag; der vorhandene manuelle Korrekturmodus übernimmt ihn.
+Die 5-/15-Minuten-Zeitplanung ist inaktiv. Einzelne Zuordnungen ändern keine
+globalen Erkennungsregeln; AP03 bleibt eingefroren.
 
 ## Prüfstand
 
+- AP06: additive Migration 005→006 mit erhaltenen Altzeilen und Instanzkennung,
+  aktuelle Sperr-/Retry-/Freigabeprüfungen und geschützte Originalantworten nativ
+  geprüft. Fünf vollständige Browsergruppen bestanden: Rollen/PDF/Download/Mobil,
+  Freigabe und Retry trotz Antwortverlust/Neuanmeldung, Teilvorgänge/Archiv/Quellfehler
+  sowie zwei langsame 25-MiB-Streams über Nginx. Rund 100 MiB Spitze im 128-MiB-Speicher;
+  dritter Abruf mit HTTP 503, nach Frist beide Plätze frei und temporäre Dateien entfernt.
+  Die echte PDF-Seite wurde im Dialog und neuen Tab visuell geprüft. Isolierte
+  Testjournale sind kein Import alter Kundenmails. Die Kundenbereitstellung ist
+  getrennt belegt: Schema006, erhaltene Instanz/Konfiguration und Datenbank,
+  neue API/Web, HTTPS im Journalmodus, HTTP-Weiterleitung und Zugriffsschutz.
+  Vollständiger Graph-GET-Scan findet weiterhin 0 passende Mails/Anhänge ab dem
+  unveränderten Stichtag. Eine erneute tatsächliche Kundenanmeldung für AP06
+  wurde nicht durchgeführt; Rollen und Bedienabläufe sind isoliert geprüft.
 - AP04: Quellreview bestanden; 115 native Backendtests ohne Fehler oder Skips,
   einschließlich aller 28 AP04-Tests, isolierter MariaDB-Migration/Persistenz und
   API-Kompatibilität. Davon getrennt fünf echte CIFS-Fälle mit synthetischen Dateien
@@ -121,7 +151,8 @@ Diese Kundenabnahme betrifft AP01. AP03-Quellprüfung, separater Runtime-Nachtes
 fachliche Gesamtabnahme sind getrennte Schritte. Der Classifier-Nachtest hat keine
 laufende API-/Web-/Datenbankinstanz ersetzt und keinen Produktivworker gestartet.
 Erkannte PDF-/E-Rechnungen sollen künftig automatisch weiterlaufen; nur Unbekannt
-braucht Benutzerklärung. Korrekturoberfläche und Freigabeschreibwege folgen in AP06.
+braucht Benutzerklärung. Korrekturoberfläche und Freigabeschreibwege sind in AP06
+implementiert und isoliert geprüft.
 Der gemeinsame manuelle Wiederaufnahmepfad ist in AP05 implementiert und geprüft.
 Die 5-/15-Minuten-Zeitplanung bleibt inaktiv; dauerhafter Automatikbetrieb ist AP08.
 

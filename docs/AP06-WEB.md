@@ -1,9 +1,101 @@
 # AP06 – Webansichten und berechtigte Originalanzeige
 
-Stand14.11.2026. AP06a–d samt PDF-Vorschau ist freigegeben und in Entwicklung.
-Die bestehende Kundenoberfläche ist noch nicht auf AP06 umgeschaltet.
-AP03-Erkennung und Dezemberstichtag bleiben unverändert, keine Timeraktivierung.
-DMS-Anbindung, DMS-Konfiguration und DMS-Prüfung sind kein Projektumfang.
+Stand: 14.11.2026. AP06a–d samt PDF-Vorschau ist freigegeben, implementiert und
+technisch isoliert geprüft. Produktlaufzeit aus `3fd5fef`; nachfolgende Änderungen
+betreffen ausschließlich Browser-/Testserverwerkzeuge und Dokumentation.
+Kundenmigration und Umschaltung sind abgeschlossen und getrennt zurückgelesen.
+Quellprüfung, isolierter Runtime-/Browsernachweis,
+Kundenbereitstellung und Kundenabnahme werden getrennt geführt.
+
+AP03-Erkennung und Eingangsstichtag 1. Dezember 2026, Berlin, bleiben unverändert.
+Keine Timer, Benachrichtigungen oder AP07-/AP08-Aktivierung. DMS-Anbindung,
+-Konfiguration und -Prüfung liegen vollständig außerhalb des Auftrags und
+sind keine Abnahmebedingung.
+
+## Verfügbarer Funktionsumfang
+
+- Echte Journalübersicht mit Suche, Filtern, Seitenwahl und Status-/Fehler-/
+  Dublettenzählern. Keine Demo-API und keine Ersatzbeispiele bei leerem Journal.
+- Details je Vorgang/Anhang mit unveränderlichem Erstbefund, aktuellem Befund,
+  Befundgeneration, Freigabe-/Retryverlauf und tatsächlichen Ablagebelegen.
+- Ausdrückliche Zuordnung einzelner zulässiger unbekannter Anhänge zu PDF,
+  Zahlungsavis, Mahnung oder Ignorieren. Strukturelle Sperren und technische
+  Fehler lassen sich damit nicht umgehen. Neue Absichten nur mit Verwaltungsrecht,
+  aktueller AD-Prüfung, Origin/CSRF und passender Quellen-/Befund-/Revisionsbindung.
+- Dauerhafte technische Retryabsichten. Der manuelle Korrekturmodus übernimmt
+  sie mit vorhandenen Wirkungskeys/Receipts; keine blinde Neuveröffentlichung und
+  kein Verlust bereits wirksamer Kundenzuordnungen. Keine HTTP-Verarbeitung von Mails.
+- Offene Browserabsichten bleiben je Benutzer/Vorgang über Dialog-/Seitenreload
+  und neue Anmeldung erhalten. Ursprünglicher Body/Request-ID bleiben gleich;
+  aktueller CSRF-Nachweis wird separat verwendet. Defekte Erfolgsantworten oder
+  verlorene Antworten gelten erst nach passendem Serverbeleg als bestätigt.
+- Zwei Kalenderjahre aktive Protokolle, danach schreibgeschützte Archivauswahl.
+  Keine Datenlöschung oder Mailbewegung durch das Webarchiv.
+- Versionierte Einstellungen für neue Originalvorschauen und technische
+  Retryfreigaben. Bestehende dauerhafte Aufträge bleiben erhalten.
+
+## Originalanzeige und Ressourcen
+
+Großer nativer PDFdialog mit neuem Tab und unverändertem Download als weitere
+Bedienwege; andere Formate werden als Download angeboten. Der journalgebundene
+Abruf prüft tatsächliche Graphquelle, Parent/Empfangszeit, Manifest, Bytezahl und
+SHA256 sowie den aktuellen Journalschnappschuss. Er verändert keine Journale oder
+Mails. Bereits reservierte Abschlussziele bleiben nur mit gültigem bestehendem
+AP05-Abschlussbeleg zulässig. Dessen historische Hashreihenfolge bleibt erhalten.
+
+Genau ein API-Worker und zwei Plätze über Kindprozess, private Dateien und gesamte
+HTTP-Auslieferung. Je Original maximal 25 MiB, inneres Limit 180 s, Gesamtfrist 300 s.
+Ein eigenes 128 MiB großes tmpfs enthält beide Graph- und Ausgabekopien; /tmp mit 32 MiB bleibt
+getrennt. Bei Abbruch werden Kinder beendet und Dateien/Platz freigegeben.
+Einzel-Range, ETag/If-Range, HEAD und sicherer Dateiname sind implementiert;
+HEAD ignoriert Range, unpassendes If-Range liefert das vollständige Original.
+
+Nur die exakte Originalroute erlaubt SAMEORIGIN und frame-ancestors self.
+Das übrige Portal bleibt DENY/frame-ancestors none. Nginx puffert Originale nicht
+in Proxydateien; Proxy-/Sendefristen sind endlich. Der API-Service erhält dafür
+zwei zusätzliche RO-Einzeldateien für Graph-Konfiguration und Zertifikat.
+Der Vorschauadapter erlaubt nur GET. Migration erhält keine Graphdateien;
+API/Migration erhalten weder CIFS noch Docker-Socket.
+
+## Prüfstand und Bereitstellungsgrenze
+
+Additives Schema 006 und frische Migration 001→006 wiederholt mit gleicher Instanzkennung
+geprüft. Der tatsächliche alte Pfad 005→006 erhält Altspalten/-werte und ergänzt aktuelle
+Befunde/Historie einmal. Die tatsächliche vorherige API ist mit006 und erhaltener
+Konfiguration/Sitzung geprüft; kein alter Migrator oder Schema-Downgrade.
+Gezielte native Sicherheits-, HTTP-, Konkurrenz-, Freigabe-/Retry- und
+Vorschau-Lebensdauerprüfungen sowie unabhängige Korrekturreviews bestanden.
+Historische Teilergebnisse bleiben unten ihren Quellen zugeordnet.
+
+Fünf vollständige Browsergruppen auf festen nativen API-/Web-/Processingimages
+bestanden: Rollen/Original/PDF/Download/Mobil, Freigabe mit abgeschnittener HTTP-200-
+Antwort und neuer Anmeldung, Retry nach HTTP 409 und anschließender Annahme mit
+Antwortverlust/neuer Revision, Teilvorgänge/Archiv/Quellfehler sowie zwei langsame
+25-MiB-Streams über Nginx. Rund 100 MiB Spitze bei 128 MiB Kapazität, dritter Abruf mit HTTP 503,
+nach verkürzter Testfrist von 12 s beide Plätze frei und keine privaten Verzeichnisse/Proxydateien.
+Die tatsächliche Dokumentseite wurde im Dialog und neuen Tab einzeln visuell geprüft.
+
+Testjournale/Directory/Graph waren isoliert. Eine freigegebene private Test-PDF
+wurde nur lesend verwendet; Original und bestehende Kundencontainer blieben
+unverändert. Private PDF-/Bild-/Betriebsnachweise liegen außerhalb dieses Repositories.
+Keine alten Kundenmails registriert oder verschoben und keine erneute breite
+Klassifikation.
+
+Die anschließende Kundenbereitstellung ist separat bestätigt: geschütztes Backup,
+Schema 005→006 mit erhaltenen Altwerten/Instanz/Konfiguration, neue API/Web mit
+festen geprüften Imagepins und unveränderter Datenbank. Manuelles Processingprofil
+aktualisiert; keine Processing-Timer gestartet. HTTPS meldet den echten Journalmodus,
+HTTP leitet um und geschützte Liste/Originalroute bleiben unangemeldet gesperrt.
+Das echte Journal ist leer; vollständiger Graph-GET-Scan bestätigt 0 passende
+Mails/Anhänge ab dem unveränderten Stichtag. UID/RO-Bindungen und leeres
+Vorschautmpfs sind zurückgelesen. Eine neue tatsächliche Kundenanmeldung für AP06
+wurde nicht durchgeführt; vollständige Rollen-/Browserprüfungen erfolgten isoliert.
+
+## Historische Teilstände
+
+Die folgenden Nachträge dokumentieren frühere Entwicklungsstände. Aussagen wie
+„geplant“, „noch offen“ oder „noch nicht implementiert“ gelten ausschließlich für
+den jeweils beschriebenen Teilstand, nicht für den führenden Stand oben.
 
 Erster Teilstand: `ProcessQueries` liest die vorhandenen AP05-Journale und
 verknüpft Anhangs-, Freigabe- und Storagebelege. Keine Claims, Klassifikation,

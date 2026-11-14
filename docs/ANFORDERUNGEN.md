@@ -1,6 +1,6 @@
 # Anforderungen
 
-Stand: 13. November 2026. Vereinbarter Sollumfang; den tatsächlichen
+Stand: 14. November 2026. Vereinbarter Sollumfang; den tatsächlichen
 Umsetzungsstand zeigt die [README](../README.md).
 Echte Postfach-, Gruppen-, Empfänger- und Verbindungswerte werden separat konfiguriert.
 
@@ -30,7 +30,8 @@ Echte Postfach-, Gruppen-, Empfänger- und Verbindungswerte werden separat konfi
 
 Erkennung erfolgt anhand des Inhalts. Eine vollständige Validierung sämtlicher
 Norm- und Geschäftsregeln ist nicht beauftragt. ZUGFeRD wird anschließend vom
-kundenseitig vorhandenen DMS übernommen; eine neue DMS-Anbindung ist kein Projektumfang.
+kundenseitig vorhandenen DMS übernommen. DMS-Anbindung, -Konfiguration und -Prüfung
+liegen außerhalb unseres Auftrags und sind keine Abnahmebedingung.
 
 Seltene gescannte Rechnungs-PDFs benötigen Texterkennung. Arbeitskopien für OCR
 nutzen und Originalanhänge unverändert aufbewahren. Andere Anhänge ignorieren.
@@ -117,10 +118,11 @@ Die weitere Pflege des Postfachs bleibt eine organisatorische Aufgabe beim Kunde
 
 ## Webkorrektur und Erkennungsverbesserung
 
-Vereinbarter Nachtrag für AP05/AP06; noch keine implementierte Korrekturoberfläche
-oder aktivierter Korrekturjob:
+Vereinbarter Nachtrag für AP05/AP06. Oberfläche, Freigabeerzeugung und gemeinsamer
+manueller Korrekturpfad sind implementiert, isoliert geprüft und bereitgestellt. Die vorgesehenen
+5-/15-Minuten-Jobs sind nicht aktiviert:
 
-- Die Designkachel „Prüfen“ heißt künftig „Unbekannt“ und zählt nur Anhänge mit
+- Die Kachel heißt „Unbekannt“ und zählt nur Anhänge mit
   offener Zuordnung. Erkannte PDF-/E-Rechnungen, Avise und Mahnungen benötigen
   keine zusätzliche Bestätigung durch den Kunden.
 - In einer eigenen Ansicht Originalanhang, Dateiname und verständlichen Grund
