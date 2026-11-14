@@ -26,10 +26,13 @@
   AP07a–c ist seit14.11.2026 freigegeben und in Arbeit. PaketA ergänzt ausschließlich
   additive007-Tabellen, reine Planung/Berichtskohorten und dauerhafte Outbox-/
   Request-/Reservierungsverträge. A1 nachVersuch2/A2 nachVersuch1 geschlossen,
-  A-Quellreview und30 lokale Gruppen bestanden. B ergänzt begrenzten Graphsender,
+  A-Quellreview, nativer A-Nachweis und30 lokale Gruppen bestanden. B ergänzt begrenzten Graphsender,
   lokalen Zertifikats-/frischen Nachfolgerproof, eigenen Notificationkey und CLI;
   19Sender-/Cert-/Runtime- sowie9Prozess-/Bindungsgruppen lokal bestanden.
-  Fester B-Review/native B-Prüfung und neue Webbedienung folgen.
+  B-Review stoppte bei B2: verspätete Altwarnplanung nach Nachfolgerproof.
+  B2-Korrekturversuch1 bindet die offene ursprüngliche Serie in Planung und beiden
+  Versandgates;59 betroffene lokale Gruppen bestanden (30A/19B/10B2).
+  Erneuter fester B-Review/native B-Prüfung und neue Webbedienung folgen.
   Kundenstand bleibt AP06/006; keine echte SendMail oder Timer aus A/B.
   AP08 und spätere AP bleiben ohne Go; dauerhafte Automatik gehört in AP08.
   DMS-Anbindung, -Konfiguration und -Prüfung liegen außerhalb unseres Auftrags

@@ -125,6 +125,14 @@ GraphGET. Die vor PEMlesen erfasste Monitorrevision schützt gegen verspätete a
 Beobachter/Proofs. Ungültiger Nachfolger schließt keine Serie. Ein selbst bald
 ablaufender gültiger Nachfolger erhält seine eigene Warnserie.
 
+Jeder Warnplan ist an seine ursprüngliche offene Serie im selben Scope gebunden.
+Planung, Reservierung und POST-Freigabe prüfen diese Bindung atomar. Nach gültigem
+Nachfolgerproof sind auch verspätete erste Altplanungen gesperrt. Vorbereitete
+Altzeilen werden überholt; reservierte Altzeilen ohne konsumierte POST-Freigabe
+werden abgewiesen, ohne Reservierung oder Payload zurückzusetzen. Ein vor dem Proof
+bereits freigegebener POST kann nicht zurückgerufen werden; accepted/unknown und
+der Einmalvertrag bleiben erhalten. Bloßer Dateitausch beendet keine Pflichtserie.
+
 **Ablauf0/negative Restzeit schaltet die Pflichtwarnung nicht ab.** Planung und
 best-effortAuth/Versuch bleiben möglich; tatsächliche Graphantwort entscheidet.
 Wenn Anmeldung scheitert, bleibt der neutrale Fehler im gespeicherten Beleg und

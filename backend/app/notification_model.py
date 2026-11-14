@@ -26,6 +26,9 @@ def canonical(value):
 def identity(parts):
     return hashlib.sha256(canonical(parts).encode("ascii")).hexdigest()
 
+CERTIFICATE_TOKEN = identity(["graph-credential-certificate"])
+CERTIFICATE_SERIES_FIELDS = ("series_id","fingerprint","not_before","expires_at","started_at")
+
 def checked_key(value):
     if not isinstance(value, str) or not re.fullmatch(r"[0-9a-f]{64}", value):
         raise NotificationError("notification_identity_invalid", 422)
@@ -125,6 +128,27 @@ class Slot:
     def key(self, instance, scope):
         return identity([instance, checked_key(scope), self.kind, self.start, self.end, self.tag])
 
+@dataclass(frozen=True,kw_only=True)
+class CertificateSlot(Slot):
+    scope_key: str
+    series_id: str
+    fingerprint: str
+    not_before: int
+    expires_at: int
+    started_at: int
+
+    def __post_init__(self):
+        super().__post_init__()
+        checked_key(self.scope_key);checked_key(self.fingerprint)
+        if (self.kind != "certificate" or not isinstance(self.series_id,str)
+                or not re.fullmatch(r"[0-9a-f]{32}",self.series_id)
+                or any(type(value) is not int for value in (self.not_before,self.expires_at,self.started_at))
+                or self.not_before >= self.expires_at or self.tag != self.fingerprint):
+            raise NotificationError("notification_certificate_plan_invalid",422)
+
+    def warning(self):
+        return {name:getattr(self,name) for name in CERTIFICATE_SERIES_FIELDS}
+
 def calendar_slot(kind, now, config, *, certificate=""):
     today = datetime.fromtimestamp(now, timezone.utc).astimezone(BERLIN).date()
     if kind == "certificate":
@@ -144,6 +168,11 @@ def calendar_slot(kind, now, config, *, certificate=""):
         return Slot(kind, midnight(end_day - timedelta(days=7)), midnight(end_day),
             wall_instant(day, config["weekly_time"]), wall_instant(day + timedelta(days=7), config["weekly_time"]))
     raise NotificationError("notification_kind_invalid", 422)
+
+def certificate_slot(scope,warning,now,config):
+    slot = calendar_slot("certificate",now,config,certificate=warning["fingerprint"])
+    return CertificateSlot(slot.kind,slot.start,slot.end,slot.due,slot.stale,slot.tag,
+        scope_key=scope,**{name:warning[name] for name in CERTIFICATE_SERIES_FIELDS})
 
 def certificate_level(expires_at, now):
     remaining = expires_at - now

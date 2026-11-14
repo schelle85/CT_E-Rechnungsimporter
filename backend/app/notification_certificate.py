@@ -1,17 +1,16 @@
 """Local Graph credential identity and fresh, exact-PEM proof. Never HTTPS files."""
 from contextlib import contextmanager
 from dataclasses import dataclass
+from uuid import uuid4
 from cryptography import x509
 from cryptography.exceptions import UnsupportedAlgorithm
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
 import httpx
 from app.graph import GraphClient, GraphError, protected_bytes
-from app.notification_model import NotificationError, certificate_level, identity, canonical
+from app.notification_model import CERTIFICATE_TOKEN,NotificationError,certificate_level,identity,canonical
 from app.notification_schema007 import monitor, outbox
 import sqlalchemy as sa
-
-CERTIFICATE_TOKEN = identity(["graph-credential-certificate"])
 
 @dataclass(frozen=True,repr=False)
 class CertificateMaterial:
@@ -85,6 +84,9 @@ def record_certificate(store, scope, current, *, expected_revision, fresh_proof=
                 **certificate_level(current["expires_at"],now))
         value = dict(before,current=current,checked_at=now)
         warning = value["warning"]
+        if warning and "series_id" not in warning:
+            warning = dict(warning,series_id=uuid4().hex)
+            value["warning"] = warning
         if fresh_proof is not None:
             if (current.get("valid") is not True or set(fresh_proof) != {"fingerprint","scope_key","at"}
                     or fresh_proof["fingerprint"] != current["fingerprint"] or fresh_proof["scope_key"] != scope
@@ -92,14 +94,18 @@ def record_certificate(store, scope, current, *, expected_revision, fresh_proof=
                 raise NotificationError("notification_certificate_proof_invalid",503)
             value["proof"] = fresh_proof
             if warning and warning["fingerprint"] != current["fingerprint"]:
-                value["last_closed"] = dict(fingerprint=warning["fingerprint"],at=now,
+                value["last_closed"] = dict(series_id=warning["series_id"],fingerprint=warning["fingerprint"],at=now,
                     successor=current["fingerprint"])
                 value["warning"] = None
                 c.execute(outbox.update().where(outbox.c.scope_key == scope,outbox.c.kind == "certificate",
                     outbox.c.reservations == 0,outbox.c.state == "prepared").values(
                         state="obsolete",owner=None,lease_until=0,updated_at=now))
+                c.execute(outbox.update().where(outbox.c.scope_key == scope,outbox.c.kind == "certificate",
+                    outbox.c.reservations == 1,outbox.c.state == "sending",outbox.c.post_started_at.is_(None)).values(
+                        state="rejected",error_code="notification_certificate_series_closed",completed_at=now,
+                        owner=None,lease_until=0,updated_at=now))
         if value["warning"] is None and current.get("severity") in {"orange","red"}:
-            value["warning"] = dict(fingerprint=current["fingerprint"],not_before=current["not_before"],
+            value["warning"] = dict(series_id=uuid4().hex,fingerprint=current["fingerprint"],not_before=current["not_before"],
                 expires_at=current["expires_at"],started_at=now)
         values = dict(payload=canonical(value),revision=revision+1,updated_at=now)
         if row:

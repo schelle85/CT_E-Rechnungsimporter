@@ -64,8 +64,17 @@ class NotificationTests(unittest.TestCase):
         return OperationBudget(clock=lambda:self.now[0])
 
     def warning(self):
-        slot=calendar_slot("certificate",self.now[0],self.config,certificate="f"*64)
-        data=dict(fingerprint="f"*64,expires_at=self.now[0]+86400,remaining_seconds=86400)
+        from app.notification_model import CERTIFICATE_TOKEN,certificate_slot
+        from app.notification_certificate import record_certificate
+        observed=self.store.monitor_state(SCOPE,"certificate",CERTIFICATE_TOKEN)
+        if observed is None:
+            record_certificate(self.store,SCOPE,dict(fingerprint="f"*64,not_before=self.now[0]-86400,
+                expires_at=self.now[0]+86400),expected_revision=0)
+            observed=self.store.monitor_state(SCOPE,"certificate",CERTIFICATE_TOKEN)
+        warning=observed["data"]["warning"]
+        slot=certificate_slot(SCOPE,warning,self.now[0],self.config)
+        data=dict(fingerprint=warning["fingerprint"],expires_at=warning["expires_at"],
+            remaining_seconds=warning["expires_at"]-self.now[0])
         row=self.store.prepare(slot,SCOPE,data,expected_version=self.store.configuration()["version"],as_of=self.now[0])
         return slot,data,row
 
@@ -102,16 +111,11 @@ class NotificationTests(unittest.TestCase):
         self.store.scope_backoff(SCOPE,self.now[0]+900)
         self.assertIsNone(self.store.claim(row["slot_key"],SCOPE))
         self.now[0]+=901
-        self.reserve(row)
-        for index in range(3):
-            fingerprint=f"{index:064x}"
-            slot=calendar_slot("certificate",self.now[0],self.config,certificate=fingerprint)
-            data=dict(fingerprint=fingerprint,expires_at=self.now[0],remaining_seconds=0)
-            prepared=self.store.prepare(slot,SCOPE,data,expected_version=1,as_of=self.now[0])
+        for index in range(4):
+            if index:self.now[0]+=301
+            prepared=self.store.request_test(str(uuid4()),1,SCOPE,ACTOR)
             self.reserve(prepared)
-        another=calendar_slot("certificate",self.now[0],self.config,certificate="e"*64)
-        pending=self.store.prepare(another,SCOPE,dict(fingerprint="e"*64,expires_at=self.now[0],remaining_seconds=0),
-            expected_version=1,as_of=self.now[0])
+        pending=self.warning()[2]
         self.assertIsNone(self.store.claim(pending["slot_key"],SCOPE))
         self.assertEqual(self.store.read(pending["slot_key"])["reservations"],0)
         self.now[0]+=3601

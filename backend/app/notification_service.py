@@ -1,7 +1,7 @@
 """Bounded notification work only; never a scheduler, importer or mail editor."""
 from app.graph import GraphError
 from app.notification_certificate import CERTIFICATE_TOKEN, certificate_client, record_certificate
-from app.notification_model import calendar_slot, graph_scope
+from app.notification_model import calendar_slot, certificate_slot, graph_scope
 from app.notification_queries import report_cohort
 from app.storage_plan import digest
 
@@ -60,7 +60,7 @@ class NotificationService:
         result = []
         warning = observation["warning"]
         if warning:
-            slot = calendar_slot("certificate",now,config,certificate=warning["fingerprint"])
+            slot = certificate_slot(self.scope,warning,now,config)
             facts = dict(fingerprint=warning["fingerprint"],expires_at=warning["expires_at"],
                 remaining_seconds=warning["expires_at"]-now)
             row = self.store.prepare(slot,self.scope,facts,expected_version=version,as_of=now,origin=self.origin)

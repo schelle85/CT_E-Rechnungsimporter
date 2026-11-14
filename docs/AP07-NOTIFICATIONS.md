@@ -1,6 +1,6 @@
 # AP07 – Benachrichtigungen, Teilstände A/B
 
-Stand: 14. November 2026. AP07a–c ist freigegeben und in Arbeit. A enthält
+Stand: 15. November 2026. AP07a–c ist freigegeben und in Arbeit. A enthält
 Fach-/Datenbankbausteine; B ergänzt begrenzten Graphsender, Zertifikatsproof,
 eigenen Schlüssel und CLI. Neue Webbedienung folgt in C. Kundenbetrieb bleibt
 AP06 mit Schema006. Keine Kundenmigration, echte Testmail oder Zeitplanaktivierung
@@ -73,6 +73,18 @@ PEM-/RSAlesen, gleicher-Bytes-/Scope-/Gültigkeitsproof und Revision gegen versp
 Beobachter sind in B implementiert/synthetisch geprüft.0/negative Zeit bleibt
 warnpflichtig und schaltet best-effortGraphversuche nicht ab; Authfehler neutral
 gespeichert, keine ungültige Nachfolgerfreigabe. Keine echte Cloudprobe daraus.
+
+Zertifikatspläne führen ihre ursprüngliche Warnserie mit eigener Serienidentität,
+Scope, Fingerprint, Gültigkeits-/Beginnzeiten und festem Faktenzeitpunkt mit.
+Erstanlage, Replay/Neuplanung, Reservierung und POST-Freigabe prüfen diese Bindung
+unter derselben Sperre gegen die aktuell offene Serie. Ein verspäteter alter Plan
+darf eine geschlossene Serie weder neu anlegen noch wieder öffnen oder umdeuten.
+Nachfolgerproof macht vorbereitete Altzeilen überholt und weist reservierte,
+noch nicht zum POST freigegebene Altzeilen ohne neue Reservierung ab.
+Bereits konsumierte POST-Freigaben sowie accepted/unknown-Historie bleiben erhalten;
+der Proof und die POST-Freigabe werden unter der gemeinsamen Sperre geordnet.
+Dateitausch ohne gültigen frischen Proof lässt die ursprüngliche Pflichtserie offen.
+Die Serienbindung nutzt das vorhandene JSON-Feld; Schema007 bleibt unverändert.
 
 Reine Störungsplanung unterstützt Bündelung, beobachtete Ausfalldauer, einmalige
 Erholung und Wiederholungsabstand. Ausfallwiederholungen warten den konfigurierten
@@ -160,6 +172,18 @@ keine Produktkorrektur daraus. Eigene gezielte B1-Fristkorrektur prüft Budget n
 POST-Gate-Commit und begrenzt Graphauth/-transport auf den Resttermin;19betroffene
 Gruppen anschließend bestanden. Keine pauschale gemeinsame58er-/Nativeabnahme.
 Einzelfall-/Runtimegrenzen im [Betreiberweg](AP07-OPERATOR.md).
+
+Der unabhängige B-Quellenreview stoppte anschließend bei B2: verspätete erste
+Warnplanung nach bereits bestätigtem Nachfolger konnte die Altwarnung freigeben.
+Korrekturversuch1 ergänzt die Serienbindung und drei atomaren Prüfstellen oben.
+Das ursprüngliche Review-Setup ist gegen die Korrektur nachgespielt: alte Erstanlage
+abgewiesen, keine Outboxzeile/POST und Monitor nach Proof unverändert. Gezielte
+Regressionsfälle prüfen auch beide Gates unabhängig von der Altzeilenbereinigung,
+Konkurrenz, ursprüngliche Fakten, Dateitausch ohne gültigen Proof und unveränderte
+Reservierungs-/Historienverträge. Unabhängiger B-Review/native B-Abnahme bleiben offen.
+Abschließender betroffener Lauf:59/59 lokale Fälle bestanden (30A,19bisherige B,
+10B2-Gruppen). Die9Prozess-/Bindungsgruppen wurden in diesem Korrekturschritt
+nicht erneut ausgeführt; deren früherer Nachweis bleibt separat.
 
 Nächster Prüfschritt: fester B-Review/native B-Nachweise. C ergänzt neue API-/
 Web-/Loginbedienung und gezielte Browserprüfung einschließlich Administration→Berichte.

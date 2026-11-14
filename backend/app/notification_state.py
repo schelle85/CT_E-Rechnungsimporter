@@ -7,7 +7,8 @@ from uuid import UUID, uuid4
 import sqlalchemy as sa
 from app.notification_schema007 import settings, outbox, monitor
 from app.notification_model import (DEFAULTS, NotificationError, Slot, canonical, checked_actor,
-    checked_key, checked_settings, identity, make_payload, test_request)
+    checked_key, checked_settings, identity, make_payload, test_request,
+    CERTIFICATE_TOKEN,CERTIFICATE_SERIES_FIELDS,CertificateSlot,certificate_slot,calendar_slot)
 from app.notification_planning import (INCIDENT_FIELDS, IncidentSlot, outage_slot,
     ErrorObservation, ErrorBundleSlot, error_bundle)
 from app.schema import audit
@@ -156,6 +157,42 @@ class NotificationStore:
             raise NotificationError("notification_monitor_changed")
         return member,source,payload
 
+    def _certificate_plan(self,c,scope,slot,config,as_of,now,*,data=None):
+        if (not isinstance(slot,CertificateSlot) or slot.scope_key != scope or type(as_of) is not int
+                or not slot.started_at <= as_of <= now):
+            raise NotificationError("notification_certificate_plan_invalid",422)
+        day = calendar_slot("certificate",as_of,{"certificate_time":"00:00"},certificate=slot.fingerprint)
+        if ((slot.start,slot.end,slot.stale) != (day.start,day.end,day.stale)
+                or not slot.start <= slot.due < slot.stale
+                or config is not None and certificate_slot(scope,slot.warning(),as_of,config) != slot):
+            raise NotificationError("notification_certificate_plan_invalid",422)
+        facts = dict(fingerprint=slot.fingerprint,expires_at=slot.expires_at,remaining_seconds=slot.expires_at-as_of)
+        if data is not None and canonical(data) != canonical(facts):
+            raise NotificationError("notification_facts_invalid",422)
+        key = identity([scope,"certificate",CERTIFICATE_TOKEN])
+        raw = c.execute(sa.select(monitor.c.payload).where(monitor.c.monitor_key == key,
+            monitor.c.scope_key == scope,monitor.c.kind == "certificate").with_for_update()).scalar_one_or_none()
+        warning = json.loads(raw).get("warning") if raw else None
+        if not isinstance(warning,dict) or any(warning.get(name) != getattr(slot,name) for name in CERTIFICATE_SERIES_FIELDS):
+            raise NotificationError("notification_certificate_series_closed")
+        return dict(key=key,scope_key=scope,as_of=as_of,**slot.warning())
+
+    def _certificate_row(self,c,row,config,now):
+        try:
+            members = json.loads(row["monitor_keys"])
+            if len(members) != 1 or not isinstance(members[0],dict):
+                raise NotificationError("notification_certificate_plan_invalid",422)
+            member = members[0]
+            slot = CertificateSlot(row["kind"],row["period_start"],row["period_end"],row["due_at"],row["stale_at"],
+                member["fingerprint"],scope_key=member["scope_key"],
+                **{name:member[name] for name in CERTIFICATE_SERIES_FIELDS})
+            if slot.key(self.instance,row["scope_key"]) != row["slot_key"]:
+                raise NotificationError("notification_certificate_plan_invalid",422)
+            if member != self._certificate_plan(c,row["scope_key"],slot,config,member["as_of"],now):
+                raise NotificationError("notification_certificate_plan_invalid",422)
+        except (KeyError,TypeError,ValueError):
+            raise NotificationError("notification_certificate_plan_invalid",422) from None
+
     def _bundle_plan(self,c,scope,slot,config,as_of,now,*,data=None):
         if (not isinstance(slot,ErrorBundleSlot) or type(as_of) is not int or as_of > now
                 or any(value.last_seen > as_of or value.last_reserved_at is not None and value.last_reserved_at > as_of
@@ -196,13 +233,17 @@ class NotificationStore:
     def _write_plan(self, c, row, head, slot, data, as_of, origin, members=()):
         incident = slot.kind in {"outage","recovery"}
         bundle = slot.kind == "errors"
+        certificate = slot.kind == "certificate"
         if (len(members) > 100 or len(set(members)) != len(members)
                 or incident and len(members) != 1):
             raise NotificationError("notification_members_invalid", 422)
         config = self._configuration(head)
         now = int(self.clock())
         membership = []
-        if bundle:
+        if certificate:
+            if members:raise NotificationError("notification_members_invalid",422)
+            membership = [self._certificate_plan(c,row["scope_key"],slot,config,as_of,now,data=data)]
+        elif bundle:
             sources = self._bundle_plan(c,row["scope_key"],slot,config,as_of,now,data=data)
             membership = [member for member,_,_ in sources]
             if list(members) != [member["key"] for member in membership]:
@@ -220,6 +261,11 @@ class NotificationStore:
                     raise NotificationError("notification_monitor_changed")
                 membership.append(member)
         previous_members = json.loads(row["monitor_keys"])
+        if certificate and previous_members:
+            if (len(previous_members) != 1 or not isinstance(previous_members[0],dict)
+                    or any(previous_members[0].get(name) != membership[0][name] for name in
+                        ("key","scope_key",*CERTIFICATE_SERIES_FIELDS))):
+                raise NotificationError("notification_certificate_series_closed")
         if incident and previous_members:
             if (len(previous_members) != 1 or not isinstance(previous_members[0],dict)
                     or any(previous_members[0].get(name) != membership[0][name] for name in
@@ -237,7 +283,7 @@ class NotificationStore:
             outbox.c.reservations == 0, outbox.c.plan_revision == row["plan_revision"]).values(
             config_version=head["version"], plan_revision=revision,
             payload_cipher=self._encrypt(payload), payload_hash=digest, state="prepared",
-            monitor_keys=canonical(membership if incident or bundle else sorted(membership)),
+            monitor_keys=canonical(membership if incident or bundle or certificate else sorted(membership)),
             not_before=self._errors_until(c,row["scope_key"],sources,config)
                 if bundle and row["error_code"] == "notification_errors_deferred" else row["not_before"],
             due_at=slot.due, stale_at=slot.stale, error_code=None,
@@ -273,6 +319,9 @@ class NotificationStore:
                     c.execute(outbox.update().where(outbox.c.slot_key == key, outbox.c.reservations == 0).values(
                         state="obsolete", owner=None, lease_until=0, updated_at=now))
                 return self.receipt(self._row(c, key)) if row else None
+            if slot.kind == "certificate":
+                if members:raise NotificationError("notification_members_invalid",422)
+                self._certificate_plan(c,scope,slot,config,as_of,now,data=data)
             if slot.kind in {"outage","recovery"}:
                 member,_,_ = self._incident_plan(c,scope,slot,config,as_of,now,data=data)
                 if list(members) != [member["key"]]:
@@ -394,6 +443,14 @@ class NotificationStore:
             if incident and (len(members) != 1 or not isinstance(members[0],dict)):
                 raise NotificationError("notification_monitor_changed")
             sources = []
+            if row["kind"] == "certificate":
+                try:
+                    self._certificate_row(c,row,self._configuration(head),now)
+                except NotificationError:
+                    c.execute(outbox.update().where(outbox.c.slot_key == row["slot_key"],outbox.c.reservations == 0).values(
+                        state="obsolete",error_code="notification_certificate_series_closed",owner=None,lease_until=0,updated_at=now))
+                    return False
+                members = []
             if row["kind"] == "errors":
                 try:
                     if not members or len({member["as_of"] for member in members}) != 1:
@@ -472,6 +529,15 @@ class NotificationStore:
                     state="rejected", completed_at=now, error_code="notification_deadline_before_post",
                     owner=None, lease_until=0, updated_at=now))
                 return None
+            if row["kind"] == "certificate":
+                try:
+                    # Reserved schedule/recipients remain frozen even if settings changed later.
+                    self._certificate_row(c,row,None,now)
+                except NotificationError:
+                    c.execute(outbox.update().where(outbox.c.slot_key == row["slot_key"],outbox.c.reservations == 1,
+                        outbox.c.post_started_at.is_(None)).values(state="rejected",completed_at=now,
+                            error_code="notification_certificate_series_closed",owner=None,lease_until=0,updated_at=now))
+                    return None
             payload = self._decrypt(row["payload_cipher"])
             if identity(payload) != row["payload_hash"]:
                 raise NotificationError("notification_payload_changed", 503)
