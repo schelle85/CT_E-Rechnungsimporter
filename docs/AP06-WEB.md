@@ -160,3 +160,22 @@ FrontendBuild3bd9a24 nach kontrolliertemAbrufderfestenöffentlichenLockpaketePAS
 API/Processing/Web/Testgebaut, Worker1/ComposeAPI-onlyGraphbindungen/tmpfs und
 Nginxsyntaxisoliertbelegt. DiesePins enthalten nochdieP3/P4-Vorgängerversion und
 sind keinefinaleDeploymentfreigabe. NeuerBau nachKorrekturprüfung nötig.
+
+P3/P4 amfesten5255359 nativPASS:25gezielteAuth/API-/Originalgruppen und die
+unverändertevolleApp-Gegenprobe bestehen. ÄußereAnfrage beendet sichinnerhalb
+derFrist,Dateien/Kinderweg,beidePlätzefrei; HEAD/IfRange-Mismatch200. Astrahat
+beideUrsachen nachjeVersuch1unabhängiggeschlossen. TatsächlicherOldAPIeef…-
+Rückwegaufneuer006DBmitverschlüsselterKonfiguration/erhaltenerUUID/SitzungPASS,
+kein alterMigrator; Kundendienste/DBunverändert. NochkeineGUI-/Deploymentfreigabe.
+
+G1/G2 jeVersuch1: vollständigePendingabsicht ausZiel/Payload/Request-ID wird
+benutzer- undvorgangsgebunden tablokal gespeichert und bis zur passendenQuittung
+unverändert wiederverwendet. Detail-/Seitenneuladen und neueSitzung schreiben
+keine neueRevision/Zuordnung hinein; aktuellerCSRFHeader wird separat genommen.
+NeueAktionen derselbenMail bleiben bis Auflösunggesperrt. Serverbeleg wird an
+dieursprünglicheRequest-/Zielbindung geprüft. UnlesbaresErfolgsJSON/fehlenderBeleg
+sind Protokollfehler; Pendingbleibtbestehen. FehlerhafteGETantwort gilt nicht als
+leereListe.401invalidiertdieSitzung auchbei defektemBody. Logintextbereinigt.
+12NodegruppenPASS(8neuegezielteplus4bestehendeLoginabläufe), keinBrowserPASS.
+DerNode-Lauf brauchtfür diebestehendeApiError-Parameterproperty TypeScript-
+Transformation; ein ersterstrip-only-Testimport erreichte diesePrüfungen nicht.

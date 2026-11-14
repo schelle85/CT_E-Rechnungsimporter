@@ -113,7 +113,7 @@ export default function App({ user, csrfToken, onLogout, onReauthenticate }: {
         <Paper withBorder className="panel"><Group justify="space-between" className="panel-heading"><div><Title order={2}>Letzte Vorgänge</Title><Text size="sm" c="dimmed">Aus dem dauerhaften Verarbeitungsprotokoll</Text></div><Button variant="subtle" onClick={() => nav("processes")}>Alle ansehen →</Button></Group>{processRows}</Paper>
       </>}
       {(page === "processes" || page === "archive") && <Paper withBorder className="panel">
-        <Group justify="space-between" className="panel-heading"><Title order={2}>{page === "archive" ? "Archivierte Vorgänge" : "Vorgänge"}</Title><Badge variant="light">{loading ? "Wird geladen" : total + " Vorgänge"}</Badge></Group>
+        <Group justify="space-between" className="panel-heading"><Title order={2}>{page === "archive" ? "Archivierte Vorgänge" : "Vorgänge"}</Title><Badge variant="light">{loading ? "Wird geladen" : error ? "Nicht verfügbar" : total + " Vorgänge"}</Badge></Group>
         {page === "archive" && <Text size="sm" c="dimmed" px="lg" pb="lg">Zwei Kalenderjahre ab erster Protokollanlage in der aktiven Ansicht, danach hier schreibgeschützt. Es werden keine Protokolle gelöscht.</Text>}
         <div className="process-filters">
           <TextInput label="Suche" placeholder="Datei, Vorgang, Kategorie oder Ablageziel" value={query} maxLength={200} onChange={e => { setQuery(e.currentTarget.value); setPageNo(1); }} />
@@ -125,7 +125,7 @@ export default function App({ user, csrfToken, onLogout, onReauthenticate }: {
         </div>{processRows}
         {total > 25 && <Pagination total={Math.ceil(total / 25)} value={pageNo} onChange={setPageNo} p="lg" />}
       </Paper>}
-      {page === "unknown" && <Paper withBorder className="panel"><Group justify="space-between" className="panel-heading"><Title order={2}>Offene unbekannte Anhänge</Title><Badge color="yellow">{loading ? "Wird geladen" : total + " Anhänge"}</Badge></Group>
+      {page === "unknown" && <Paper withBorder className="panel"><Group justify="space-between" className="panel-heading"><Title order={2}>Offene unbekannte Anhänge</Title><Badge color="yellow">{loading ? "Wird geladen" : error ? "Nicht verfügbar" : total + " Anhänge"}</Badge></Group>
         <TextInput mx="lg" mb="lg" label="Suche" placeholder="Datei oder Vorgang" value={query} maxLength={200} onChange={e => { setQuery(e.currentTarget.value); setPageNo(1); }} />
         <Table.ScrollContainer minWidth={650}><Table verticalSpacing="md"><Table.Thead><Table.Tr><Table.Th>Anhang</Table.Th><Table.Th>Befund</Table.Th><Table.Th>Status</Table.Th><Table.Th>Prüfung</Table.Th></Table.Tr></Table.Thead><Table.Tbody>
           {unknown.map(row => <Table.Tr key={row.id}><Table.Td><Text fw={600} size="sm">{row.name}</Text><Text size="xs" c="dimmed">Vorgang {row.message_id.slice(0, 12)}</Text></Table.Td><Table.Td><Text size="sm">{reasonText(row.current_finding)}</Text></Table.Td><Table.Td><StatusBadge value={row.status} /></Table.Td><Table.Td><Button size="xs" variant="light" disabled={detailBusy} onClick={() => openDetail(row.message_id, row.id)}>Original und Zuordnung</Button></Table.Td></Table.Tr>)}
@@ -135,7 +135,7 @@ export default function App({ user, csrfToken, onLogout, onReauthenticate }: {
       {page === "admin" && <Stack><ProcessingControls csrfToken={csrfToken} onSaved={() => setVersion(v => v + 1)} /><AdminPanel readOnly={user.role !== "admin"} csrfToken={csrfToken} onActivated={onReauthenticate} /></Stack>}
       <footer><span>E-Rechnungsimporter · Verarbeitungsprotokolle</span><span>Automatischer Import inaktiv</span></footer>
     </main></div>
-    <ProcessDialog detail={detail} initialAttachment={initialAttachment} settings={settings} canEdit={user.role === "admin"} csrfToken={csrfToken}
+    <ProcessDialog detail={detail} initialAttachment={initialAttachment} settings={settings} canEdit={user.role === "admin"} identity={user.guid} csrfToken={csrfToken}
       onClose={() => { detailSequence.current++; setDetail(null); setInitialAttachment(null); }} onChanged={changed} />
   </div>;
 }

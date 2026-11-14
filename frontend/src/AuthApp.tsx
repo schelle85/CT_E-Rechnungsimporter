@@ -160,9 +160,9 @@ export default function AuthApp() {
             </Text>
           </Stack>
         </form>
-        <Alert color="blue" mt="xl" title="AP01 · geschützter Arbeitsplatz">
-          Die Verarbeitungsvorgänge sind weiterhin synthetische Vorschau. Kein
-          automatischer Import oder Mailversand aktiv.
+        <Alert color="blue" mt="xl" title="Geschützter Arbeitsplatz">
+          Vorgänge und Originale sind nur nach Anmeldung zugänglich. Der
+          automatische Import und der Mailversand sind derzeit inaktiv.
         </Alert>
       </Paper>
     </div>
