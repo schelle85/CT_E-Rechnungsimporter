@@ -71,10 +71,9 @@ try{
   const embedded=await page.locator("iframe.original-frame").evaluate(frame=>!!frame.contentDocument?.querySelector('embed[type="application/pdf"]'));
   assert.equal(embedded,true,"Native PDF embed element was not created");
   proof.pdf_browser_diagnostics=browserDiagnostics;
-  proof.pdf_frames=await Promise.all(page.frames().map(async frame=>({url:frame.url(),viewer:await frame.evaluate(()=>{
-    const viewer=document.querySelector('pdf-viewer');
-    return viewer?{progress:viewer.loadProgress,loaded:viewer.loaded,plugin:!!viewer.shadowRoot?.querySelector('embed')}:null;
-  }).catch(()=>null)})));
+  // Chromium's internal PDF target need not accept page JavaScript evaluation.
+  proof.pdf_frames=page.frames().map(frame=>({url:frame.url()}));
+  console.log(JSON.stringify({progress:'pdf_browser',mode:proof.browser_mode,diagnostics:browserDiagnostics,frames:proof.pdf_frames}));
   await page.screenshot({path:out+"/private-reader-pdf.png",fullPage:true});
   const popupPromise=page.waitForEvent("popup");await page.getByRole("link",{name:"In neuem Tab öffnen",exact:true}).click();
   const popup=await popupPromise;await popup.waitForLoadState("domcontentloaded");await sleep(1200);
