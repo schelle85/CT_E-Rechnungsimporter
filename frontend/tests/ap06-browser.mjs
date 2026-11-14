@@ -44,7 +44,7 @@ async function open(page,key,name){
   if(name)await page.getByRole("button",{name:"Anhang "+name+" anzeigen",exact:true}).click();
 }
 async function close(page){await page.getByRole("button",{name:"Vorgang schließen",exact:true}).click();await page.getByRole("dialog").waitFor({state:"hidden"})}
-async function choose(page,label){await page.getByLabel("Zuordnung",{exact:true}).click();await page.getByRole("option",{name:label,exact:true}).click()}
+async function choose(page,label){await page.getByRole("combobox",{name:"Zuordnung",exact:true}).click();await page.getByRole("option",{name:label,exact:true}).click()}
 async function resources(context){return get(context,"/api/test/resources")}
 async function free(context){for(let i=0;i<80;i++){const r=await resources(context);if(r.free_slots===2&&r.directories===0)return r;await sleep(100)}throw new Error("Preview resources did not become free")}
 const contexts=[];
@@ -107,7 +107,7 @@ try{
     if(truncate){truncate=false;const response=await intercept.fetch();assert.equal(response.status(),200);await intercept.fulfill({status:200,contentType:"application/json",body:"{"})}
     else await intercept.continue();
   });
-  await open(a,state.active,"Test-PDF.pdf");assert.equal(await a.getByLabel("Zuordnung",{exact:true}).inputValue(),"");
+  await open(a,state.active,"Test-PDF.pdf");assert.equal(await a.getByRole("combobox",{name:"Zuordnung",exact:true}).inputValue(),"");
   await choose(a,"PDF-Rechnung");await a.getByRole("button",{name:"Zuordnung freigeben",exact:true}).click();
   await a.getByText(/Die Serverantwort ist unvollständig/).waitFor();
   await close(a);await a.reload({waitUntil:"networkidle"});
