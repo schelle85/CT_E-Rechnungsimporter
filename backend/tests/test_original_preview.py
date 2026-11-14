@@ -242,6 +242,51 @@ class OriginalTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual((self.store.get_message(key),self.store.get_attachments(key)),before)
         self.clean()
 
+    async def test_closed_receipt_retains_ap05_hash_order_and_rejects_changed_intent(self):
+        import contextlib
+        import tempfile
+        from unittest.mock import patch
+        import httpx
+        from app.graph import GraphClient, GraphError
+        from app.graph_actions import FOLDERS
+        from app.preview_worker import read_original
+        from test_graph import CONFIG, Credential
+        from test_graph_actions import ActionRemote
+        from test_graph_mail import attachment, message
+        key,aid=self.source()
+        owned=self.store.claim(key)
+        folders={name:'folder-'+name for name in FOLDERS}
+        intent=self.store.prepare_close(key,owned['owner'],0,folders)
+        remote=ActionRemote()
+        remote.folders={name:dict(id=value,displayName=name,parentFolderId='inbox',isHidden=False) for name,value in folders.items()}
+        remote.messages={'preview1':message(mid='preview1',timestamp='2026-12-01T00:00:00+00:00',parent=intent['destination_id'])}
+        remote.attachments={'preview1':[attachment('a1',size=len(PDF),name='synthetic.pdf')]}
+        remote.raw=PDF
+        original_temp=tempfile.tempdir
+        try:
+            with httpx.Client(transport=httpx.MockTransport(remote),trust_env=False) as http:
+                client=GraphClient(CONFIG,Credential(),http,sleep=lambda _:None)
+                # A durable close intent permits the already moved source before finish_close.
+                for finished in (False,True):
+                    if finished:self.store.finish_close(key,owned['owner'],0,parent_id=intent['destination_id'],flagged=True,intent_key=intent['intent_key'])
+                    snapshot=self.manager.snapshot(aid)
+                    before=self.store.get_message(key),self.store.get_attachments(key)
+                    with tempfile.TemporaryDirectory(dir=self.preview_root) as directory,patch('app.preview_worker.operator_client',return_value=contextlib.nullcontext(client)):
+                        self.assertTrue(read_original(snapshot,directory,'unused','unused')['pdf'])
+                        self.assertEqual((Path(directory)/'original').read_bytes(),PDF)
+                    self.assertEqual((self.store.get_message(key),self.store.get_attachments(key)),before)
+                for change in ('destination_id','extra'):
+                    snapshot=self.manager.snapshot(aid)
+                    payload=json.loads(snapshot['message']['close_payload']);payload[change]='changed'
+                    snapshot['message']['close_payload']=json.dumps(payload)
+                    with tempfile.TemporaryDirectory(dir=self.preview_root) as directory,patch('app.preview_worker.operator_client',return_value=contextlib.nullcontext(client)):
+                        with self.assertRaises(GraphError) as caught:read_original(snapshot,directory,'unused','unused')
+                        self.assertEqual(caught.exception.code,'preview_source_changed')
+                self.assertTrue(all(call.method=='GET' for call in remote.calls))
+                self.assertFalse(remote.writes)
+        finally:tempfile.tempdir=original_temp
+        self.clean()
+
     async def test_p3_full_authenticated_app_holds_slot_and_deadline_through_outer_send(self):
         _,aid=self.source();await self.login('reader')
         self.manager.response_seconds=6

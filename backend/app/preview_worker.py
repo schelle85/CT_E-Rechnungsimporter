@@ -38,6 +38,11 @@ def read_original(snapshot, directory, config, credential):
         allowed={message['current_parent']}
         if message['close_key'] and message['close_payload']:
             intent=json.loads(message['close_payload'])
+            # AP05 hashes this insertion order, then persists JSON with sorted keys.
+            fields=('destination','destination_id','outcome','source_parent','flag_required','revision')
+            if not isinstance(intent,dict) or set(intent)!=set(fields):
+                raise GraphError('preview_source_changed')
+            intent={name:intent[name] for name in fields}
             if intent.get('revision')!=message['revision'] or digest([message['message_key'],message['revision'],intent])!=message['close_key']:
                 raise GraphError('preview_source_changed')
             allowed.add(intent['destination_id'])
