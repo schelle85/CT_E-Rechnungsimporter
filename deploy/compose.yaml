@@ -47,6 +47,8 @@ services:
   api:
     <<: *api
     restart: unless-stopped
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "1", "--no-server-header", "--no-access-log"]
+    tmpfs: ["/tmp:rw,noexec,nosuid,size=32m", "/preview-tmpfs:rw,noexec,nosuid,size=128m,uid=10001,gid=10001,mode=0700"]
     networks: [database, web]
     environment:
       <<: *db-env
@@ -57,6 +59,16 @@ services:
       LDAP_BOOTSTRAP_FILE: /run/importer/ldap-bootstrap.json
     secrets: [db_password, ldap_bind_password, config_key]
     volumes:
+      - type: bind
+        source: ${GRAPH_CONFIG_HOST_FILE:?Set reviewed protected Graph JSON file}
+        target: /run/importer/graph.json
+        read_only: true
+        bind: {create_host_path: false}
+      - type: bind
+        source: ${GRAPH_CREDENTIAL_HOST_FILE:?Set reviewed protected Graph credential file}
+        target: /run/secrets/graph_credential
+        read_only: true
+        bind: {create_host_path: false}
       - type: bind
         source: ${LDAP_CA_HOST_FILE:-/etc/ct-e-rechnungsimporter/pki/ldap-ca.pem}
         target: /run/importer/ldap-ca.pem

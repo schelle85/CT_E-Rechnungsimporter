@@ -83,3 +83,22 @@ mit gleicher Instanzkennung bestanden.53 gezielte Tests ausgeführt:52PASS,
 ein HTTP-Testfehler durch uneinheitliche Testuhren (API real, Consumer eingefroren).
 AP06-T1 Versuch1 vereinheitlicht beide Uhren ausschließlich im HTTP-Testfixture;
 gezielter nativer Nachweis folgt. Tatsächlicher alter005→006-Pfad noch offen.
+
+Nativer Deltaabschluss zu77e963c: fünf betroffene HTTP-GruppenPASS, AP06-T1 nach
+Versuch1 geschlossen (eigenständige Testuhrursache, kein Importaliasfehler).
+Die vorherigen52PASS bleibenf3d6e6c zugeordnet; kein wiederholter53/53-Gesamtlauf.
+Zusätzlich tatsächlicher005→006-Pfad mit altem AP05-ProcessingimageCF93… und
+Altzeilen:1Mail/2Anhänge/1Storagebeleg/1Graphabsicht. Alle ursprünglichen Spalten
+und Werte unverändert, UUID erhalten, aktuelle Findings/Historie genau einmal
+ergänzt. Frischer CLI001→006 zweimal ebenfallsPASS. Eigene Ressourcen bereinigt.
+
+Originalabrufteil jetzt implementiert, noch nativ ungeprüft: ManagedOriginal hält
+zwei Plätze über Childabruf, vollständigen Hash-/Größen-/Revisionsnachcheck und
+komplette ASGI-Auslieferung. Inneres Limit180s, HTTP-Gesamtfrist300s, kein pathsend.
+GET-only-Kindprozess nutzt bestehendes JournalMailbox und legt beide Dateikopien
+im privaten Vorschautmpfs ab. Einzel-Range/HEAD/Download, Nicht-PDF nurattachment.
+ExpliziterAPIworker1, eigenes128MiBtmpfs und nur zwei zusätzliche RO-Graphdateien
+am API-Service. Ausschließlich exakte Originalroute SAMEORIGIN/frame-ancestorsself,
+keine Proxydateipufferung, endliche Proxyzeiten; übriges Portal bleibt DENY.
+Sieben neue native Prüfgruppen vorbereitet; SyntaxPASS, Ausführung noch offen.
+Frontend und tatsächlicher großer PDF-Browserdialog folgen. Kein Deployment-PASS.

@@ -93,3 +93,9 @@ def processing_settings(request: Request):
 @router.put("/api/admin/processing")
 def processing_settings_write(candidate: ProcessingInput, request: Request):
     return {**decisions(request).save_settings(**candidate.model_dump(),actor=actor(request)),"can_edit":True}
+
+
+@router.api_route("/api/attachments/{key}/original",methods=["GET","HEAD"])
+def attachment_original(key: str, request: Request, download: bool=False):
+    # Admission and child resources are owned lazily through the full ASGI response.
+    return request.app.state.preview.response(key,download=download)

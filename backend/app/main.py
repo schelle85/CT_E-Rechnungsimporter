@@ -7,6 +7,7 @@ from starlette.concurrency import run_in_threadpool
 from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 from app.process_routes import router as process_router
+from app.preview import PreviewManager
 from app.errors import AccessError
 from app.security import COOKIE, build_runtime
 from app.settings import LoginInput, ConfigInput, LdapSettings
@@ -22,6 +23,7 @@ def create_app(runtime_factory=build_runtime):
     @asynccontextmanager
     async def lifespan(app):
         app.state.runtime=runtime_factory()
+        app.state.preview=PreviewManager(app.state.runtime.engine)
         yield
         app.state.runtime.engine.dispose()
 

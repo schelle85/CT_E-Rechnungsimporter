@@ -7,4 +7,4 @@ COPY backend/app/ ./app/
 COPY backend/migrations/ ./migrations/
 COPY backend/alembic.ini ./
 USER 10001:10001
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--no-server-header", "--no-access-log"]
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "1", "--no-server-header", "--no-access-log"]
