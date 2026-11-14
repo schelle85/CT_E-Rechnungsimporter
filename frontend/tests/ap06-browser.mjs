@@ -83,6 +83,21 @@ try{
   await sleep(2200);await free(reader);
   progress('pdf_response_finished');
   if(process.env.AP06_HEADED==='1')execFileSync('python3',['/tool/x11-screen.py',out+'/private-x11-before-playwright.png'],{timeout:10000});
+  if(process.env.AP06_PDF_DIAG==='1'){
+    await page.locator('iframe.original-frame').evaluate(frame=>{frame.src=frame.src.split('#')[0]});
+    await sleep(2200);await free(reader);
+    execFileSync('python3',['/tool/x11-screen.py',out+'/private-x11-no-fragment.png'],{timeout:10000});
+    await page.evaluate(src=>{
+      const frame=document.createElement('iframe');frame.id='isolated-pdf-position-probe';frame.src=src;
+      Object.assign(frame.style,{position:'fixed',inset:'0',width:'100vw',height:'100vh',zIndex:'99999',border:'0'});document.body.appendChild(frame);
+    },BASE+route);
+    await sleep(2200);await free(reader);
+    execFileSync('python3',['/tool/x11-screen.py',out+'/private-x11-outside-modal.png'],{timeout:10000});
+    await page.locator('#isolated-pdf-position-probe').evaluate(frame=>frame.remove());
+    await page.locator('iframe.original-frame').evaluate(frame=>{frame.src=frame.src+'#toolbar=1&navpanes=0'});
+    await sleep(2200);await free(reader);
+    proof.pdf_diagnostic_variants=['unchanged_app','no_fragment','outside_modal'];
+  }
   await page.screenshot({path:out+"/private-reader-before-probe.png",fullPage:true});
   const embedded=await page.locator("iframe.original-frame").evaluate(frame=>!!frame.contentDocument?.querySelector('embed[type="application/pdf"]'));
   assert.equal(embedded,true,"Native PDF embed element was not created");

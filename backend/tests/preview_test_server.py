@@ -125,8 +125,9 @@ async def resources():
 
 
 @app.post('/api/test/advance')
-def advance():
+async def advance():
     # Existing middleware requires current admin + Origin/CSRF even in this test server.
+    # The bounded synthetic operator uses the real main-thread signal deadlines.
     f=app.state.fixture;store=f['store'];key=f['active']
     store.start_corrections(key)
     message=store.get_message(key);rows=store.get_attachments(key)
