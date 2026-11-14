@@ -64,7 +64,7 @@ export default function ProcessDialog({ detail, initialAttachment, settings, can
   }
   const url = row ? "/api/attachments/" + row.id + "/original" : "";
   const pdf = row?.current_finding?.format === "PDF" || row?.original_finding?.format === "PDF";
-  return <Modal opened={!!detail} onClose={busy ? () => undefined : onClose} title="Vorgang und Original" size="95vw" centered closeOnClickOutside={!busy} closeOnEscape={!busy}>
+  return <Modal opened={!!detail} onClose={busy ? () => undefined : onClose} title="Vorgang und Original" size="95vw" centered closeButtonProps={{ "aria-label": "Vorgang schließen", disabled: busy }} closeOnClickOutside={!busy} closeOnEscape={!busy}>
     {detail && <Stack gap="md">
       <Group justify="space-between"><div><Title order={2} size="h3">{row?.name || "Vorgang"}</Title><Text size="sm" c="dimmed">Eingang {dateTime(detail.received_at)} · {detail.attachment_count} Anhänge</Text></div>
         <Group><StatusBadge value={detail.state} />{detail.archived && <Badge color="gray">Archiv · nur lesen</Badge>}</Group></Group>

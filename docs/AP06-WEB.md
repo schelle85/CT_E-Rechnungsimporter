@@ -179,3 +179,17 @@ leereListe.401invalidiertdieSitzung auchbei defektemBody. Logintextbereinigt.
 12NodegruppenPASS(8neuegezielteplus4bestehendeLoginabläufe), keinBrowserPASS.
 DerNode-Lauf brauchtfür diebestehendeApiError-Parameterproperty TypeScript-
 Transformation; ein ersterstrip-only-Testimport erreichte diesePrüfungen nicht.
+
+G1/G2-Stand6761e05 vollständiggebaut: API/Web/Processing/Testimages mit allen
+bisherigenFixes, genau1APIworker und unveränderterClassifierlayerbindung belegt.
+Browsernachweisvorbereitet imTestimage: explizitmarkierter Testserver mit eigener
+SQLite, synthetischerDirectory/Graph undnurlesendemInputbind einer vorhandenen
+privatenPDF. KeineTestmodi/TestendpunkteimnormalenAPIimage. GeplanteGegenfälle:
+nativePDFanzeige/NeuerTab/Download,Reader/Admin,AntwortverlustundneueRevision,
+abgeschnittenes200JSON/neueSitzung,Einzelanhänge/Belege/Archiv/Quellfehler und zwei
+25MiB-Ströme übertatsächlichesNginx mitkontrolliertlangsamenLesern. PrivateDatei
+undScreenshotsbleibenintern;keine44erNeuklassifikationoderMatrixänderung.
+EinunverändertesbereitsalsPDFbelegtesOriginal behält bei reintechnischemFolgefehler
+seinenPDFtyp,sofernderaktuelleBefundkeineabweichendeFormatangabeenthält undMagic/
+Hash/Größevollständigpassen. GezielterReadernachtest erweitert;Native-/Browser-
+ausführungam folgenden festenPinnoch offen. DeutscherDialog-Schließenname ergänzt.

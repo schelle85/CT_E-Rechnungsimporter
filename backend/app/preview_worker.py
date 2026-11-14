@@ -59,8 +59,9 @@ def read_original(snapshot, directory, config, credential):
             raise GraphError('preview_content_changed')
         # Revalidate selected source and full known manifest after the download as well.
         reader.attachments(message['graph_id'])
-        finding=json.loads(selected['effective_finding'] or selected['original_finding'] or '{}')
-        return {'ok':True,'size':size,'sha256':checksum.hexdigest(),'pdf':magic==b'%PDF-' and finding.get('format')=='PDF'}
+        finding=json.loads(selected['effective_finding'] or '{}')
+        original=json.loads(selected['original_finding'] or '{}')
+        return {'ok':True,'size':size,'sha256':checksum.hexdigest(),'pdf':magic==b'%PDF-' and (finding.get('format') or original.get('format'))=='PDF'}
 
 
 def preview_child(connection, snapshot, directory, config, credential):

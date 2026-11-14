@@ -226,6 +226,11 @@ class OriginalTests(unittest.IsolatedAsyncioTestCase):
                         result=read_original(snapshot,directory,'unused','unused')
                     self.assertTrue(result['pdf'])
                     self.assertEqual((Path(directory)/'original').read_bytes(),PDF)
+                    (Path(directory)/'original').unlink()
+                    snapshot['selected']['effective_finding']=json.dumps(dict(status='failed',reason='graph_transport_error',method='source_or_handoff'))
+                    with patch('app.preview_worker.operator_client',return_value=contextlib.nullcontext(client)),patch('app.graph_mail.TemporaryFile',side_effect=private_temporary):
+                        recovered=read_original(snapshot,directory,'unused','unused')
+                    self.assertTrue(recovered['pdf'])
                     for method in ('POST','PATCH'):
                         with self.assertRaises(GraphError):ReadOnlyGraph(client)._json(method,client.root)
                 self.assertTrue(raw_locations)
