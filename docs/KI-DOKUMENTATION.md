@@ -11,20 +11,30 @@ Stand: 14. November 2026. Lebende Markdown-Dokumentation, noch kein Gesamtabschl
 
 ## Aktueller Stand
 
+AP07a–c ist seit14.11.2026 freigegeben. PaketA ist implementiert und mit19 lokalen
+Prüfgruppen geprüft: eingefrorene additive007-Tabellen, reine Termin-/Vorlagen-/
+Kohortenlogik und persistente Einstellungen/Outbox mit Planrevision, Requestfence
+und einmaliger POST-Freigabe. Ursprüngliche Testrequests werden vor aktueller
+Versionsprüfung abgeglichen; unreservierte Pflichtslots bleiben neu planbar.
+Native007-/Alt-API-Prüfung, Graphsender, eigener Notificationkey zur Laufzeit,
+Zertifikats-/Authproof und Webintegration stehen noch aus. Siehe [AP07](AP07-NOTIFICATIONS.md).
+Keine echte SendMail, Kundenmigration oder Timeraktivierung aus PaketA.
+Der tatsächliche Kundenbetrieb bleibt der folgende bestätigte AP06-/006-Stand.
+
 AP06a–d samt PDF-Vorschau ist technisch abgeschlossen und bereitgestellt. Echte Journalansichten,
 getrennte Erst-/aktuelle Befunde, generationgebundene Freigabe und Retry,
 versionierte Einstellungen sowie geschützter Originalabruf sind implementiert.
 Gezielte native006-, HTTP-, Sperr-/Retry- und Vorschau-Lebensdauernachweise sowie
 fünf vollständige Browsergruppen liegen vor. Die tatsächliche PDF-Seite wurde
 im Dialog und neuen Tab einzeln visuell bestätigt. Produktlaufzeit aus `3fd5fef`;
-spätere Testkorrekturen verändern weder Anwendung noch Migrationen/Deployment.
+Die historischen AP06-Testkorrekturen veränderten weder Anwendung noch Migrationen/Deployment.
 Zuordnung und Grenzen im [AP06-Vertrag](AP06-WEB.md). Kundenportal und API sind
 umgeschaltet, Schema006 unter Erhalt von Altzeilen/Instanz/Konfiguration bestätigt.
 Getrenntes Betreiber-Rücklesen: Datenbank erhalten, HTTPS-Journalmodus und
 Zugriffsschutz, vollständiger Graph-GET-Leerscan und inaktive Timer bestätigt.
 Das echte Journal ist leer. Eine neue tatsächliche Kundenanmeldung für AP06 wurde
 nicht durchgeführt; vollständige Rollen-/Bedienprüfungen erfolgten isoliert.
-Keine Timeraktivierung, kein AP07-/AP08-Go und keine DMS-Abnahmebedingung.
+Keine Timeraktivierung; AP08 und spätere Pakete ohne Go, keine DMS-Abnahmebedingung.
 
 
 - AP00/AP02 technisch abgeschlossen, AP01 durch den Kunden abgenommen.
@@ -78,7 +88,8 @@ Keine Timeraktivierung, kein AP07-/AP08-Go und keine DMS-Abnahmebedingung.
   und Rückweg der alten API auf 006 separat geprüft. Antwortverlust/Neuanmeldung,
   Teilvorgänge und langsame Originalantworten über Nginx im Browser bestanden.
   Kundenmigration/Bereitstellung und separates Betreiber-Rücklesen bestanden.
-  DMS ist vollständig außerhalb Auftrag/Prüfung/Abnahme. Kein AP07-/AP08-Go.
+  DMS ist vollständig außerhalb Auftrag/Prüfung/Abnahme. AP07-Go inzwischen erteilt;
+  AP08 und spätere Pakete weiterhin ohne Go.
 - Signaturzählung ohne manuelle Hashlisten: nur file+inline+normalisierter
   image-MIME und vollständiges hashgebundenes AP03-ignored/unsupported_attachment
   werden nach Findingannahme ausgenommen. Alle anderen Fälle bleiben gezählt/offen.

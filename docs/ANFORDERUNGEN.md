@@ -162,7 +162,13 @@ Zertifikatswarnung für das Graph-Anmeldezertifikat:
 - Ausschließlich vorhandenen Graph-Versand nutzen; kein SMTP-Ersatzweg.
 - Keine garantierte Warnzustellung nach Ablauf; Versuch/Fehler im Protokoll anzeigen.
 - Tageszustand persistent speichern, damit Neustarts keine doppelten Warnserien erzeugen.
-- Ende der Warnserie nach geprüftem Zertifikatswechsel noch konkretisieren.
+- Warnserie erst nach frischer erfolgreicher Anmeldung mit genau dem lokal gültigen
+  Nachfolgezertifikat desselben Scopes beenden. Dateitausch oder Registrierung allein
+  sowie ein alter Cachetoken genügen nicht.
+- Warnbeginn bei exakter Restzeit von höchstens zehnmal24Stunden; rot bei höchstens
+  24Stunden einschließlich Ablauf und danach. Berliner Kalenderdatum nur für täglichen
+  Warnslot/Terminierung, nicht als Ersatz für die Restzeitschwelle.
+- Ablaufstatus im Portal und gesonderter Hinweis nach Login für beide berechtigten Rollen.
 
 Graph-Anmeldezertifikat und HTTPS-Zertifikat haben unterschiedliche Aufgaben.
 Das vorhandene HTTPS-Zertifikat wird extern alle 60 Tage erneuert. Erneuerte Dateien

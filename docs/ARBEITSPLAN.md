@@ -5,7 +5,8 @@ AP01 ist vollständig durch den Kunden abgenommen. AP02a–c ist technisch abges
 AP03 ist eingefroren, AP04 ist im Grundlagenumfang technisch abgeschlossen.
 AP05a–c ist im definierten manuellen Umfang technisch abgeschlossen und bereitgestellt.
 AP06a–d samt PDF-Vorschau ist technisch abgeschlossen und bereitgestellt;
-Kundenmigration auf006 und getrenntes Rücklesen bestanden. AP07 und spätere Pakete bleiben ohne Go;
+Kundenmigration auf006 und getrenntes Rücklesen bestanden. AP07a–c ist freigegeben
+und in Arbeit; PaketA lokal geprüft. AP08 und spätere Pakete bleiben ohne Go;
 dauerhafter Automatikbetrieb gehört in AP08.**
 AP10 ist für die spätere wöchentliche Wartung ergänzt.
 ORGA koordiniert, DEV implementiert, REVIEW prüft.
@@ -135,9 +136,14 @@ DMS-Anbindung, -Konfiguration und -Prüfung sind keine Auftrags-/Abnahmebestandt
 
 | Teil | Ergebnis und Prüfung |
 | --- | --- |
-| AP07a | Graph-Versand, konfigurierbare Empfänger und nachvollziehbare Testmail |
-| AP07b | Tägliche Zertifikatswarnung ab zehn Resttagen; Ablauf-/Fehlerfälle synthetisch prüfen |
-| AP07c | Konfigurierbare Fehler-, Ausfall-, Tages- und Wochenmeldungen ohne Mailflut |
+| AP07a | PaketA: Einstellungen, feste Vorlagen, ursprüngliche Testrequestbindung und dauerhafte Einmalreservierung lokal geprüft. Graphsender und tatsächliche Web-/Testmailintegration folgen in B/C. |
+| AP07b | Exakte Restzeitschwellen und Berliner Tagesidentität als reine Funktionen geprüft. Lokales Zertifikatslesen, frischer Nachfolge-Authproof und Portal-/Loginhinweis folgen in B/C. Pflichtwarnung nicht über Auswahl abschaltbar. |
+| AP07c | PaketA: jüngste fällige Kalenderfenster, Kohorten-/Snapshotzähler sowie reine Fehler-/Ausfallplanung lokal geprüft. Tatsächlicher Beobachter/Versand und Webkonfiguration folgen in B/C. |
+
+AP07-Go vom14.11.2026. PaketA hat19 lokale Prüfgruppen bestanden; es ist keine
+native MariaDB-/Runtime- oder Kundenabnahme. Kundenschema bleibt006, keine
+SendMail, Kundenmigration oder Timeraktivierung aus diesem Teilstand.
+Vertrag und Grenzen: [AP07](AP07-NOTIFICATIONS.md).
 
 ## AP08: Betriebsprüfung und Übergang - DEV / REVIEW / ORGA
 

@@ -23,7 +23,12 @@
   API/Web/DB, HTTPS-Journalmodus, Zugriffsschutz und leerem Journal bestätigt.
   Keine neue tatsächliche AP06-Kundenanmeldung behaupten.
   Vor Kundenmigration/Deployment fester Quellreview und konkreter ORGA-Abgleich.
-  AP07 und spätere AP bleiben ohne Go; dauerhafte Automatik gehört in AP08.
+  AP07a–c ist seit14.11.2026 freigegeben und in Arbeit. PaketA ergänzt ausschließlich
+  additive007-Tabellen, reine Planung/Berichtskohorten und dauerhafte Outbox-/
+  Request-/Reservierungsverträge;19 lokale Prüfgruppen bestanden. Graphsender,
+  Zertifikats-/Authproof, neue Webbedienung und native Laufzeitprüfung folgen.
+  Kundenstand bleibt AP06/006; keine echte SendMail oder Timer aus PaketA.
+  AP08 und spätere AP bleiben ohne Go; dauerhafte Automatik gehört in AP08.
   DMS-Anbindung, -Konfiguration und -Prüfung liegen außerhalb unseres Auftrags
   und sind keine Abnahmebedingung. AP03 und Stichtag bleiben unverändert.
 - Keine zusätzlichen Agenten oder Chats ohne entsprechenden Auftrag.

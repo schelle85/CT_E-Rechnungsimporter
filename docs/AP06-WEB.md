@@ -1,14 +1,15 @@
 # AP06 – Webansichten und berechtigte Originalanzeige
 
 Stand: 14.11.2026. AP06a–d samt PDF-Vorschau ist freigegeben, implementiert und
-technisch isoliert geprüft. Produktlaufzeit aus `3fd5fef`; nachfolgende Änderungen
-betreffen ausschließlich Browser-/Testserverwerkzeuge und Dokumentation.
+technisch isoliert geprüft. Produktlaufzeit aus `3fd5fef`; spätere Änderungen des
+AP06-Abschlusses betrafen ausschließlich Browser-/Testserverwerkzeuge und Dokumentation.
+AP07 hat inzwischen ein eigenes Go und einen getrennten [Teilstand](AP07-NOTIFICATIONS.md).
 Kundenmigration und Umschaltung sind abgeschlossen und getrennt zurückgelesen.
 Quellprüfung, isolierter Runtime-/Browsernachweis,
 Kundenbereitstellung und Kundenabnahme werden getrennt geführt.
 
 AP03-Erkennung und Eingangsstichtag 1. Dezember 2026, Berlin, bleiben unverändert.
-Keine Timer, Benachrichtigungen oder AP07-/AP08-Aktivierung. DMS-Anbindung,
+AP06 hat keine Timer oder Benachrichtigungen aktiviert; AP08 bleibt ohne Go. DMS-Anbindung,
 -Konfiguration und -Prüfung liegen vollständig außerhalb des Auftrags und
 sind keine Abnahmebedingung.
 
