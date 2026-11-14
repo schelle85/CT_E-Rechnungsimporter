@@ -23,8 +23,12 @@ Gezielte A1-Korrektur bindet Ausfallwiederholungen an den tatsächlichen letzten
 Versuch derselben Incidentepisode. Versuch1 ließ noch eine Erstanlage-Race offen.
 Versuch2 führt die ursprüngliche Episode mit dem Slot mit und prüft Fakten,
 Mitgliedschaft und aktuellen Monitor bei Erstanlage/Replay/Replan/Reservierung.
-25 lokale Tests und nachgespieltes unabhängiges Race-Setup bestanden; unabhängiger
-Review und native Prüfung stehen aus. Einzelheiten im [AP07-Prüfstand](AP07-NOTIFICATIONS.md).
+25 lokale Tests und nachgespieltes unabhängiges Race-Setup bestanden; A1 danach
+unabhängig im Quellenreview nach Versuch2 geschlossen. Separater A2-Befund im
+Fehlerbündelpfad mit Versuch1 korrigiert: eingefrorene Auswahl und aktuelle
+atomare1h-/Ursachensperre;30 lokale Tests einschließlich A1 und nachgespieltes
+unabhängiges A2-Setup bestanden. A2-Review, restlicher A-Review und native Prüfung
+stehen noch aus. Einzelheiten im [AP07-Prüfstand](AP07-NOTIFICATIONS.md).
 Der tatsächliche Kundenbetrieb bleibt der folgende bestätigte AP06-/006-Stand.
 
 AP06a–d samt PDF-Vorschau ist technisch abgeschlossen und bereitgestellt. Echte Journalansichten,

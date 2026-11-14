@@ -8,7 +8,8 @@ import sqlalchemy as sa
 from app.notification_schema007 import settings, outbox, monitor
 from app.notification_model import (DEFAULTS, NotificationError, Slot, canonical, checked_actor,
     checked_key, checked_settings, identity, make_payload, test_request)
-from app.notification_planning import INCIDENT_FIELDS, IncidentSlot, outage_slot
+from app.notification_planning import (INCIDENT_FIELDS, IncidentSlot, outage_slot,
+    ErrorObservation, ErrorBundleSlot, error_bundle)
 from app.schema import audit
 
 RECEIPT_FIELDS = ("slot_key", "request_id", "actor", "scope_key", "kind", "period_start",
@@ -155,15 +156,58 @@ class NotificationStore:
             raise NotificationError("notification_monitor_changed")
         return member,source,payload
 
+    def _bundle_plan(self,c,scope,slot,config,as_of,now,*,data=None):
+        if (not isinstance(slot,ErrorBundleSlot) or type(as_of) is not int or as_of > now
+                or any(value.last_seen > as_of or value.last_reserved_at is not None and value.last_reserved_at > as_of
+                    for value in slot.observations)):
+            raise NotificationError("notification_bundle_plan_invalid",422)
+        expected = error_bundle([value.row() for value in slot.observations],config,as_of)
+        if expected is None or expected[0] != slot:
+            raise NotificationError("notification_bundle_plan_invalid",422)
+        if data is not None and canonical(data) != canonical(expected[1]):
+            raise NotificationError("notification_facts_invalid",422)
+        sources = []
+        for value in slot.observations:
+            member = dict(as_of=as_of,**vars(value))
+            source = c.execute(sa.select(monitor).where(monitor.c.monitor_key == value.key,
+                monitor.c.scope_key == scope,monitor.c.kind == "incident").with_for_update()).mappings().first()
+            if source is None:
+                raise NotificationError("notification_monitor_changed")
+            payload = json.loads(source["payload"])
+            if (any(payload[name] != getattr(value,name) for name in ("episode","first_seen","code"))
+                    or payload["active"] is not True or payload["resolved_at"] is not None
+                    or not value.last_seen <= payload["last_seen"] <= now
+                    or not value.last_failure <= payload["last_failure"] <= payload["last_seen"]
+                    or value.last_reserved_at is not None and
+                        (payload["last_reserved_at"] is None or payload["last_reserved_at"] < value.last_reserved_at)):
+                raise NotificationError("notification_monitor_changed")
+            sources.append((member,source,payload))
+        return sources
+
+    @staticmethod
+    def _errors_until(c,scope,sources,config):
+        last = c.execute(sa.select(outbox.c.reserved_at).where(outbox.c.scope_key == scope,
+            outbox.c.kind == "errors",outbox.c.reservations == 1).order_by(outbox.c.reserved_at.desc())
+            .limit(1).with_for_update()).scalar_one_or_none()
+        return max([last+3600 if last is not None else 0]+[
+            payload["last_reserved_at"]+config["error_repeat_hours"]*3600
+            for _,_,payload in sources if payload["last_reserved_at"] is not None])
+
     def _write_plan(self, c, row, head, slot, data, as_of, origin, members=()):
         incident = slot.kind in {"outage","recovery"}
+        bundle = slot.kind == "errors"
         if (len(members) > 100 or len(set(members)) != len(members)
                 or incident and len(members) != 1):
             raise NotificationError("notification_members_invalid", 422)
         config = self._configuration(head)
         now = int(self.clock())
         membership = []
-        if incident:
+        if bundle:
+            sources = self._bundle_plan(c,row["scope_key"],slot,config,as_of,now,data=data)
+            membership = [member for member,_,_ in sources]
+            if list(members) != [member["key"] for member in membership]:
+                raise NotificationError("notification_members_invalid",422)
+        elif incident:
             member,_,_ = self._incident_plan(c,row["scope_key"],slot,config,as_of,now,data=data)
             if list(members) != [member["key"]]:
                 raise NotificationError("notification_members_invalid",422)
@@ -193,7 +237,9 @@ class NotificationStore:
             outbox.c.reservations == 0, outbox.c.plan_revision == row["plan_revision"]).values(
             config_version=head["version"], plan_revision=revision,
             payload_cipher=self._encrypt(payload), payload_hash=digest, state="prepared",
-            monitor_keys=canonical(membership if incident else sorted(membership)),
+            monitor_keys=canonical(membership if incident or bundle else sorted(membership)),
+            not_before=self._errors_until(c,row["scope_key"],sources,config)
+                if bundle and row["error_code"] == "notification_errors_deferred" else row["not_before"],
             due_at=slot.due, stale_at=slot.stale, error_code=None,
             owner=None, lease_until=0, updated_at=now))
         if changed.rowcount != 1:
@@ -231,6 +277,12 @@ class NotificationStore:
                 member,_,_ = self._incident_plan(c,scope,slot,config,as_of,now,data=data)
                 if list(members) != [member["key"]]:
                     raise NotificationError("notification_members_invalid",422)
+            bundle_members = None
+            if slot.kind == "errors":
+                sources = self._bundle_plan(c,scope,slot,config,as_of,now,data=data)
+                bundle_members = [member for member,_,_ in sources]
+                if list(members) != [member["key"] for member in bundle_members]:
+                    raise NotificationError("notification_members_invalid",422)
             if row is None:
                 self._insert(c, key, slot, scope, "system", head["version"])
                 row = self._row(c, key)
@@ -238,7 +290,8 @@ class NotificationStore:
                 row = dict(row)
                 if row["owner"] and row["lease_until"] > now:
                     return self.receipt(row)
-                if row["config_version"] == head["version"] and row["payload_cipher"] and row["state"] == "prepared":
+                if (row["config_version"] == head["version"] and row["payload_cipher"] and row["state"] == "prepared"
+                        and (bundle_members is None or row["monitor_keys"] == canonical(bundle_members))):
                     return self.receipt(row)
             self._write_plan(c, row, head, slot, data, as_of, origin, members)
             return self.receipt(self._row(c, key))
@@ -339,6 +392,28 @@ class NotificationStore:
             if incident and (len(members) != 1 or not isinstance(members[0],dict)):
                 raise NotificationError("notification_monitor_changed")
             sources = []
+            if row["kind"] == "errors":
+                try:
+                    if not members or len({member["as_of"] for member in members}) != 1:
+                        raise NotificationError("notification_monitor_changed")
+                    slot = ErrorBundleSlot("errors",row["period_start"],row["period_end"],row["due_at"],row["stale_at"],
+                        observations=tuple(ErrorObservation(**{key:value for key,value in member.items() if key != "as_of"})
+                            for member in members))
+                    if slot.key(self.instance,row["scope_key"]) != row["slot_key"]:
+                        raise NotificationError("notification_monitor_changed")
+                    current = self._bundle_plan(c,row["scope_key"],slot,self._configuration(head),members[0]["as_of"],now)
+                except (KeyError,TypeError):
+                    raise NotificationError("notification_monitor_changed") from None
+                if members != [member for member,_,_ in current]:
+                    raise NotificationError("notification_monitor_changed")
+                until = self._errors_until(c,row["scope_key"],current,self._configuration(head))
+                if now < until:
+                    c.execute(outbox.update().where(outbox.c.slot_key == row["slot_key"],outbox.c.reservations == 0).values(
+                        not_before=max(row["not_before"],until),error_code="notification_errors_deferred",
+                        owner=None,lease_until=0,updated_at=now))
+                    return False
+                sources = [(member["key"],source,payload) for member,source,payload in current]
+                members = []
             for member in members:
                 if incident:
                     try:

@@ -104,8 +104,9 @@ class NotificationTests(unittest.TestCase):
         self.now[0]+=901
         self.reserve(row)
         for index in range(3):
-            slot=Slot("errors",self.now[0]+index,self.now[0]+index+1,self.now[0],self.now[0]+7200,str(index))
-            data=dict(source="processing",first_seen=self.now[0],last_seen=self.now[0],count=1,codes=["synthetic_failure"])
+            fingerprint=f"{index:064x}"
+            slot=calendar_slot("certificate",self.now[0],self.config,certificate=fingerprint)
+            data=dict(fingerprint=fingerprint,expires_at=self.now[0],remaining_seconds=0)
             prepared=self.store.prepare(slot,SCOPE,data,expected_version=1,as_of=self.now[0])
             self.reserve(prepared)
         another=calendar_slot("certificate",self.now[0],self.config,certificate="e"*64)
@@ -557,6 +558,178 @@ class NotificationTests(unittest.TestCase):
         with self.assertRaises(NotificationError):self.outage_plan(slot,current)
         self.assertEqual(self.store.read(row["slot_key"]),before)
         self.assertEqual(self.store.monitor_state(SCOPE,"incident",token),current)
+
+    def error_observation(self,label,*,failed=True,code="processing_source_unavailable"):
+        from app.notification_planning import observe_incident
+        token=identity(["a2-synthetic-cause",label])
+        before=self.store.monitor_state(SCOPE,"incident",token)
+        value=observe_incident(before["data"] if before else None,now=self.now[0],failed=failed,
+            code=code if failed else None)
+        return self.store.put_monitor(SCOPE,"incident",token,value,expected_revision=before["revision"] if before else 0)
+
+    def bundle_plan(self,bundle):
+        slot,facts,members=bundle
+        return self.store.prepare(slot,SCOPE,facts,expected_version=self.store.configuration()["version"],
+            as_of=self.now[0],members=members)
+
+    def test_a2_delayed_bundle_unknown_and_exact_24_hour_boundary(self):
+        from app.notification_planning import error_bundle
+        self.configure()
+        self.now[0]=stamp("2026-12-01T11:45:00+00:00")
+        self.error_observation("a")
+        self.now[0]=stamp("2026-12-01T12:59:59+00:00")
+        old=self.error_observation("a")
+        first=self.bundle_plan(error_bundle([old],self.config,self.now[0]))
+        first_at=self.now[0]
+        ticket=self.reserve(first)
+        self.store.begin_post(ticket,budget=self.budget())
+        self.store.finish(ticket,"unknown",http_status=503,error_code="graph_http_error")
+        self.now[0]+=1
+        current=self.error_observation("a")
+        self.assertIsNone(error_bundle([current],self.config,self.now[0]))
+        late=self.bundle_plan(error_bundle([old],self.config,self.now[0]))
+        late_ticket=self.store.claim(late["slot_key"],SCOPE)
+        self.assertFalse(self.store.reserve(late_ticket,budget=self.budget()))
+        self.assertIsNone(self.store.begin_post(late_ticket,budget=self.budget()))
+        self.assertEqual(self.store.read(late["slot_key"])["not_before"],first_at+86400)
+        self.assertEqual(self.store.monitor_state(SCOPE,"incident",identity(["a2-synthetic-cause","a"])),current)
+        self.now[0]=first_at+86400-1
+        current=self.error_observation("a")
+        self.assertIsNone(error_bundle([current],self.config,self.now[0]))
+        before=self.store.monitor_state(SCOPE,"incident",identity(["a2-synthetic-cause","a"]))
+        stale=self.bundle_plan(error_bundle([old],self.config,self.now[0]))
+        stale_ticket=self.store.claim(stale["slot_key"],SCOPE)
+        self.assertFalse(self.store.reserve(stale_ticket,budget=self.budget()))
+        self.assertEqual(self.store.monitor_state(SCOPE,"incident",identity(["a2-synthetic-cause","a"])),before)
+        self.now[0]+=1
+        current=self.error_observation("a")
+        ready=self.bundle_plan(error_bundle([current],self.config,self.now[0]))
+        allowed=self.reserve(ready)
+        self.assertIsNotNone(self.store.begin_post(allowed,budget=self.budget()))
+        self.assertIsNone(self.store.begin_post(allowed,budget=self.budget()))
+        self.assertEqual(self.now[0]-first_at,86400)
+        self.assertEqual(self.store.read(first["slot_key"])["state"],"unknown")
+
+    def test_a2_global_hour_waits_from_actual_reservation_for_another_cause(self):
+        from app.notification_planning import error_bundle
+        self.configure()
+        self.now[0]=stamp("2026-12-01T11:45:00+00:00")
+        self.error_observation("a");self.error_observation("b",code="processing_destination_unavailable")
+        self.now[0]=stamp("2026-12-01T12:59:59+00:00")
+        first=self.bundle_plan(error_bundle([self.error_observation("a")],self.config,self.now[0]))
+        first_at=self.now[0]
+        ticket=self.reserve(first)
+        self.store.recover(first["slot_key"],stopped_owner=ticket["owner"])
+        self.now[0]+=1
+        observed=self.error_observation("b",code="processing_destination_unavailable")
+        second=self.bundle_plan(error_bundle([observed],self.config,self.now[0]))
+        other=self.store.claim(second["slot_key"],SCOPE)
+        self.assertFalse(self.store.reserve(other,budget=self.budget()))
+        self.assertEqual(self.store.read(second["slot_key"])["not_before"],first_at+3600)
+        self.assertEqual(self.store.monitor_state(SCOPE,"incident",identity(["a2-synthetic-cause","b"])),observed)
+        self.now[0]=first_at+3599
+        self.assertIsNone(self.store.claim(second["slot_key"],SCOPE))
+        self.now[0]+=1
+        ready=self.bundle_plan(error_bundle([self.error_observation("b",code="processing_destination_unavailable")],self.config,self.now[0]))
+        allowed=self.reserve(ready)
+        self.assertIsNotNone(self.store.begin_post(allowed,budget=self.budget()))
+        self.assertEqual(self.now[0]-first_at,3600)
+
+    def test_a2_old_selection_first_prepare_replay_and_reserve_do_not_relabel_members(self):
+        from app.notification_planning import error_bundle
+        self.configure()
+        self.error_observation("a");self.error_observation("b")
+        self.now[0]+=900
+        old_a=self.error_observation("a");old_b=self.error_observation("b")
+        old=error_bundle([old_a,old_b],self.config,self.now[0])
+        self.now[0]+=1
+        self.error_observation("a",failed=False)
+        current_a=self.error_observation("a",code="processing_new_failure")
+        before_b=self.store.monitor_state(SCOPE,"incident",identity(["a2-synthetic-cause","b"]))
+        with self.assertRaises(NotificationError):self.bundle_plan(old)
+        self.assertEqual(self.store.history(SCOPE)["total"],0)
+        self.assertEqual(self.store.monitor_state(SCOPE,"incident",identity(["a2-synthetic-cause","a"])),current_a)
+        self.assertEqual(self.store.monitor_state(SCOPE,"incident",identity(["a2-synthetic-cause","b"])),before_b)
+        fresh=error_bundle([current_a,before_b],self.config,self.now[0])
+        self.assertEqual(fresh[1]["count"],1)
+        row=self.bundle_plan(fresh)
+        ticket=self.store.claim(row["slot_key"],SCOPE)
+        self.now[0]+=1
+        resolved=self.error_observation("b",failed=False)
+        with self.assertRaises(NotificationError):self.store.reserve(ticket,budget=self.budget())
+        self.store.recover(row["slot_key"],stopped_owner=ticket["owner"])
+        before=self.store.read(row["slot_key"])
+        with self.assertRaises(NotificationError):self.bundle_plan(fresh)
+        self.configure(recipients=["changed@example.invalid"])
+        with self.assertRaises(NotificationError):self.bundle_plan(fresh)
+        self.assertEqual(self.store.read(row["slot_key"]),before)
+        self.assertEqual(self.store.monitor_state(SCOPE,"incident",identity(["a2-synthetic-cause","b"])),resolved)
+        self.assertIsNone(resolved["data"]["last_reserved_at"])
+
+    def test_a2_fresh_consistent_replan_drops_cooling_member_without_marking_it_again(self):
+        from app.notification_planning import error_bundle
+        self.configure()
+        self.now[0]=stamp("2026-12-01T11:45:00+00:00")
+        self.error_observation("a");self.error_observation("b",code="processing_other_failure")
+        self.now[0]=stamp("2026-12-01T12:59:59+00:00")
+        old_a=self.error_observation("a");old_b=self.error_observation("b",code="processing_other_failure")
+        first=self.bundle_plan(error_bundle([old_a],self.config,self.now[0]))
+        first_at=self.now[0]
+        self.reserve(first)
+        self.now[0]+=1
+        late=self.bundle_plan(error_bundle([old_a,old_b],self.config,self.now[0]))
+        stale_ticket=self.store.claim(late["slot_key"],SCOPE)
+        self.assertFalse(self.store.reserve(stale_ticket,budget=self.budget()))
+        self.assertEqual(self.store.read(late["slot_key"])["not_before"],first_at+86400)
+        self.assertIsNone(self.store.monitor_state(SCOPE,"incident",identity(["a2-synthetic-cause","b"]))["data"]["last_reserved_at"])
+        self.now[0]=first_at+3600
+        current_a=self.error_observation("a");current_b=self.error_observation("b",code="processing_other_failure")
+        fresh=error_bundle([current_a,current_b],self.config,self.now[0])
+        self.assertEqual(fresh[1]["count"],1)
+        replanned=self.bundle_plan(fresh)
+        self.assertEqual(replanned["slot_key"],late["slot_key"])
+        self.assertGreater(replanned["plan_revision"],late["plan_revision"])
+        self.assertFalse(self.store.reserve(stale_ticket,budget=self.budget()))
+        allowed=self.reserve(replanned)
+        body=self.store.begin_post(allowed,budget=self.budget())["message"]["body"]["content"]
+        self.assertIn("processing_other_failure",body)
+        self.assertNotIn("processing_source_unavailable",body)
+        self.assertEqual(self.store.monitor_state(SCOPE,"incident",identity(["a2-synthetic-cause","a"]))["data"]["last_reserved_at"],first_at)
+
+    def test_a2_mixed_facts_members_and_parallel_selection_keep_payload_coherent(self):
+        from app.notification_planning import error_bundle
+        self.configure()
+        self.error_observation("a");self.error_observation("b",code="processing_other_failure")
+        self.now[0]+=900
+        a=self.error_observation("a");b=self.error_observation("b",code="processing_other_failure")
+        bundles=[error_bundle([value],self.config,self.now[0]) for value in (a,b)]
+        slot,facts,members=bundles[0]
+        for bad in (dict(facts,count=2),dict(facts,codes=["processing_other_failure"]),dict(facts,source="api")):
+            with self.assertRaises(NotificationError):self.store.prepare(slot,SCOPE,bad,expected_version=1,
+                as_of=self.now[0],members=members)
+        with self.assertRaises(NotificationError):self.store.prepare(slot,SCOPE,facts,expected_version=1,
+            as_of=self.now[0],members=[b["monitor_key"]])
+        unbound=Slot(slot.kind,slot.start,slot.end,slot.due,slot.stale)
+        with self.assertRaises(NotificationError):self.store.prepare(unbound,SCOPE,facts,expected_version=1,
+            as_of=self.now[0],members=members)
+        self.assertEqual(self.store.history(SCOPE)["total"],0)
+        barrier=threading.Barrier(2)
+        def run(bundle):
+            barrier.wait()
+            row=self.bundle_plan(bundle)
+            ticket=self.store.claim(row["slot_key"],SCOPE)
+            return row,ticket,bool(ticket and self.store.reserve(ticket,budget=self.budget()))
+        with ThreadPoolExecutor(max_workers=2) as executor:results=list(executor.map(run,bundles))
+        self.assertEqual(sum(value[2] for value in results),1)
+        row,ticket,_=next(value for value in results if value[2])
+        body=self.store.begin_post(ticket,budget=self.budget())["message"]["body"]["content"]
+        marked=[]
+        for label,code in (("a","processing_source_unavailable"),("b","processing_other_failure")):
+            state=self.store.monitor_state(SCOPE,"incident",identity(["a2-synthetic-cause",label]))
+            if state["data"]["last_reserved_at"] is not None:marked.append(code)
+        self.assertEqual(len(marked),1)
+        self.assertIn(marked[0],body)
+        self.assertIsNone(self.store.begin_post(ticket,budget=self.budget()))
 
     def test_history_and_readback_are_scope_bound_without_creating_a_new_request(self):
         self.configure()

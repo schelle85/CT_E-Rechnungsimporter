@@ -1,6 +1,6 @@
 """Pure observed incidents and coalesced slots; no scheduler, network or mail scan."""
 import re
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 from app.notification_model import NotificationError, Slot, checked_key, identity
 
 INCIDENT_FIELDS = ("episode","first_seen","last_seen","last_failure","code","resolved_at")
@@ -31,6 +31,41 @@ class IncidentSlot(Slot):
     def observation(self):
         return dict({name:getattr(self,name) for name in INCIDENT_FIELDS},
             active=self.kind == "outage",last_reserved_at=None)
+
+@dataclass(frozen=True)
+class ErrorObservation:
+    key: str
+    episode: int
+    first_seen: int
+    last_seen: int
+    last_failure: int
+    code: str
+    last_reserved_at: int | None
+
+    def __post_init__(self):
+        checked_key(self.key)
+        if (type(self.episode) is not int or self.episode < 1
+                or any(type(value) is not int for value in (self.first_seen,self.last_seen,self.last_failure))
+                or not self.first_seen <= self.last_failure <= self.last_seen
+                or not isinstance(self.code,str) or not re.fullmatch(r"[a-z0-9_]{1,64}",self.code)
+                or self.last_reserved_at is not None and type(self.last_reserved_at) is not int):
+            raise NotificationError("notification_bundle_plan_invalid",422)
+
+    def row(self):
+        data = asdict(self)
+        data.pop("key")
+        return dict(monitor_key=self.key,data=dict(data,active=True,resolved_at=None))
+
+@dataclass(frozen=True,kw_only=True)
+class ErrorBundleSlot(Slot):
+    observations: tuple[ErrorObservation,...]
+
+    def __post_init__(self):
+        super().__post_init__()
+        if (self.kind != "errors" or not isinstance(self.observations,tuple) or not 1 <= len(self.observations) <= 100
+                or any(not isinstance(value,ErrorObservation) for value in self.observations)
+                or len({value.key for value in self.observations}) != len(self.observations)):
+            raise NotificationError("notification_bundle_plan_invalid",422)
 
 def observe_incident(previous, *, now, failed, code=None):
     if (type(now) is not int or type(failed) is not bool or
@@ -82,7 +117,9 @@ def error_bundle(observations, config, now):
     if not selected:
         return None
     start = now//3600*3600
-    slot = Slot("errors",start,start+3600,start,start+3600)
+    frozen = tuple(ErrorObservation(row["monitor_key"],**{name:row["data"][name] for name in
+        ("episode","first_seen","last_seen","last_failure","code","last_reserved_at")}) for row in selected)
+    slot = ErrorBundleSlot("errors",start,start+3600,start,start+3600,observations=frozen)
     data = dict(source="processing",first_seen=min(row["data"]["first_seen"] for row in selected),
         last_seen=max(row["data"]["last_seen"] for row in selected),count=len(selected),
         codes=sorted({row["data"]["code"] for row in selected})[:10])

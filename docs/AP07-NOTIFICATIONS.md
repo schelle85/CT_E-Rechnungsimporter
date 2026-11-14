@@ -85,6 +85,17 @@ statt einen alten Payload mit der inzwischen neuen Episode zu verknüpfen.
 Die Bindung liegt im vorhandenen JSON-Feld, auch vor Erstkonfiguration; bei
 Reservierung wird sie erneut geprüft. Keine Schemaänderung dafür.
 Meldungsmitgliedschaft und Reservierung werden atomar verknüpft.
+Fehlerbündel führen ihre ursprünglich ausgewählten Ursachen als eingefrorene
+ErrorObservations mit; Fakten, Perioden und Mitgliedschaft werden vor Erstanlage,
+Replay und Neuplanung gegen den aktuellen Monitor geprüft. Reservierung prüft
+alle Mitglieder erneut, bevor eines markiert wird. Ab tatsächlicher letzter
+Bündelreservierung gilt pro Scope mindestens1h; je unveränderter Ursache gilt
+zusätzlich der konfigurierte Abstand (standardmäßig24h), auch beiunknown.
+Stundenfenster oder alte Auswahlsnapshots umgehen diese Sperren nicht.
+Ein zu frühes Bündel bleibt unreserviert aufgeschoben. Ein veraltetes Mitglied
+wird nicht umgedeutet oder beim Reservieren still entfernt. Nur ein vollständig
+konsistenter neuer Plan darf vor Reservierung Payload und Mitgliedschaft gemeinsam
+mit höherer Planrevision ersetzen; abgewiesene Pläne verändern keinen Monitor.
 Ein alter gespeicherter Fehler ist keine neue Verfügbarkeitsmessung.
 Der tatsächliche API-/Graph-Beobachter und Versand folgen; kein unabhängiger
 VM-/SMB-/Offsiteüberwachungsdienst wird behauptet.
@@ -124,8 +135,18 @@ unreserviertem Altplan/Erstkonfiguration/Replan, tatsächlicher24h-Grenze,
 unknown und zwei konkurrierenden kohärenten Planern. Das unveränderte Setup
 der unabhängigen Reproduktion wurde mit den geänderten Quellen nachgespielt:
 alter Erstplan abgewiesen, keine zusätzliche Outboxzeile, neue Episode vollständig
-unverändert und ohne Reservierung. Noch kein unabhängiger Review-/Native-PASS
-für Versuch2; diese Prüfungen folgen auf dem festen Lieferpin.
+unverändert und ohne Reservierung. A1 wurde danach unabhängig auf Quellenebene
+mit lokaler Reproduktion nach Versuch2 geschlossen. Kein Gesamt-/Native-PASS für A.
+
+Separater Restbefund A2 betraf dieselbe unveränderte Ursache im Fehlerbündelpfad:
+ein gehaltener Snapshot konnte an der Stundengrenze nach1s erneut reservieren.
+Korrekturversuch1 ergänzt die oben beschriebenen ursprünglichen Bündelsnapshots
+und atomaren1h-/Ursachenabstände. Erster lokaler Lauf30/30PASS einschließlich
+aller A1-Regressionsfälle. Unverändertes unabhängiges A2-Setup gegen die geänderten
+Quellen nachgespielt: zweite Reservierung und POST-Berechtigung abgewiesen,
+vollständiger Monitor unverändert. Exakte1h-/24h-Grenzen, unknown, Konkurrenz,
+Episodenwechsel und konsistente Teil-Neuplanung geprüft. Unabhängiger Review und
+native Prüfung dieses A2-Standes stehen noch aus; A1 bleibt geschlossen.
 
 Nächste Pakete: B für begrenzten Graphsender, Zertifikat/Wechselproof, eigenen
 Schlüssel und CLI; C für neue API-/Web-/Loginbedienung und gezielte Browserprüfung.
