@@ -22,8 +22,9 @@ Davon getrennt bestanden fünf isolierte Browsergruppen samt tatsächlicher
 PDF-Sicht im Dialog/neuen Tab, Rollen, Freigabe/Retry trotz Antwortverlust und
 begrenzten Originalantworten. Die bestehende AD-Anbindung bleibt erhalten;
 eine erneute tatsächliche Kundenanmeldung für AP06 wurde nicht durchgeführt.
-AP07 ist inzwischen freigegeben; PaketA ist ausschließlich lokal geprüft und noch
-nicht bereitgestellt. Kundenstand bleibt006/AP06. AP08 und spätere Pakete bleiben
+AP07 ist inzwischen freigegeben; A-Quellreview bestanden, B-Sender-/Cert-/CLIcode
+lokal geprüft, neue Webintegration noch ausstehend. Nicht bereitgestellt;
+Kundenstand bleibt006/AP06. AP08 und spätere Pakete bleiben
 ohne Go; Timer sind nicht aktiviert.
 DMS-Anbindung, -Konfiguration und -Prüfung liegen außerhalb des Auftrags.
 

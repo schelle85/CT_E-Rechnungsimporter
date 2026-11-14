@@ -25,9 +25,12 @@
   Vor Kundenmigration/Deployment fester Quellreview und konkreter ORGA-Abgleich.
   AP07a–c ist seit14.11.2026 freigegeben und in Arbeit. PaketA ergänzt ausschließlich
   additive007-Tabellen, reine Planung/Berichtskohorten und dauerhafte Outbox-/
-  Request-/Reservierungsverträge;19 lokale Prüfgruppen bestanden. Graphsender,
-  Zertifikats-/Authproof, neue Webbedienung und native Laufzeitprüfung folgen.
-  Kundenstand bleibt AP06/006; keine echte SendMail oder Timer aus PaketA.
+  Request-/Reservierungsverträge. A1 nachVersuch2/A2 nachVersuch1 geschlossen,
+  A-Quellreview und30 lokale Gruppen bestanden. B ergänzt begrenzten Graphsender,
+  lokalen Zertifikats-/frischen Nachfolgerproof, eigenen Notificationkey und CLI;
+  19Sender-/Cert-/Runtime- sowie9Prozess-/Bindungsgruppen lokal bestanden.
+  Fester B-Review/native B-Prüfung und neue Webbedienung folgen.
+  Kundenstand bleibt AP06/006; keine echte SendMail oder Timer aus A/B.
   AP08 und spätere AP bleiben ohne Go; dauerhafte Automatik gehört in AP08.
   DMS-Anbindung, -Konfiguration und -Prüfung liegen außerhalb unseres Auftrags
   und sind keine Abnahmebedingung. AP03 und Stichtag bleiben unverändert.

@@ -356,8 +356,10 @@ class NotificationStore:
             return False
         return True
 
-    def claim(self, key, scope):
+    def claim(self, key, scope, *, owner=None):
         checked_key(scope)
+        if owner is not None and (not isinstance(owner,str) or not re.fullmatch(r"[0-9a-f]{32}",owner)):
+            raise NotificationError("notification_owner_invalid",422)
         now = int(self.clock())
         with self.transaction() as c:
             head = self._head(c)
@@ -370,7 +372,7 @@ class NotificationStore:
                 return None
             if not self._eligible(c, row, head, now):
                 return None
-            owner = uuid4().hex
+            owner = owner or uuid4().hex
             c.execute(outbox.update().where(outbox.c.slot_key == key, outbox.c.reservations == 0,
                 outbox.c.state == "prepared").values(owner=owner, lease_until=now + self.LEASE_SECONDS))
             return dict(slot_key=key, owner=owner, plan_revision=row["plan_revision"],
@@ -543,6 +545,24 @@ class NotificationStore:
             else:
                 c.execute(monitor.insert().values(monitor_key=key, scope_key=scope, kind="transport",
                     payload=canonical(dict(not_before=until)), revision=1, updated_at=int(self.clock())))
+
+    def transport_not_before(self,scope):
+        checked_key(scope)
+        with self.engine.connect() as c:
+            value = c.execute(sa.select(monitor.c.payload).where(
+                monitor.c.monitor_key == identity([scope,"transport"]))).scalar_one_or_none()
+            return json.loads(value)["not_before"] if value else 0
+
+    def pending(self,scope,*,limit=1):
+        checked_key(scope)
+        if type(limit) is not int or not 1 <= limit <= 5:
+            raise NotificationError("notification_limit_invalid",422)
+        with self.engine.connect() as c:
+            return list(c.execute(sa.select(outbox.c.slot_key).where(outbox.c.scope_key == scope,
+                outbox.c.state == "prepared",outbox.c.reservations == 0,
+                outbox.c.due_at <= int(self.clock()),outbox.c.stale_at > int(self.clock()))
+                .order_by(sa.case((outbox.c.kind == "certificate",0),else_=1),outbox.c.due_at,outbox.c.slot_key)
+                .limit(limit)).scalars())
 
     def test_receipt(self, request_id, expected_version, scope, actor):
         request = test_request(request_id, expected_version)

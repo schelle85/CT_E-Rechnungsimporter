@@ -1,0 +1,40 @@
+# Explicit AP07 operator profile. No API-service inheritance and no scheduler.
+services:
+  notification:
+    profiles: [notification-operator]
+    image: ${NOTIFICATION_IMAGE:?Set a reviewed immutable AP07 image}
+    user: "10001:10001"
+    entrypoint: [python, -B, -m, app.notification_cli]
+    command: [configuration]
+    restart: "no"
+    read_only: true
+    tmpfs: ["/tmp:rw,noexec,nosuid,size=32m"]
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    networks: [database, web]
+    environment:
+      DB_HOST: db
+      DB_NAME: importer
+      DB_USER: importer
+      DB_PASSWORD_FILE: /run/secrets/db_password
+      NOTIFICATION_KEY_FILE: /run/secrets/notification_key
+      GRAPH_CONFIG_FILE: /run/importer/graph.json
+      GRAPH_CREDENTIAL_FILE: /run/secrets/graph_credential
+      PUBLIC_ORIGIN: ${PUBLIC_ORIGIN:?Set the reviewed external HTTPS origin}
+    secrets: [db_password]
+    volumes:
+      - type: bind
+        source: ${NOTIFICATION_KEY_HOST_FILE:?Set the independent protected Notification key file}
+        target: /run/secrets/notification_key
+        read_only: true
+        bind: {create_host_path: false}
+      - type: bind
+        source: ${GRAPH_CONFIG_HOST_FILE:?Set the reviewed protected Graph JSON file}
+        target: /run/importer/graph.json
+        read_only: true
+        bind: {create_host_path: false}
+      - type: bind
+        source: ${GRAPH_CREDENTIAL_HOST_FILE:?Set the reviewed protected Graph credential file}
+        target: /run/secrets/graph_credential
+        read_only: true
+        bind: {create_host_path: false}

@@ -1,0 +1,9 @@
+# Add only for the one-time private configure-init command, then omit this override.
+services:
+  notification:
+    volumes:
+      - type: bind
+        source: ${NOTIFICATION_INITIAL_HOST_FILE:?Set protected private initial settings JSON}
+        target: /run/importer/notification-init.json
+        read_only: true
+        bind: {create_host_path: false}

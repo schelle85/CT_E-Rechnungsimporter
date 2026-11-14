@@ -1,6 +1,8 @@
 """Small, mailbox-bound Graph v1.0 adapter. No worker or public HTTP routes."""
 from contextlib import contextmanager
 from dataclasses import dataclass
+from datetime import timezone
+from email.utils import parsedate_to_datetime
 import json
 import os
 import stat
@@ -17,9 +19,30 @@ JSON_LIMIT = 2 * 1024 * 1024
 
 class GraphError(Exception):
     """Only neutral codes cross the adapter boundary, never upstream text/URLs."""
-    def __init__(self, code, status=None, uncertain=False):
+    def __init__(self, code, status=None, uncertain=False, *, retry_not_before=None):
         self.code, self.status, self.uncertain = code, status, uncertain
+        self.retry_not_before = retry_not_before
         super().__init__(code)
+
+
+def retry_not_before(value, *, now=None):
+    """Bounded neutral 429 metadata. Huge delays stay blocked, never wrap/shorten."""
+    now = int(time.time()) if now is None else now
+    maximum = 9223372036854775807
+    if isinstance(value,str) and value.isascii() and value.isdecimal():
+        if len(value) > 19:
+            return maximum
+        return min(maximum,now+max(1,int(value)))
+    if isinstance(value,str) and len(value) <= 128:
+        try:
+            date = parsedate_to_datetime(value)
+            if date.tzinfo is not None:
+                stamp = int(date.astimezone(timezone.utc).timestamp())
+                if stamp > now:
+                    return min(maximum,stamp)
+        except (ValueError,TypeError,OverflowError):
+            pass
+    return now+900
 
 
 def protected_bytes(path):
@@ -73,9 +96,13 @@ class GraphConfig:
 
 
 class GraphClient:
-    def __init__(self, config, credential, http, *, sleep=time.sleep, clock=time.monotonic):
+    def __init__(self, config, credential, http, *, sleep=time.sleep, clock=time.monotonic, read_attempts=3, deadline=None):
         self.config, self.credential, self.http = config, credential, http
         self.sleep, self.clock = sleep, clock
+        if type(read_attempts) is not int or not 1 <= read_attempts <= 3:
+            raise GraphError("graph_configuration_invalid")
+        self.read_attempts = read_attempts
+        self.deadline = deadline
         self.root = ORIGIN + "/v1.0/users/" + quote(config.mailbox, safe="")
 
     def _checked_url(self, url, collection=None):
@@ -106,18 +133,19 @@ class GraphClient:
     def _response(self, method, url, *, params=None, payload=None):
         self._checked_url(url)
         # Retry only reads, with a small bounded budget. No implicit write replay.
-        for attempt in range(3 if method == "GET" else 1):
+        for attempt in range(self.read_attempts if method == "GET" else 1):
             try:
                 with self.http.stream(method, url, params=params, json=payload,
                                       headers=self._headers(), follow_redirects=False) as response:
-                    if method == "GET" and response.status_code in (429, 500, 502, 503, 504) and attempt < 2:
+                    if method == "GET" and response.status_code in (429, 500, 502, 503, 504) and attempt < self.read_attempts-1:
                         value = response.headers.get("Retry-After", "1")
                         try:
                             delay = int(value)
                         except ValueError:
                             delay = 1
                         if not 0 <= delay <= 5:
-                            raise GraphError("graph_retry_later", response.status_code)
+                            raise GraphError("graph_retry_later", response.status_code,
+                                retry_not_before=retry_not_before(response.headers.get("Retry-After")) if response.status_code == 429 else None)
                         response.close()
                         self.sleep(delay)
                         continue
@@ -125,7 +153,8 @@ class GraphClient:
                         status = response.status_code
                         code = {401: "graph_unauthorized", 403: "graph_forbidden", 404: "graph_not_found",
                                 429: "graph_retry_later"}.get(status, "graph_http_error")
-                        raise GraphError(code, status, method != "GET" and status >= 500)
+                        raise GraphError(code, status, method != "GET" and status >= 500,
+                            retry_not_before=retry_not_before(response.headers.get("Retry-After")) if status == 429 else None)
                     if response.headers.get("Content-Encoding", "identity").lower() not in ("", "identity"):
                         raise GraphError("graph_unexpected_encoding", uncertain=method != "GET")
                     yield response
@@ -133,15 +162,22 @@ class GraphClient:
             except (httpx.HTTPError, OSError):
                 raise GraphError("graph_transport_error", uncertain=method != "GET") from None
 
+    def _request_seconds(self,*,uncertain):
+        seconds = 45 if self.deadline is None else min(45,self.deadline-self.clock())
+        if seconds <= 0:
+            raise GraphError("graph_request_deadline",uncertain=uncertain)
+        return seconds
+
     def _json(self, method, url, *, params=None, payload=None):
         from app.graph_deadline import request_deadline
         data = bytearray()
         started = self.clock()
-        with request_deadline(45, uncertain=method != "GET"):
+        seconds = self._request_seconds(uncertain=method != "GET")
+        with request_deadline(seconds, uncertain=method != "GET"):
             with self._response(method, url, params=params, payload=payload) as response:
                 # No ByteChunker buffering: inspect every transport piece immediately.
                 for chunk in response.iter_bytes():
-                    if len(data) + len(chunk) > JSON_LIMIT or self.clock() - started >= 45:
+                    if len(data) + len(chunk) > JSON_LIMIT or self.clock() - started >= seconds:
                         raise GraphError("graph_response_limit", uncertain=method != "GET")
                     data.extend(chunk)
         try:
@@ -162,7 +198,7 @@ class GraphClient:
         from app.graph_deadline import request_deadline
         if method not in ("POST", "PATCH"):
             raise GraphError("graph_invalid_action")
-        with request_deadline(45, uncertain=True):
+        with request_deadline(self._request_seconds(uncertain=True), uncertain=True):
             # Discard the write response body; verify with a minimal selected GET instead.
             with self._response(method, url, payload=payload) as response:
                 if response.status_code != expected:

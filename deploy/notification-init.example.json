@@ -1,0 +1,18 @@
+{
+  "expected_version": 0,
+  "settings": {
+    "recipients": ["operator@example.invalid"],
+    "certificate_time": "08:00",
+    "daily_time": "08:15",
+    "weekly_time": "08:30",
+    "weekly_day": 0,
+    "errors_enabled": true,
+    "outages_enabled": true,
+    "daily_enabled": true,
+    "weekly_enabled": true,
+    "error_bundle_minutes": 15,
+    "error_repeat_hours": 24,
+    "outage_after_minutes": 15,
+    "outage_repeat_hours": 24
+  }
+}

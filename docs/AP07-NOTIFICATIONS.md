@@ -1,16 +1,17 @@
-# AP07 – Benachrichtigungen, Paket A
+# AP07 – Benachrichtigungen, Teilstände A/B
 
-Stand: 14. November 2026. AP07a–c ist freigegeben und in Arbeit. Dieser erste
-Teilstand enthält reine Fach-/Datenbankbausteine, noch keinen Graphsender und keine
-neue Webbedienung. Kundenbetrieb bleibt AP06 mit Schema006. Keine Kundenmigration,
-echte Testmail oder Zeitplanaktivierung aus Paket A. Dauerhafte Jobs gehören AP08.
+Stand: 14. November 2026. AP07a–c ist freigegeben und in Arbeit. A enthält
+Fach-/Datenbankbausteine; B ergänzt begrenzten Graphsender, Zertifikatsproof,
+eigenen Schlüssel und CLI. Neue Webbedienung folgt in C. Kundenbetrieb bleibt
+AP06 mit Schema006. Keine Kundenmigration, echte Testmail oder Zeitplanaktivierung
+aus diesen Teilständen. Dauerhafte Jobs gehören AP08.
 
 ## Wiederverwendung und Umfang
 
 Vorhandene SQLAlchemy-/Alembic-/Graph-/Azure-Identity-/HTTPX- und React-/Mantine-
 Bausteine werden weiterverwendet. Kein weiterer Dienst oder SDK erforderlich.
 Direkter [Graph-sendMail-Aufruf](https://learn.microsoft.com/en-us/graph/api/user-sendmail?view=graph-rest-1.0)
-ist für die folgende Integration vorgesehen:202 bedeutet Annahme, keine Zustellung.
+ist in B implementiert:202 bedeutet Annahme, keine Zustellung.
 Keine SMTP-Ergänzung, keine zusätzlichen globalen Entra-Rechte und kein Mail-Editor.
 
 Paket A ergänzt drei eingefrorene Tabellen über007: Notificationeinstellungen,
@@ -20,9 +21,9 @@ reale Startwerte werden getrennt privat eingebracht. Bestehende Tabellen und
 Migrationen001–006 bleiben unverändert. Destruktiver Downgrade ist gesperrt.
 
 Die Store-Schnittstelle erwartet ausschließlich den separaten Notificationcipher.
-Eigener Schlüssel, konkrete Bindungen und synthetischer Negativdecrypt gegen den
-allgemeinen LDAP-Konfigurationsschlüssel werden in Paket B geprüft; Paket A
-behauptet diese Runtimeprüfung noch nicht.
+Eigener Loader und explizite CLI-Bindungen sind in B implementiert. Echter
+synthetischer Fernet-Negativdecrypt gegen einen unabhängigen LDAPkey bestanden;
+konkrete native Image-/Mountprüfung folgt. [Betriebsvertrag](AP07-OPERATOR.md).
 
 ## Dauerhafte Versandabsicht
 
@@ -67,8 +68,11 @@ unverändert. Snapshot und Erstellzeitpunkt werden vor Netzwerkzugriff eingefror
 Warnfarben anhand exakter Restzeit: orange bei mehr als24h bis einschließlich
 10×24h, rot bei höchstens24h einschließlich Ablauf/danach. Berliner Datum bestimmt
 nur Tagesidentität/Terminierung. Zertifikatswarnung ist verpflichtend. Ende erst
-nach frischer geprüfter Anmeldung mit genau dem gültigen Nachfolger; tatsächliches
-Zertifikatslesen und dieser Nachweis folgen in B.
+nach frischer geprüfter Anmeldung mit genau dem gültigen Nachfolger. Lokales
+PEM-/RSAlesen, gleicher-Bytes-/Scope-/Gültigkeitsproof und Revision gegen verspätete
+Beobachter sind in B implementiert/synthetisch geprüft.0/negative Zeit bleibt
+warnpflichtig und schaltet best-effortGraphversuche nicht ab; Authfehler neutral
+gespeichert, keine ungültige Nachfolgerfreigabe. Keine echte Cloudprobe daraus.
 
 Reine Störungsplanung unterstützt Bündelung, beobachtete Ausfalldauer, einmalige
 Erholung und Wiederholungsabstand. Ausfallwiederholungen warten den konfigurierten
@@ -97,12 +101,13 @@ wird nicht umgedeutet oder beim Reservieren still entfernt. Nur ein vollständig
 konsistenter neuer Plan darf vor Reservierung Payload und Mitgliedschaft gemeinsam
 mit höherer Planrevision ersetzen; abgewiesene Pläne verändern keinen Monitor.
 Ein alter gespeicherter Fehler ist keine neue Verfügbarkeitsmessung.
-Der tatsächliche API-/Graph-Beobachter und Versand folgen; kein unabhängiger
-VM-/SMB-/Offsiteüberwachungsdienst wird behauptet.
+Der begrenzte Sender ist in B implementiert. Weitere API-/Processingbeobachter
+und Webverdrahtung folgen; kein unabhängiger VM-/SMB-/Offsiteüberwachungsdienst.
 
-Das gemeinsame80s-Budget und ein daraus abgeleitetes Kindbudget von höchstens60s
-mit10s Abschlussreserve sind als reine Berechnung vorhanden. Tatsächliche Web-/
-CLI-Abbruchfristen und Bindungen stehen noch zur nativen Prüfung an.
+Der gemeinsame80s-Budgetweg für CLI/späteren Webaufruf ist in B implementiert:
+Vorprüfung zählt mit, Kindphase höchstens60s/Restbudgetminus10s, Cleanup/Readback
+begrenzt. Reale synthetische Kindprozesse lokal geprüft, tatsächliche native
+CLI-/DB-/Signalgrenzen und ASGI-/Proxyintegration noch getrennt nachzuweisen.
 
 ## Lokaler Prüfstand
 
@@ -146,9 +151,17 @@ aller A1-Regressionsfälle. Unverändertes unabhängiges A2-Setup gegen die geä
 Quellen nachgespielt: zweite Reservierung und POST-Berechtigung abgewiesen,
 vollständiger Monitor unverändert. Exakte1h-/24h-Grenzen, unknown, Konkurrenz,
 Episodenwechsel und konsistente Teil-Neuplanung geprüft. Unabhängiger Review und
-native Prüfung dieses A2-Standes stehen noch aus; A1 bleibt geschlossen.
+native Prüfung dieses A2-Standes wurden separat fortgesetzt; A1 bleibt geschlossen.
+A2 danach unabhängig nachVersuch1 geschlossen, gesamter A-Quellreview PASS.
 
-Nächste Pakete: B für begrenzten Graphsender, Zertifikat/Wechselproof, eigenen
-Schlüssel und CLI; C für neue API-/Web-/Loginbedienung und gezielte Browserprüfung.
+PaketB:19Sender-/Zertifikats-/Runtimegruppen und9Prozess-/Bindungsgruppen lokal
+bestanden. Initial versehentlich als Test gesammelten Fixturehelfer umbenannt;
+keine Produktkorrektur daraus. Eigene gezielte B1-Fristkorrektur prüft Budget nach
+POST-Gate-Commit und begrenzt Graphauth/-transport auf den Resttermin;19betroffene
+Gruppen anschließend bestanden. Keine pauschale gemeinsame58er-/Nativeabnahme.
+Einzelfall-/Runtimegrenzen im [Betreiberweg](AP07-OPERATOR.md).
+
+Nächster Prüfschritt: fester B-Review/native B-Nachweise. C ergänzt neue API-/
+Web-/Loginbedienung und gezielte Browserprüfung einschließlich Administration→Berichte.
 Realer Testversand erst nach konkretem Betreiberabgleich von Vorlage, Empfängern
 und Anzahl. AP08/09/10 bleiben ohne Go, DMS und Erkennungsänderungen außerhalb AP07.

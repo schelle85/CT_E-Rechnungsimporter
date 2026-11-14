@@ -16,9 +16,14 @@ Prüfgruppen geprüft: eingefrorene additive007-Tabellen, reine Termin-/Vorlagen
 Kohortenlogik und persistente Einstellungen/Outbox mit Planrevision, Requestfence
 und einmaliger POST-Freigabe. Ursprüngliche Testrequests werden vor aktueller
 Versionsprüfung abgeglichen; unreservierte Pflichtslots bleiben neu planbar.
-Native007-/Alt-API-Prüfung, Graphsender, eigener Notificationkey zur Laufzeit,
-Zertifikats-/Authproof und Webintegration stehen noch aus. Siehe [AP07](AP07-NOTIFICATIONS.md).
-Keine echte SendMail, Kundenmigration oder Timeraktivierung aus PaketA.
+Native007-/Alt-API-Nachweise werden separat von ORGA/REVIEW geführt.
+B implementiert Graphsender, eigenen Notificationkey, lokale Zertifikatsidentität,
+frischen Nachfolgerproof und begrenzte Operator-CLI.19Sender-/Cert-/Runtimefälle
+und9Prozess-/Bindungsgruppen lokal bestanden, B-Review/native B-Prüfung offen.
+Neue Web-/weitere Beobachterintegration folgt in C; Administration→Berichte mit
+echten Journal-/Tages-/Wochenübersichten ist verbindlich vorgesehen.
+Siehe [AP07](AP07-NOTIFICATIONS.md) und [Betreiberweg](AP07-OPERATOR.md).
+Keine echte SendMail, Kundenmigration oder Timeraktivierung aus A/B.
 Gezielte A1-Korrektur bindet Ausfallwiederholungen an den tatsächlichen letzten
 Versuch derselben Incidentepisode. Versuch1 ließ noch eine Erstanlage-Race offen.
 Versuch2 führt die ursprüngliche Episode mit dem Slot mit und prüft Fakten,
@@ -27,8 +32,8 @@ Mitgliedschaft und aktuellen Monitor bei Erstanlage/Replay/Replan/Reservierung.
 unabhängig im Quellenreview nach Versuch2 geschlossen. Separater A2-Befund im
 Fehlerbündelpfad mit Versuch1 korrigiert: eingefrorene Auswahl und aktuelle
 atomare1h-/Ursachensperre;30 lokale Tests einschließlich A1 und nachgespieltes
-unabhängiges A2-Setup bestanden. A2-Review, restlicher A-Review und native Prüfung
-stehen noch aus. Einzelheiten im [AP07-Prüfstand](AP07-NOTIFICATIONS.md).
+unabhängiges A2-Setup bestanden. A2 nachVersuch1 und gesamter A-Quellreview
+inzwischen unabhängig bestanden. Einzelheiten im [AP07-Prüfstand](AP07-NOTIFICATIONS.md).
 Der tatsächliche Kundenbetrieb bleibt der folgende bestätigte AP06-/006-Stand.
 
 AP06a–d samt PDF-Vorschau ist technisch abgeschlossen und bereitgestellt. Echte Journalansichten,
