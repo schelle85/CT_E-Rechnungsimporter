@@ -30,3 +30,10 @@ anbinden; zulässige Unknown-Entscheidungen ausdrücklich freigeben; technischen
 Retry nur mit denselben Quellen-/Wirkungskeys und ohne Blindwiederholung;
 großer PDFdialog über geschützte Originalroute und vorhandenen Browserviewer.
 Keine zusätzliche Viewerbibliothek, kein neues ML und keine neue Plattform.
+
+Nächster Teilstand: GET /api/processes, /api/processes/stats, /api/processes/{key}
+und /api/unknown verwenden diese echten Journalprojektionen unter der bestehenden
+AD-/Sitzungsgrenze. Die frühere Demo-API entfällt. Bestehende Sicherheitstests
+adressieren jetzt /api/processes; drei neue HTTP-Gruppen prüfen echte leere und
+gefüllte Journale, beide Rollen, Gruppenentzug und neutrale Eingabefehler.
+Syntaxprüfung erfolgt; native HTTP-Ausführung ist für diesen Commit noch offen.

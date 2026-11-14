@@ -6,7 +6,7 @@ from fastapi.responses import JSONResponse
 from starlette.concurrency import run_in_threadpool
 from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
-from app.demo import ITEMS
+from app.process_routes import router as process_router
 from app.errors import AccessError
 from app.security import COOKIE, build_runtime
 from app.settings import LoginInput, ConfigInput, LdapSettings
@@ -62,7 +62,7 @@ def create_app(runtime_factory=build_runtime):
 
     @app.get("/api/health/live")
     def live():
-        return {"status":"alive","mode":"synthetic-preview"}
+        return {"status":"alive","mode":"journal"}
 
     @app.get("/api/health/ready")
     def ready():
@@ -70,7 +70,7 @@ def create_app(runtime_factory=build_runtime):
             with app.state.runtime.engine.connect() as connection:
                 marker=connection.execute(text("SELECT instance_id FROM app_metadata WHERE singleton=1")).scalar_one()
                 connection.execute(text("SELECT singleton FROM configuration_head WHERE singleton=1")).scalar_one()
-            return {"status":"ready","mode":"synthetic-preview","instance_id":marker}
+            return {"status":"ready","mode":"journal","instance_id":marker}
         except SQLAlchemyError:
             return JSONResponse(status_code=503,content={"status":"not-ready"})
 
@@ -105,9 +105,7 @@ def create_app(runtime_factory=build_runtime):
         clear_cookie(response)
         return response
 
-    @app.get("/api/demo/processes")
-    def processes():
-        return {"synthetic":True,"items":ITEMS}
+    app.include_router(process_router)
 
     def admin(request):
         if request.state.principal.role!="admin":

@@ -122,10 +122,10 @@ class SecurityTests(unittest.IsolatedAsyncioTestCase):
         return {"expected_version":self.runtime.store.active()["id"],"settings":cfg}
 
     async def test_anonymous_and_forged_session_cannot_reach_any_protected_path(self):
-        for path in ("/api/demo/processes","/api/admin/config","/api/admin/audit","/api/unknown"):
+        for path in ("/api/processes","/api/admin/config","/api/admin/audit","/api/unknown"):
             self.assertEqual((await self.client.get(path)).status_code,401)
         self.client.cookies.set(COOKIE,"forged-role-admin",domain="test.invalid",path="/")
-        self.assertEqual((await self.client.get("/api/demo/processes",headers={"Authorization":"Bearer admin","X-Role":"admin"})).status_code,401)
+        self.assertEqual((await self.client.get("/api/processes",headers={"Authorization":"Bearer admin","X-Role":"admin"})).status_code,401)
         self.assertEqual((await self.client.get("/api/health/live")).status_code,200)
 
     async def test_allowed_roles_cookie_rotation_and_reader_write_denied_with_valid_csrf(self):
@@ -139,7 +139,7 @@ class SecurityTests(unittest.IsolatedAsyncioTestCase):
         for flag in ("secure","httponly","samesite=strict","path=/"):
             self.assertIn(flag,cookie)
         self.assertNotIn("domain=",cookie)
-        self.assertEqual((await self.client.get("/api/demo/processes")).status_code,200)
+        self.assertEqual((await self.client.get("/api/processes")).status_code,200)
         for method,path in (("PUT","/api/admin/config"),("POST","/api/import"),("DELETE","/api/admin/config")):
             response=await self.client.request(method,path,headers=self.headers(),json=self.candidate())
             self.assertEqual(response.status_code,403,response.text)
@@ -173,12 +173,12 @@ class SecurityTests(unittest.IsolatedAsyncioTestCase):
         old=self.client.cookies.get(COOKIE)
         self.assertEqual((await self.client.post("/api/auth/logout")).status_code,403)
         self.directory.available=False
-        self.assertEqual((await self.client.get("/api/demo/processes")).status_code,503)
+        self.assertEqual((await self.client.get("/api/processes")).status_code,503)
         count=self.directory.revalidations
         self.assertEqual((await self.client.post("/api/auth/logout",headers=self.headers())).status_code,200)
         self.assertEqual(count,self.directory.revalidations)
         self.directory.available=True
-        response=await self.client.get("/api/demo/processes",headers={"Cookie":COOKIE+"="+old})
+        response=await self.client.get("/api/processes",headers={"Cookie":COOKIE+"="+old})
         self.assertEqual(response.status_code,401)
 
     async def test_group_downgrade_removal_and_account_disable_revalidated(self):
@@ -188,11 +188,11 @@ class SecurityTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(response.json()["user"]["role"],"reader")
         self.assertEqual((await self.client.put("/api/admin/config",json=self.candidate(),headers=self.headers())).status_code,403)
         self.directory.rows["1"*32]["attributes"]["memberOf"]=[]
-        self.assertEqual((await self.client.get("/api/demo/processes")).status_code,401)
+        self.assertEqual((await self.client.get("/api/processes")).status_code,401)
         self.directory.rows["1"*32]["attributes"]["memberOf"]=[CFG["admin_group"]]
         await self.login()
         self.directory.rows["1"*32]["raw_attributes"]["userAccountControl"]=[b"514"]
-        self.assertEqual((await self.client.get("/api/demo/processes")).status_code,401)
+        self.assertEqual((await self.client.get("/api/processes")).status_code,401)
 
     async def test_concurrent_logout_during_directory_check_cannot_authorize_request(self):
         await self.login()
@@ -203,7 +203,7 @@ class SecurityTests(unittest.IsolatedAsyncioTestCase):
             self.runtime.store.revoke(token)
             return principal
         with patch.object(self.directory,"revalidate",side_effect=revoke_during_lookup):
-            self.assertEqual((await self.client.get("/api/demo/processes")).status_code,401)
+            self.assertEqual((await self.client.get("/api/processes")).status_code,401)
 
     async def test_cross_site_challenge_nonascii_csrf_and_session_reload(self):
         self.assertEqual((await self.client.get("/api/auth/session",headers={"Sec-Fetch-Site":"cross-site"})).status_code,403)
@@ -239,7 +239,7 @@ class SecurityTests(unittest.IsolatedAsyncioTestCase):
         with patch("app.bootstrap.build_runtime",return_value=self.runtime),patch("sys.argv",["bootstrap","revoke-sessions"]),contextlib.redirect_stdout(io.StringIO()):
             bootstrap.main()
         self.assertEqual(self.runtime.store.active()["id"],before)
-        self.assertEqual((await self.client.get("/api/demo/processes")).status_code,401)
+        self.assertEqual((await self.client.get("/api/processes")).status_code,401)
 
     async def test_expired_or_deleted_preauth_requires_fresh_challenge_without_bind(self):
         for cause in ("expired","configuration-deleted"):
@@ -269,14 +269,14 @@ class SecurityTests(unittest.IsolatedAsyncioTestCase):
         await self.login()
         now=int(time.time())
         self.runtime.store.clock=lambda:now+1801
-        self.assertEqual((await self.client.get("/api/demo/processes")).status_code,401)
+        self.assertEqual((await self.client.get("/api/processes")).status_code,401)
         self.runtime.store.clock=time.time
         await self.login()
         for step in range(1,17):
             self.runtime.store.clock=lambda step=step:now+step*1700
-            self.assertEqual((await self.client.get("/api/demo/processes")).status_code,200)
+            self.assertEqual((await self.client.get("/api/processes")).status_code,200)
         self.runtime.store.clock=lambda:now+28801
-        self.assertEqual((await self.client.get("/api/demo/processes")).status_code,401)
+        self.assertEqual((await self.client.get("/api/processes")).status_code,401)
 
     async def test_persistent_login_rate_limit(self):
         for attempt in range(5):
@@ -311,7 +311,7 @@ class SecurityTests(unittest.IsolatedAsyncioTestCase):
         active=self.runtime.store.active()
         self.assertNotIn("replacement bind pass",json.dumps(active))
         self.assertEqual(Fernet(self.key).decrypt(active["bind_cipher"].encode()).decode(),"replacement bind pass ")
-        self.assertEqual((await self.client.get("/api/demo/processes",headers={"Cookie":COOKIE+"="+old_token})).status_code,401)
+        self.assertEqual((await self.client.get("/api/processes",headers={"Cookie":COOKIE+"="+old_token})).status_code,401)
         # Runtime/key reload, persisted configuration and new login still work.
         self.runtime=Runtime(self.engine,Fernet(self.key),self.directory,"https://test.invalid",str(self.bind_file))
         self.app.state.runtime=self.runtime
@@ -326,7 +326,7 @@ class SecurityTests(unittest.IsolatedAsyncioTestCase):
             bootstrap.main()
         self.assertEqual(self.runtime.store.active()["id"],self.original)
         self.assertNotIn("pass",output.getvalue())
-        self.assertEqual((await self.client.get("/api/demo/processes")).status_code,401)
+        self.assertEqual((await self.client.get("/api/processes")).status_code,401)
 
     async def test_config_csrf_stale_version_and_tls_bypass_forbidden(self):
         await self.login()
