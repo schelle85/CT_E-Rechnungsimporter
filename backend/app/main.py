@@ -8,6 +8,7 @@ from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 from app.process_routes import router as process_router
 from app.preview import PreviewManager
+from app.http_boundary import SecurityBoundary
 from app.errors import AccessError
 from app.security import COOKIE, build_runtime
 from app.settings import LoginInput, ConfigInput, LdapSettings
@@ -41,26 +42,7 @@ def create_app(runtime_factory=build_runtime):
         response.headers["Cache-Control"]="no-store"
         return response
 
-    @app.middleware("http")
-    async def boundary(request,call_next):
-        runtime=app.state.runtime
-        public={"/api/health/live","/api/health/ready","/api/auth/session","/api/auth/login"}
-        try:
-            if request.url.path.startswith("/api/") and request.url.path not in public:
-                row,principal=await run_in_threadpool(runtime.require,request,request.url.path!="/api/auth/logout")
-                request.state.principal=principal
-                request.state.session=row
-                if request.method not in ("GET","HEAD","OPTIONS"):
-                    runtime.csrf(request,row)
-                    if request.url.path!="/api/auth/logout" and principal.role!="admin":
-                        raise AccessError(403,"Verwaltungsrecht erforderlich.")
-            response=await call_next(request)
-        except AccessError as exc:
-            response=await access_error(request,exc)
-        except SQLAlchemyError:
-            response=JSONResponse(status_code=503,content={"detail":"Dienst vorübergehend nicht bereit."})
-        response.headers["Cache-Control"]="no-store"
-        return response
+    app.add_middleware(SecurityBoundary)
 
     @app.get("/api/health/live")
     def live():

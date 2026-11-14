@@ -145,3 +145,18 @@ undneuererrors-Filter nutzen dieselbenbeidenMailzustände;10lokaleProjektionsgru
 PASS. NochkeinFrontend-Build-/Browser-PASS. FürgezieltenOffline-APIbau kann
 Dockerfile.runtime vorhandenegeprüfteAbhängigkeiten mitunverändertemLock übernehmen;
 aufgelösteBasis-ID undLayerabstammungvorBauprüfen. Kundendiensteunverändert.
+
+AP06-P3/P4 bestätigt durch unveränderte vollständige-App-Gegenprobe auf65fbd4e:
+Exit0 war keinPASS; äußereBodyweiterleitung blieb nach8s bei6sBudget blockiert,
+Platz/Dateien waren bereits freigegeben. HEAD/If-Range-Mismatch wurden fälschlich
+als ungültigeRange416 behandelt. JeKorrekturversuch1: bestehendeAuth-/CSRF-/Rollen-
+grenze alsdirekteASGIweiterleitung ohne Bodypuffer; Vorschaufristen und Platzleben
+wirken so bis zum tatsächlichen send. Bereichsvalidierung erst bei relevanter
+Range, HEAD und nichtpassender starkerETagbedingung erhaltenvolle200Antwort.
+Permanente gezielteRegressionen ergänzt. SyntaxPASS; passende nativeAuth-/API-
+und ursprüngliche unveränderte Gegenprobe folgenamfestenPin. KeinBetriebsPASS.
+
+FrontendBuild3bd9a24 nach kontrolliertemAbrufderfestenöffentlichenLockpaketePASS;
+API/Processing/Web/Testgebaut, Worker1/ComposeAPI-onlyGraphbindungen/tmpfs und
+Nginxsyntaxisoliertbelegt. DiesePins enthalten nochdieP3/P4-Vorgängerversion und
+sind keinefinaleDeploymentfreigabe. NeuerBau nachKorrekturprüfung nötig.

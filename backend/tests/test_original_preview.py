@@ -236,3 +236,48 @@ class OriginalTests(unittest.IsolatedAsyncioTestCase):
         self.assertFalse(remote.writes)
         self.assertEqual((self.store.get_message(key),self.store.get_attachments(key)),before)
         self.clean()
+
+    async def test_p3_full_authenticated_app_holds_slot_and_deadline_through_outer_send(self):
+        _,aid=self.source();await self.login('reader')
+        self.manager.response_seconds=6
+        entered=asyncio.Event();gate=asyncio.Event();disconnected=asyncio.Event();first=True
+        async def receive():
+            nonlocal first
+            if first:first=False;return {'type':'http.request','body':b'','more_body':False}
+            await disconnected.wait();return {'type':'http.disconnect'}
+        async def send(message):
+            if message['type']=='http.response.start':self.assertEqual(message['status'],200)
+            if message['type']=='http.response.body' and message.get('body'):
+                entered.set();await gate.wait()
+        cookie='; '.join(key+'='+value for key,value in self.client.cookies.items())
+        path='/api/attachments/'+aid+'/original'
+        scope={'type':'http','asgi':{'version':'3.0','spec_version':'2.4'},'http_version':'1.1',
+            'method':'GET','scheme':'https','path':path,'raw_path':path.encode(),'query_string':b'','root_path':'',
+            'headers':[(b'host',b'test.invalid'),(b'cookie',cookie.encode())],
+            'client':('127.0.0.1',12345),'server':('test.invalid',443)}
+        started=time.monotonic();task=asyncio.create_task(self.app(scope,receive,send))
+        try:
+            await asyncio.wait_for(entered.wait(),5)
+            await asyncio.sleep(max(0,started+2-time.monotonic()))
+            self.assertTrue(self.manager.slots.acquire(blocking=False))
+            self.assertFalse(self.manager.slots.acquire(blocking=False))
+            self.manager.slots.release()
+            self.assertEqual(len(list(self.preview_root.iterdir())),1)
+            await asyncio.sleep(max(0,started+8-time.monotonic()))
+            self.assertTrue(task.done())
+        finally:
+            disconnected.set();gate.set()
+            if not task.done():task.cancel()
+            await asyncio.gather(task,return_exceptions=True)
+        self.clean()
+
+    async def test_p4_range_ignored_for_head_and_nonmatching_if_range(self):
+        _,aid=self.source();await self.login('reader')
+        path='/api/attachments/'+aid+'/original'
+        for method,headers in [('HEAD',{'Range':'nonsense'}),('HEAD',{'Range':'bytes=0-1,3-4'}),
+                               ('GET',{'Range':'bytes=0-1,3-4','If-Range':'"different"'})]:
+            result=await self.client.request(method,path,headers=headers)
+            self.assertEqual(result.status_code,200,result.text)
+            self.assertEqual(result.content,b'' if method=='HEAD' else PDF)
+            self.assertEqual(int(result.headers['content-length']),len(PDF))
+        self.clean()

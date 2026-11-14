@@ -131,6 +131,10 @@ class ManagedOriginal(Response):
                         if current['fingerprint']!=snapshot['fingerprint']:
                             raise AccessError(409,'Vorgang wurde geändert. Bitte neu laden.')
                         ranges=[v for k,v in scope.get('headers',[]) if k.lower()==b'range']
+                        validators=[v for k,v in scope.get('headers',[]) if k.lower()==b'if-range']
+                        etag='"'+selected['raw_sha256']+'"'
+                        ignore_range=scope['method']=='HEAD' or bool(validators and validators!=[etag.encode()])
+                        if ignore_range:ranges=[]
                         value=ranges[0] if ranges else b''
                         if len(ranges)>1 or value and (len(value)>128 or not re.fullmatch(rb'bytes=\d*-\d*',value) or value==b'bytes=-'):
                             raise AccessError(416,'Nur ein gültiger einzelner Dateibereich ist erlaubt.')
@@ -139,10 +143,10 @@ class ManagedOriginal(Response):
                         response=FileResponse(path,stat_result=details,filename=name,
                             media_type='application/pdf' if pdf else 'application/octet-stream',
                             content_disposition_type='attachment' if self.download or not pdf else 'inline',
-                            headers={'Cache-Control':'no-store','X-Content-Type-Options':'nosniff','ETag':'"'+selected['raw_sha256']+'"'})
+                            headers={'Cache-Control':'no-store','X-Content-Type-Options':'nosniff','ETag':etag})
                         # No deferred pathsend: the file belongs to this response's lifetime.
                         inner=dict(scope,extensions={k:v for k,v in scope.get('extensions',{}).items() if k!='http.response.pathsend'})
-                        if scope['method']=='HEAD':inner['headers']=[(k,v) for k,v in scope['headers'] if k.lower() not in {b'range',b'if-range'}]
+                        if ignore_range:inner['headers']=[(k,v) for k,v in scope['headers'] if k.lower() not in {b'range',b'if-range'}]
                         await response(inner,receive,tracked)
                 except AccessError as error:
                     if started:raise
