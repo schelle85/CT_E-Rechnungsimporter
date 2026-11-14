@@ -29,6 +29,11 @@ async function post(context,path,data={}){
   const r=await context.request.post(BASE+path,{data,headers:{Origin:BASE,"X-CSRF-Token":session.csrf_token}});
   assert.equal(r.status(),200,await r.text());return r.json();
 }
+async function retryEnabled(context,enabled){
+  const session=await get(context,"/api/auth/session"),cfg=await get(context,"/api/admin/processing");
+  const response=await context.request.put(BASE+"/api/admin/processing",{data:{expected_version:cfg.version,preview_enabled:cfg.preview_enabled,retry_enabled:enabled},headers:{Origin:BASE,"X-CSRF-Token":session.csrf_token}});
+  assert.equal(response.status(),200);return response.json();
+}
 async function open(page,key,name){
   await nav(page,"Vorgänge");
   await page.getByRole("button",{name:"Details zu "+key,exact:true}).click();
@@ -100,24 +105,27 @@ try{
   proof.cases.push({case:"approval_truncated_200_reauth_reload_original_intent",ok:true,same_payload:true,fresh_csrf:true,one_correction:true,simulated_publications:1});
 
   // Real accepted retry is consumed into a new failed revision before the response is lost.
-  const retryCalls=[];let lose=true;
+  const retryCalls=[];let retryStep=0;
   await a.route("**/api/processes/*/retry",async intercept=>{
     retryCalls.push({body:JSON.parse(intercept.request().postData()),csrf:intercept.request().headers()["x-csrf-token"]});
-    if(lose){lose=false;const response=await intercept.fetch();assert.equal(response.status(),200);await post(admin,"/api/test/retry-fail");await intercept.abort("failed")}
+    if(retryStep++===0){await retryEnabled(admin,false);const response=await intercept.fetch();assert.equal(response.status(),409);await retryEnabled(admin,true);await intercept.fulfill({response})}
+    else if(retryStep===2){const response=await intercept.fetch();assert.equal(response.status(),200);await post(admin,"/api/test/retry-fail");await intercept.abort("failed")}
     else await intercept.continue();
   });
   await open(a,state.retrycase,"Technischer Fehler.pdf");await a.getByRole("button",{name:"Technische Wiederholung freigeben",exact:true}).click();
-  await a.getByText("Ausstehende Bestätigung",{exact:true}).waitFor();await a.getByRole("button",{name:"Ursprüngliche Anforderung abgleichen",exact:true}).waitFor();
+  await a.getByRole("button",{name:"Abgewiesene Anforderung schließen",exact:true}).waitFor();
+  await a.getByRole("button",{name:"Ursprüngliche Anforderung abgleichen",exact:true}).click();
   await a.waitForFunction(()=>!document.querySelector('[aria-label="Vorgang schließen"]')?.disabled);
+  assert.equal(await a.getByRole("button",{name:"Abgewiesene Anforderung schließen",exact:true}).count(),0);
   await close(a);await a.reload({waitUntil:"networkidle"});await a.getByRole("button",{name:"Abmelden",exact:true}).click();await login(a,"admin");
   await open(a,state.retrycase,"Technischer Fehler.pdf");
   const beforeRetry=await get(admin,"/api/processes/"+state.retrycase);assert.equal(beforeRetry.revision,1);assert.equal(beforeRetry.can_retry,true);
   assert.equal(await a.getByRole("button",{name:"Technische Wiederholung freigeben",exact:true}).count(),0);
   await a.getByRole("button",{name:"Ursprüngliche Anforderung abgleichen",exact:true}).click();await a.getByText("Technische Wiederholung im Protokoll bestätigt.",{exact:true}).waitFor();
-  assert.equal(retryCalls.length,2);assert.deepEqual(retryCalls[0].body,retryCalls[1].body);assert.notEqual(retryCalls[0].csrf,retryCalls[1].csrf);
+  assert.equal(retryCalls.length,3);assert.deepEqual(retryCalls[0].body,retryCalls[1].body);assert.deepEqual(retryCalls[1].body,retryCalls[2].body);assert.notEqual(retryCalls[0].csrf,retryCalls[2].csrf);
   assert.equal((await get(admin,"/api/processes/"+state.retrycase)).retry_requests.length,1);
   await a.unroute("**/api/processes/*/retry");await close(a);
-  proof.cases.push({case:"retry_response_loss_after_revision_change_reauth",ok:true,same_original_revision:true,same_request_id:true,fresh_csrf:true,durable_retry_count:1});
+  proof.cases.push({case:"retry_rejected_then_accepted_response_lost_revision_change_reauth",ok:true,same_original_revision:true,same_request_id:true,fresh_csrf:true,durable_retry_count:1});
 
   await open(a,state.active,"Zweiter Anhang.pdf");await choose(a,"Ignorieren");await a.getByRole("button",{name:"Zuordnung freigeben",exact:true}).dblclick();
   await a.getByText(/Zuordnung bestätigt/).waitFor();await close(a);
