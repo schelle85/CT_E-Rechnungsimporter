@@ -46,3 +46,8 @@ Neun lokale SQLite-Gruppen bestanden, darunter beide gezielten Reproduktionen.
 Am vorausgehenden API-Stand17ce54c bestanden native Linux-HTTP-/Sicherheitsprüfungen:
 26 unterschiedliche Tests, durch importierte Testklassen49 Ausführungen. Die
 Testimports sind bereinigt; kein MariaDB-/Browser-/Deployment-PASS daraus.
+
+AP06-M1: Migration005 verwendet nun ausdrücklich ihre eingefrorenen ursprünglichen
+Tabellendefinitionen (processing_schema005). Dadurch fügt ausschließlich006 neue
+AP06-Strukturen hinzu. Der vorhandene005-Migrationskettennachweis und weitere
+12ProcessingState-Gruppen bestanden lokal; nativer006-Nachweis folgt separat.

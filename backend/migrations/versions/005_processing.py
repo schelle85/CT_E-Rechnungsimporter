@@ -1,6 +1,6 @@
 """Add source, attachment and approved-correction integration state."""
 from alembic import op
-from app.processing_state import metadata
+from app.processing_schema005 import metadata
 
 revision = "005_processing"
 down_revision = "004_storage_operations"
