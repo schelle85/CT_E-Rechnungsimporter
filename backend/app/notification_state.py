@@ -8,6 +8,7 @@ import sqlalchemy as sa
 from app.notification_schema007 import settings, outbox, monitor
 from app.notification_model import (DEFAULTS, NotificationError, Slot, canonical, checked_actor,
     checked_key, checked_settings, identity, make_payload, test_request)
+from app.notification_planning import INCIDENT_FIELDS, IncidentSlot, outage_slot
 from app.schema import audit
 
 RECEIPT_FIELDS = ("slot_key", "request_id", "actor", "scope_key", "kind", "period_start",
@@ -127,24 +128,59 @@ class NotificationStore:
             reservations=0, owner=None, lease_until=0, not_before=0,
             created_at=now, updated_at=now))
 
-    def _write_plan(self, c, row, head, slot, data, as_of, origin, members=()):
-        if (len(members) > 100 or len(set(members)) != len(members)
-                or slot.kind == "outage" and len(members) != 1):
-            raise NotificationError("notification_members_invalid", 422)
-        membership = []
-        for member in members:
-            checked_key(member)
-            source = c.execute(sa.select(monitor).where(monitor.c.monitor_key == member,
-                monitor.c.scope_key == row["scope_key"],monitor.c.kind == "incident").with_for_update()).mappings().first()
-            if source is None:
-                raise NotificationError("notification_monitor_changed")
-            membership.append(dict(key=member,episode=json.loads(source["payload"])["episode"])
-                if slot.kind == "outage" else member)
-        previous_members = json.loads(row["monitor_keys"])
-        if slot.kind == "outage" and previous_members and previous_members != membership:
+    def _incident_plan(self,c,scope,slot,config,as_of,now,*,data=None):
+        if (not isinstance(slot,IncidentSlot) or type(as_of) is not int
+                or not slot.last_seen <= as_of <= now
+                or outage_slot(slot.token,slot.observation(),config,as_of) != slot):
+            raise NotificationError("notification_incident_plan_invalid",422)
+        if data is not None and (not isinstance(data,dict)
+                or set(data) != {"source","first_seen","last_seen","count","codes"}
+                or data["source"] not in {"api","graph","processing"}
+                or any(type(data[name]) is not int for name in ("first_seen","last_seen","count"))
+                or (data["first_seen"],data["last_seen"],data["count"],data["codes"])
+                    != (slot.first_seen,slot.last_seen,1,[slot.code])):
+            raise NotificationError("notification_facts_invalid",422)
+        member = dict(key=identity([scope,"incident",slot.token]),token=slot.token,as_of=as_of,
+            **{name:getattr(slot,name) for name in INCIDENT_FIELDS})
+        source = c.execute(sa.select(monitor).where(monitor.c.monitor_key == member["key"],
+            monitor.c.scope_key == scope,monitor.c.kind == "incident").with_for_update()).mappings().first()
+        if source is None:
             raise NotificationError("notification_monitor_changed")
+        payload = json.loads(source["payload"])
+        if (any(payload[name] != member[name] for name in ("episode","first_seen","code","resolved_at"))
+                or payload["active"] is not (slot.kind == "outage")
+                or not slot.last_seen <= payload["last_seen"] <= now
+                or not slot.last_failure <= payload["last_failure"] <= payload["last_seen"]
+                or slot.kind == "outage" and now-payload["last_seen"] > 300):
+            raise NotificationError("notification_monitor_changed")
+        return member,source,payload
+
+    def _write_plan(self, c, row, head, slot, data, as_of, origin, members=()):
+        incident = slot.kind in {"outage","recovery"}
+        if (len(members) > 100 or len(set(members)) != len(members)
+                or incident and len(members) != 1):
+            raise NotificationError("notification_members_invalid", 422)
         config = self._configuration(head)
         now = int(self.clock())
+        membership = []
+        if incident:
+            member,_,_ = self._incident_plan(c,row["scope_key"],slot,config,as_of,now,data=data)
+            if list(members) != [member["key"]]:
+                raise NotificationError("notification_members_invalid",422)
+            membership = [member]
+        else:
+            for member in members:
+                checked_key(member)
+                if not c.execute(sa.select(monitor.c.monitor_key).where(monitor.c.monitor_key == member,
+                        monitor.c.scope_key == row["scope_key"],monitor.c.kind == "incident").with_for_update()).first():
+                    raise NotificationError("notification_monitor_changed")
+                membership.append(member)
+        previous_members = json.loads(row["monitor_keys"])
+        if incident and previous_members:
+            if (len(previous_members) != 1 or not isinstance(previous_members[0],dict)
+                    or any(previous_members[0].get(name) != membership[0][name] for name in
+                        ("key","token","episode","first_seen","code","resolved_at"))):
+                raise NotificationError("notification_monitor_changed")
         if not config["recipients"]:
             c.execute(outbox.update().where(outbox.c.slot_key == row["slot_key"],
                 outbox.c.reservations == 0).values(error_code="notification_settings_missing",
@@ -157,7 +193,7 @@ class NotificationStore:
             outbox.c.reservations == 0, outbox.c.plan_revision == row["plan_revision"]).values(
             config_version=head["version"], plan_revision=revision,
             payload_cipher=self._encrypt(payload), payload_hash=digest, state="prepared",
-            monitor_keys=canonical(membership if slot.kind == "outage" else sorted(membership)),
+            monitor_keys=canonical(membership if incident else sorted(membership)),
             due_at=slot.due, stale_at=slot.stale, error_code=None,
             owner=None, lease_until=0, updated_at=now))
         if changed.rowcount != 1:
@@ -191,6 +227,10 @@ class NotificationStore:
                     c.execute(outbox.update().where(outbox.c.slot_key == key, outbox.c.reservations == 0).values(
                         state="obsolete", owner=None, lease_until=0, updated_at=now))
                 return self.receipt(self._row(c, key)) if row else None
+            if slot.kind in {"outage","recovery"}:
+                member,_,_ = self._incident_plan(c,scope,slot,config,as_of,now,data=data)
+                if list(members) != [member["key"]]:
+                    raise NotificationError("notification_members_invalid",422)
             if row is None:
                 self._insert(c, key, slot, scope, "system", head["version"])
                 row = self._row(c, key)
@@ -295,19 +335,33 @@ class NotificationStore:
             if not self._eligible(c, row, head, now):
                 return False
             members = json.loads(row["monitor_keys"])
-            if row["kind"] == "outage" and (len(members) != 1 or not isinstance(members[0],dict)):
+            incident = row["kind"] in {"outage","recovery"}
+            if incident and (len(members) != 1 or not isinstance(members[0],dict)):
                 raise NotificationError("notification_monitor_changed")
             sources = []
             for member in members:
-                member_key = member["key"] if row["kind"] == "outage" else member
-                source = c.execute(sa.select(monitor).where(monitor.c.monitor_key == member_key,
-                    monitor.c.scope_key == row["scope_key"],monitor.c.kind == "incident").with_for_update()).mappings().first()
-                if source is None:
-                    raise NotificationError("notification_monitor_changed")
-                payload = json.loads(source["payload"])
-                if row["kind"] == "outage":
-                    if not payload["active"] or payload["episode"] != member["episode"]:
+                if incident:
+                    try:
+                        slot = IncidentSlot(row["kind"],row["period_start"],row["period_end"],row["due_at"],row["stale_at"],
+                            identity([member["token"],member["episode"]]),token=member["token"],
+                            **{name:member[name] for name in INCIDENT_FIELDS})
+                        if slot.key(self.instance,row["scope_key"]) != row["slot_key"]:
+                            raise NotificationError("notification_monitor_changed")
+                        expected,source,payload = self._incident_plan(c,row["scope_key"],slot,
+                            self._configuration(head),member["as_of"],now)
+                    except (KeyError,TypeError):
+                        raise NotificationError("notification_monitor_changed") from None
+                    if member != expected:
                         raise NotificationError("notification_monitor_changed")
+                    member_key = member["key"]
+                else:
+                    member_key = member
+                    source = c.execute(sa.select(monitor).where(monitor.c.monitor_key == member_key,
+                        monitor.c.scope_key == row["scope_key"],monitor.c.kind == "incident").with_for_update()).mappings().first()
+                    if source is None:
+                        raise NotificationError("notification_monitor_changed")
+                    payload = json.loads(source["payload"])
+                if row["kind"] == "outage":
                     last = payload["last_reserved_at"]
                     until = last+self._configuration(head)["outage_repeat_hours"]*3600 if last is not None else 0
                     if now < until:

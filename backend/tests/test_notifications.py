@@ -362,12 +362,12 @@ class NotificationTests(unittest.TestCase):
             outage_slot(token,observe_incident(recovered,now=self.now[0]+120,failed=False),self.config,self.now[0]+120).key(self.store.instance,SCOPE))
         self.assertIsNone(self.store.claim(row["slot_key"],SCOPE))
 
-    def outage_observation(self):
+    def outage_observation(self, *, failed=True, code="graph_authentication_failed"):
         from app.notification_planning import observe_incident
         token=identity(["a1-synthetic-graph-observer"])
         before=self.store.monitor_state(SCOPE,"incident",token)
         value=observe_incident(before["data"] if before else None,now=self.now[0],
-            failed=True,code="graph_authentication_failed")
+            failed=failed,code=code if failed else None)
         return token,self.store.put_monitor(SCOPE,"incident",token,value,
             expected_revision=before["revision"] if before else 0)
 
@@ -387,9 +387,6 @@ class NotificationTests(unittest.TestCase):
         self.now[0]=start+repeat+self.config["outage_after_minutes"]*60-1
         token,observed=self.outage_observation()
         first_slot=outage_slot(token,observed["data"],self.config,self.now[0])
-        # Another worker planned the next period before the first late reservation.
-        stale_slot=outage_slot(token,observed["data"],self.config,self.now[0]+1)
-        stale=self.outage_plan(stale_slot,observed)
         first=self.outage_plan(first_slot,observed)
         first_at=self.now[0]
         ticket=self.reserve(first)
@@ -397,6 +394,9 @@ class NotificationTests(unittest.TestCase):
         self.store.recover(first["slot_key"],stopped_owner=ticket["owner"])
         self.assertEqual(self.store.read(first["slot_key"])["state"],"unknown")
         self.now[0]+=1
+        # Delayed worker still holds the genuine pre-reservation snapshot, at current time.
+        stale_slot=outage_slot(token,observed["data"],self.config,self.now[0])
+        stale=self.outage_plan(stale_slot,observed)
         token,observed=self.outage_observation()
         self.assertIsNone(outage_slot(token,observed["data"],self.config,self.now[0]))
         stale_ticket=self.store.claim(stale["slot_key"],SCOPE)
@@ -407,7 +407,8 @@ class NotificationTests(unittest.TestCase):
             ("prepared",0,first_at+repeat))
         self.assertEqual(self.store.monitor_state(SCOPE,"incident",token)["data"]["last_reserved_at"],first_at)
         self.configure(recipients=["changed@example.invalid"])
-        self.outage_plan(stale_slot,observed)
+        fresh_slot=outage_slot(token,stale_slot.observation(),self.config,self.now[0])
+        self.outage_plan(fresh_slot,dict(observed,data=stale_slot.observation()))
         self.assertIsNone(self.store.claim(stale["slot_key"],SCOPE))
         self.now[0]=first_at+repeat-1
         token,observed=self.outage_observation()
@@ -432,27 +433,24 @@ class NotificationTests(unittest.TestCase):
         self.now[0]+=900
         token,observed=self.outage_observation()
         slot=outage_slot(token,observed["data"],self.config,self.now[0])
-        first=self.outage_plan(slot,observed)
-        other=Slot("outage",slot.start+1,slot.end+1,slot.due,slot.stale,slot.tag)
-        second=self.outage_plan(other,observed)
-        tickets=[self.store.claim(row["slot_key"],SCOPE) for row in (first,second)]
-        self.assertTrue(all(tickets))
         barrier=threading.Barrier(2)
-        def run(ticket):
+        def run(_):
             barrier.wait()
-            return self.store.reserve(ticket,budget=self.budget())
+            row=self.outage_plan(slot,observed)
+            ticket=self.store.claim(row["slot_key"],SCOPE)
+            return row,ticket,bool(ticket and self.store.reserve(ticket,budget=self.budget()))
         with ThreadPoolExecutor(max_workers=2) as executor:
-            outcomes=list(executor.map(run,tickets))
-        self.assertEqual(sum(outcomes),1)
-        for ticket,accepted in zip(tickets,outcomes):
-            if accepted:self.store.recover(ticket["slot_key"],stopped_owner=ticket["owner"])
-            row=self.store.read(ticket["slot_key"])
-            self.assertEqual(row["reservations"],int(accepted))
-            self.assertEqual(row["state"],"unknown" if accepted else "prepared")
+            outcomes=list(executor.map(run,range(2)))
+        self.assertEqual(sum(accepted for _,_,accepted in outcomes),1)
+        self.assertEqual(len({row["slot_key"] for row,_,_ in outcomes}),1)
+        row,ticket,_=next(value for value in outcomes if value[2])
+        self.store.recover(row["slot_key"],stopped_owner=ticket["owner"])
+        self.assertEqual(self.store.read(row["slot_key"])["state"],"unknown")
+        self.assertIsNone(self.store.claim(row["slot_key"],SCOPE))
         self.assertEqual(self.store.monitor_state(SCOPE,"incident",token)["data"]["last_reserved_at"],self.now[0])
 
     def test_a1_outage_membership_keeps_episode_and_recovery_is_separate(self):
-        from app.notification_planning import observe_incident,outage_slot
+        from app.notification_planning import outage_slot
         self.configure()
         token,_=self.outage_observation()
         self.now[0]+=900
@@ -461,24 +459,104 @@ class NotificationTests(unittest.TestCase):
         with self.assertRaises(NotificationError):
             self.store.prepare(slot,SCOPE,{},expected_version=1,as_of=self.now[0])
         row=self.outage_plan(slot,observed)
-        old_slot=Slot("outage",slot.start+1,slot.end+1,slot.due,slot.stale,slot.tag)
-        stale=self.outage_plan(old_slot,observed)
         ticket=self.reserve(row)
         reserved=self.store.monitor_state(SCOPE,"incident",token)
-        recovered=observe_incident(reserved["data"],now=self.now[0]+1,failed=False)
-        self.store.put_monitor(SCOPE,"incident",token,recovered,expected_revision=reserved["revision"])
         self.now[0]+=1
-        recovery=outage_slot(token,recovered,self.config,self.now[0])
-        recovery_row=self.outage_plan(recovery,dict(reserved,data=recovered))
+        token,recovered=self.outage_observation(failed=False)
+        recovery=outage_slot(token,recovered["data"],self.config,self.now[0])
+        recovery_row=self.outage_plan(recovery,recovered)
         self.reserve(recovery_row)
-        token,changed=self.outage_observation()  # A new episode must not adopt an old unreserved plan.
-        stale_ticket=self.store.claim(stale["slot_key"],SCOPE)
-        with self.assertRaises(NotificationError):self.store.reserve(stale_ticket,budget=self.budget())
-        self.store.recover(stale["slot_key"],stopped_owner=stale_ticket["owner"])
-        self.configure(recipients=["changed@example.invalid"])
-        with self.assertRaises(NotificationError):self.outage_plan(old_slot,changed)
-        self.assertEqual(self.store.read(stale["slot_key"])["reservations"],0)
         self.assertEqual(self.store.read(row["slot_key"])["reservations"],1)
+
+    def test_a1_k2_first_prepare_of_old_episode_is_rejected_without_marking_new_episode(self):
+        from dataclasses import replace
+        from app.notification_planning import outage_slot
+        self.configure()
+        start=self.now[0]
+        token,_=self.outage_observation()
+        self.now[0]=start+86400+900-1
+        token,old=self.outage_observation()
+        slot=outage_slot(token,old["data"],self.config,self.now[0])
+        first=self.outage_plan(slot,old)
+        ticket=self.reserve(first)
+        self.store.begin_post(ticket,budget=self.budget())
+        self.store.finish(ticket,"accepted",http_status=202)  # Synthetic store acknowledgment only.
+        self.now[0]+=1
+        self.outage_observation(failed=False)
+        token,current=self.outage_observation(code="graph_forbidden")
+        self.assertEqual(current["data"]["episode"],old["data"]["episode"]+1)
+        self.assertIsNone(outage_slot(token,current["data"],self.config,self.now[0]))
+        delayed=outage_slot(token,old["data"],self.config,self.now[0])
+        self.assertIsNotNone(delayed)
+        with self.assertRaises(NotificationError):self.outage_plan(delayed,old)
+        with self.assertRaises(NotificationError) as missing:self.store.read(delayed.key(self.store.instance,SCOPE))
+        self.assertEqual(missing.exception.status,404)
+        self.assertEqual(self.store.monitor_state(SCOPE,"incident",token),current)
+        self.now[0]+=899
+        token,current=self.outage_observation(code="graph_forbidden")
+        self.assertIsNone(outage_slot(token,current["data"],self.config,self.now[0]))
+        # Relabeling the old slot with the new snapshot still cannot bypass qualification/period binding.
+        relabeled=replace(delayed,tag=identity([token,current["data"]["episode"]]),
+            **{name:current["data"][name] for name in ("episode","first_seen","last_seen","last_failure","code","resolved_at")})
+        with self.assertRaises(NotificationError):self.outage_plan(relabeled,current)
+        self.assertIsNone(self.store.monitor_state(SCOPE,"incident",token)["data"]["last_reserved_at"])
+        self.now[0]+=1
+        token,current=self.outage_observation(code="graph_forbidden")
+        fresh=outage_slot(token,current["data"],self.config,self.now[0])
+        self.assertIsNotNone(fresh)
+        allowed=self.reserve(self.outage_plan(fresh,current))
+        payload=self.store.begin_post(allowed,budget=self.budget())
+        self.assertIn("graph_forbidden",payload["message"]["body"]["content"])
+        self.assertNotIn("graph_authentication_failed",payload["message"]["body"]["content"])
+
+    def test_a1_k2_slot_facts_and_membership_cannot_be_mixed(self):
+        from dataclasses import replace
+        from app.notification_planning import outage_slot
+        self.configure()
+        token,_=self.outage_observation()
+        self.now[0]+=900
+        token,observed=self.outage_observation()
+        slot=outage_slot(token,observed["data"],self.config,self.now[0])
+        for changed in (dict(codes=["graph_forbidden"]),dict(first_seen=self.now[0]),
+                dict(last_seen=self.now[0]-1),dict(count=2)):
+            facts=dict(source="graph",first_seen=slot.first_seen,last_seen=slot.last_seen,count=1,codes=[slot.code])
+            facts.update(changed)
+            with self.assertRaises(NotificationError):self.store.prepare(slot,SCOPE,facts,expected_version=1,
+                as_of=self.now[0],members=[observed["monitor_key"]])
+        unbound=Slot(slot.kind,slot.start,slot.end,slot.due,slot.stale,slot.tag)
+        for invalid in (unbound,replace(slot,start=slot.start+1),replace(slot,stale=slot.stale+1),
+                replace(slot,token="b"*64,tag=identity(["b"*64,slot.episode]))):
+            with self.assertRaises(NotificationError):self.outage_plan(invalid,observed)
+        facts=dict(source="graph",first_seen=slot.first_seen,last_seen=slot.last_seen,count=1,codes=[slot.code])
+        with self.assertRaises(NotificationError):self.store.prepare(slot,SCOPE,facts,expected_version=1,
+            as_of=self.now[0],members=["b"*64])
+        self.assertEqual(self.store.history(SCOPE)["total"],0)
+        self.assertEqual(self.store.monitor_state(SCOPE,"incident",token),observed)
+
+    def test_a1_k2_existing_plan_and_unconfigured_plan_cannot_change_episode(self):
+        from app.notification_planning import outage_slot
+        token,_=self.outage_observation()
+        self.now[0]+=900
+        token,old=self.outage_observation()
+        slot=outage_slot(token,old["data"],self.config,self.now[0])
+        missing=self.outage_plan(slot,old)
+        self.assertEqual(missing["error_code"],"notification_settings_missing")
+        self.configure()
+        row=self.outage_plan(slot,old)
+        ticket=self.store.claim(row["slot_key"],SCOPE)
+        self.now[0]+=1
+        self.outage_observation(failed=False)
+        token,current=self.outage_observation(code="graph_forbidden")
+        with self.assertRaises(NotificationError):self.store.reserve(ticket,budget=self.budget())
+        self.store.recover(row["slot_key"],stopped_owner=ticket["owner"])
+        before=self.store.read(row["slot_key"])
+        # Identical-version replay and a configuration-triggered replan both reject the stale episode.
+        with self.assertRaises(NotificationError):self.outage_plan(slot,old)
+        self.configure(recipients=["changed@example.invalid"])
+        with self.assertRaises(NotificationError):self.outage_plan(slot,old)
+        with self.assertRaises(NotificationError):self.outage_plan(slot,current)
+        self.assertEqual(self.store.read(row["slot_key"]),before)
+        self.assertEqual(self.store.monitor_state(SCOPE,"incident",token),current)
 
     def test_history_and_readback_are_scope_bound_without_creating_a_new_request(self):
         self.configure()

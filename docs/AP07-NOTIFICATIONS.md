@@ -75,8 +75,15 @@ Erholung und Wiederholungsabstand. Ausfallwiederholungen warten den konfiguriert
 Abstand seit der tatsächlichen dauerhaften Reservierung derselben Episode ab,
 auch nach verspätetem Nachholen und bei ungewissem Ausgang. Der Store prüft diese
 Grenze erneut unter der gemeinsamen Sperre; ein veralteter paralleler Plan wird
-unreserviert aufgeschoben. Ausfallmitgliedschaft bindet genau eine Incidentepisode
-im vorhandenen JSON-Feld, auch vor Erstkonfiguration. Keine Schemaänderung dafür.
+unreserviert aufgeschoben. Ausfall und Erholung führen den unveränderlichen
+ursprünglichen Beobachtungssnapshot im IncidentSlot mit: Token/Episode,
+Fehlercode, Beginn, Beobachtungs-/Fehlerzeit und gegebenenfalls Erholung.
+Vor Erstanlage, unverändertem Replay und Neuplanung prüft der Store unter der
+Sperre Slotzeitraum/Tag, Fakten und genau passende Incidentmitgliedschaft gegen
+diesen Snapshot und den aktuellen Monitor. Veraltete Episoden werden abgewiesen,
+statt einen alten Payload mit der inzwischen neuen Episode zu verknüpfen.
+Die Bindung liegt im vorhandenen JSON-Feld, auch vor Erstkonfiguration; bei
+Reservierung wird sie erneut geprüft. Keine Schemaänderung dafür.
 Meldungsmitgliedschaft und Reservierung werden atomar verknüpft.
 Ein alter gespeicherter Fehler ist keine neue Verfügbarkeitsmessung.
 Der tatsächliche API-/Graph-Beobachter und Versand folgen; kein unabhängiger
@@ -100,14 +107,25 @@ anschließend erforderlicher Gesamtlauf des vervollständigten A-Stands:19/19PAS
 Keine nativen MariaDB-/Graph-/Kryptografie-/Browserergebnisse aus diesen lokalen
 Prüfungen ableiten. Bestehende AP03–AP06-Ergebnisse behalten ihre Quellen/Zähler.
 
-Gezielte Korrektur AP07-A1: verspäteter Ausfallversuch eine Sekunde vor der
+Erster Korrekturversuch AP07-A1: verspäteter Ausfallversuch eine Sekunde vor der
 nächsten Periodengrenze, weiterhin gesperrt bei1s und24h−1s, freigegeben exakt24h
 nach tatsächlicher Reservierung; unknown, Einstellungen, konkurrierende vorbereitete
 Pläne, Episodenwechsel und separate Erholung geprüft. Erster Lauf21/22 bestanden;
 ein zusätzlicher Test erwartete Neuplanung trotz noch aktivem Owner. Nur seine
 Vorbedingung durch ausdrückliche Ownerfreigabe berichtigt, enge Nachprüfung1/1PASS.
 Keine funktionale Produktänderung nach diesem ersten Lauf und kein vollständiges
-22/22-Ergebnis behauptet. Native Nachprüfung auf festem Korrekturpin steht aus.
+22/22-Ergebnis behauptet. Unabhängiger Review dieses Versuchs fand noch die
+Erstanlage-Race: alter Plan wurde mit der inzwischen neuen Episode verknüpft.
+
+Korrekturversuch2 bindet deshalb den ursprünglichen Snapshot durchgängig wie oben
+beschrieben. Erster lokaler Lauf25/25PASS, einschließlich Erstanlage-Race,
+neuer Episode unter/exakt15Minuten, vermischter Fakten/Perioden/Mitgliedschaft,
+unreserviertem Altplan/Erstkonfiguration/Replan, tatsächlicher24h-Grenze,
+unknown und zwei konkurrierenden kohärenten Planern. Das unveränderte Setup
+der unabhängigen Reproduktion wurde mit den geänderten Quellen nachgespielt:
+alter Erstplan abgewiesen, keine zusätzliche Outboxzeile, neue Episode vollständig
+unverändert und ohne Reservierung. Noch kein unabhängiger Review-/Native-PASS
+für Versuch2; diese Prüfungen folgen auf dem festen Lieferpin.
 
 Nächste Pakete: B für begrenzten Graphsender, Zertifikat/Wechselproof, eigenen
 Schlüssel und CLI; C für neue API-/Web-/Loginbedienung und gezielte Browserprüfung.

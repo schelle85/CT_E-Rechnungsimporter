@@ -19,10 +19,12 @@ Versionsprüfung abgeglichen; unreservierte Pflichtslots bleiben neu planbar.
 Native007-/Alt-API-Prüfung, Graphsender, eigener Notificationkey zur Laufzeit,
 Zertifikats-/Authproof und Webintegration stehen noch aus. Siehe [AP07](AP07-NOTIFICATIONS.md).
 Keine echte SendMail, Kundenmigration oder Timeraktivierung aus PaketA.
-Gezielte A1-Korrektur bindet Ausfallwiederholungen auch beim atomaren Reservieren
-an den tatsächlichen letzten Versuch derselben Incidentepisode. Nachholfall,
-exakte24h-Grenze, unknown und konkurrierende Altpläne lokal geprüft; Details und
-getrennte Testfixturekorrektur im [AP07-Prüfstand](AP07-NOTIFICATIONS.md).
+Gezielte A1-Korrektur bindet Ausfallwiederholungen an den tatsächlichen letzten
+Versuch derselben Incidentepisode. Versuch1 ließ noch eine Erstanlage-Race offen.
+Versuch2 führt die ursprüngliche Episode mit dem Slot mit und prüft Fakten,
+Mitgliedschaft und aktuellen Monitor bei Erstanlage/Replay/Replan/Reservierung.
+25 lokale Tests und nachgespieltes unabhängiges Race-Setup bestanden; unabhängiger
+Review und native Prüfung stehen aus. Einzelheiten im [AP07-Prüfstand](AP07-NOTIFICATIONS.md).
 Der tatsächliche Kundenbetrieb bleibt der folgende bestätigte AP06-/006-Stand.
 
 AP06a–d samt PDF-Vorschau ist technisch abgeschlossen und bereitgestellt. Echte Journalansichten,
