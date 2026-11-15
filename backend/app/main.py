@@ -9,6 +9,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from app.process_routes import router as process_router
 from app.notification_routes import router as notification_router
 from app.notification_model import NotificationError
+from app.notification_web_boundary import NotificationBudgetBoundary
 from app.preview import PreviewManager
 from app.http_boundary import SecurityBoundary
 from app.errors import AccessError
@@ -46,10 +47,20 @@ def create_app(runtime_factory=build_runtime):
 
     @app.exception_handler(NotificationError)
     async def notification_error(request,exc):
-        return JSONResponse(status_code=exc.status,content={"detail":"Benachrichtigungsaktion nicht verfügbar.","code":exc.code},
+        detail={"notification_settings_changed":"Einstellungen wurden zwischenzeitlich geändert. Bitte den aktuellen Stand laden.",
+            "notification_request_conflict":"Die Anforderung stimmt nicht mit der ursprünglichen Bindung überein. Bitte die Betreuung zum Abgleich hinzuziehen.",
+            "notification_test_cooldown":"Zwischen zwei neuen Testanforderungen müssen mindestens fünf Minuten liegen.",
+            "notification_deadline":"Zeitbudget abgelaufen. Ursprüngliche Anforderung über Status abgleichen.",
+            "notification_report_range_invalid":"Ungültiger Berichtszeitraum. Bitte gültige Daten und höchstens 366 Tage wählen.",
+            "notification_recipients_invalid":"Bitte eine bis zehn gültige Empfängeradressen angeben.",
+            "notification_recipients_duplicate":"Empfängeradressen müssen eindeutig sein.",
+            "notification_settings_invalid":"Bitte die Benachrichtigungseinstellungen prüfen."}.get(exc.code,"Benachrichtigungsaktion nicht verfügbar.")
+        return JSONResponse(status_code=exc.status,content={"detail":detail,"code":exc.code},
             headers={"Cache-Control":"no-store"})
 
     app.add_middleware(SecurityBoundary)
+    # Last installed is outermost: budget starts before the existing AD boundary.
+    app.add_middleware(NotificationBudgetBoundary)
 
     @app.get("/api/health/live")
     def live():

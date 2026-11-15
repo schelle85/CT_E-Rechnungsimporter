@@ -2,10 +2,14 @@
 from datetime import datetime,timezone
 import json
 import unittest
+import asyncio
+import time
+from uuid import uuid4
 from unittest.mock import patch
 import sqlalchemy as sa
 from app.notification_certificate import record_certificate
-from app.notification_model import CERTIFICATE_TOKEN
+from app.notification_model import CERTIFICATE_TOKEN,DEFAULTS,OperationBudget
+from cryptography.fernet import Fernet
 from app.notification_schema007 import metadata,outbox,settings
 from app.notification_state import NotificationStore
 from app.notification_queries import report_range
@@ -13,7 +17,7 @@ import test_process_api as process_fixture
 from notification_test_support import CONFIG,SCOPE,material
 
 
-class NotificationReadTests(unittest.IsolatedAsyncioTestCase):
+class NotificationWebFixture:
     async def asyncSetUp(self):
         await process_fixture.ProcessApiTests.asyncSetUp(self)
         self.now[0]=int(datetime(2026,12,1,12,tzinfo=timezone.utc).timestamp())
@@ -34,6 +38,8 @@ class NotificationReadTests(unittest.IsolatedAsyncioTestCase):
     login=process_fixture.ProcessApiTests.login
     mail=process_fixture.ProcessApiTests.mail
 
+
+class NotificationReadTests(NotificationWebFixture,unittest.IsolatedAsyncioTestCase):
     async def test_reports_use_real_rows_and_snapshot_without_creating_mail(self):
         await self.login("reader")
         query="/api/admin/reports?period=daily&anchor=2026-12-01"
@@ -102,3 +108,127 @@ class ReportRangeTests(unittest.TestCase):
         self.assertEqual(selected.end-selected.start,47*3600)
         weekly=report_range("weekly","2026-12-02",now=now)
         self.assertEqual(weekly.end-weekly.start,7*86400)
+
+
+class NotificationActionTests(NotificationWebFixture,unittest.IsolatedAsyncioTestCase):
+    async def asyncSetUp(self):
+        await NotificationWebFixture.asyncSetUp(self)
+        self.notification_cipher=Fernet(Fernet.generate_key())
+        self.notifications=NotificationStore(self.engine,self.notification_cipher,self.notifications.instance,clock=lambda:self.now[0])
+        self.saved=dict(DEFAULTS,recipients=["first@example.invalid","second@example.invalid"])
+        self.notifications.save_settings(0,self.saved,SCOPE,"operator")
+        self.key_patch=patch("app.notification_routes.load_notification_cipher",return_value=self.notification_cipher)
+        self.key_patch.start();self.addCleanup(self.key_patch.stop)
+        self.sent=[];self.deadlines=[]
+        async def execute(job,*,budget):
+            self.assertEqual(set(job),{"command","slot_key"})
+            self.assertEqual(job["command"],"send")
+            self.deadlines.append(budget.deadline)
+            ticket=self.notifications.claim(job["slot_key"],SCOPE)
+            if ticket and self.notifications.reserve(ticket,budget=budget):
+                payload=self.notifications.begin_post(ticket,budget=budget)
+                if payload:
+                    self.sent.append(payload)
+                    self.notifications.finish(ticket,"accepted",http_status=202)
+            return dict(ok=True,persisted=True,receipts=[self.notifications.read(job["slot_key"])])
+        self.execute=patch("app.notification_routes.execute_notification",side_effect=execute)
+        self.worker=self.execute.start();self.addCleanup(self.execute.stop)
+        self.body=dict(request_id=str(uuid4()),expected_version=1)
+
+    async def post(self,path="/api/notifications/test",body=None,headers=None):
+        return await self.client.post(path,json=body or self.body,headers=self.headers() if headers is None else headers)
+
+    async def test_preview_has_fixed_payload_and_parallel_replay_sends_one_named_test(self):
+        await self.login("admin")
+        preview=await self.post("/api/notifications/test/preview")
+        self.assertEqual(preview.status_code,200,preview.text)
+        data=preview.json()
+        self.assertEqual(data["receipt"]["actor"],"ad:"+"1"*32)
+        self.assertEqual(data["receipt"]["state"],"prepared")
+        self.assertEqual(len(data["payload"]["message"]["toRecipients"]),2)
+        self.assertEqual(self.sent,[])
+        first,second=await asyncio.gather(self.post(),self.post())
+        for response in (first,second):
+            self.assertEqual(response.status_code,200,response.text)
+            self.assertEqual(response.json()["receipt"]["state"],"accepted")
+            self.assertEqual(response.json()["receipt"]["slot_key"],data["receipt"]["slot_key"])
+        self.assertEqual(len(self.sent),1)
+        self.assertEqual(self.notifications.history(SCOPE)["total"],1)
+
+    async def test_original_request_survives_new_session_and_settings_version(self):
+        await self.login("admin")
+        first=(await self.post()).json()["receipt"]
+        self.notifications.save_settings(1,dict(self.saved,recipients=["changed@example.invalid"]),SCOPE,"operator")
+        await self.login("admin")
+        replay=await self.post()
+        self.assertEqual(replay.status_code,200,replay.text)
+        self.assertEqual(replay.json()["receipt"],first)
+        self.assertEqual(len(self.sent),1)
+        conflict=await self.post(body=dict(self.body,expected_version=2))
+        self.assertEqual(conflict.status_code,409)
+        status=await self.client.get("/api/notifications/test/status",params=self.body)
+        self.assertEqual(status.json()["receipt"],first)
+
+    async def test_current_ad_csrf_origin_role_and_allowlisted_body_before_lookup(self):
+        self.assertEqual((await self.post()).status_code,401)
+        await self.login("reader")
+        self.assertEqual((await self.post()).status_code,403)
+        self.assertEqual((await self.client.get("/api/notifications/config")).status_code,200)
+        self.assertEqual((await self.client.get("/api/notifications/history")).status_code,200)
+        await self.login("admin")
+        for headers in ({},{"Origin":"https://other.invalid","X-CSRF-Token":self.csrf},{"Origin":"https://test.invalid"}):
+            self.assertEqual((await self.post(headers=headers)).status_code,403)
+        for extra in ({"actor":"operator"},{"scope_key":"b"*64},{"to":["other@example.invalid"]},{"body":"anything"},{"slot_key":"c"*64}):
+            self.assertEqual((await self.post(body=dict(self.body,**extra))).status_code,422)
+        self.directory.rows["1"*32]["attributes"]["memberOf"]=[]
+        self.assertEqual((await self.post()).status_code,401)
+        self.assertEqual(self.notifications.history(SCOPE)["total"],0)
+        self.worker.assert_not_called()
+
+    async def test_versioned_settings_keep_certificate_mandatory_and_reader_read_only(self):
+        await self.login("reader")
+        body=dict(expected_version=1,settings=self.saved)
+        self.assertEqual((await self.client.put("/api/notifications/config",json=body,headers=self.headers())).status_code,403)
+        await self.login("admin")
+        self.assertEqual((await self.client.put("/api/notifications/config",json=dict(body,settings=dict(self.saved,certificate_enabled=False)),headers=self.headers())).status_code,422)
+        changed=await self.client.put("/api/notifications/config",json=dict(body,settings=dict(self.saved,daily_enabled=False)),headers=self.headers())
+        self.assertEqual(changed.status_code,200,changed.text)
+        self.assertEqual(changed.json()["version"],2)
+        self.assertFalse(changed.json()["settings"]["daily_enabled"])
+        self.assertEqual((await self.client.put("/api/notifications/config",json=body,headers=self.headers())).status_code,409)
+
+    async def test_budget_is_created_before_ad_and_same_deadline_reaches_child(self):
+        await self.login("admin")
+        require=self.runtime.require;observed=[]
+        def slow(request,*args):
+            observed.append(request.state.notification_budget.deadline)
+            time.sleep(.04)
+            return require(request,*args)
+        with patch.object(self.runtime,"require",side_effect=slow):response=await self.post()
+        self.assertEqual(response.status_code,200,response.text)
+        self.assertEqual(self.deadlines,observed)
+        self.assertLess(self.deadlines[0]-time.monotonic(),79.98)
+
+    async def test_hard_budget_includes_slow_preflight_and_never_starts_child(self):
+        await self.login("admin")
+        require=self.runtime.require
+        def slow(*args):time.sleep(.2);return require(*args)
+        start=time.monotonic()
+        with patch("app.notification_web_boundary.OperationBudget",side_effect=lambda **kwargs:OperationBudget(clock=time.monotonic,seconds=.05)),patch.object(self.runtime,"require",side_effect=slow):
+            response=await self.post()
+        elapsed=time.monotonic()-start
+        self.assertEqual(response.status_code,504,response.text)
+        self.assertFalse(response.json()["persisted"])
+        self.assertLess(elapsed,.18)
+        self.worker.assert_not_called()
+        await asyncio.sleep(.25)  # Let the read-only AD test double return before cleanup.
+
+    async def test_lost_child_result_keeps_original_status_and_has_no_new_request(self):
+        await self.login("admin")
+        with patch("app.notification_routes.execute_notification",return_value=dict(ok=False,persisted=False)):
+            response=await self.post()
+        self.assertFalse(response.json()["persisted"])
+        status=(await self.client.get("/api/notifications/test/status",params=self.body)).json()
+        self.assertEqual(status["receipt"]["state"],"prepared")
+        self.assertEqual(status["receipt"]["request_id"],self.body["request_id"])
+        self.assertEqual(self.notifications.history(SCOPE)["total"],1)

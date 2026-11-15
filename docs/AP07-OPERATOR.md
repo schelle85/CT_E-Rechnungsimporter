@@ -157,6 +157,15 @@ dauerhafter Readback. Nicht beendetes Kind oder nicht erreichbare DB ergibt
 
 ## Prüfstand und noch nötiger nativer Nachweis
 
+Für die AP07-Webintegration ergänzt `compose.notification-web.yaml` an der API
+genau Graph-JSON, Graph-PEM und den unabhängigen Notificationkey als einzelne
+RO-Dateien. Die API behält ihre bisherigen AD-/DB-/Vorschauaufgaben; ihr Kind
+teilt dieselbe Dateisystemgrenze. Die Envallowlist ist keine physische Isolation.
+Der eigenständige CLI-Container verwendet weiter ausschließlich seine expliziten
+minimalen Bindungen aus `compose.notification.yaml`. Das Weboverlay aktiviert
+keinen Worker oder Zeitplan. API- und Webimage aus demselben geprüften C-Pin
+bauen und die Herkunft vor Bereitstellung separat belegen.
+
 Lokal: echte Fernet-/generierte RSA-/X509prüfungen, Graphtransportdoubles und reale
 synthetische Kindprozesse mit EOF/Kill, DBsperre, Envstrip und begrenzter Ausgabe.
 Prozessfristen mit verkürzten Budgets geprüft; kein vollständiger80s-Wartelauf oder

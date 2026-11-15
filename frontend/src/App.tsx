@@ -133,7 +133,7 @@ export default function App({ user, csrfToken, onLogout, onReauthenticate }: {
         </Table.Tbody></Table>{!unknown.length && <Text ta="center" c="dimmed" py="xl">{loading ? "Anhänge werden geladen …" : error ? "Daten konnten nicht geladen werden." : "Keine offenen unbekannten Anhänge für diese Auswahl."}</Text>}</Table.ScrollContainer>
         {total > 25 && <Pagination total={Math.ceil(total / 25)} value={pageNo} onChange={setPageNo} p="lg" />}
       </Paper>}
-      {page === "admin" && <Administration readOnly={user.role !== "admin"} csrfToken={csrfToken} onActivated={onReauthenticate} onSaved={() => setVersion(v => v + 1)} />}
+      {page === "admin" && <Administration identity={user.guid} readOnly={user.role !== "admin"} csrfToken={csrfToken} onActivated={onReauthenticate} onSaved={() => setVersion(v => v + 1)} />}
       <footer><span>E-Rechnungsimporter · Verarbeitungsprotokolle</span><span>Automatischer Import inaktiv</span></footer>
     </main></div>
     <ProcessDialog detail={detail} initialAttachment={initialAttachment} settings={settings} canEdit={user.role === "admin"} identity={user.guid} csrfToken={csrfToken}

@@ -1,0 +1,24 @@
+# AP07 web overlay, after review. API child shares the API filesystem boundary.
+# Separate operator container still uses only compose.notification.yaml bindings.
+services:
+  api:
+    environment:
+      NOTIFICATION_KEY_FILE: /run/secrets/notification_key
+      GRAPH_CONFIG_FILE: /run/importer/graph.json
+      GRAPH_CREDENTIAL_FILE: /run/secrets/graph_credential
+    volumes:
+      - type: bind
+        source: ${NOTIFICATION_KEY_HOST_FILE:?Set independent protected Notification key path}
+        target: /run/secrets/notification_key
+        read_only: true
+        bind: {create_host_path: false}
+      - type: bind
+        source: ${GRAPH_CONFIG_HOST_FILE:?Set protected Graph JSON path}
+        target: /run/importer/graph.json
+        read_only: true
+        bind: {create_host_path: false}
+      - type: bind
+        source: ${GRAPH_CREDENTIAL_HOST_FILE:?Set protected Graph credential path}
+        target: /run/secrets/graph_credential
+        read_only: true
+        bind: {create_host_path: false}

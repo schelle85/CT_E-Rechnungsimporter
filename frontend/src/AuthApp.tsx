@@ -162,7 +162,7 @@ export default function AuthApp() {
         </form>
         <Alert color="blue" mt="xl" title="Geschützter Arbeitsplatz">
           Vorgänge und Originale sind nur nach Anmeldung zugänglich. Der
-          automatische Import und der Mailversand sind derzeit inaktiv.
+          automatische Import und geplante Benachrichtigungen sind derzeit inaktiv.
         </Alert>
       </Paper>
     </div>

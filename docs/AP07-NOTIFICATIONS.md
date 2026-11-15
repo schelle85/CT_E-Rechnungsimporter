@@ -192,6 +192,16 @@ frei gewählten Journalzeiträumen, gemeinsamem Snapshot und korrektem Leerzusta
 Beide AD-Rollen dürfen lesen; Berichtsansicht erzeugt keinen Outboxauftrag.
 Lokale Graphzertifikatsmetadaten, offene Pflichtserie und gespeicherter Nachfolgerproof
 werden getrennt gelesen; Portal- und gesonderter Loginwarnhinweis für beide Rollen.
-Browser-/native C-Abnahme sowie Einstellungen/Testaktion/weitere Beobachter folgen.
+Versionierte Einstellungen, lesender Verlauf und feste Testmail sind in C implementiert.
+Aktuelle AD-/Admin-/Origin-/CSRF-Prüfung geht dem Requestlookup voraus; Actor aus
+geprüfter AD-GUID. Originale UUID/Version bleiben im Browser bei Antwortverlust,
+Reload und neuer Sitzung erhalten. Vorschau und ausdrücklicher Versand verwenden
+denselben gespeicherten Slot. Statusabgleich erzeugt keinen neuen Auftrag.
+Das Webbudget beginnt als äußere ASGI-Grenze vor AD/DB/Bodyvorprüfung und reicht
+denselben absoluten Termin an den vorhandenen begrenzten Kindprozess weiter.
+Der API-Kindprozess teilt die API-Dateisystemgrenze; drei zusätzliche einzelne
+RO-Dateien sind im separaten Weboverlay explizit gebunden. Der externe Operator
+behält seine eigene minimale Allowlist. Browser-/native C-Abnahme und weitere
+Beobachterintegration folgen.
 Realer Testversand erst nach konkretem Betreiberabgleich von Vorlage, Empfängern
 und Anzahl. AP08/09/10 bleiben ohne Go, DMS und Erkennungsänderungen außerhalb AP07.
