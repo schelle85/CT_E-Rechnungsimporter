@@ -1,8 +1,9 @@
-# AP07 – Benachrichtigungen, Teilstände A/B
+# AP07 – Benachrichtigungen, Teilstände A/B/C
 
 Stand: 15. November 2026. AP07a–c ist freigegeben und in Arbeit. A enthält
 Fach-/Datenbankbausteine; B ergänzt begrenzten Graphsender, Zertifikatsproof,
-eigenen Schlüssel und CLI. Neue Webbedienung folgt in C. Kundenbetrieb bleibt
+eigenen Schlüssel und CLI. C integriert Webbedienung und tatsächliche Beobachter;
+Quellen-/Runtime-/Browserabnahme bleibt davon getrennt. Kundenbetrieb bleibt
 AP06 mit Schema006. Keine Kundenmigration, echte Testmail oder Zeitplanaktivierung
 aus diesen Teilständen. Dauerhafte Jobs gehören AP08.
 
@@ -113,8 +114,9 @@ wird nicht umgedeutet oder beim Reservieren still entfernt. Nur ein vollständig
 konsistenter neuer Plan darf vor Reservierung Payload und Mitgliedschaft gemeinsam
 mit höherer Planrevision ersetzen; abgewiesene Pläne verändern keinen Monitor.
 Ein alter gespeicherter Fehler ist keine neue Verfügbarkeitsmessung.
-Der begrenzte Sender ist in B implementiert. Weitere API-/Processingbeobachter
-und Webverdrahtung folgen; kein unabhängiger VM-/SMB-/Offsiteüberwachungsdienst.
+Der begrenzte Sender ist in B implementiert. C verbindet die reine Planung mit
+tatsächlichen Journalfehlern sowie begrenzten API-/Graphproben im manuellen CLIplan.
+Kein unabhängiger VM-/SMB-/Offsiteüberwachungsdienst.
 
 Der gemeinsame80s-Budgetweg für CLI/späteren Webaufruf ist in B implementiert:
 Vorprüfung zählt mit, Kindphase höchstens60s/Restbudgetminus10s, Cleanup/Readback
@@ -201,7 +203,24 @@ Das Webbudget beginnt als äußere ASGI-Grenze vor AD/DB/Bodyvorprüfung und rei
 denselben absoluten Termin an den vorhandenen begrenzten Kindprozess weiter.
 Der API-Kindprozess teilt die API-Dateisystemgrenze; drei zusätzliche einzelne
 RO-Dateien sind im separaten Weboverlay explizit gebunden. Der externe Operator
-behält seine eigene minimale Allowlist. Browser-/native C-Abnahme und weitere
-Beobachterintegration folgen.
+behält seine eigene minimale Allowlist. Die weitere Beobachterintegration ist
+implementiert und gezielt lokal geprüft; Browser-/native
+C-Abnahme und unabhängiger C-Review bleiben offen.
+
+Der manuelle CLIplan liest maximal100 aktuelle Mailfehler und100 Anhangsfehler
+im aktiven Postfachscope. Ursachen binden Tabellenart, neutralen Code, Vorgang/
+Anhang, Verarbeitungs- und Befundrevision. Die Meldung enthält nur neutrale Codes
+und Zähler. Unbekannte Dokumentart und inaktive Jobs erzeugen keinen Ausfall.
+Bis100 ältere aktive Ursachen werden anhand ihrer ursprünglichen Referenz erneut
+geprüft; ein Abfragelimit darf keine Erholung vortäuschen. Bereinigte/ersetzte Ursachen
+schließen ihren Monitor. Alte unreservierte Ausfall-/Bündelabsichten werden unter
+dem gemeinsamen Lock überholt, ohne reservierte Historie oder Journal zu verändern.
+Fehlerbündel wählen höchstens100 aktuell fällige Ursachen; die bestehenden atomaren
+1h-/Ursachenabstände ab tatsächlicher Reservierung bleiben maßgeblich.
+APIbereitschaft wird durch genau einen begrenzten GET gegen `api:8000` einschließlich
+Instanzvergleich geprüft; Graph über die vorhandene frische Postfachprobe.
+Gespeicherte Graphsperrfristen sind keine neue Verfügbarkeitsmessung. Ausfall/
+Erholung nutzen ursprüngliche A-Snapshots und frische beobachtete Dauer. Bei Ausfall
+der eigenen VM/DB besteht keine zuverlässige Selbstalarmierung.
 Realer Testversand erst nach konkretem Betreiberabgleich von Vorlage, Empfängern
 und Anzahl. AP08/09/10 bleiben ohne Go, DMS und Erkennungsänderungen außerhalb AP07.

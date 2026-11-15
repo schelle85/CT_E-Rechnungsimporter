@@ -9,7 +9,7 @@ internen Webportal für Protokolle, Fehler und Dubletten.
 
 ## Projektstatus
 
-**Stand: 14. November 2026. AP01 ist durch den Kunden vollständig abgenommen.
+**Stand: 15. November 2026. AP01 ist durch den Kunden vollständig abgenommen.
 AP02a–c ist im vereinbarten Grundlagenumfang technisch abgeschlossen und
 bereitgestellt. AP04 ist technisch im isolierten Grundlagenumfang abgeschlossen.
 AP05 ist im definierten manuellen Umfang technisch abgeschlossen und bereitgestellt:
@@ -30,7 +30,7 @@ Journal ist derzeit leer. Automatische Verarbeitung ist nicht aktiviert.**
 | AP04 – SMB-Ablage und Dubletten | Grundlagen technisch abgeschlossen: Quellreview, 115 native Backendtests einschließlich aller 28 AP04-Tests sowie fünf synthetische Fälle auf echtem CIFS bestanden. In AP05 in den gemeinsamen manuellen Pfad integriert. Siehe [AP04-Vertrag](docs/AP04-ABLAGE.md). |
 | AP05 – gemeinsamer Verarbeitungspfad | Im definierten manuellen Umfang technisch abgeschlossen. 155 native Backendtests einschließlich 40 AP05-Gruppen, gezielte Ausgabegrenz-/Timeoutprüfung und echter synthetischer CIFS-Handoff bestanden. Schema005 und sechstes Inboxziel Mahnung bereitgestellt; Scan/manueller Tick bestätigen 0 passende Mails/0 Quanten. Zum AP05-Abschluss blieben API/GUI unverändert. Keine Timer oder produktive Dateipublikation. Siehe [AP05-Vertrag](docs/AP05-PROCESSING.md) und [Runtime](docs/AP05-RUNTIME.md). |
 | AP06 – Webprotokoll, Korrektur und PDF-Vorschau | Technisch abgeschlossen und bereitgestellt: echte Journalansichten, generationgebundene Freigabe/Retry, Einstellungen, Archiv und großer PDFdialog. Native006-/Sicherheits-/Konkurrenzprüfungen sowie fünf isolierte Browsergruppen mit sichtbarer Original-PDF bestanden. Kundenmigration auf006, Dienstpins, HTTPS und leeres echtes Journal getrennt zurückgelesen. Siehe [AP06](docs/AP06-WEB.md). |
-| AP07 – Benachrichtigungen | Freigegeben und in Arbeit. A mit additiven007-Tabellen, Kohorten und Einmalreservierung im Quellenreview bestanden;30 lokale Gruppen. B: begrenzter Graphsender, Zertifikats-/Nachfolgerproof, separater Schlüssel und Betreiber-CLI implementiert;19Fach-/9Prozessgruppen lokal bestanden. B-Review/native Prüfung und Webintegration folgen. Kundenstand bleibt AP06/006. Siehe [AP07](docs/AP07-NOTIFICATIONS.md) und [Betreiberweg](docs/AP07-OPERATOR.md). |
+| AP07 – Benachrichtigungen | Freigegeben und in Prüfung. A mit additiven007-Tabellen, Kohorten und Einmalreservierung im Quellen-/nativen Nachweis bestanden. B-Quellreview einschließlich B2-Korrektur bestanden. C integriert AD-gesicherte Berichte, Zertifikats-/Loginhinweise, versionierte Benachrichtigungen, feste Testmail mit ursprünglicher UUID und tatsächliche Journal-/API-/Graphbeobachter. Gezielte lokale Prüfungen bestanden; unabhängige C-/native-/Browserabnahme offen. Kundenstand bleibt AP06/006. Siehe [AP07](docs/AP07-NOTIFICATIONS.md) und [Betreiberweg](docs/AP07-OPERATOR.md). |
 | AP08 und folgende Pakete | Noch nicht freigegeben. Zeitplanung und dauerhafte automatische Verarbeitung sind inaktiv. |
 
 Der begrenzte Titelvariantennachtrag wurde unabhängig geprüft und aus `e49ccdb`
@@ -82,6 +82,10 @@ verwenden die bestehende AD-Anbindung; das E-Favicon ist über HTTPS geprüft.
   herunterladen. Andere Formate werden als Download angeboten. Zwei gleichzeitige
   Originalantworten bis je 25 MiB, privater Vorschauspeicher mit 128 MiB und feste Fristen.
 - Reines Webarchiv nach zwei Kalenderjahren; keine Datenlöschung oder Mailbewegung.
+- AP07-C-Quellstand: Administration mit getrennten Berichten, Benachrichtigungen
+  und Verbindungseinstellungen. Tages-/Wochen-/freie Berichtszeiträume verwenden
+  echte Journalwerte; Lesen erzeugt keinen Versandauftrag. Neue C-Bedienwege sind
+  noch nicht im Kundenbetrieb bereitgestellt.
 
 Der Zugang erfolgt ausschließlich im Kundennetz beziehungsweise über die
 vorgesehene VPN und die konfigurierte HTTPS-Adresse. Tatsächliche Hostnamen,

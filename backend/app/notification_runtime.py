@@ -95,7 +95,9 @@ def run_job(job):
         if command == "observe":
             return dict(ok=True,persisted=True,certificate=service.observe(probe=job.get("probe") is True,budget=budget))
         if command == "plan":
-            return dict(ok=True,persisted=True,receipts=service.plan(),automatic_schedule_active=False)
+            from app.notification_observers import observe_and_plan
+            observed_plans=observe_and_plan(service,budget=budget)
+            return dict(ok=True,persisted=True,receipts=observed_plans+service.plan(),automatic_schedule_active=False)
         keys = job["keys"]
         if not isinstance(keys,list) or not 1 <= len(keys) <= 5 or len(set(keys)) != len(keys):
             raise NotificationError("notification_limit_invalid",422)

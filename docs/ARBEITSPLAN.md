@@ -1,12 +1,13 @@
 # Arbeitspakete
 
-Stand: 14. November 2026. **AP00 ist im definierten Grundbereitstellungsumfang abgeschlossen;
+Stand: 15. November 2026. **AP00 ist im definierten Grundbereitstellungsumfang abgeschlossen;
 AP01 ist vollständig durch den Kunden abgenommen. AP02a–c ist technisch abgeschlossen;
 AP03 ist eingefroren, AP04 ist im Grundlagenumfang technisch abgeschlossen.
 AP05a–c ist im definierten manuellen Umfang technisch abgeschlossen und bereitgestellt.
 AP06a–d samt PDF-Vorschau ist technisch abgeschlossen und bereitgestellt;
 Kundenmigration auf006 und getrenntes Rücklesen bestanden. AP07a–c ist freigegeben
-und in Arbeit; PaketA im Quellenreview bestanden, PaketB lokal geprüft.
+und in Prüfung; A-Quell-/Native-Nachweis und B-Quellreview bestanden,
+C implementiert und gezielt lokal geprüft, unabhängige C-Abnahme offen.
 AP08 und spätere Pakete bleiben ohne Go;
 dauerhafter Automatikbetrieb gehört in AP08.**
 AP10 ist für die spätere wöchentliche Wartung ergänzt.
@@ -137,13 +138,14 @@ DMS-Anbindung, -Konfiguration und -Prüfung sind keine Auftrags-/Abnahmebestandt
 
 | Teil | Ergebnis und Prüfung |
 | --- | --- |
-| AP07a | A-Einstellungen/Vorlagen/Requestbindung/Einmalreservierung im Quellenreview bestanden. B-Sender mit direktem GraphsendMail, eigenem Schlüssel, privater Operator-Erstkonfiguration und UUID-/Statusweg lokal geprüft. Tatsächliche Webintegration und reale Initialprobe folgen separat. |
-| AP07b | B liest die passende RSA-/PEMidentität lokal und bindet frischen Nachfolgerproof an dieselben Bytes, Scope, lokale Gültigkeit und Monitorrevision. NegativeRestzeit: best-effortVersuch bei funktionierendem Graph und neutraler Authfehler geprüft. Portal-/Loginhinweis folgt in C. Pflichtwarnung nicht abschaltbar. |
-| AP07c | A-Kohorten, Kalender und Fehler-/Ausfallsnapshots mit atomaren Wiederholsperren geprüft. B-CLI plant Zertifikat/Tages-/Woche und sendet vorhandene Absichten begrenzt. Weitere Beobachter-/Webverdrahtung und Administration→Berichte mit echtem Journal/Leerzustand folgen in C. |
+| AP07a | A-Request-/Einmalverträge und B-Sender im Quellenreview bestanden. C-Webkonfiguration, ursprüngliche AD-/UUIDbindung, feste Vorschau/Testaktion/Status und ASGI-Gesamtbudget implementiert, gezielt lokal geprüft. Unabhängiger C-Review/native Web-/Initialprobe separat. |
+| AP07b | B-Nachfolgerproof und Serienbindung einschließlich B2 bestanden. Negative Restzeit bleibt best effort warnpflichtig. C-Portal-/Loginhinweis für beide Rollen trennt lokale PEMmetadaten, offene Serie und gespeicherten Proof. Pflichtwarnung nicht abschaltbar; Browserabnahme offen. |
+| AP07c | C verbindet tatsächliche Journalfehler und begrenzte API-/Graphproben mit den vorhandenen A-Snapshots/Wiederholsperren. Administration→Berichte zeigt echte Tages-/Wochen-/freie Journalzeiträume und korrekte Leere. Gezielte lokale Prüfungen bestanden; native-/Browserabnahme offen. |
 
-AP07-Go vom14.11.2026. A-Quellreview und30 lokale Gruppen bestanden; B mit19Fach-/
-9Prozessgruppen lokal geprüft. Unabhängiger B-Review/native B-Prüfung folgen auf
-festem Pin; A-Nativnachweise separat geführt. Keine Kundenabnahme daraus.
+AP07-Go vom14.11.2026. A-Quell-/Native-Nachweise und B-Quellreview bestanden;
+B2 nachVersuch1 geschlossen. C-Leseteil und Testaktion als getrennte Teilpins,
+Beobachter als eigener Teilstand; C-Review/native-/Browserprüfung auf festem Pin.
+Keine Kundenabnahme daraus. AP11-Planung bleibt unverändert ohne Umsetzungs-Go.
 Kundenschema bleibt006, keine echteSendMail, Kundenmigration oder Timeraktivierung.
 Vertrag und Grenzen: [AP07](AP07-NOTIFICATIONS.md), [Betreiber-CLI](AP07-OPERATOR.md).
 

@@ -32,7 +32,10 @@
   B-Review stoppte bei B2: verspätete Altwarnplanung nach Nachfolgerproof.
   B2-Korrekturversuch1 bindet die offene ursprüngliche Serie in Planung und beiden
   Versandgates;59 betroffene lokale Gruppen bestanden (30A/19B/10B2).
-  Erneuter fester B-Review/native B-Prüfung und neue Webbedienung folgen.
+  B2 nachVersuch1 und vollständiger B-Quellreview auf48e3d35 bestanden.
+  C-Leseteil5de7a34 und AD-gebundene Testaktion673762e geliefert. Tatsächliche
+  Journal-/API-/Graphbeobachter in eigenem C-Teilstand, keine permanente Automatik.
+  C-Quellreview/native-/Browserabnahme folgen auf festem Pin; keine Bereitstellung.
   Kundenstand bleibt AP06/006; keine echte SendMail oder Timer aus A/B.
   AP08 und spätere AP bleiben ohne Go; dauerhafte Automatik gehört in AP08.
   DMS-Anbindung, -Konfiguration und -Prüfung liegen außerhalb unseres Auftrags

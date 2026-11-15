@@ -100,14 +100,20 @@ Bindung ergibt Konflikt. Veralteter unreservierter Test wird nicht neu adressier
   Graphauth. `observe --probe`: zusätzlich frische Anmelde-/Postfachprobe, solange
   keine persistente Graphsperrfrist gilt. Keine Schreibprobe oder neue Entra-Rechte.
 - `plan`: heutige Pflichtwarnung und jüngsten fälligen Tages-/Wochenbericht aus
-  dem echten Journal vorbereiten. Bei0Vorgängen korrekte0Zähler; kein Importscan.
+  dem echten Journal vorbereiten. Zusätzlich tatsächliche Verarbeitungsfehler
+  sowie APIbereitschaft und frischen Graphzugriff begrenzt beobachten; fällige
+  Fehler-/Ausfall-/Erholungsabsichten vorbereiten. Bei0Vorgängen korrekte0Zähler;
+  kein Importscan und kein Mail-POST. Dieser Befehl führt jetzt lesende Netzproben aus.
 - `dispatch`: bereits vorbereitete Meldungen begrenzt senden, standardmäßig1,
   ausdrücklich maximal5, Zertifikatsvorrang und bestehende Stundenquote.
   `send` arbeitet ausschließlich auf einem konkret benannten gespeicherten Slot.
 
-Reine Fehler-/Ausfallverträge aus A bleiben erhalten. Die tatsächliche weitere
-API-/Processing-Beobachterverdrahtung und Webkonfiguration sind noch Integration;
-diese CLI implementiert keinen unabhängigen VM-/SMBüberwachungsdienst. Kein
+Reine Fehler-/Ausfallverträge aus A bleiben erhalten. C verbindet sie mit tatsächlichen
+Journalzuständen und Proben. Der API-GET nutzt fest `http://api:8000/api/health/ready`
+mit höchstens5s, maximal4KiB und erwartet die gleiche Instanz; CLI und API müssen
+im vorgesehenen Compose-Netz erreichbar sein. Leeres Journal/inaktive Importjobs
+sind kein Ausfall. Die eigene VM/DB kann nicht zuverlässig selbst alarmieren.
+Diese CLI implementiert keinen unabhängigen VM-/SMBüberwachungsdienst. Kein
 dauerhafter Planer oder Zeitplan wird durch die Befehle gestartet.
 
 ## Zertifikats- und Unsicherheitsvertrag

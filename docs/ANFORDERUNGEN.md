@@ -1,6 +1,6 @@
 # Anforderungen
 
-Stand: 14. November 2026. Vereinbarter Sollumfang; den tatsächlichen
+Stand: 15. November 2026. Vereinbarter Sollumfang; den tatsächlichen
 Umsetzungsstand zeigt die [README](../README.md).
 Echte Postfach-, Gruppen-, Empfänger- und Verbindungswerte werden separat konfiguriert.
 
@@ -150,6 +150,12 @@ manueller Korrekturpfad sind implementiert, isoliert geprüft und bereitgestellt
   und kein Selbsttraining durch einen einzelnen Korrekturklick.
 
 ## Benachrichtigungen
+
+Administration → Berichte muss für beide berechtigten Rollen wieder auffindbar
+sein: echte Journal-/Tages-/Wochenübersichten mit wählbarem Zeitraum, sichtbarem
+Erstellstand und korrektem Leerzustand. Ansicht bleibt von Mailplanung und
+Versandhistorie getrennt; Lesen erzeugt keinen Mailauftrag. APIfehler sind keine
+Nullstatistik. Die vorhandenen aktuellen AD-Gruppenrechte gelten weiter.
 
 Nur automatische Mails über die bestehende Graph-Anbindung; kein manueller Mail-Editor.
 Fehler-, Ausfall-, Tages- und Wochenmeldungen vorsehen. Meldungsauswahl, Empfänger

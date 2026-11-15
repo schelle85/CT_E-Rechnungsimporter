@@ -1,6 +1,6 @@
 # KI-Dokumentation
 
-Stand: 14. November 2026. Lebende Markdown-Dokumentation, noch kein Gesamtabschlussbericht.
+Stand: 15. November 2026. Lebende Markdown-Dokumentation, noch kein Gesamtabschlussbericht.
 
 ## Wiedereinstieg
 
@@ -16,12 +16,22 @@ Prüfgruppen geprüft: eingefrorene additive007-Tabellen, reine Termin-/Vorlagen
 Kohortenlogik und persistente Einstellungen/Outbox mit Planrevision, Requestfence
 und einmaliger POST-Freigabe. Ursprüngliche Testrequests werden vor aktueller
 Versionsprüfung abgeglichen; unreservierte Pflichtslots bleiben neu planbar.
-Native007-/Alt-API-Nachweise werden separat von ORGA/REVIEW geführt.
+Native007-/Alt-API-Nachweise inzwischen bestanden, von ORGA/REVIEW separat geführt.
 B implementiert Graphsender, eigenen Notificationkey, lokale Zertifikatsidentität,
 frischen Nachfolgerproof und begrenzte Operator-CLI.19Sender-/Cert-/Runtimefälle
-und9Prozess-/Bindungsgruppen lokal bestanden, B-Review/native B-Prüfung offen.
-Neue Web-/weitere Beobachterintegration folgt in C; Administration→Berichte mit
-echten Journal-/Tages-/Wochenübersichten ist verbindlich vorgesehen.
+und9Prozess-/Bindungsgruppen lokal bestanden. B2 bindet alte Zertifikatspläne durch
+Erstanlage/Neuplanung/Reservierung/POST-Gate an die offene ursprüngliche Serie;
+nachVersuch1 geschlossen, vollständiger B-Quellreview auf48e3d35 bestanden.
+C-Leseteil5de7a34 und C-Testaktion673762e sind getrennte Lieferpins. Administration→
+Berichte verwendet echte Journal-/Tages-/Wochen-/freie Snapshotzeiträume ohne
+Outboxeffekt. Beide Rollen erhalten lokale Zertifikatsmetadaten und zusätzliche
+Login-/Portalwarnung; lokale Datei und gespeicherter Proof bleiben getrennt.
+AD-/Admin-/Origin-/CSRF-Grenze vor Testlookup, serverseitiger ad:GUID-Actor,
+originaler Browserrequest über neue Sitzung/Konfiguration und ASGI80s vor AD/DB/
+Body sind implementiert. C-Beobachter verbinden CLIplan mit tatsächlichen neutralen
+Journalfehlern und begrenzten API-/Graphproben. Kein permanenter Worker/Timer.
+Gezielte lokale Nachweise bestanden; unabhängiger C-Review/native-/Browserabnahme
+bleiben offen. APIkind teilt API-Dateisystem, CLI bleibt separat minimal gebunden.
 Siehe [AP07](AP07-NOTIFICATIONS.md) und [Betreiberweg](AP07-OPERATOR.md).
 Keine echte SendMail, Kundenmigration oder Timeraktivierung aus A/B.
 Gezielte A1-Korrektur bindet Ausfallwiederholungen an den tatsächlichen letzten
