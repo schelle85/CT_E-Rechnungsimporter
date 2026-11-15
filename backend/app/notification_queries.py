@@ -5,6 +5,25 @@ from app.processing_state import messages, attachments
 from app.storage_state import operations
 from app.notification_model import NotificationError, checked_key
 
+def report_range(period,anchor=None,from_date=None,to_date=None,*,now):
+    """User-selected Berlin cohort boundaries; independent of mail scheduling."""
+    from datetime import date,datetime,timedelta,timezone
+    from app.notification_model import BERLIN,Slot,midnight
+    try:
+        today=datetime.fromtimestamp(now,timezone.utc).astimezone(BERLIN).date()
+        day=date.fromisoformat(anchor) if anchor else today
+        if period == "daily":start,end=day,day+timedelta(days=1)
+        elif period == "weekly":
+            start=day-timedelta(days=day.weekday());end=start+timedelta(days=7)
+        elif period == "range":
+            start=date.fromisoformat(from_date);end=date.fromisoformat(to_date)+timedelta(days=1)
+            if not 0 < (end-start).days <= 366:raise ValueError()
+        else:raise ValueError()
+        first,last=midnight(start),midnight(end)
+        return Slot("weekly" if period == "weekly" else "daily",first,last,first,last)
+    except (TypeError,ValueError,OverflowError):
+        raise NotificationError("notification_report_range_invalid",422) from None
+
 def report_cohort(engine, slot, mailbox_key, *, as_of):
     if slot.kind not in {"daily", "weekly"} or type(as_of) is not int:
         raise NotificationError("notification_report_invalid", 422)

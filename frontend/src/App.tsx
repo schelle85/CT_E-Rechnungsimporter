@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react";
-import { Alert, Badge, Button, Card, Drawer, Group, Pagination, Paper, Select, Stack, Table, Text, TextInput, Title } from "@mantine/core";
+import { Alert, Badge, Button, Card, Drawer, Group, Pagination, Paper, Select, Table, Text, TextInput, Title } from "@mantine/core";
 import { api, type User } from "./api";
-import AdminPanel from "./AdminPanel";
-import ProcessingControls from "./ProcessingControls";
+import Administration from "./Administration";
+import CertificateNotice from "./CertificateNotice";
 import ProcessDialog from "./ProcessDialog";
 import { type Attachment, type PageResult, type Process, type ProcessDetail, type ProcessingSettings, type Stats, StatusBadge, dateTime, reasonText } from "./processTypes";
 
@@ -95,6 +95,7 @@ export default function App({ user, csrfToken, onLogout, onReauthenticate }: {
       <Text size="sm" c="dimmed">Arbeitsplatz <span className="breadcrumb">/ {pages.find(p => p.id === page)?.label}</span></Text></Group>
       <Group gap="sm"><span className="avatar">{user.username.slice(0, 2).toUpperCase()}</span><div><Text size="sm" fw={600}>{user.username}</Text><Text size="xs" c="dimmed">{role} · AD</Text></div><Button size="xs" variant="subtle" onClick={onLogout}>Abmelden</Button></Group>
     </header><main id="main-content">
+      <CertificateNotice />
       <Group justify="space-between" align="flex-end" mb="xl" gap="md"><div><Text className="eyebrow">E-RECHNUNGSIMPORTER</Text><Title order={1}>{pages.find(p => p.id === page)?.label}</Title>
         <Text c="dimmed" mt={6}>{page === "unknown" ? "Unbekannte Anhänge einzeln prüfen und ausdrücklich zuordnen." : page === "archive" ? "Ältere Protokolle bleiben erhalten und können gelesen werden." : page === "admin" ? "Verbindungen, Zugriffsrechte und Verarbeitungseinstellungen verwalten." : "Eingänge, Entscheidungen und tatsächliche Ergebnisse nachvollziehen."}</Text></div>
         <Group><Badge variant="light">{role} · AD geprüft</Badge><Button variant="light" onClick={() => setVersion(v => v + 1)} loading={loading}>Aktualisieren</Button></Group>
@@ -132,7 +133,7 @@ export default function App({ user, csrfToken, onLogout, onReauthenticate }: {
         </Table.Tbody></Table>{!unknown.length && <Text ta="center" c="dimmed" py="xl">{loading ? "Anhänge werden geladen …" : error ? "Daten konnten nicht geladen werden." : "Keine offenen unbekannten Anhänge für diese Auswahl."}</Text>}</Table.ScrollContainer>
         {total > 25 && <Pagination total={Math.ceil(total / 25)} value={pageNo} onChange={setPageNo} p="lg" />}
       </Paper>}
-      {page === "admin" && <Stack><ProcessingControls csrfToken={csrfToken} onSaved={() => setVersion(v => v + 1)} /><AdminPanel readOnly={user.role !== "admin"} csrfToken={csrfToken} onActivated={onReauthenticate} /></Stack>}
+      {page === "admin" && <Administration readOnly={user.role !== "admin"} csrfToken={csrfToken} onActivated={onReauthenticate} onSaved={() => setVersion(v => v + 1)} />}
       <footer><span>E-Rechnungsimporter · Verarbeitungsprotokolle</span><span>Automatischer Import inaktiv</span></footer>
     </main></div>
     <ProcessDialog detail={detail} initialAttachment={initialAttachment} settings={settings} canEdit={user.role === "admin"} identity={user.guid} csrfToken={csrfToken}

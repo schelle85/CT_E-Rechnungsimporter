@@ -28,3 +28,16 @@ test("a fresh CSRF header accompanies the same frozen original business body",as
   await api(path,{method:"POST",body},"first-csrf");await api(path,{method:"POST",body},"fresh-csrf");
   assert.equal(sent[0].body,sent[1].body);assert.notEqual(sent[0].csrf,sent[1].csrf);
 });
+
+test("missing or malformed report and certificate fields are not confirmed data",async t=>{
+  for(const target of ["/api/admin/reports?period=daily","/api/notifications/certificate"]){
+    mock(t,new Response(JSON.stringify(target.includes("reports")?{counts:{messages:0}}:{checked_at:1,local:{},warning:null,proof:null}),{status:200}));
+    await assert.rejects(api(target),ApiProtocolError);
+  }
+});
+
+test("zero reports remain valid actual data, including every category",async t=>{
+  const counts=Object.fromEntries(["messages","attachments","unknown_open","stored_receipts","duplicates","attachment_errors","blocked_messages","E-Rechnung","PDF","Zahlungsavis","Mahnung"].map(key=>[key,0]));
+  mock(t,new Response(JSON.stringify({synthetic:false,start:1,end:2,as_of:3,timezone:"Europe/Berlin",counts}),{status:200}));
+  assert.equal((await api("/api/admin/reports")).counts.messages,0);
+});

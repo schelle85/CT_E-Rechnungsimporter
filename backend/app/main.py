@@ -7,6 +7,8 @@ from starlette.concurrency import run_in_threadpool
 from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 from app.process_routes import router as process_router
+from app.notification_routes import router as notification_router
+from app.notification_model import NotificationError
 from app.preview import PreviewManager
 from app.http_boundary import SecurityBoundary
 from app.errors import AccessError
@@ -41,6 +43,11 @@ def create_app(runtime_factory=build_runtime):
             clear_cookie(response)
         response.headers["Cache-Control"]="no-store"
         return response
+
+    @app.exception_handler(NotificationError)
+    async def notification_error(request,exc):
+        return JSONResponse(status_code=exc.status,content={"detail":"Benachrichtigungsaktion nicht verfügbar.","code":exc.code},
+            headers={"Cache-Control":"no-store"})
 
     app.add_middleware(SecurityBoundary)
 
@@ -90,6 +97,7 @@ def create_app(runtime_factory=build_runtime):
         return response
 
     app.include_router(process_router)
+    app.include_router(notification_router)
 
     def admin(request):
         if request.state.principal.role!="admin":

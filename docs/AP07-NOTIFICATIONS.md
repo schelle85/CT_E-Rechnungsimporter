@@ -185,7 +185,13 @@ Abschließender betroffener Lauf:59/59 lokale Fälle bestanden (30A,19bisherige 
 10B2-Gruppen). Die9Prozess-/Bindungsgruppen wurden in diesem Korrekturschritt
 nicht erneut ausgeführt; deren früherer Nachweis bleibt separat.
 
-Nächster Prüfschritt: fester B-Review/native B-Nachweise. C ergänzt neue API-/
-Web-/Loginbedienung und gezielte Browserprüfung einschließlich Administration→Berichte.
+B2 nachVersuch1 unabhängig geschlossen, vollständiger B-Quellenreview auf48e3d35
+bestanden. Native B-Abnahme bleibt ein separater Nachweis.
+C-Leseteil implementiert: Administration→Berichte mit echten Tages-/Wochen-/
+frei gewählten Journalzeiträumen, gemeinsamem Snapshot und korrektem Leerzustand.
+Beide AD-Rollen dürfen lesen; Berichtsansicht erzeugt keinen Outboxauftrag.
+Lokale Graphzertifikatsmetadaten, offene Pflichtserie und gespeicherter Nachfolgerproof
+werden getrennt gelesen; Portal- und gesonderter Loginwarnhinweis für beide Rollen.
+Browser-/native C-Abnahme sowie Einstellungen/Testaktion/weitere Beobachter folgen.
 Realer Testversand erst nach konkretem Betreiberabgleich von Vorlage, Empfängern
 und Anzahl. AP08/09/10 bleiben ohne Go, DMS und Erkennungsänderungen außerhalb AP07.

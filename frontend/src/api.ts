@@ -24,6 +24,20 @@ function responseShape(path: string, method: string, data: Record<string, unknow
   const route = path.split("?")[0];
   const integer = (value: unknown, min = 0) => typeof value === "number" && Number.isSafeInteger(value) && value >= min;
   const key = (value: unknown) => typeof value === "string" && /^[0-9a-f]{64}$/.test(value);
+  if (method === "GET" && route === "/api/admin/reports") {
+    const counts = data.counts as Record<string, unknown> | undefined;
+    return data.synthetic === false && integer(data.start) && integer(data.end) && integer(data.as_of) && data.timezone === "Europe/Berlin" && !!counts &&
+      ["messages", "attachments", "unknown_open", "stored_receipts", "duplicates", "attachment_errors", "blocked_messages", "E-Rechnung", "PDF", "Zahlungsavis", "Mahnung"].every(name => integer(counts[name]));
+  }
+  if (method === "GET" && route === "/api/notifications/certificate") {
+    const certificate = (value: unknown) => {
+      const row = value as Record<string, unknown> | null;
+      return !!row && key(row.fingerprint) && integer(row.expires_at) && typeof row.remaining_seconds === "number" && Number.isSafeInteger(row.remaining_seconds) && ["healthy", "orange", "red"].includes(String(row.severity));
+    };
+    const local = data.local as Record<string, unknown> | null, proof = data.proof as Record<string, unknown> | null;
+    return integer(data.checked_at) && !!local && (local.code === "notification_certificate_unavailable" || certificate(local) && typeof local.valid === "boolean") &&
+      (data.warning === null || certificate(data.warning)) && (proof === null || !!proof && key(proof.fingerprint) && integer(proof.at));
+  }
   if (method === "GET" && ["/api/processes", "/api/unknown"].includes(route))
     return Array.isArray(data.items) && integer(data.total) && integer(data.page, 1) && integer(data.page_size, 1);
   if (method === "GET" && route === "/api/processes/stats")
