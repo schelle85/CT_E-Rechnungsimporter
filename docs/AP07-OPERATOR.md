@@ -1,10 +1,13 @@
-# AP07 – begrenzte Betreiberbefehle, Paket B
+# AP07 – begrenzte Betreiberbefehle
 
-Paket B ergänzt den vorhandenen Graphadapter um einen begrenzten Notificationweg.
-Quell-/Lokalprüfung, native Laufzeitprüfung und Kundeneinrichtung sind getrennte
-Schritte. Diese Anleitung erteilt keine Kundenmigration, echte SendMail oder
-Timeraktivierung. Bestehenden geprüften Compose-/Image-/DBstand verwenden;
-historische Beispielimages sind kein aktueller Kundenstartweg.
+Stand: 15. November 2026. AP07 ist geprüft und bereitgestellt aus
+`5ecfd59270b63947d3f92af98a1b9f8e5a267aeb`, Kundenschema007. API/Web aus gleicher
+Quelle, bestehende Instanz/LDAP-Konfiguration und DBdienst sind getrennt bestätigt.
+Eigener Notificationkey und drei Empfänger sind privat eingerichtet. Die einmalige
+feste Testmail mit HTTP 202/Reservierung 1 und separatem Statusabgleich ist bestätigt;
+Empfang im eigenen Abnahmepostfach belegt. Diese Anleitung erteilt keinen weiteren
+Versandauftrag oder eine Timeraktivierung. Geprüfte unveränderliche Imagepins
+verwenden; die tatsächlichen Laufzeitwerte bleiben in den Betreiberunterlagen.
 
 ## Eigener Schlüssel und minimale Bindungen
 
@@ -26,16 +29,32 @@ SMBroot oder DockerSocket. Kein Neustartmodus/Timer. Image über
 `NOTIFICATION_IMAGE` auf den tatsächlich geprüften unveränderlichen Pin setzen.
 Effektive Composekonfiguration vor Ausführung gegen diese Liste prüfen.
 
-Ein späterer Senderkindprozess **im APIcontainer** bleibt Teil derselben bereits
+Der CLI-Service gehört zum Profil `notification-operator`. Das Profil sowohl bei
+Ausführungsbefehlen als auch beim Rendern mit `config` beziehungsweise
+`config --services` ausdrücklich aktivieren, damit derselbe aktive Dienstumfang
+geprüft wird:
+
+```sh
+docker compose -f "$REVIEWED_COMPOSE_FILE" -f deploy/compose.notification.yaml \
+  --profile notification-operator config
+docker compose -f "$REVIEWED_COMPOSE_FILE" -f deploy/compose.notification.yaml \
+  --profile notification-operator config --services
+```
+
+Die gerenderte Konfiguration kann private Pfade und Verbindungswerte enthalten;
+ihre Ausgabe gehört ausschließlich in die privaten Betreiberunterlagen.
+
+Der Senderkindprozess **im APIcontainer** bleibt Teil derselben bereits
 genehmigten API-Vertrauensgrenze und teilt deren Dateisystem. Seine Envallowlist
 und eigener Notificationkey sind implementiert; daraus keine Dateisystemisolation
 vom APIprozess ableiten. Notificationcode liest auch dort keine LDAPdateien.
-Zusätzliche API-Keybindung und neue Webpfade werden getrennt in C integriert.
+Eigene API-Keybindung und AD-gesicherte Webpfade sind mit AP07 bereitgestellt.
 
 ## Einmalige private Erstkonfiguration
 
-Nach geprüftem Schema007 beginnt der Notificationkopf mit version0 und ohne
-Empfänger. Private JSON nach dem [synthetischen Beispiel](../deploy/notification-init.example.json)
+Nach geprüftem Schema 007 beginnt der Notificationkopf mit version0 und ohne
+Empfänger. Dies ist der Ablauf für eine neue Instanz; die bereitgestellte Instanz
+ist bereits privat initialisiert. Private JSON nach dem [synthetischen Beispiel](../deploy/notification-init.example.json)
 erstellen; echte Adressen ausschließlich privat eintragen. Der Betreiberbefehl
 akzeptiert nur `expected_version:0` und geprüfte Einstellungen, Actor`operator`.
 Er legt keine ADidentität oder Kundensitzung an. Wiederholung überschreibt keine
@@ -151,8 +170,8 @@ dauerhaft akzeptierter Abschluss werden getrennt behandelt. Unknown wird nie
 erneut gesendet.429 setzt eine persistente Scopefrist auch für andere neue Proben;
 ungültige Retry-After-Werte15Minuten, übergroße Werte bleiben gesperrt.
 
-Ein absolutes monotones80s-Gesamtbudget ab CLIeintritt gilt auch für den gemeinsamen
-späteren Webserviceaufruf: Vorprüfung verbraucht dasselbe Budget. Kindphase maximal60s,
+Ein absolutes monotones 80-s-Gesamtbudget ab CLIeintritt gilt auch für den gemeinsamen
+Webserviceaufruf: Vorprüfung verbraucht dasselbe Budget. Kindphase maximal60s,
 Restbudget minus10s; darin eigene Cleanupreserve, danach maximal5s endgültiger
 Readback und3s Antwortreserve. DB-/Spawn-/Auth-/Transportzeiten zählen mit.
 Graphanfrage wird zusätzlich auf verbleibende Zeit begrenzt; nach verspätetem
@@ -161,25 +180,29 @@ Fehlender Kindausgang ist kein neuer Versandauftrag: nach beendetem Kind entsche
 dauerhafter Readback. Nicht beendetes Kind oder nicht erreichbare DB ergibt
 `persisted:false`/nicht prüfbar, keinen erfundenen gespeichertenunknown-Status.
 
-## Prüfstand und noch nötiger nativer Nachweis
+## Bestätigter Prüf- und Betriebsstand
 
-Für die AP07-Webintegration ergänzt `compose.notification-web.yaml` an der API
-genau Graph-JSON, Graph-PEM und den unabhängigen Notificationkey als einzelne
+Für die AP07-Webintegration benennt `compose.notification-web.yaml` an der API
+Graph-JSON, Graph-PEM und den zusätzlichen unabhängigen Notificationkey als einzelne
 RO-Dateien. Die API behält ihre bisherigen AD-/DB-/Vorschauaufgaben; ihr Kind
 teilt dieselbe Dateisystemgrenze. Die Envallowlist ist keine physische Isolation.
 Der eigenständige CLI-Container verwendet weiter ausschließlich seine expliziten
 minimalen Bindungen aus `compose.notification.yaml`. Das Weboverlay aktiviert
-keinen Worker oder Zeitplan. API- und Webimage aus demselben geprüften C-Pin
-bauen und die Herkunft vor Bereitstellung separat belegen.
+keinen Worker oder Zeitplan. Die bereitgestellten API-/Webimages stammen aus
+demselben festen Codepin; ihre Herkunft wurde getrennt bestätigt. Bei späteren
+Aktualisierungen beide Herkunftsnachweise erneut dem geprüften Stand zuordnen.
 
-Lokal: echte Fernet-/generierte RSA-/X509prüfungen, Graphtransportdoubles und reale
-synthetische Kindprozesse mit EOF/Kill, DBsperre, Envstrip und begrenzter Ausgabe.
-Prozessfristen mit verkürzten Budgets geprüft; kein vollständiger80s-Wartelauf oder
-ASGI-/90s-Proxynachweis daraus. Neue Webpfade folgen in C. Keine echte Cloudanmeldung,
-SendMail oder Empfängerzustellung aus lokalen Tests behaupten.
+A/B vollständig geprüft, C-Quellenreview und 21 C-Fälle auf MariaDB bestanden.
+Acht isolierte HTTPS-Browsergruppen belegen unter anderem den vollständigen
+Fristfall mit 80,006 s sowie Antwortverlust/neue Sitzung/Konfigversion ohne
+Doppel-POST. Exakte Zertifikatsschwellen 10d/1d/0/negativ und Loginhinweis für
+beide Rollen geprüft; zusätzlicher synthetischer CLIplan bestanden.
 
-Auf dem festen B-Pin benötigt der Betreiber noch: API-/Testimageherkunft,
-gezielte Linuxhauptthread-/Signal-/CLI-/Prozessprüfung, native MariaDB-/DBsocket-/
-Pool-/Sperrgrenzen und effektive Compose-/Mount-/Envallowlist einschließlich
-eigenemNotifkey. A-Schema-/Alt-API-Nachweis bleibt ein eigener Beleg. Keine breite
-AP06-Wiederholung; reale Initialprobe erst nach konkretem Rootabgleich.
+Die echte Graph-Zertifikatsanmeldung und einmalige Mailprobe sind separat von
+diesen synthetischen Prüfungen bestätigt. Ein Empfangsnachweis liegt ausschließlich
+für das eigene Abnahmepostfach vor. Keine neue tatsächliche Kundenanmeldung nach
+AP07; die echte AD-Abnahme aus AP01 bleibt historisch.
+
+Import-, Korrektur- und Notificationautomatik bleiben inaktiv. Gespeicherte
+Zeitangaben starten keine Jobs. Dauerhafte Aktivierung erst nach AP08-Go;
+AP08/09/10/11 sind nicht freigegeben. Aktueller [Betriebsstand](BETRIEBSSTAND.md).

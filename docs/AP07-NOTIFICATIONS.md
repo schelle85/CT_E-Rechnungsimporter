@@ -1,11 +1,10 @@
-# AP07 – Benachrichtigungen, Teilstände A/B/C
+# AP07 – Berichte und Benachrichtigungen
 
-Stand: 15. November 2026. AP07a–c ist freigegeben und in Arbeit. A enthält
-Fach-/Datenbankbausteine; B ergänzt begrenzten Graphsender, Zertifikatsproof,
-eigenen Schlüssel und CLI. C integriert Webbedienung und tatsächliche Beobachter;
-Quellen-/Runtime-/Browserabnahme bleibt davon getrennt. Kundenbetrieb bleibt
-AP06 mit Schema006. Keine Kundenmigration, echte Testmail oder Zeitplanaktivierung
-aus diesen Teilständen. Dauerhafte Jobs gehören AP08.
+Stand: 15. November 2026. AP07a–c ist technisch abgeschlossen, geprüft und
+bereitgestellt auf Schema 007. A enthält Fach-/Datenbankbausteine, B den begrenzten
+Graphsender mit Zertifikatsproof/eigenem Key/CLI, C die AD-gesicherte Webbedienung
+und tatsächlichen Beobachter. Import-, Korrektur- und Notificationautomatik
+bleiben inaktiv; die dauerhafte Aktivierung gehört in AP08.
 
 ## Wiederverwendung und Umfang
 
@@ -18,13 +17,13 @@ Keine SMTP-Ergänzung, keine zusätzlichen globalen Entra-Rechte und kein Mail-E
 Paket A ergänzt drei eingefrorene Tabellen über007: Notificationeinstellungen,
 Outbox und Beobachtungsmetadaten. Migration benötigt keine Graph-/LDAP-/TLSdateien
 oder Verschlüsselungsschlüssel. Sie beginnt ohne konfigurierte Empfänger;
-reale Startwerte werden getrennt privat eingebracht. Bestehende Tabellen und
+drei reale Startempfänger wurden getrennt privat initialisiert. Bestehende Tabellen und
 Migrationen001–006 bleiben unverändert. Destruktiver Downgrade ist gesperrt.
 
 Die Store-Schnittstelle erwartet ausschließlich den separaten Notificationcipher.
 Eigener Loader und explizite CLI-Bindungen sind in B implementiert. Echter
 synthetischer Fernet-Negativdecrypt gegen einen unabhängigen LDAPkey bestanden;
-konkrete native Image-/Mountprüfung folgt. [Betriebsvertrag](AP07-OPERATOR.md).
+native Image-/Mountprüfung bestanden. [Betriebsvertrag](AP07-OPERATOR.md).
 
 ## Dauerhafte Versandabsicht
 
@@ -71,9 +70,10 @@ Warnfarben anhand exakter Restzeit: orange bei mehr als24h bis einschließlich
 nur Tagesidentität/Terminierung. Zertifikatswarnung ist verpflichtend. Ende erst
 nach frischer geprüfter Anmeldung mit genau dem gültigen Nachfolger. Lokales
 PEM-/RSAlesen, gleicher-Bytes-/Scope-/Gültigkeitsproof und Revision gegen verspätete
-Beobachter sind in B implementiert/synthetisch geprüft.0/negative Zeit bleibt
+Beobachter sind implementiert und geprüft.0/negative Zeit bleibt
 warnpflichtig und schaltet best-effortGraphversuche nicht ab; Authfehler neutral
-gespeichert, keine ungültige Nachfolgerfreigabe. Keine echte Cloudprobe daraus.
+gespeichert, keine ungültige Nachfolgerfreigabe. Echte Zertifikatsanmeldung ist
+separat im bestätigten Betriebsstand nachgewiesen.
 
 Zertifikatspläne führen ihre ursprüngliche Warnserie mit eigener Serienidentität,
 Scope, Fingerprint, Gültigkeits-/Beginnzeiten und festem Faktenzeitpunkt mit.
@@ -85,7 +85,7 @@ noch nicht zum POST freigegebene Altzeilen ohne neue Reservierung ab.
 Bereits konsumierte POST-Freigaben sowie accepted/unknown-Historie bleiben erhalten;
 der Proof und die POST-Freigabe werden unter der gemeinsamen Sperre geordnet.
 Dateitausch ohne gültigen frischen Proof lässt die ursprüngliche Pflichtserie offen.
-Die Serienbindung nutzt das vorhandene JSON-Feld; Schema007 bleibt unverändert.
+Die Serienbindung nutzt das vorhandene JSON-Feld; Schema 007 bleibt unverändert.
 
 Reine Störungsplanung unterstützt Bündelung, beobachtete Ausfalldauer, einmalige
 Erholung und Wiederholungsabstand. Ausfallwiederholungen warten den konfigurierten
@@ -118,78 +118,32 @@ Der begrenzte Sender ist in B implementiert. C verbindet die reine Planung mit
 tatsächlichen Journalfehlern sowie begrenzten API-/Graphproben im manuellen CLIplan.
 Kein unabhängiger VM-/SMB-/Offsiteüberwachungsdienst.
 
-Der gemeinsame80s-Budgetweg für CLI/späteren Webaufruf ist in B implementiert:
+Der gemeinsame 80-s-Budgetweg für CLI und Web ist implementiert und nativ geprüft:
 Vorprüfung zählt mit, Kindphase höchstens60s/Restbudgetminus10s, Cleanup/Readback
-begrenzt. Reale synthetische Kindprozesse lokal geprüft, tatsächliche native
-CLI-/DB-/Signalgrenzen und ASGI-/Proxyintegration noch getrennt nachzuweisen.
+begrenzt. Der vollständige HTTPS-Fristfall lief mit 80,006 s; Antwortverlust, neue
+Sitzung und Konfigversion führten zu keinem Doppel-POST.
 
-## Lokaler Prüfstand
+## Geprüfter Liefer- und Betriebsstand
 
-Erster A-Lieferstand:19 gezielte Gruppen bestanden; idempotente additive006→007-Übernahme und
-unveränderte Altwerte, Einmalreservierung/Parallelität, Planrevision und Pflichtslot,
-Request-/Scope-/Actorbindung, Abbruch und verspätete Resultate, Quote/Backoff,
-verschlüsselte Ablagegrenze, Kalender/DST, exakte Warnschwellen, Berichtskörnung
-und gemeinsamer Snapshot trotz paralleler Änderung sowie atomare Fehlerbündel.
+AP07 aus `5ecfd59270b63947d3f92af98a1b9f8e5a267aeb` ist technisch abgeschlossen
+und bereitgestellt. Schema 007, API/Web aus derselben festen Quelle und erhaltene
+Instanz/LDAP-Konfiguration/DBdienst sind getrennt bestätigt. A/B vollständig,
+C-Quellenreview und 21 C-Fälle auf MariaDB bestanden. Acht isolierte HTTPS-
+Browsergruppen einschließlich 80,006 s-Fristfall, Antwortverlust, neuer Sitzung,
+Konfigversion und Schutz vor Doppel-POST bestanden. Ein zusätzlicher
+synthetischer CLIplan ist geprüft.
 
-Ein erster Migrationstest scheiterte nur beim Windows-Aufräumen des noch
-gepoolten SQLitehandles. Testfixture auf NullPool korrigiert und gezielt bestanden;
-anschließend erforderlicher Gesamtlauf des vervollständigten A-Stands:19/19PASS.
-Keine nativen MariaDB-/Graph-/Kryptografie-/Browserergebnisse aus diesen lokalen
-Prüfungen ableiten. Bestehende AP03–AP06-Ergebnisse behalten ihre Quellen/Zähler.
+Eigenständiger Notificationkey, minimale manuelle CLI und drei Empfänger privat
+initialisiert. Echte Graph-Zertifikatsanmeldung erfolgreich; genau eine feste
+Testmail mit HTTP 202 angenommen, Reservierung 1 und Status getrennt bestätigt.
+Empfang ausschließlich im eigenen Abnahmepostfach belegt. Keine neue tatsächliche
+Kundenanmeldung nach AP07; die echte AD-Abnahme aus AP01 bleibt historisch.
 
-Erster Korrekturversuch AP07-A1: verspäteter Ausfallversuch eine Sekunde vor der
-nächsten Periodengrenze, weiterhin gesperrt bei1s und24h−1s, freigegeben exakt24h
-nach tatsächlicher Reservierung; unknown, Einstellungen, konkurrierende vorbereitete
-Pläne, Episodenwechsel und separate Erholung geprüft. Erster Lauf21/22 bestanden;
-ein zusätzlicher Test erwartete Neuplanung trotz noch aktivem Owner. Nur seine
-Vorbedingung durch ausdrückliche Ownerfreigabe berichtigt, enge Nachprüfung1/1PASS.
-Keine funktionale Produktänderung nach diesem ersten Lauf und kein vollständiges
-22/22-Ergebnis behauptet. Unabhängiger Review dieses Versuchs fand noch die
-Erstanlage-Race: alter Plan wurde mit der inzwischen neuen Episode verknüpft.
+Import-/Korrektur-/Notificationautomatik bleibt inaktiv. Gespeicherte Zeiten
+starten keine Jobs; dauerhafte Aktivierung benötigt AP08-Go. AP08/09/10/11 nicht
+freigegeben, AP11-Planung erhalten. [Aktueller Betriebsstand](BETRIEBSSTAND.md).
 
-Korrekturversuch2 bindet deshalb den ursprünglichen Snapshot durchgängig wie oben
-beschrieben. Erster lokaler Lauf25/25PASS, einschließlich Erstanlage-Race,
-neuer Episode unter/exakt15Minuten, vermischter Fakten/Perioden/Mitgliedschaft,
-unreserviertem Altplan/Erstkonfiguration/Replan, tatsächlicher24h-Grenze,
-unknown und zwei konkurrierenden kohärenten Planern. Das unveränderte Setup
-der unabhängigen Reproduktion wurde mit den geänderten Quellen nachgespielt:
-alter Erstplan abgewiesen, keine zusätzliche Outboxzeile, neue Episode vollständig
-unverändert und ohne Reservierung. A1 wurde danach unabhängig auf Quellenebene
-mit lokaler Reproduktion nach Versuch2 geschlossen. Kein Gesamt-/Native-PASS für A.
-
-Separater Restbefund A2 betraf dieselbe unveränderte Ursache im Fehlerbündelpfad:
-ein gehaltener Snapshot konnte an der Stundengrenze nach1s erneut reservieren.
-Korrekturversuch1 ergänzt die oben beschriebenen ursprünglichen Bündelsnapshots
-und atomaren1h-/Ursachenabstände. Erster lokaler Lauf30/30PASS einschließlich
-aller A1-Regressionsfälle. Unverändertes unabhängiges A2-Setup gegen die geänderten
-Quellen nachgespielt: zweite Reservierung und POST-Berechtigung abgewiesen,
-vollständiger Monitor unverändert. Exakte1h-/24h-Grenzen, unknown, Konkurrenz,
-Episodenwechsel und konsistente Teil-Neuplanung geprüft. Unabhängiger Review und
-native Prüfung dieses A2-Standes wurden separat fortgesetzt; A1 bleibt geschlossen.
-A2 danach unabhängig nachVersuch1 geschlossen, gesamter A-Quellreview PASS.
-
-PaketB:19Sender-/Zertifikats-/Runtimegruppen und9Prozess-/Bindungsgruppen lokal
-bestanden. Initial versehentlich als Test gesammelten Fixturehelfer umbenannt;
-keine Produktkorrektur daraus. Eigene gezielte B1-Fristkorrektur prüft Budget nach
-POST-Gate-Commit und begrenzt Graphauth/-transport auf den Resttermin;19betroffene
-Gruppen anschließend bestanden. Keine pauschale gemeinsame58er-/Nativeabnahme.
-Einzelfall-/Runtimegrenzen im [Betreiberweg](AP07-OPERATOR.md).
-
-Der unabhängige B-Quellenreview stoppte anschließend bei B2: verspätete erste
-Warnplanung nach bereits bestätigtem Nachfolger konnte die Altwarnung freigeben.
-Korrekturversuch1 ergänzt die Serienbindung und drei atomaren Prüfstellen oben.
-Das ursprüngliche Review-Setup ist gegen die Korrektur nachgespielt: alte Erstanlage
-abgewiesen, keine Outboxzeile/POST und Monitor nach Proof unverändert. Gezielte
-Regressionsfälle prüfen auch beide Gates unabhängig von der Altzeilenbereinigung,
-Konkurrenz, ursprüngliche Fakten, Dateitausch ohne gültigen Proof und unveränderte
-Reservierungs-/Historienverträge. Unabhängiger B-Review/native B-Abnahme bleiben offen.
-Abschließender betroffener Lauf:59/59 lokale Fälle bestanden (30A,19bisherige B,
-10B2-Gruppen). Die9Prozess-/Bindungsgruppen wurden in diesem Korrekturschritt
-nicht erneut ausgeführt; deren früherer Nachweis bleibt separat.
-
-B2 nachVersuch1 unabhängig geschlossen, vollständiger B-Quellenreview auf48e3d35
-bestanden. Native B-Abnahme bleibt ein separater Nachweis.
-C-Leseteil implementiert: Administration→Berichte mit echten Tages-/Wochen-/
+Administration bereitgestellt: Administration→Berichte mit echten Tages-/Wochen-/
 frei gewählten Journalzeiträumen, gemeinsamem Snapshot und korrektem Leerzustand.
 Beide AD-Rollen dürfen lesen; Berichtsansicht erzeugt keinen Outboxauftrag.
 Lokale Graphzertifikatsmetadaten, offene Pflichtserie und gespeicherter Nachfolgerproof
@@ -201,11 +155,11 @@ Reload und neuer Sitzung erhalten. Vorschau und ausdrücklicher Versand verwende
 denselben gespeicherten Slot. Statusabgleich erzeugt keinen neuen Auftrag.
 Das Webbudget beginnt als äußere ASGI-Grenze vor AD/DB/Bodyvorprüfung und reicht
 denselben absoluten Termin an den vorhandenen begrenzten Kindprozess weiter.
-Der API-Kindprozess teilt die API-Dateisystemgrenze; drei zusätzliche einzelne
-RO-Dateien sind im separaten Weboverlay explizit gebunden. Der externe Operator
+Der API-Kindprozess teilt die API-Dateisystemgrenze; Graph-JSON, Graph-PEM und
+der zusätzliche Notificationkey sind im separaten Weboverlay einzeln RO gebunden.
+Der externe Operator
 behält seine eigene minimale Allowlist. Die weitere Beobachterintegration ist
-implementiert und gezielt lokal geprüft; Browser-/native
-C-Abnahme und unabhängiger C-Review bleiben offen.
+implementiert; Quellen-, native und isolierte Browserprüfungen sind bestanden.
 
 Der manuelle CLIplan liest maximal100 aktuelle Mailfehler und100 Anhangsfehler
 im aktiven Postfachscope. Ursachen binden Tabellenart, neutralen Code, Vorgang/
@@ -222,5 +176,6 @@ Instanzvergleich geprüft; Graph über die vorhandene frische Postfachprobe.
 Gespeicherte Graphsperrfristen sind keine neue Verfügbarkeitsmessung. Ausfall/
 Erholung nutzen ursprüngliche A-Snapshots und frische beobachtete Dauer. Bei Ausfall
 der eigenen VM/DB besteht keine zuverlässige Selbstalarmierung.
-Realer Testversand erst nach konkretem Betreiberabgleich von Vorlage, Empfängern
-und Anzahl. AP08/09/10 bleiben ohne Go, DMS und Erkennungsänderungen außerhalb AP07.
+Die einmalige feste Mailprobe und ihr separater Status-/Empfangsabgleich sind
+bestätigt. Daraus folgt kein weiterer Versandauftrag. AP08/09/10/11 bleiben ohne
+Go; DMS und Erkennungsänderungen liegen außerhalb AP07.

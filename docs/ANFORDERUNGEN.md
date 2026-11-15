@@ -151,6 +151,16 @@ manueller Korrekturpfad sind implementiert, isoliert geprüft und bereitgestellt
 
 ## Benachrichtigungen
 
+Umsetzungsstand 15.11.2026: AP07 aus `5ecfd59270b63947d3f92af98a1b9f8e5a267aeb`
+ist geprüft und auf Schema 007 bereitgestellt. Die folgenden Bedienwege sind
+geliefert; Import-, Korrektur- und Benachrichtigungsautomatik bleiben inaktiv.
+Gespeicherte Zeitpläne werden erst nach gesondertem AP08-Go dauerhaft aktiviert.
+Quellen-, native und acht isolierte HTTPS-Browsergruppen bestanden; darunter die
+exakten Zertifikatsschwellen und die feste Testaktion trotz Antwortverlust/neuer Sitzung.
+Echte Zertifikatsanmeldung, einmalige 202-Annahme mit Reservierung 1 und separatem
+Statusabgleich sowie Empfang im eigenen Abnahmepostfach nachgewiesen. Ein weiterer
+Empfangsnachweis oder eine neue tatsächliche Kundenanmeldung wird daraus nicht abgeleitet.
+
 Administration → Berichte muss für beide berechtigten Rollen wieder auffindbar
 sein: echte Journal-/Tages-/Wochenübersichten mit wählbarem Zeitraum, sichtbarem
 Erstellstand und korrektem Leerzustand. Ansicht bleibt von Mailplanung und

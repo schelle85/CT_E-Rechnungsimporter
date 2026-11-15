@@ -5,9 +5,10 @@ AP01 ist vollständig durch den Kunden abgenommen. AP02a–c ist technisch abges
 AP03 ist eingefroren, AP04 ist im Grundlagenumfang technisch abgeschlossen.
 AP05a–c ist im definierten manuellen Umfang technisch abgeschlossen und bereitgestellt.
 AP06a–d samt PDF-Vorschau ist technisch abgeschlossen und bereitgestellt;
-Kundenmigration auf006 und getrenntes Rücklesen bestanden. AP07a–c ist freigegeben
-und in Prüfung; A-Quell-/Native-Nachweis und B-Quellreview bestanden,
-C implementiert und gezielt lokal geprüft, unabhängige C-Abnahme offen.
+Kundenmigration auf006 und getrenntes Rücklesen bestanden. AP07a–c ist technisch
+abgeschlossen und bereitgestellt: A/B vollständig, C-Quellenreview, 21 native
+C-MariaDBfälle und acht isolierte HTTPS-Browsergruppen bestanden. Aktuell Schema 007,
+API/Web aus gleicher fester Quelle, Instanz/LDAP-Konfiguration und DBdienst erhalten.
 AP08 und spätere Pakete bleiben ohne Go;
 dauerhafter Automatikbetrieb gehört in AP08.**
 AP10 ist für die spätere wöchentliche Wartung ergänzt.
@@ -138,15 +139,18 @@ DMS-Anbindung, -Konfiguration und -Prüfung sind keine Auftrags-/Abnahmebestandt
 
 | Teil | Ergebnis und Prüfung |
 | --- | --- |
-| AP07a | A-Request-/Einmalverträge und B-Sender im Quellenreview bestanden. C-Webkonfiguration, ursprüngliche AD-/UUIDbindung, feste Vorschau/Testaktion/Status und ASGI-Gesamtbudget implementiert, gezielt lokal geprüft. Unabhängiger C-Review/native Web-/Initialprobe separat. |
-| AP07b | B-Nachfolgerproof und Serienbindung einschließlich B2 bestanden. Negative Restzeit bleibt best effort warnpflichtig. C-Portal-/Loginhinweis für beide Rollen trennt lokale PEMmetadaten, offene Serie und gespeicherten Proof. Pflichtwarnung nicht abschaltbar; Browserabnahme offen. |
-| AP07c | C verbindet tatsächliche Journalfehler und begrenzte API-/Graphproben mit den vorhandenen A-Snapshots/Wiederholsperren. Administration→Berichte zeigt echte Tages-/Wochen-/freie Journalzeiträume und korrekte Leere. Gezielte lokale Prüfungen bestanden; native-/Browserabnahme offen. |
+| AP07a | Bereitgestellt: versionierte Einstellungen, eigener Notificationkey, ursprüngliche AD-/UUIDbindung, feste Vorschau/Testaktion/Status und gemeinsames 80-s-Budget. A/B-/C-Quellen- und native Prüfungen bestanden; echte Anmeldung und genau eine Testmail (HTTP 202) mit Reservierung 1/getrenntem Status bestätigt. Empfang im eigenen Abnahmepostfach belegt. |
+| AP07b | Bereitgestellt und isoliert im Browser geprüft: lokale PEMmetadaten, offene Serie und gespeicherter Nachfolgerproof getrennt; exakte 10d-/1d-/0-/Negativschwellen, laufender Portal- und gesonderter Loginhinweis für beide Rollen. Pflichtwarnung nicht abschaltbar, negative Restzeit bleibt best effort warnpflichtig. |
+| AP07c | Bereitgestellt: tatsächliche Journal-/API-/Graphbeobachter und vorhandene Wiederholsperren; Administration→Berichte mit echten Tages-/Wochen-/freien Journalzeiträumen und korrekter Leere. 21 C-Fälle auf MariaDB, acht HTTPS-Browsergruppen und zusätzlicher synthetischer CLIplan bestanden. Dauerhafte Automatik inaktiv. |
 
-AP07-Go vom14.11.2026. A-Quell-/Native-Nachweise und B-Quellreview bestanden;
-B2 nachVersuch1 geschlossen. C-Leseteil und Testaktion als getrennte Teilpins,
-Beobachter als eigener Teilstand; C-Review/native-/Browserprüfung auf festem Pin.
-Keine Kundenabnahme daraus. AP11-Planung bleibt unverändert ohne Umsetzungs-Go.
-Kundenschema bleibt006, keine echteSendMail, Kundenmigration oder Timeraktivierung.
+AP07-Go vom 14.11.2026; technisch abgeschlossen und am 15.11.2026 bereitgestellt aus
+`5ecfd59270b63947d3f92af98a1b9f8e5a267aeb`. Schema 007, API/Web, erhaltene Instanz/
+LDAP-Konfiguration und DBdienst getrennt bestätigt. Drei Empfänger privat initialisiert;
+Empfang der einen Testmail ausschließlich im eigenen Abnahmepostfach nachgewiesen.
+Keine frische tatsächliche Kundenanmeldung nach AP07; echte AD-Abnahme aus AP01
+bleibt historisch. Import-/Korrektur-/Notificationautomatik inaktiv, Zeiten gespeichert.
+Dauerhafte Aktivierung erst mit AP08-Go; AP08/09/10/11 bleiben ohne Freigabe.
+AP11-Planung bleibt erhalten.
 Vertrag und Grenzen: [AP07](AP07-NOTIFICATIONS.md), [Betreiber-CLI](AP07-OPERATOR.md).
 
 ## AP08: Betriebsprüfung und Übergang - DEV / REVIEW / ORGA

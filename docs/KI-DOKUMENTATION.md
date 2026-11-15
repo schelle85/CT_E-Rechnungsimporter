@@ -11,60 +11,57 @@ Stand: 15. November 2026. Lebende Markdown-Dokumentation, noch kein Gesamtabschl
 
 ## Aktueller Stand
 
-AP07a–c ist seit14.11.2026 freigegeben. PaketA ist implementiert und mit19 lokalen
-Prüfgruppen geprüft: eingefrorene additive007-Tabellen, reine Termin-/Vorlagen-/
-Kohortenlogik und persistente Einstellungen/Outbox mit Planrevision, Requestfence
-und einmaliger POST-Freigabe. Ursprüngliche Testrequests werden vor aktueller
-Versionsprüfung abgeglichen; unreservierte Pflichtslots bleiben neu planbar.
-Native007-/Alt-API-Nachweise inzwischen bestanden, von ORGA/REVIEW separat geführt.
-B implementiert Graphsender, eigenen Notificationkey, lokale Zertifikatsidentität,
-frischen Nachfolgerproof und begrenzte Operator-CLI.19Sender-/Cert-/Runtimefälle
-und9Prozess-/Bindungsgruppen lokal bestanden. B2 bindet alte Zertifikatspläne durch
-Erstanlage/Neuplanung/Reservierung/POST-Gate an die offene ursprüngliche Serie;
-nachVersuch1 geschlossen, vollständiger B-Quellreview auf48e3d35 bestanden.
-C-Leseteil5de7a34 und C-Testaktion673762e sind getrennte Lieferpins. Administration→
-Berichte verwendet echte Journal-/Tages-/Wochen-/freie Snapshotzeiträume ohne
-Outboxeffekt. Beide Rollen erhalten lokale Zertifikatsmetadaten und zusätzliche
-Login-/Portalwarnung; lokale Datei und gespeicherter Proof bleiben getrennt.
-AD-/Admin-/Origin-/CSRF-Grenze vor Testlookup, serverseitiger ad:GUID-Actor,
-originaler Browserrequest über neue Sitzung/Konfiguration und ASGI80s vor AD/DB/
-Body sind implementiert. C-Beobachter verbinden CLIplan mit tatsächlichen neutralen
-Journalfehlern und begrenzten API-/Graphproben. Kein permanenter Worker/Timer.
-Gezielte lokale Nachweise bestanden; unabhängiger C-Review/native-/Browserabnahme
-bleiben offen. APIkind teilt API-Dateisystem, CLI bleibt separat minimal gebunden.
-Siehe [AP07](AP07-NOTIFICATIONS.md) und [Betreiberweg](AP07-OPERATOR.md).
-Keine echte SendMail, Kundenmigration oder Timeraktivierung aus A/B.
-Gezielte A1-Korrektur bindet Ausfallwiederholungen an den tatsächlichen letzten
-Versuch derselben Incidentepisode. Versuch1 ließ noch eine Erstanlage-Race offen.
-Versuch2 führt die ursprüngliche Episode mit dem Slot mit und prüft Fakten,
-Mitgliedschaft und aktuellen Monitor bei Erstanlage/Replay/Replan/Reservierung.
-25 lokale Tests und nachgespieltes unabhängiges Race-Setup bestanden; A1 danach
-unabhängig im Quellenreview nach Versuch2 geschlossen. Separater A2-Befund im
-Fehlerbündelpfad mit Versuch1 korrigiert: eingefrorene Auswahl und aktuelle
-atomare1h-/Ursachensperre;30 lokale Tests einschließlich A1 und nachgespieltes
-unabhängiges A2-Setup bestanden. A2 nachVersuch1 und gesamter A-Quellreview
-inzwischen unabhängig bestanden. Einzelheiten im [AP07-Prüfstand](AP07-NOTIFICATIONS.md).
-Der tatsächliche Kundenbetrieb bleibt der folgende bestätigte AP06-/006-Stand.
+AP07a–c ist am 15.11.2026 technisch abgeschlossen und bereitgestellt aus
+`5ecfd59270b63947d3f92af98a1b9f8e5a267aeb`. Aktueller Kundenstand: Schema 007,
+API/Web aus derselben festen Quelle, bestehende Instanz/LDAP-Konfiguration und
+DBdienst erhalten, getrennt zurückgelesen. Eigener Notificationkey, getrennte
+minimale manuelle CLI und drei privat initialisierte Empfänger eingerichtet.
 
-AP06a–d samt PDF-Vorschau ist technisch abgeschlossen und bereitgestellt. Echte Journalansichten,
-getrennte Erst-/aktuelle Befunde, generationgebundene Freigabe und Retry,
-versionierte Einstellungen sowie geschützter Originalabruf sind implementiert.
-Gezielte native006-, HTTP-, Sperr-/Retry- und Vorschau-Lebensdauernachweise sowie
-fünf vollständige Browsergruppen liegen vor. Die tatsächliche PDF-Seite wurde
-im Dialog und neuen Tab einzeln visuell bestätigt. Produktlaufzeit aus `3fd5fef`;
-Die historischen AP06-Testkorrekturen veränderten weder Anwendung noch Migrationen/Deployment.
-Zuordnung und Grenzen im [AP06-Vertrag](AP06-WEB.md). Kundenportal und API sind
-umgeschaltet, Schema006 unter Erhalt von Altzeilen/Instanz/Konfiguration bestätigt.
-Getrenntes Betreiber-Rücklesen: Datenbank erhalten, HTTPS-Journalmodus und
-Zugriffsschutz, vollständiger Graph-GET-Leerscan und inaktive Timer bestätigt.
-Das echte Journal ist leer. Eine neue tatsächliche Kundenanmeldung für AP06 wurde
-nicht durchgeführt; vollständige Rollen-/Bedienprüfungen erfolgten isoliert.
-Keine Timeraktivierung; AP08 und spätere Pakete ohne Go, keine DMS-Abnahmebedingung.
+A/B vollständig geprüft; C-Quellenreview, 21 C-Fälle auf MariaDB und acht isolierte
+HTTPS-Browsergruppen bestanden. Dazu gehören 80,006 s-Gesamtfrist, Antwortverlust,
+neue Sitzung und Konfigversion ohne Doppel-POST. Zusätzlicher synthetischer
+CLIplan geprüft. Administration→Berichte mit echten Tages-/Wochen-/freien
+Journalzeiträumen, Einstellungen, Vorschau/Test/Historie und exakte Graph-
+Zertifikatswarnung10d/1d/0/negativ samt Loginhinweis für beide Rollen geliefert.
 
+Echte Graph-Zertifikatsanmeldung und genau eine feste Testmail (HTTP 202) mit
+Reservierung 1 sowie getrenntem Statusabgleich bestätigt. Empfang im eigenen
+Abnahmepostfach belegt; kein Empfangsnachweis für die beiden weiteren Empfänger.
+Nach AP07 keine neue tatsächliche Kundenanmeldung behaupten. Die echte AD-
+Abnahme aus AP01 bleibt historisch, aktuelle Rollen-/Bedienprüfungen sind isoliert.
+
+Wesentliche Verträge: additive eingefrorene007-Tabellen; Notificationcipher
+unabhängig vom LDAPcipher; ursprüngliche Actor-/Scope-/UUID-/Versionsbindung;
+eine dauerhafte Reservierung und höchstens eine POST-Freigabe. Ungewisse
+Versandversuche werden nicht zurückgesetzt. Zertifikatspläne bleiben an ihre
+ursprüngliche offene Serie gebunden, Ausfallpläne an ihre beobachtete Episode;
+Fehlerbündel an ursprüngliche Auswahl und tatsächliche Reservierungsabstände.
+Gleicher Request liefert nach aktuellen AD-/Origin-/CSRF-Prüfungen seine
+Quittung vor dem Vergleich mit der inzwischen aktiven Notificationversion.
+Das absolute 80-s-Webbudget beginnt vor AD/DB/Bodyvorprüfung. Status und Berichte
+lesen gespeicherte Daten, ohne einen neuen Versandauftrag zu erzeugen.
+
+CLIplan verbindet tatsächliche neutrale Journalfehler mit begrenzten API-/
+Graphproben und den vorhandenen Kalender-/Snapshotplanern. Keine rekursive
+Meldung über Benachrichtigungsfehler. Bei Ausfall der eigenen VM/DB keine
+zuverlässige Selbstalarmierung. APIkind teilt die API-Dateisystemgrenze;
+Envstrip ist keine physische Isolation. Externe CLI bleibt minimal gebunden.
+
+Import-/Korrektur-/Notificationautomatik ist weiterhin inaktiv. Gespeicherte
+Zeiten werden erst nach AP08-Go dauerhaft aktiviert. AP08/09/10/11 sind nicht
+freigegeben; AP11-Planung, Dezemberstichtag, AP03 und DMS-Abgrenzung erhalten.
+Siehe [AP07-Vertrag](AP07-NOTIFICATIONS.md), [Operatorvertrag](AP07-OPERATOR.md)
+und [Betriebsstand](BETRIEBSSTAND.md).
+
+Historischer AP06-Stand: echte Journalansichten, generationgebundene Korrektur/
+Retry und PDF-Vorschau mit nativen006-/HTTP-/Konkurrenznachweisen und fünf
+isolierten Browsergruppen einschließlich sichtbarer PDF bestanden. Damaliger
+Produktcode `3fd5fef`, Kundenschema006 und leeres Journal wurden separat bestätigt.
+AP07 ersetzt diesen Laufzeitstand; die AP06-Fachfunktionen bleiben erhalten.
+[AP06-Vertrag](AP06-WEB.md).
 
 - AP00/AP02 technisch abgeschlossen, AP01 durch den Kunden abgenommen.
-- AD-Kennwortanmeldung bleibt; SSO verworfen. Kundenschema006 ist nach AP06
-  bereitgestellt; die sechs Inboxziele einschließlich Mahnung stammen aus AP05.
+- AD-Kennwortanmeldung bleibt; SSO verworfen. Bei AP06 wurde Schema 006 bereitgestellt, aktuell gilt007; die sechs Inboxziele einschließlich Mahnung stammen aus AP05.
 - AP03-Revision4 samt Titelvariantennachtrag: Quellreview auf `e49ccdb` bestanden,
   B-F1 bleibt nach Versuch3 geschlossen. Separates Runtimeimage gebaut und isolierter
   abschließender Dateinachtest durchgeführt; weitere fachliche Restfälle bleiben offen.
@@ -168,7 +165,7 @@ Primärquellen: [Graph SDKs](https://learn.microsoft.com/en-us/graph/sdks/sdks-o
 
 ## Offene Punkte
 
-- Ende der Warnserie nach geprüftem gültigem Zertifikatswechsel.
+- Dauerhafte Import-/Korrektur-/Benachrichtigungsaktivierung erst nach AP08-Go.
 - Tatsächliche Anschlussinformationen, SMB-Sicherungsumfang und Betriebszuständigkeiten.
 
 ## Nächster Schritt

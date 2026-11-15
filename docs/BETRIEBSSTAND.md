@@ -1,38 +1,41 @@
 # Betriebsstand
 
-Stand: 14. November 2026. AP00/AP02 sind technisch abgeschlossen, AP01 ist durch
-den Kunden vollständig abgenommen. AP03 ist eingefroren; AP04-Grundlagen und
-AP05 im definierten manuellen Umfang sind technisch abgeschlossen. Sechs Inboxziele
-einschließlich Mahnung und der damalige manuelle Leerlauf sind belegt.
-AP06a–d samt PDF-Vorschau ist technisch abgeschlossen und bereitgestellt.
-Additives Schema 006 wurde nach geschütztem Backup übernommen; bestehende
-Tabellenwerte, Instanzkennung und Konfigurationskopf sind erhalten. API/Web sind
-auf die geprüften Images aus `3fd5fef` umgeschaltet, der Datenbankcontainer blieb
-unverändert. Das manuelle Processingprofil wurde auf das zugehörige neue
-Processingimage aktualisiert; kein dauerhafter Processingdienst wurde gestartet.
+Stand: 15. November 2026. AP07 ist technisch abgeschlossen und bereitgestellt aus
+Codepin `5ecfd59270b63947d3f92af98a1b9f8e5a267aeb`. Kundenschema007 sowie API und
+Web aus derselben festen Quelle wurden getrennt erfolgreich zurückgelesen.
+Bestehende Instanzkennung, LDAP-Konfiguration und Datenbankdienst sind erhalten.
 
-Separates Betreiber-Rücklesen bestätigt HTTPS im Journalmodus, HTTP 308,
-geschützte Vorgangsliste mit HTTP 401 und die Originalroute mit HTTP 401/SAMEORIGIN/no-store.
-Das echte Verarbeitungsjournal ist leer. Vollständiger Graph-GET-Scan findet
-0 passende Mails/0 Anhänge ab dem unveränderten Stichtag. Keine alten Mails
-registriert, verschoben oder gekennzeichnet. API läuft als UID 10001 mit genau
-zwei zusätzlichen RO-Graphdateien; privates Vorschautmpfs ist leer.
+Administration → Berichte mit echten Journal-/Tages-/Wochenübersichten und
+Zeitraumwahl, Benachrichtigungseinstellungen, feste Vorschau/Testaktion und
+Versandhistorie sind geliefert. Die exakten Graph-Zertifikatsschwellen 10d/1d/0/
+negativ einschließlich zusätzlichem Loginhinweis gelten für beide Rollen.
 
-Davon getrennt bestanden fünf isolierte Browsergruppen samt tatsächlicher
-PDF-Sicht im Dialog/neuen Tab, Rollen, Freigabe/Retry trotz Antwortverlust und
-begrenzten Originalantworten. Die bestehende AD-Anbindung bleibt erhalten;
-eine erneute tatsächliche Kundenanmeldung für AP06 wurde nicht durchgeführt.
-AP07 ist inzwischen freigegeben; A-Quellreview bestanden, B-Sender-/Cert-/CLIcode
-lokal geprüft, neue Webintegration noch ausstehend. Nicht bereitgestellt;
-Kundenstand bleibt006/AP06. AP08 und spätere Pakete bleiben
-ohne Go; Timer sind nicht aktiviert.
-DMS-Anbindung, -Konfiguration und -Prüfung liegen außerhalb des Auftrags.
+A/B sind vollständig geprüft, C-Quellenreview und 21 C-Fälle auf MariaDB bestanden.
+Acht isolierte HTTPS-Browsergruppen belegen unter anderem den vollständigen
+Fristfall mit 80,006 s, Antwortverlust, neue Sitzung und Konfigurationsversion ohne
+Doppel-POST. Ein zusätzlicher synthetischer manueller CLIplan ist geprüft.
+Diese isolierten Rollenprüfungen sind keine neue tatsächliche Kundenanmeldung
+nach AP07; die echte AD-Abnahme aus AP01 bleibt der historische Nachweis.
+
+Ein eigenständiger Notificationkey, eine getrennte minimale manuelle CLI und
+drei privat initialisierte Empfänger sind eingerichtet. Echte Graph-
+Zertifikatsanmeldung war erfolgreich. Genau eine feste Testmail wurde mit
+HTTP 202 angenommen; Reservierung 1 und Status wurden getrennt bestätigt.
+Der Empfang ist im eigenen Abnahmepostfach nachgewiesen. Für die beiden anderen
+Empfänger liegt damit kein Empfangsnachweis vor.
+
+Import-, Korrektur- und Benachrichtigungsautomatik bleiben inaktiv. Zeiten sind
+gespeichert, aktivieren aber keine dauerhaften Jobs. Die Aktivierung benötigt
+AP08-Go; AP08/09/10/11 sind nicht freigegeben. AP11 bleibt geplant. Stichtag
+1. Dezember 2026, eingefrorene AP03-Erkennung und DMS-Abgrenzung sind unverändert.
+Interne Laufzeitnachweise, Verbindungswerte, Empfänger und geschützte Hostpfade
+bleiben in den separaten Betreiberunterlagen.
 
 Die folgenden datierten Infrastruktur- und Einrichtungsergebnisse dokumentieren
 historische Teilstände, insbesondere AP00/AP01a/b vom 8. November mit Nachträgen.
 Sie ersetzen nicht den aktuellen [Arbeitsplan](ARBEITSPLAN.md),
 [AP05-Vertrag](AP05-PROCESSING.md), [manuellen Runtime-Stand](AP05-RUNTIME.md)
-und aktuellen [AP06-Vertrag](AP06-WEB.md).
+und die Verträge für [AP06](AP06-WEB.md) und [AP07](AP07-NOTIFICATIONS.md).
 
 ## AP00: SSH-Zugang
 
@@ -104,7 +107,7 @@ Startabhängigkeiten der Anwendung folgen erst im jeweiligen DEV-Paket.
   globaler Aliasversand aktiviert und keine Postfachumwandlung vorgenommen.
 - Erster synthetischer Versandversuch um20:29 Uhr mit403 abgewiesen. Nach über
   30 Minuten vollständiger App-API-Ruhe genau ein abgestimmter neuer Versuch:
-  HTTP202 um21:00 Uhr; tatsächlicher Empfang mit eindeutigem Testbetreff und
+  HTTP 202 um21:00 Uhr; tatsächlicher Empfang mit eindeutigem Testbetreff und
   vorgesehenem Geschäftsabsender separat im Empfängerpostfach nachgewiesen.
   Einmalmarker und historische Ergebnisse erhalten, kein weiterer Versand.
 - Berechtigungscache ist eine plausible Erklärung des vorübergehenden403;

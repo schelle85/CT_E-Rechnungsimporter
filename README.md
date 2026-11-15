@@ -15,9 +15,10 @@ bereitgestellt. AP04 ist technisch im isolierten Grundlagenumfang abgeschlossen.
 AP05 ist im definierten manuellen Umfang technisch abgeschlossen und bereitgestellt:
 Sechs Inboxziele und begrenzter manueller Leerlauf sind belegt.
 AP06 mit echten Journalansichten, Korrekturen, technischen Wiederholungen und
-PDF-Vorschau ist technisch abgeschlossen und bereitgestellt. Schema006 und
-neue API/Web sind mit erhaltener Instanz/Konfiguration bestätigt. Das echte
-Journal ist derzeit leer. Automatische Verarbeitung ist nicht aktiviert.**
+PDF-Vorschau ist technisch abgeschlossen. AP07 ist geprüft und bereitgestellt:
+Schema 007 sowie API und Web aus derselben festen Quelle sind getrennt bestätigt,
+bestehende Instanz, LDAP-Konfiguration und Datenbankdienst erhalten.
+Import-, Korrektur- und Benachrichtigungsautomatik bleiben inaktiv.**
 
 | Paket | Stand |
 | --- | --- |
@@ -28,9 +29,9 @@ Journal ist derzeit leer. Automatische Verarbeitung ist nicht aktiviert.**
 | AP02 – Graph und Postfacheingang | Abgeschlossen: echte Zertifikatsanmeldung und gefilterter Leerabruf bestätigt; fünf Inbox-Zielordner samt Wiederverwendung live geprüft. Paging, Anhangabruf und getrennte persistente Aktionen isoliert geprüft; additives Schema003 bereitgestellt. |
 | AP03 – Anhänge erkennen | Revision4: Quellprüfung bestanden, separates Runtimeimage gebaut und isolierter Dateinachtest abgeschlossen. Unbekannt sowie Mahnung/Zahlungserinnerung ergänzt. Fachliche Restfälle und Gesamtabnahme bleiben offen. |
 | AP04 – SMB-Ablage und Dubletten | Grundlagen technisch abgeschlossen: Quellreview, 115 native Backendtests einschließlich aller 28 AP04-Tests sowie fünf synthetische Fälle auf echtem CIFS bestanden. In AP05 in den gemeinsamen manuellen Pfad integriert. Siehe [AP04-Vertrag](docs/AP04-ABLAGE.md). |
-| AP05 – gemeinsamer Verarbeitungspfad | Im definierten manuellen Umfang technisch abgeschlossen. 155 native Backendtests einschließlich 40 AP05-Gruppen, gezielte Ausgabegrenz-/Timeoutprüfung und echter synthetischer CIFS-Handoff bestanden. Schema005 und sechstes Inboxziel Mahnung bereitgestellt; Scan/manueller Tick bestätigen 0 passende Mails/0 Quanten. Zum AP05-Abschluss blieben API/GUI unverändert. Keine Timer oder produktive Dateipublikation. Siehe [AP05-Vertrag](docs/AP05-PROCESSING.md) und [Runtime](docs/AP05-RUNTIME.md). |
+| AP05 – gemeinsamer Verarbeitungspfad | Im definierten manuellen Umfang technisch abgeschlossen. 155 native Backendtests einschließlich 40 AP05-Gruppen, gezielte Ausgabegrenz-/Timeoutprüfung und echter synthetischer CIFS-Handoff bestanden. Schema 005 und sechstes Inboxziel Mahnung bereitgestellt; Scan/manueller Tick bestätigen 0 passende Mails/0 Quanten. Zum AP05-Abschluss blieben API/GUI unverändert. Keine Timer oder produktive Dateipublikation. Siehe [AP05-Vertrag](docs/AP05-PROCESSING.md) und [Runtime](docs/AP05-RUNTIME.md). |
 | AP06 – Webprotokoll, Korrektur und PDF-Vorschau | Technisch abgeschlossen und bereitgestellt: echte Journalansichten, generationgebundene Freigabe/Retry, Einstellungen, Archiv und großer PDFdialog. Native006-/Sicherheits-/Konkurrenzprüfungen sowie fünf isolierte Browsergruppen mit sichtbarer Original-PDF bestanden. Kundenmigration auf006, Dienstpins, HTTPS und leeres echtes Journal getrennt zurückgelesen. Siehe [AP06](docs/AP06-WEB.md). |
-| AP07 – Benachrichtigungen | Freigegeben und in Prüfung. A mit additiven007-Tabellen, Kohorten und Einmalreservierung im Quellen-/nativen Nachweis bestanden. B-Quellreview einschließlich B2-Korrektur bestanden. C integriert AD-gesicherte Berichte, Zertifikats-/Loginhinweise, versionierte Benachrichtigungen, feste Testmail mit ursprünglicher UUID und tatsächliche Journal-/API-/Graphbeobachter. Gezielte lokale Prüfungen bestanden; unabhängige C-/native-/Browserabnahme offen. Kundenstand bleibt AP06/006. Siehe [AP07](docs/AP07-NOTIFICATIONS.md) und [Betreiberweg](docs/AP07-OPERATOR.md). |
+| AP07 – Berichte und Benachrichtigungen | Technisch abgeschlossen und bereitgestellt aus `5ecfd59270b63947d3f92af98a1b9f8e5a267aeb`, Schema 007. A/B vollständig geprüft, C-Quellenreview, 21 C-Fälle auf MariaDB und acht isolierte HTTPS-Browsergruppen bestanden. Administration→Berichte, Benachrichtigungseinstellungen, feste Vorschau/Testaktion, Verlauf und Zertifikats-/Loginhinweise geliefert. Echte Graph-Zertifikatsanmeldung und genau eine feste Testmail mit HTTP 202/Reservierung 1/getrenntem Statusabgleich bestätigt; Empfang im eigenen Abnahmepostfach nachgewiesen. Automatik bleibt inaktiv. Siehe [AP07](docs/AP07-NOTIFICATIONS.md) und [Betreiberweg](docs/AP07-OPERATOR.md). |
 | AP08 und folgende Pakete | Noch nicht freigegeben. Zeitplanung und dauerhafte automatische Verarbeitung sind inaktiv. |
 
 Der begrenzte Titelvariantennachtrag wurde unabhängig geprüft und aus `e49ccdb`
@@ -50,8 +51,11 @@ vollständig außerhalb des Auftrags und sind keine AP06-Abnahmebedingung.
 
 AP06 zeigt ausschließlich tatsächlich gespeicherte Journalvorgänge; eine leere
 Datenbank ergibt eine leere Ansicht. Die frühere Demo-API ist entfernt.
-Die Kundenoberfläche ist auf AP06 umgeschaltet. Anmeldung und Administration
-verwenden die bestehende AD-Anbindung; das E-Favicon ist über HTTPS geprüft.
+Die Kundenoberfläche ist inzwischen auf AP07 umgeschaltet. Anmeldung und
+Administration verwenden die bestehende AD-Anbindung; die echte AD-Abnahme aus
+AP01 bleibt der historische Nachweis. Eine neue tatsächliche Kundenanmeldung
+nach AP07 ist nicht nachgewiesen. Ein Empfangsnachweis der Testmail liegt ausschließlich
+für das eigene Abnahmepostfach vor. Drei Empfänger sind privat konfiguriert.
 
 ## Aufbau und verfügbare Funktionen
 
@@ -72,6 +76,8 @@ verwenden die bestehende AD-Anbindung; das E-Favicon ist über HTTPS geprüft.
   persistentem Journal und Migration ausschließlich im internen Datenbanknetz.
   Für den geschützten Originalabruf erhält der API-Service zusätzlich genau zwei
   nur lesbare Einzeldateien für Graph-Konfiguration und Zertifikatsanmeldung.
+  Für Benachrichtigungen kommt ein eigener, vom LDAP-Konfigurationsschlüssel
+  unabhängiger Schlüssel hinzu.
   Der Vorschauprozess erlaubt ausschließlich GET. Der Migrationsdienst erhält
   diese Bindungen nicht; API und Migration erhalten weder CIFS noch Docker-Socket.
 - Echte Journalübersicht mit Suche, Filtern und Seitenwahl; Details zeigen Erstbefund,
@@ -82,10 +88,12 @@ verwenden die bestehende AD-Anbindung; das E-Favicon ist über HTTPS geprüft.
   herunterladen. Andere Formate werden als Download angeboten. Zwei gleichzeitige
   Originalantworten bis je 25 MiB, privater Vorschauspeicher mit 128 MiB und feste Fristen.
 - Reines Webarchiv nach zwei Kalenderjahren; keine Datenlöschung oder Mailbewegung.
-- AP07-C-Quellstand: Administration mit getrennten Berichten, Benachrichtigungen
+- Administration mit getrennten Berichten, Benachrichtigungen
   und Verbindungseinstellungen. Tages-/Wochen-/freie Berichtszeiträume verwenden
-  echte Journalwerte; Lesen erzeugt keinen Versandauftrag. Neue C-Bedienwege sind
-  noch nicht im Kundenbetrieb bereitgestellt.
+  echte Journalwerte; Lesen erzeugt keinen Versandauftrag. Benachrichtigungen haben
+  versionierte Einstellungen, feste Testvorschau und gespeicherten Versandverlauf.
+  Zertifikatswarnungen erscheinen im Portal und zusätzlich nach Login für beide Rollen.
+  Gespeicherte Zeiten aktivieren keine Jobs; die dauerhafte Aktivierung gehört zu AP08.
 
 Der Zugang erfolgt ausschließlich im Kundennetz beziehungsweise über die
 vorgesehene VPN und die konfigurierte HTTPS-Adresse. Tatsächliche Hostnamen,
@@ -115,7 +123,7 @@ globalen Erkennungsregeln; AP03 bleibt eingefroren.
   dritter Abruf mit HTTP 503, nach Frist beide Plätze frei und temporäre Dateien entfernt.
   Die echte PDF-Seite wurde im Dialog und neuen Tab visuell geprüft. Isolierte
   Testjournale sind kein Import alter Kundenmails. Die Kundenbereitstellung ist
-  getrennt belegt: Schema006, erhaltene Instanz/Konfiguration und Datenbank,
+  getrennt belegt: Schema 006, erhaltene Instanz/Konfiguration und Datenbank,
   neue API/Web, HTTPS im Journalmodus, HTTP-Weiterleitung und Zugriffsschutz.
   Vollständiger Graph-GET-Scan findet weiterhin 0 passende Mails/Anhänge ab dem
   unveränderten Stichtag. Eine erneute tatsächliche Kundenanmeldung für AP06

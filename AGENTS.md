@@ -23,21 +23,21 @@
   API/Web/DB, HTTPS-Journalmodus, Zugriffsschutz und leerem Journal bestätigt.
   Keine neue tatsächliche AP06-Kundenanmeldung behaupten.
   Vor Kundenmigration/Deployment fester Quellreview und konkreter ORGA-Abgleich.
-  AP07a–c ist seit14.11.2026 freigegeben und in Arbeit. PaketA ergänzt ausschließlich
-  additive007-Tabellen, reine Planung/Berichtskohorten und dauerhafte Outbox-/
-  Request-/Reservierungsverträge. A1 nachVersuch2/A2 nachVersuch1 geschlossen,
-  A-Quellreview, nativer A-Nachweis und30 lokale Gruppen bestanden. B ergänzt begrenzten Graphsender,
-  lokalen Zertifikats-/frischen Nachfolgerproof, eigenen Notificationkey und CLI;
-  19Sender-/Cert-/Runtime- sowie9Prozess-/Bindungsgruppen lokal bestanden.
-  B-Review stoppte bei B2: verspätete Altwarnplanung nach Nachfolgerproof.
-  B2-Korrekturversuch1 bindet die offene ursprüngliche Serie in Planung und beiden
-  Versandgates;59 betroffene lokale Gruppen bestanden (30A/19B/10B2).
-  B2 nachVersuch1 und vollständiger B-Quellreview auf48e3d35 bestanden.
-  C-Leseteil5de7a34 und AD-gebundene Testaktion673762e geliefert. Tatsächliche
-  Journal-/API-/Graphbeobachter in eigenem C-Teilstand, keine permanente Automatik.
-  C-Quellreview/native-/Browserabnahme folgen auf festem Pin; keine Bereitstellung.
-  Kundenstand bleibt AP06/006; keine echte SendMail oder Timer aus A/B.
-  AP08 und spätere AP bleiben ohne Go; dauerhafte Automatik gehört in AP08.
+  AP07a–c ist seit 15.11.2026 technisch abgeschlossen und bereitgestellt aus
+  Codepin `5ecfd59270b63947d3f92af98a1b9f8e5a267aeb`, Kundenschema 007.
+  API/Web stammen aus derselben festen Quelle; Instanz, LDAP-Konfiguration und
+  DBdienst sind erhalten und getrennt zurückgelesen. Eigener Notificationkey,
+  minimale manuelle CLI und drei privat initialisierte Empfänger eingerichtet.
+  A/B vollständig, C-Quellenreview, 21 C-Fälle auf MariaDB und acht isolierte HTTPS-
+  Browsergruppen bestanden, einschließlich 80,006 s-Fristfall und Antwortverlust/
+  neuer Sitzung/Konfigversion ohne Doppel-POST. Synthetischer CLIplan geprüft.
+  Berichte, Einstellungen/Vorschau/Test/Historie und exakte Zertifikatshinweise
+  für beide Rollen geliefert. Echte Graphanmeldung und genau eine feste Testmail
+  mit HTTP 202/Reservierung 1/getrenntem Status bestätigt; Empfang ausschließlich im
+  eigenen Abnahmepostfach nachgewiesen. Keine neue tatsächliche Kundenanmeldung
+  nach AP07 behaupten; AP01-AD-Abnahme bleibt historisch. Bestehende Fehlerzähler erhalten.
+  Import-/Korrektur-/Notificationautomatik bleibt inaktiv; gespeicherte Zeiten
+  aktivieren keine Jobs. AP08/09/10/11 bleiben ohne Go; AP11-Planung erhalten.
   DMS-Anbindung, -Konfiguration und -Prüfung liegen außerhalb unseres Auftrags
   und sind keine Abnahmebedingung. AP03 und Stichtag bleiben unverändert.
 - Keine zusätzlichen Agenten oder Chats ohne entsprechenden Auftrag.
