@@ -101,8 +101,8 @@ Konten und Zugangsdaten werden separat verwaltet.
 
 Der gemeinsame manuelle Backendpfad verbindet Graph, Erkennung, SMB-Ablage,
 Dubletten und Mailabschluss. Webprotokoll, Korrekturoberfläche und Archiv sind in
-AP06 implementiert und isoliert geprüft. Benachrichtigungen und der dauerhafte
-automatische Betrieb folgen erst in den dafür freizugebenden Paketen.
+AP06 implementiert und isoliert geprüft. Benachrichtigungen sind mit AP07
+bereitgestellt. Die dauerhafte Automatik bleibt inaktiv und benötigt AP08-Go.
 Bestehende frei lizenzierte Bibliotheken werden vor Eigenentwicklung geprüft.
 
 Der vereinbarte [GUI-/Erkennungsnachtrag](docs/ANFORDERUNGEN.md#webkorrektur-und-erkennungsverbesserung)
