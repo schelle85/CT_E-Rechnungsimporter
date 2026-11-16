@@ -95,7 +95,7 @@ def operate(mode,value,host):
     if os.name!="posix" or os.geteuid()!=0:raise ValueError()
     config=host.profile(value["processing_profile"],storage=mode!="notifications")
     if mode in {"inbox","corrections"}:
-        return host.operate(mode,value["processing_image"],config,1,scheduled_state=value["processing_state"])
+        return host.operate(mode,value["processing_image"],config,host.AUTOMATIC_MAX_QUANTA,scheduled_state=value["processing_state"])
     if mode=="notifications":return notify(value,host,config)
     raise ValueError()
 

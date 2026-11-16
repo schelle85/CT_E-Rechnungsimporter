@@ -22,6 +22,7 @@ KEY = re.compile(r"[0-9a-f]{64}")
 OWNER = re.compile(r"[0-9a-f]{32}")
 PROCESSING_LOCK = "/run/invoice-importer/processing.lock"
 TICK_SECONDS = 780
+AUTOMATIC_MAX_QUANTA = 20
 
 
 class CleanupFailure(RuntimeError):
@@ -385,7 +386,7 @@ def operate(mode, image, config, max_quanta=100,*,scheduled_state=None):
         if selected is None:return dict(ok=True,mode=mode,quanta=0,states={},remaining=0,deferred=True,retry_not_before=schedule.get("not_before",0))
         result=None
         try:
-            result=operate_locked(selected,image,config,1 if scheduled_state else max_quanta,until)
+            result=operate_locked(selected,image,config,AUTOMATIC_MAX_QUANTA if scheduled_state else max_quanta,until)
             return result
         finally:
             if scheduled_state:scheduled_queue(scheduled_state,complete=selected,ok=result is not None and result.get("ok") is True,

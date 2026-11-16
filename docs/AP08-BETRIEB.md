@@ -43,7 +43,11 @@ Sperrerwerb wieder fällig. Vorher müssen verwaiste Container mit dem vorhanden
 Processinglabel geklärt sein. Fremde/alte Vorgänge werden nicht automatisch gelöscht.
 
 Eine automatische Ausführung wählt höchstens 50 Kandidaten und bearbeitet
-höchstens ein Quantum. Nach Fortschritt sortiert das Journal die Mail hinter
+einen endlichen Batch von höchstens 20 Quanten, soweit das gemeinsame Zeitbudget
+ausreicht. Beide Hosteinstiege verwenden dieselbe feste Grenze, ohne zusätzliches
+Profilfeld. Die normale Einzelanhangmail benötigt ein Quantum für Erkennung/
+Ablage und ein weiteres für den Mailabschluss; mehrere schnelle Quanten dürfen
+daher im selben Lauf erfolgen. Nach Fortschritt sortiert das Journal die Mail hinter
 bisher unbearbeitete Kandidaten. Mode-, Lease-, Freigabe- und Retryregeln bleiben
 wirksam. Inbox-/Korrekturfälligkeiten sind Gelegenheiten und keine Zusage, dass
 eine große Mail innerhalb des Timerintervalls vollständig abgeschlossen wird.
