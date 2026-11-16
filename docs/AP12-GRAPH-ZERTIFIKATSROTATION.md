@@ -165,6 +165,27 @@ vor dem dauerhaften Abschluss bestätigen. Erst danach darf sie die normale
 Freigabe öffnen. APIneuerstellung, Rückweg, Quittungen und Cleanup sind durch
 diesen Probe-/Mountstand weiterhin nicht implementiert oder bereitgestellt.
 
+## C3a – privater dauerhafter Übernahmebeleg
+
+`rotation_adoption.py` ergänzt das vorhandene Rootjournal um eine getrennte
+auftraggebundene host.json-Datei und eine unveränderliche alte PEMsicherung.
+Der B-Registrierungsbeleg behält sein Format. Aktivierungsabsicht wird vor dem
+Dateiersatz gespeichert; Verbraucher-/Proofstadien und abschließender BelegSHA256
+bleiben getrennt. Tatsächliche Container-IDs stehen ausschließlich im privaten
+Beleg, gebunden an Rolle/Image/Probezweck/Quittungshash/Material/Quelle/Instanz.
+Ein unklarer Proof behält seine ursprüngliche Revision-/Verbraucher-/Epochbindung;
+die Schreibabsicht kann nicht einfach erneut begonnen werden.
+
+Commit des Belegs setzt drei passende Verbraucherquittungen, den getrennten
+passenden höchstens60s alten Proof, weiterhin gültiges Zielmaterial und denselben
+Pausen-/Drainzustand voraus. Rückweg verlangt die nach Hash/Kryptografie geprüfte
+gültige Originalsicherung und erneut sämtliche alten Verbraucher/Proofs. Boot-
+wechsel blockiert Wirkungen, erhält aber den alten Beleg lesbar. Sieben gezielte
+lokale Datei-/Kryptografiefälle bestanden, POSIX-/Hostgrenzen ausdrücklich ersetzt.
+Dieser Baustein öffnet kein Gate und führt keine Docker-/Dateiaktivierungsaktion
+aus. Tatsächlicher Hostcontroller, Boot-/Unknown-Reconciliation und native
+Übernahme-/Rückwegprüfung bleiben getrennte Folgearbeit.
+
 Geplant nach AP08 und vor AP11/der finalen AP09-Übergabe. Technische Grundlage ist
 AP07. Vorhandene Betriebsbausteine aus AP08/AP10 nutzen, soweit vorhanden; keine
 anderen AP-Freigaben aus diesem Plan ableiten.

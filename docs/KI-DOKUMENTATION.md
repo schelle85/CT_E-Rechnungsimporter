@@ -93,6 +93,13 @@ Proof; finalize-proof nur über eigenen Grant nach frischem GET. Separates
 Rootprofil binding_file/directory; Runtimeprofil bleibt name/image. Acht lokale
 gezielte Fälle bestanden. Kein nativer Probe-/Verbrauchernachweis und noch kein
 Controller für APIneuerstellung/Rückweg/dauerhaften Abschluss/Öffnen zuletzt.
+C3a ergänzt getrennte private Übernahmecheckpoints im vorhandenen Rootjournal,
+unveränderliche Altsicherung, tatsächliche Consumer-ID-/Image-/Materialbindung,
+beibehaltene unklare Proofabsicht und versiegelten Abschluss erst nach drei
+Consumerbelegen und passendem frischem Proof. Pause/Drain/Gültigkeit bleiben
+Voraussetzung; Rückweg braucht erneut alte Consumer/Proof. Sieben lokale Fälle
+mit echten Dateien/Kryptografie und expliziten POSIXdoubles bestanden. Noch keine
+tatsächlichen Hostaktionen oder Boot-/Unknown-Reconciliation daraus ableiten.
 Nach AP08 und vor AP11/09 eingeplant. Bestehende AP07-Prüfung, Warnserie und
 Schlüsselgrenzen wiederverwenden; neuer Hostauftrag zuerst konkret prüfen.
 
