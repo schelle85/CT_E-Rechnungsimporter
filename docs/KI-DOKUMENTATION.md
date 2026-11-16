@@ -1,6 +1,6 @@
 # KI-Dokumentation
 
-Stand: 15. November 2026. Lebende Markdown-Dokumentation, noch kein Gesamtabschlussbericht.
+Stand: 16. November 2026. Lebende Markdown-Dokumentation, noch kein Gesamtabschlussbericht.
 
 ## Wiedereinstieg
 
@@ -10,6 +10,12 @@ Stand: 15. November 2026. Lebende Markdown-Dokumentation, noch kein Gesamtabschl
 4. Nur das zugewiesene Paket bearbeiten; Ergebnisse und Prüfungen dokumentieren.
 
 ## Aktueller Stand
+
+Planungsnachtrag vom 16.11.2026: [AP12](AP12-GRAPH-ZERTIFIKATSROTATION.md) für
+Graph-Zertifikatsrotation und Administration → Graph-Zertifikat angenommen.
+Noch kein Umsetzungs-Go; keine neue Funktion daraus als bereitgestellt bezeichnen.
+Nach AP08 und vor AP11/09 eingeplant. Bestehende AP07-Prüfung, Warnserie und
+Schlüsselgrenzen wiederverwenden; neuer Hostauftrag zuerst konkret prüfen.
 
 AP07a–c ist am 15.11.2026 technisch abgeschlossen und bereitgestellt aus
 `5ecfd59270b63947d3f92af98a1b9f8e5a267aeb`. Aktueller Kundenstand: Schema 007,

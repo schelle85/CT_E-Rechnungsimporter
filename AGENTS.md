@@ -38,6 +38,9 @@
   nach AP07 behaupten; AP01-AD-Abnahme bleibt historisch. Bestehende Fehlerzähler erhalten.
   Import-/Korrektur-/Notificationautomatik bleibt inaktiv; gespeicherte Zeiten
   aktivieren keine Jobs. AP08/09/10/11 bleiben ohne Go; AP11-Planung erhalten.
+  AP12 ist seit16.11.2026 für Graph-Zertifikatsrotation und Administration →
+  Graph-Zertifikat geplant, ohne Umsetzungs-Go. Führender Umfang:
+  docs/AP12-GRAPH-ZERTIFIKATSROTATION.md. Keine Implementierung aus der Planannahme ableiten.
   DMS-Anbindung, -Konfiguration und -Prüfung liegen außerhalb unseres Auftrags
   und sind keine Abnahmebedingung. AP03 und Stichtag bleiben unverändert.
 - Keine zusätzlichen Agenten oder Chats ohne entsprechenden Auftrag.

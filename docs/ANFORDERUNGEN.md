@@ -190,6 +190,15 @@ Graph-Anmeldezertifikat und HTTPS-Zertifikat haben unterschiedliche Aufgaben.
 Das vorhandene HTTPS-Zertifikat wird extern alle 60 Tage erneuert. Erneuerte Dateien
 prüfen, übernehmen und das tatsächlich verwendete Zertifikat kontrollieren.
 
+## Geplante Graph-Zertifikatsrotation
+
+Seit 16.11.2026 als AP12 eingeplant: zusätzliche Administration →
+Graph-Zertifikat mit Status, Verlauf und berechtigtem Erneuerungsstart; gemeinsame
+lokale Linux-Rotation für manuellen Auftrag und Automatik. Privater Schlüssel
+bleibt auf dem Host, Registrierung und tatsächliche Übernahme werden geprüft.
+Rollen, vorgesehene Fristen, Rückweg und Grenzen im [AP12-Plan](AP12-GRAPH-ZERTIFIKATSROTATION.md).
+Noch kein Umsetzungs-Go. Bestehende AP07-Überwachung und HTTPS-Zertifikat bleiben getrennte Wege.
+
 ## Wöchentliche Wartung
 
 Ein serverseitiges Skript soll sonntags um 03:00 Uhr Europe/Berlin Linux-Updates

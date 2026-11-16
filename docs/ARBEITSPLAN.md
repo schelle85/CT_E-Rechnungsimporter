@@ -1,6 +1,6 @@
 # Arbeitspakete
 
-Stand: 15. November 2026. **AP00 ist im definierten Grundbereitstellungsumfang abgeschlossen;
+Stand: 16. November 2026. **AP00 ist im definierten Grundbereitstellungsumfang abgeschlossen;
 AP01 ist vollständig durch den Kunden abgenommen. AP02a–c ist technisch abgeschlossen;
 AP03 ist eingefroren, AP04 ist im Grundlagenumfang technisch abgeschlossen.
 AP05a–c ist im definierten manuellen Umfang technisch abgeschlossen und bereitgestellt.
@@ -12,6 +12,8 @@ API/Web aus gleicher fester Quelle, Instanz/LDAP-Konfiguration und DBdienst erha
 AP08 und spätere Pakete bleiben ohne Go;
 dauerhafter Automatikbetrieb gehört in AP08.**
 AP10 ist für die spätere wöchentliche Wartung ergänzt.
+AP12 ist seit 16.11.2026 für Graph-Zertifikatsrotation und einen zusätzlichen
+Adminreiter geplant; Umsetzung erst nach eigenem Go.
 ORGA koordiniert, DEV implementiert, REVIEW prüft.
 Die Repositoryvorbereitung ist kein Beginn der Anwendungsentwicklung.
 
@@ -211,10 +213,30 @@ AP09a übernimmt diese eine führende Nutzeranleitung; technische Dokumentation 
 KI-Dokumentation bleiben eigene Lieferungen. Umfang und Ausgabe siehe
 [Dokumentationsplan](DOKUMENTATIONSPLAN.md).
 
+## AP12: Graph-Zertifikatsrotation und Administration - DEV / REVIEW / ORGA
+
+Am 16.11.2026 als eigenes Arbeitspaket angenommen und eingeplant.
+Status: geplant, noch kein AP12-Umsetzungs-Go. Der bereitgestellte AP07-Stand bleibt erhalten.
+
+| Teil | Ergebnis und Prüfung |
+| --- | --- |
+| AP12a | Vorhandene Graph-/Zertifikatsbausteine prüfen; begrenzten Hostauftrag, AD-Rechte, Wechselzustand und Rückweg entwerfen |
+| AP12b | Betreiberskript: lokal erzeugen, öffentlichen Teil zusätzlich registrieren, frische Anmeldung und tatsächliche Verbraucher prüfen, kontrolliert aktivieren |
+| AP12c | Reiter Administration → Graph-Zertifikat mit Status, Verlauf und geschützter Aktion „Jetzt erneuern“; GR_CEO liest, GR_Rechnung verwaltet |
+| AP12d | Tägliche Prüfung und automatische Erneuerung planen/gezielt aktivieren; vorgesehener Vorlauf 30 Tage, gleiche Sperre und gleicher Ablauf wie beim manuellen Start |
+| AP12e | Sieben Tage Überlappung bei ausreichender Gültigkeit, nur verwaltete Altkeys bereinigen; Abbruch-/Rückweg und administrative Wiederherstellung dokumentieren |
+| AP12f | Gezielte Rechte-, Wiederholungs-, Konkurrenz-, Graph-, Übernahme- und Fehlerprüfungen; unabhängige Abnahme |
+| AP12g | Bedienfakten an AP11 und technische Abläufe an AP09 übergeben; README/KI-/Betriebsdokumentation aktualisieren |
+
+Umfang und Grenzen: [AP12-Plan](AP12-GRAPH-ZERTIFIKATSROTATION.md).
+Privater Schlüssel bleibt auf Linux; Webauslöser verwendet einen festen Hostauftrag.
+HTTPS-Zertifikat und bestehende Pflichtwarnung bleiben getrennt berücksichtigt.
+
 ## Reihenfolge und offene Punkte
 
-AP00 → AP01 → AP02 → AP03 → AP04 → AP05 → AP06 → AP07 → AP08 → AP11 → AP09.
-AP11 beschreibt den geprüften Funktionsstand nach AP08. Die Einrichtung und
+AP00 → AP01 → AP02 → AP03 → AP04 → AP05 → AP06 → AP07 → AP08 → AP12 → AP11 → AP09.
+AP12 baut auf AP07 auf und ist nach AP08, vor Handbuch und Übergabe eingeplant.
+AP11 beschreibt den geprüften Funktionsstand einschließlich eines ausgelieferten AP12. Die Einrichtung und
 Prüfung von AP10 wird bei den betroffenen Betriebsunterlagen berücksichtigt;
 der laufende Wochenbetrieb ist kein Endtermin für das Handbuch.
 Dokumentation wird während aller Pakete gepflegt; AP09 finalisiert das Lieferpaket.

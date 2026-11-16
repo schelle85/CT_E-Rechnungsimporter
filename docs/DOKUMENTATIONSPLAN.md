@@ -1,8 +1,10 @@
 # Dokumentationslieferungen
 
-Stand: 14. November 2026. Die folgenden Abschlussunterlagen sind beauftragt.
-Die Anwendung ist bis AP06 einschließlich Journal, Korrekturen und PDF-Vorschau
-technisch abgeschlossen und bereitgestellt. Das vollständige Nutzerhandbuch ist
+Stand: 16. November 2026. Die folgenden Abschlussunterlagen sind beauftragt.
+Die Anwendung ist bis AP07 einschließlich Berichten, Benachrichtigungen und
+Zertifikatshinweisen technisch abgeschlossen und bereitgestellt. AP12 für die
+Zertifikatsrotation und den zusätzlichen Adminreiter ist geplant, noch nicht umgesetzt.
+Das vollständige Nutzerhandbuch ist
 seit14.11.2026 ein eigenes geplantes AP11. Die finalen Unterlagen entstehen aus
 dem geprüften Lieferstand in AP11 beziehungsweise AP09 zum Projektabschluss.
 
@@ -17,7 +19,7 @@ zusammengeführt. AP09 prüft Version, Vollständigkeit und Übergabe des Gesamt
 
 Eigenes Arbeitspaket auf ausdrücklichen Nutzerwunsch vom14.11.2026. Status: geplant,
 noch kein AP11-Go und noch kein fertig erstelltes Handbuch. Grundlage ist der
-geprüfte Auslieferungsstand nach der Betriebsprüfung in AP08.
+geprüfte Auslieferungsstand nach AP08 und dem eingeplanten AP12.
 
 Zielgruppe: Anwender und kundenseitige Administratoren.
 
@@ -32,6 +34,8 @@ Zielgruppe: Anwender und kundenseitige Administratoren.
   und Bedeutung der tatsächlichen Journalzahlen.
 - Erlaubte Einstellungen, Empfänger und Benachrichtigungspläne ändern.
 - Zertifikatswarnungen, Versandhistorie und unklare Versandausgänge verstehen.
+- Nach Lieferung von AP12: Reiter Graph-Zertifikat, Rechte, Erneuerungsstart,
+  Wechselstatus und erforderliche Unterstützung erklären.
 - Alltagsszenarien, häufige Fragen und typische Fehler mit passenden Handlungsschritten.
 - Erwartete Wartezeiten und Zuständigkeiten für Nutzer, Verwaltung und Betreuung.
 - Grenzen der Formaterkennung, Stichtag und verbleibende manuelle Aufgaben.
