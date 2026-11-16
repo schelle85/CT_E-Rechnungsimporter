@@ -205,6 +205,13 @@ class ProcessingService:
                 "graph_journal_source_changed", "graph_journal_manifest_changed", "graph_identity_changed", "graph_inbox_changed"}
             rows = self.store.get_attachments(key)
             row = next((value for value in rows if value["attachment_key"] == (selected or aid)), None)
+            if (isinstance(error,GraphError) and error.status==429 and not error.uncertain
+                    and not message["close_key"] and (row is None or not row["effect_key"])):
+                # A known rejected read is not a classification failure. Preserve
+                # all journals and never shorten the server's retry boundary.
+                until=max(int(self.store.clock())+300,error.retry_not_before or int(self.store.clock())+900)
+                self.store.release(key,owner,revision,error=reason,delay=until-int(self.store.clock()))
+                return ProcessingResult("busy",key,reason=reason)
             if row is not None and not row["effect_key"] and not message["close_key"] and not identity_failure:
                 self.store.failed(key, row["attachment_key"], owner, revision, reason)
                 self.store.release(key, owner, revision, error=reason)

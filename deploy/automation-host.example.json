@@ -1,0 +1,8 @@
+{
+  "processing_image": "sha256:REPLACE_WITH_REVIEWED_PROCESSING_IMAGE_ID",
+  "processing_profile": "/etc/invoice-importer/processing-host.json",
+  "processing_state": "/var/lib/invoice-importer/processing-schedule.json",
+  "notification_image": "sha256:REPLACE_WITH_REVIEWED_NOTIFICATION_IMAGE_ID",
+  "notification_key": "/etc/invoice-importer/notification.key",
+  "public_origin": "https://invoice.example.invalid"
+}

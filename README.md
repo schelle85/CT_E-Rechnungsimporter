@@ -9,7 +9,7 @@ internen Webportal für Protokolle, Fehler und Dubletten.
 
 ## Projektstatus
 
-**Stand: 15. November 2026. AP01 ist durch den Kunden vollständig abgenommen.
+**Stand: 16. November 2026. AP01 ist durch den Kunden vollständig abgenommen.
 AP02a–c ist im vereinbarten Grundlagenumfang technisch abgeschlossen und
 bereitgestellt. AP04 ist technisch im isolierten Grundlagenumfang abgeschlossen.
 AP05 ist im definierten manuellen Umfang technisch abgeschlossen und bereitgestellt:
@@ -33,7 +33,8 @@ Import-, Korrektur- und Benachrichtigungsautomatik bleiben inaktiv.**
 | AP06 – Webprotokoll, Korrektur und PDF-Vorschau | Technisch abgeschlossen und bereitgestellt: echte Journalansichten, generationgebundene Freigabe/Retry, Einstellungen, Archiv und großer PDFdialog. Native006-/Sicherheits-/Konkurrenzprüfungen sowie fünf isolierte Browsergruppen mit sichtbarer Original-PDF bestanden. Kundenmigration auf006, Dienstpins, HTTPS und leeres echtes Journal getrennt zurückgelesen. Siehe [AP06](docs/AP06-WEB.md). |
 | AP07 – Berichte und Benachrichtigungen | Technisch abgeschlossen und bereitgestellt aus `5ecfd59270b63947d3f92af98a1b9f8e5a267aeb`, Schema 007. A/B vollständig geprüft, C-Quellenreview, 21 C-Fälle auf MariaDB und acht isolierte HTTPS-Browsergruppen bestanden. Administration→Berichte, Benachrichtigungseinstellungen, feste Vorschau/Testaktion, Verlauf und Zertifikats-/Loginhinweise geliefert. Echte Graph-Zertifikatsanmeldung und genau eine feste Testmail mit HTTP 202/Reservierung 1/getrenntem Statusabgleich bestätigt; Empfang im eigenen Abnahmepostfach nachgewiesen. Automatik bleibt inaktiv. Siehe [AP07](docs/AP07-NOTIFICATIONS.md) und [Betreiberweg](docs/AP07-OPERATOR.md). |
 | AP12 – Graph-Zertifikatsrotation und Adminreiter | Geplant seit 16.11.2026: lokale Erneuerung, geprüfter Wechsel und zusätzlicher Reiter Administration → Graph-Zertifikat. Umsetzung erst nach AP12-Go; siehe [AP12-Plan](docs/AP12-GRAPH-ZERTIFIKATSROTATION.md). |
-| AP08 und folgende Pakete | Noch nicht zur Umsetzung freigegeben. Zeitplanung und dauerhafte automatische Verarbeitung sind inaktiv. AP12 ist nach AP08 und vor dem Handbuch eingeplant. |
+| AP08 – Betriebsübergang | Seit16.11.2026 zur Umsetzung freigegeben. Paket A liefert begrenzte Laufzeit, faire Auswahl und Testmailausschluss zur Quellprüfung. Native Prüfung, weitere Betriebsteile und Aktivierung stehen aus; Kundenautomatik bleibt inaktiv. Siehe [AP08](docs/AP08-BETRIEB.md). |
+| Weitere Pakete | AP09/10/11 ohne Umsetzungs-Go. AP12 bleibt ohne Umsetzungs-Go nach AP08 und vor dem Handbuch eingeplant. |
 
 Der begrenzte Titelvariantennachtrag wurde unabhängig geprüft und aus `e49ccdb`
 als separates Runtimeimage gebaut. Die zusätzlichen Pre-Notifikations- und datierten
@@ -103,7 +104,8 @@ Konten und Zugangsdaten werden separat verwaltet.
 Der gemeinsame manuelle Backendpfad verbindet Graph, Erkennung, SMB-Ablage,
 Dubletten und Mailabschluss. Webprotokoll, Korrekturoberfläche und Archiv sind in
 AP06 implementiert und isoliert geprüft. Benachrichtigungen sind mit AP07
-bereitgestellt. Die dauerhafte Automatik bleibt inaktiv und benötigt AP08-Go.
+bereitgestellt. AP08 ist in Umsetzung; die dauerhafte Automatik bleibt bis zur
+gesondert geprüften Bereitstellung und Aktivierung inaktiv.
 Bestehende frei lizenzierte Bibliotheken werden vor Eigenentwicklung geprüft.
 
 Der vereinbarte [GUI-/Erkennungsnachtrag](docs/ANFORDERUNGEN.md#webkorrektur-und-erkennungsverbesserung)

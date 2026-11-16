@@ -37,7 +37,10 @@
   eigenen Abnahmepostfach nachgewiesen. Keine neue tatsächliche Kundenanmeldung
   nach AP07 behaupten; AP01-AD-Abnahme bleibt historisch. Bestehende Fehlerzähler erhalten.
   Import-/Korrektur-/Notificationautomatik bleibt inaktiv; gespeicherte Zeiten
-  aktivieren keine Jobs. AP08/09/10/11 bleiben ohne Go; AP11-Planung erhalten.
+  aktivieren keine Jobs. AP08 ist seit16.11.2026 zur Umsetzung freigegeben;
+  Paket A liefert Laufzeitbasis zur Quellprüfung, noch keine Aktivierungsabnahme.
+  Führender Vertrag: docs/AP08-BETRIEB.md. AP09/10/11 bleiben ohne Go;
+  AP11-Planung erhalten.
   AP12 ist seit16.11.2026 für Graph-Zertifikatsrotation und Administration →
   Graph-Zertifikat geplant, ohne Umsetzungs-Go. Führender Umfang:
   docs/AP12-GRAPH-ZERTIFIKATSROTATION.md. Keine Implementierung aus der Planannahme ableiten.

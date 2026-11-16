@@ -1,5 +1,10 @@
 # Betriebsstand
 
+Quellnachtrag vom16.11.2026: AP08 ist in Umsetzung, Paket A steht zur
+Quellprüfung. Laufzeitbasis und gezielte lokale synthetische Prüfungen liefern
+noch keinen neuen Kundenbetriebsstand. Native Prüfung, weitere AP08-Teile und
+Aktivierung stehen aus. Siehe [AP08-Betrieb](AP08-BETRIEB.md).
+
 Stand: 15. November 2026. AP07 ist technisch abgeschlossen und bereitgestellt aus
 Codepin `5ecfd59270b63947d3f92af98a1b9f8e5a267aeb`. Kundenschema007 sowie API und
 Web aus derselben festen Quelle wurden getrennt erfolgreich zurückgelesen.

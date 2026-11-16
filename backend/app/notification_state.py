@@ -18,6 +18,8 @@ RECEIPT_FIELDS = ("slot_key", "request_id", "actor", "scope_key", "kind", "perio
     "state", "reservations", "reserved_at", "post_started_at", "completed_at", "not_before",
     "error_code", "http_status", "created_at", "updated_at")
 
+AUTOMATIC_KINDS = frozenset({"certificate","daily","weekly","errors","outage","recovery"})
+
 class NotificationStore:
     LEASE_SECONDS = 120
 
@@ -623,10 +625,14 @@ class NotificationStore:
         checked_key(scope)
         if type(limit) is not int or not 1 <= limit <= 5:
             raise NotificationError("notification_limit_invalid",422)
+        now=int(self.clock())
         with self.engine.connect() as c:
+            version=c.execute(sa.select(settings.c.version).where(settings.c.singleton==1)).scalar_one()
             return list(c.execute(sa.select(outbox.c.slot_key).where(outbox.c.scope_key == scope,
+                outbox.c.kind.in_(AUTOMATIC_KINDS),outbox.c.config_version==version,outbox.c.payload_cipher.is_not(None),
                 outbox.c.state == "prepared",outbox.c.reservations == 0,
-                outbox.c.due_at <= int(self.clock()),outbox.c.stale_at > int(self.clock()))
+                outbox.c.due_at <= now,outbox.c.stale_at > now,outbox.c.not_before<=now,
+                sa.or_(outbox.c.owner.is_(None),outbox.c.lease_until<=now))
                 .order_by(sa.case((outbox.c.kind == "certificate",0),else_=1),outbox.c.due_at,outbox.c.slot_key)
                 .limit(limit)).scalars())
 

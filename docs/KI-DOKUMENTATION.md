@@ -11,6 +11,14 @@ Stand: 16. November 2026. Lebende Markdown-Dokumentation, noch kein Gesamtabschl
 
 ## Aktueller Stand
 
+AP08-Go seit16.11.2026. Paket A liefert automatische Auswahl ohne Testmails,
+gemeinsame Processing-Hostsperre, feste Fälligkeiten, Gesamtbudgets und
+CIFSbindung vor Create/Start zur Quellprüfung. Gezielte lokale synthetische
+Prüfungen bestanden; native Host-/Mount-/Fristprüfung und Aktivierung stehen aus.
+API/Notification und separater Processingconsumer benötigen denselben neuen
+Backendstand; Classifier, Locks und Schema007 bleiben erhalten.
+[Führender Betriebsvertrag](AP08-BETRIEB.md). Der Kunde bleibt beim AP07-Stand.
+
 Planungsnachtrag vom 16.11.2026: [AP12](AP12-GRAPH-ZERTIFIKATSROTATION.md) für
 Graph-Zertifikatsrotation und Administration → Graph-Zertifikat angenommen.
 Noch kein Umsetzungs-Go; keine neue Funktion daraus als bereitgestellt bezeichnen.
@@ -54,8 +62,9 @@ zuverlässige Selbstalarmierung. APIkind teilt die API-Dateisystemgrenze;
 Envstrip ist keine physische Isolation. Externe CLI bleibt minimal gebunden.
 
 Import-/Korrektur-/Notificationautomatik ist weiterhin inaktiv. Gespeicherte
-Zeiten werden erst nach AP08-Go dauerhaft aktiviert. AP08/09/10/11 sind nicht
-freigegeben; AP11-Planung, Dezemberstichtag, AP03 und DMS-Abgrenzung erhalten.
+Zeiten werden im freigegebenen AP08 erst nach gesonderter Prüfung dauerhaft aktiviert.
+AP09/10/11 sind nicht freigegeben; AP11-Planung, Dezemberstichtag, AP03 und
+DMS-Abgrenzung erhalten.
 Siehe [AP07-Vertrag](AP07-NOTIFICATIONS.md), [Operatorvertrag](AP07-OPERATOR.md)
 und [Betriebsstand](BETRIEBSSTAND.md).
 
@@ -117,7 +126,7 @@ AP07 ersetzt diesen Laufzeitstand; die AP06-Fachfunktionen bleiben erhalten.
   Teilvorgänge und langsame Originalantworten über Nginx im Browser bestanden.
   Kundenmigration/Bereitstellung und separates Betreiber-Rücklesen bestanden.
   DMS ist vollständig außerhalb Auftrag/Prüfung/Abnahme. AP07-Go inzwischen erteilt;
-  AP08 und spätere Pakete weiterhin ohne Go.
+  AP08 ist inzwischen in Umsetzung; spätere Pakete bleiben ohne Umsetzungs-Go.
 - Signaturzählung ohne manuelle Hashlisten: nur file+inline+normalisierter
   image-MIME und vollständiges hashgebundenes AP03-ignored/unsupported_attachment
   werden nach Findingannahme ausgenommen. Alle anderen Fälle bleiben gezählt/offen.

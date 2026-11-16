@@ -10,7 +10,7 @@ from app.notification_certificate import CERTIFICATE_TOKEN, CertificateMaterial
 from app.notification_model import NotificationError, OperationBudget, checked_key, checked_settings, graph_scope, identity
 from app.notification_schema007 import outbox
 from app.notification_service import NotificationService
-from app.notification_state import NotificationStore
+from app.notification_state import AUTOMATIC_KINDS,NotificationStore
 
 INITIAL_FILE = "/run/importer/notification-init.json"
 
@@ -81,8 +81,16 @@ def run_job(job):
             payload = store._decrypt(row["payload_cipher"])
             if identity(payload) != row["payload_hash"]:raise NotificationError("notification_payload_changed",503)
             return dict(ok=True,persisted=True,receipt=store.receipt(row),payload=payload)
-        if command not in {"observe","plan","send"}:
+        if command not in {"observe","plan","send","send-automatic"}:
             raise NotificationError("notification_command_invalid",422)
+        if command == "send-automatic":
+            keys=job.get("keys")
+            if not isinstance(keys,list) or not 1<=len(keys)<=5 or len(set(keys))!=len(keys):
+                raise NotificationError("notification_limit_invalid",422)
+            for key in keys:
+                row=store.read(checked_key(key))
+                if row["scope_key"]!=scope or row["kind"] not in AUTOMATIC_KINDS:
+                    raise NotificationError("notification_automatic_kind_invalid",422)
         # Capture the fence before reading PEM bytes; a later observer/proof cannot be overwritten.
         observed = store.monitor_state(scope,"certificate",CERTIFICATE_TOKEN)
         observation_revision = observed["revision"] if observed else 0

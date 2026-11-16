@@ -94,17 +94,30 @@ async def invoke(job,*,deadline,worker="app.notification_worker",cleanup_seconds
 async def execute_notification(job,*,budget,runner=invoke):
     """Caller creates the budget before preflight; this function never resets it."""
     command = job["command"]
+    if command == "automatic":
+        # One original CLI budget covers planning, selection, send and readback.
+        if set(job) != {"command"}:raise NotificationError("notification_job_invalid",422)
+        if budget.child_seconds() <= 0:return dict(ok=False,persisted=False,code="notification_deadline")
+        planned,stopped=await runner(dict(command="plan"),deadline=time.monotonic()+budget.child_seconds())
+        if not stopped or not planned or planned.get("ok") is not True:
+            return dict(ok=False,persisted=False,code="notification_status_unavailable")
+        return await execute_notification(dict(command="dispatch",limit=1),budget=budget,runner=runner)
     keys = []
     owner = uuid4().hex
     if command == "dispatch":
         limit = job.get("limit",1)
         if type(limit) is not int or not 1 <= limit <= 5:
             raise NotificationError("notification_limit_invalid",422)
-        selected,_ = await runner(dict(command="pending",limit=limit),
+        if budget.child_seconds() <= 0:
+            return dict(ok=False,persisted=False,code="notification_deadline")
+        selected,stopped = await runner(dict(command="pending",limit=limit),
             deadline=time.monotonic()+min(10,budget.child_seconds()))
-        if not selected or not selected.get("ok"):
+        if not stopped or not selected or not selected.get("ok"):
             return dict(ok=False,persisted=False,code="notification_status_unavailable")
         keys = selected["keys"]
+        if not isinstance(keys,list) or len(keys)>limit or len(set(keys))!=len(keys):
+            raise NotificationError("notification_limit_invalid",422)
+        keys=[checked_key(key) for key in keys]
     elif command == "send":
         keys = [checked_key(job["slot_key"])]
     if command in {"send","dispatch"}:
@@ -112,13 +125,13 @@ async def execute_notification(job,*,budget,runner=invoke):
             return dict(ok=True,persisted=True,receipts=[])
         if budget.child_seconds() <= 0:
             return dict(ok=False,persisted=False,code="notification_deadline",keys=keys)
-        _,stopped = await runner(dict(command="send",keys=keys,owner=owner),
+        _,stopped = await runner(dict(command="send-automatic" if command=="dispatch" else "send",keys=keys,owner=owner),
             deadline=time.monotonic()+budget.child_seconds())
         if not stopped or budget.remaining() <= 3:
             return dict(ok=False,persisted=False,code="notification_status_unavailable",keys=keys)
-        value,_ = await runner(dict(command="readback",keys=keys,owner=owner),
+        value,stopped = await runner(dict(command="readback",keys=keys,owner=owner),
             deadline=time.monotonic()+min(5,max(0,budget.remaining()-3)))
-        if not value or not value.get("ok"):
+        if not stopped or not value or not value.get("ok"):
             return dict(ok=False,persisted=False,code="notification_status_unavailable",keys=keys)
         return dict(value,ok=all(row["state"] == "accepted" for row in value["receipts"]),persisted=True)
     if budget.child_seconds() <= 0:

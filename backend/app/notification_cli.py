@@ -9,7 +9,7 @@ from app.notification_process import execute_notification
 def arguments(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("command",choices=("configuration","configure-init","request-test","status",
-        "preview","observe","plan","send","dispatch"))
+        "preview","observe","plan","send","dispatch","automatic"))
     parser.add_argument("--config",default="/run/importer/notification-init.json")
     parser.add_argument("--request-id")
     parser.add_argument("--expected-version",type=int)

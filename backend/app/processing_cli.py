@@ -75,8 +75,14 @@ def execute(args):
                 finding = finding_file(args.finding) if args.finding else None
                 result = service.advance(args.message_key, "/exchange", owner=args.owner, revision=args.revision,
                                          attachment_key=args.attachment_key, finding=finding)
-                return {"ok": True, **result.result()}
+                value={"ok": True, **result.result()}
+                if result.status=="busy" and (result.reason or "").startswith("graph_"):
+                    value["retry_not_before"]=service.store.get_message(args.message_key)["next_attempt"]
+                return value
     except (GraphError, ProcessingError, StorageError) as error:
+        if isinstance(error,GraphError) and error.status==429 and not error.uncertain and args.command=="select":
+            import time
+            return dict(ok=True,mode=args.mode,message_keys=[],retry_not_before=error.retry_not_before or int(time.time())+900)
         return {"ok": False, "code": error.code, "uncertain": True}
     except (OSError, ValueError, TypeError, SQLAlchemyError):
         return {"ok": False, "code": "processing_runtime_unavailable", "uncertain": True}

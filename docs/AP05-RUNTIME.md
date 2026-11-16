@@ -1,5 +1,10 @@
 # AP05 – manueller Runtimebetrieb vor Aktivierung
 
+AP08-Quellnachtrag vom16.11.2026: [Betriebsvertrag](AP08-BETRIEB.md).
+Der neue, noch nicht nativ abgenommene Hoststand begrenzt auch manuelle Läufe auf
+780 s, nutzt eine gemeinsame Processinghostsperre und prüft CIFS vor dem Bind.
+Die folgenden AP05-Laufzeitnachweise beziehen sich auf den damaligen Lieferstand.
+
 Der begrenzte manuelle Operator ist nach Quellen-/Runtime-/CIFS-Prüfung
 bereitgestellt. Nach geschütztem Backup wurde Kundenschema005 angewendet;
 API/GUI und laufende Dienste blieben unverändert. Sechs Inboxziele sind vorhanden.

@@ -1,5 +1,11 @@
 # AP07 – begrenzte Betreiberbefehle
 
+AP08-Quellnachtrag vom16.11.2026: [Betriebsvertrag](AP08-BETRIEB.md).
+Neuer Befehl `automatic`: Plan, Auswahl, höchstens ein Versand und Readback unter
+dem gemeinsamen 80-s-Budget. `dispatch` schließt Testmails jetzt ebenfalls aus;
+ein ausdrücklich benannter `send --slot-key` bleibt erhalten. Keine Aktivierung
+oder zusätzliche echte Testmail aus diesem Nachtrag ableiten.
+
 Stand: 15. November 2026. AP07 ist geprüft und bereitgestellt aus
 `5ecfd59270b63947d3f92af98a1b9f8e5a267aeb`, Kundenschema007. API/Web aus gleicher
 Quelle, bestehende Instanz/LDAP-Konfiguration und DBdienst sind getrennt bestätigt.

@@ -457,4 +457,6 @@ class ProcessingStore:
                             retries.c.state == "processing",retries.c.applied_revision == messages.c.revision)))) ,
                     sa.and_(messages.c.completed_revision == messages.c.revision, sa.exists(sa.select(corrections.c.correction_key).where(
                         corrections.c.message_key == messages.c.message_key, corrections.c.state == "approved", corrections.c.approved_at <= now)))))
-            return list(connection.execute(query.order_by(messages.c.created_at, messages.c.message_key).limit(limit)).scalars())
+            # A progressed old mail moves behind untouched candidates on the next tick.
+            return list(connection.execute(query.order_by(messages.c.updated_at,messages.c.created_at,
+                messages.c.message_key).limit(limit)).scalars())

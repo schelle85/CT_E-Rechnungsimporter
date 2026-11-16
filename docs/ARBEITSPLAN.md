@@ -9,8 +9,9 @@ Kundenmigration auf006 und getrenntes Rücklesen bestanden. AP07a–c ist techni
 abgeschlossen und bereitgestellt: A/B vollständig, C-Quellenreview, 21 native
 C-MariaDBfälle und acht isolierte HTTPS-Browsergruppen bestanden. Aktuell Schema 007,
 API/Web aus gleicher fester Quelle, Instanz/LDAP-Konfiguration und DBdienst erhalten.
-AP08 und spätere Pakete bleiben ohne Go;
-dauerhafter Automatikbetrieb gehört in AP08.**
+AP08 ist seit16.11.2026 zur Umsetzung freigegeben; Paket A steht zur Quellprüfung.
+Dauerhafte Automatik bleibt bis zur geprüften Aktivierung inaktiv.
+AP09/10/11 und AP12 bleiben ohne Umsetzungs-Go.**
 AP10 ist für die spätere wöchentliche Wartung ergänzt.
 AP12 ist seit 16.11.2026 für Graph-Zertifikatsrotation und einen zusätzlichen
 Adminreiter geplant; Umsetzung erst nach eigenem Go.
@@ -151,11 +152,16 @@ LDAP-Konfiguration und DBdienst getrennt bestätigt. Drei Empfänger privat init
 Empfang der einen Testmail ausschließlich im eigenen Abnahmepostfach nachgewiesen.
 Keine frische tatsächliche Kundenanmeldung nach AP07; echte AD-Abnahme aus AP01
 bleibt historisch. Import-/Korrektur-/Notificationautomatik inaktiv, Zeiten gespeichert.
-Dauerhafte Aktivierung erst mit AP08-Go; AP08/09/10/11 bleiben ohne Freigabe.
+Dauerhafte Aktivierung wird in AP08 getrennt geprüft; AP09/10/11 bleiben ohne Freigabe.
 AP11-Planung bleibt erhalten.
 Vertrag und Grenzen: [AP07](AP07-NOTIFICATIONS.md), [Betreiber-CLI](AP07-OPERATOR.md).
 
 ## AP08: Betriebsprüfung und Übergang - DEV / REVIEW / ORGA
+
+Status: Umsetzung seit16.11.2026 freigegeben. Paket A: Laufzeitbasis,
+Testmailausschluss vor LIMIT/Versand, gemeinsame Sperre, Grenzen und Fairness.
+Noch keine native oder Aktivierungsabnahme. Führender Vertrag:
+[AP08-Betrieb](AP08-BETRIEB.md).
 
 | Teil | Ergebnis und Prüfung |
 | --- | --- |
