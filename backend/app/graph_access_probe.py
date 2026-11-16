@@ -11,7 +11,7 @@ import time
 import sqlalchemy as sa
 from app.database import make_engine
 from app.graph import GraphConfig,GraphError
-from app.graph_deadline import request_deadline
+from app.graph_deadline import bounded_operation
 from app.graph_access import PURPOSES,ROLES,_uuid
 from app import graph_access_runtime as runtime
 from app.notification_certificate import CertificateMaterial,certificate_client
@@ -41,7 +41,20 @@ def request(raw):
 
 def run(value):
     budget=OperationBudget(clock=time.monotonic,seconds=40)
-    with request_deadline(budget.remaining()):return _run(value,budget)
+    # Existing bounded child owns the full workflow, reserving its two reap seconds.
+    # No outer ITIMER_REAL: GraphClient retains its own remaining transport timer.
+    deadline=budget.deadline-2
+    seconds=deadline-time.monotonic()
+    if seconds<=0:raise GraphError("graph_probe_unavailable")
+    result=bounded_operation(_probe_child,(value,deadline),seconds=seconds)
+    if not isinstance(result,dict) or result.get("ok") is not True:raise GraphError("graph_probe_unavailable")
+    return result
+
+
+def _probe_child(value,deadline):
+    budget=OperationBudget(clock=time.monotonic,seconds=40)
+    budget.deadline=deadline  # Original parent's absolute time, never renewed by spawn/preflight.
+    return _run(value,budget)
 
 
 def _run(value,budget):

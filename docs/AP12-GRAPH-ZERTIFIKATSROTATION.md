@@ -137,6 +137,18 @@ als64 Hexzeichen. Keine Geheimnisse in Argumenten, Umgebung oder Ergebnis.
 Der vorhandene Gatebeleg muss den passenden höchstens60s-Grant enthalten.
 Config/PEM/Bindung haben feste Containerpfade; Probe ist auf40s begrenzt.
 
+Fristkorrektur C2B-R1: Der vorhandene begrenzte Kindprozess umfasst den gesamten
+Probeablauf; zwei Sekunden des ursprünglichen40s-Budgets bleiben für dessen
+bestätigtes Reap reserviert. Das Kind erhält dieselbe absolute Arbeitsfrist,
+einschließlich bereits verbrauchter Spawn-/Preflightzeit. Es gibt keinen äußeren
+ITIMER_REAL um GraphClient: Dessen unveränderte eigene POSIX-Transportfrist bleibt
+aktiv und mit der übrigen Ablaufzeit kompatibel. Auch blockierendes Credential-
+Schließen/DB-/Proofarbeit fällt unter die Elternfrist. Probegeheimnis bleibt in
+stdin und privater fester Eltern-Kind-IPC, nicht in Argumenten/Umgebung.
+Sechs synthetische lokale Funktionsfälle bestanden; drei zusätzliche echte
+POSIX-Frist-/Spawnfälle werden unter Windows ausdrücklich übersprungen und sind
+für die separate native Prüfung vorgesehen. Noch kein nativer R1-PASS.
+
 candidate-read/consumer-read verwenden eine frische Credentialinstanz und einen
 minimalen Inbox-GET, ohne DBzugriff oder AP07-Proof. Nur finalize-proof darf nach
 dem GET den aktuellen Monitorrevision-/DBinstanz-gebundenen AP07-Proof schreiben.

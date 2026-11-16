@@ -100,6 +100,12 @@ Consumerbelegen und passendem frischem Proof. Pause/Drain/Gültigkeit bleiben
 Voraussetzung; Rückweg braucht erneut alte Consumer/Proof. Sieben lokale Fälle
 mit echten Dateien/Kryptografie und expliziten POSIXdoubles bestanden. Noch keine
 tatsächlichen Hostaktionen oder Boot-/Unknown-Reconciliation daraus ableiten.
+Fristkorrektur C2B-R1: bestehendes bounded_operation um festen Probeablauf statt
+inkompatiblem äußerem ITIMER_REAL. Dieselbe ursprüngliche40s-Frist wird als
+absolute Arbeitsfrist an das Kind gegeben, zwei Sekunden für Reap reserviert;
+GraphClient behält seinen echten POSIX-Transporttimer. Sechs lokale Fälle PASS,
+drei neue echte POSIX-/Spawnfälle unter Windows ausdrücklich übersprungen;
+gezielter nativer Nachweis bleibt vor R1-Abschluss nötig.
 Nach AP08 und vor AP11/09 eingeplant. Bestehende AP07-Prüfung, Warnserie und
 Schlüsselgrenzen wiederverwenden; neuer Hostauftrag zuerst konkret prüfen.
 

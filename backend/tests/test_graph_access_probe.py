@@ -49,7 +49,7 @@ class ProbeTests(Fixture,unittest.TestCase):
         with patch.object(probe.GraphConfig,"load",return_value=CONFIG),patch.object(
                 probe.CertificateMaterial,"load",return_value=material()),patch.object(probe.runtime,"binding",return_value=BOUND),patch.object(
                 probe.runtime,"host_probe",side_effect=admitted_transport),patch.object(probe,"certificate_client",self.factory()),patch.object(
-                probe,"request_deadline",side_effect=lambda *a,**k:nullcontext()):
+                probe,"bounded_operation",side_effect=lambda operation,args,**kwargs:operation(*args)):
             return probe.run(value)
 
     def test_read_probe_uses_fresh_get_without_db_or_productive_proof(self):
