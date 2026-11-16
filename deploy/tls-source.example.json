@@ -1,0 +1,6 @@
+{
+  "source_root": "/mnt/ssl",
+  "expected_source": "//CERTSERVER/ssl$",
+  "password_file": "/etc/invoice-importer/pfx-password",
+  "legacy_rc2": true
+}

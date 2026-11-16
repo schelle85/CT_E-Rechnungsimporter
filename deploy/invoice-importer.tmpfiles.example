@@ -1,0 +1,4 @@
+# Install after review as /etc/tmpfiles.d/invoice-importer.conf.
+# Root-owned parents persist across individual service stops; no RuntimeDirectory.
+d /run/invoice-importer 0700 root root -
+d /var/lib/invoice-importer 0700 root root -

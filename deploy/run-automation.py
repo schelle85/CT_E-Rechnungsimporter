@@ -14,9 +14,9 @@ import uuid
 from urllib.parse import urlsplit
 
 
-def load_processing():
+def load_processing(filename="run-processing.py"):
     # This peer is operator-installed with the same root-only protection.
-    path=Path(__file__).with_name("run-processing.py")
+    path=Path(__file__).with_name(filename)
     for target in (Path(__file__),path):
         for part in [*reversed(target.parents),target]:
             info=part.lstat()
@@ -25,21 +25,20 @@ def load_processing():
     spec=importlib.util.spec_from_file_location("invoice_processing_host",path)
     module=importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
-    module.protected(__file__);module.protected(path)
     return module
 
 
 def profile(path,host):
     value=json.loads(host.protected(path).read_text(encoding="utf-8"))
-    if not isinstance(value,dict) or set(value)!={"processing_image","processing_profile","processing_state","notification_image","notification_key","public_origin"}:
+    if not isinstance(value,dict) or set(value)!={"processing_image","processing_profile","processing_state","notification_image","notification_key","public_origin","runtime_profile","tls_profile"}:
         raise ValueError()
     for name in ("processing_image","notification_image"):
         if not isinstance(value[name],str) or not re.fullmatch(r"sha256:[0-9a-f]{64}",value[name]):raise ValueError()
     origin=value["public_origin"]
-    if not isinstance(origin,str) or any(ord(char)<33 for char in origin):raise ValueError()
+    if not isinstance(origin,str) or not origin.isascii() or any(ord(char)<33 for char in origin):raise ValueError()
     parsed=urlsplit(origin)
     if parsed.scheme!="https" or not parsed.hostname or parsed.username or parsed.password or parsed.path or parsed.query or parsed.fragment:raise ValueError()
-    for name in ("processing_profile","notification_key"):
+    for name in ("processing_profile","notification_key","runtime_profile","tls_profile"):
         value[name]=str(host.protected(value[name]))
         if "," in value[name] or any(ord(char)<32 for char in value[name]):raise ValueError()
     state=Path(value["processing_state"])
@@ -48,12 +47,13 @@ def profile(path,host):
     return value
 
 
-def notify(value,host,config):
+def notify(value,host,config,*,deadline=None):
     # Original CLI budget remains 80 seconds, including plan/send/readback.
     # The encompassing host budget also bounds preflight and exact cleanup.
-    until=time.monotonic()+95
+    until=min(time.monotonic()+95,deadline) if deadline is not None else time.monotonic()+95
     with host.host_lock("/run/invoice-importer/notification.lock") as acquired:
         if not acquired:return dict(ok=True,deferred=True,code="notification_host_busy")
+        if host.draining():return dict(ok=True,deferred=True,code="notification_draining")
         def seconds(maximum,*,cleanup=False):
             remaining=min(maximum,until-time.monotonic()-(0 if cleanup else 10))
             if remaining<=0:raise ValueError()
@@ -91,26 +91,38 @@ def notify(value,host,config):
             host.Runtime.cleanup(name,until,list_seconds=3,remove_seconds=5)
 
 
-def operate(mode,value,host):
+def operate(mode,value,host,*,started=None):
     if os.name!="posix" or os.geteuid()!=0:raise ValueError()
+    started=time.monotonic() if started is None else started
+    runtime=load_processing("host-runtime.py")
+    if mode=="drain":return runtime.drain(host,started+45)
+    binding=runtime.profile(value["runtime_profile"],host)
+    if mode=="start":return runtime.start(binding,value["public_origin"],host,started+240)
+    if mode=="tls":return runtime.tls(binding,value["public_origin"],value["tls_profile"],host,started+180)
+    until=started+(95 if mode=="notifications" else host.TICK_SECONDS)
+    runtime.ready(binding,value["public_origin"],host,min(until-40 if mode!="notifications" else until-10,started+20),
+        notifications=mode=="notifications")
     config=host.profile(value["processing_profile"],storage=mode!="notifications")
     if mode in {"inbox","corrections"}:
-        return host.operate(mode,value["processing_image"],config,host.AUTOMATIC_MAX_QUANTA,scheduled_state=value["processing_state"])
-    if mode=="notifications":return notify(value,host,config)
+        return host.operate(mode,value["processing_image"],config,host.AUTOMATIC_MAX_QUANTA,scheduled_state=value["processing_state"],deadline=until)
+    if mode=="notifications":return notify(value,host,config,deadline=until)
     raise ValueError()
 
 
 def main():
+    started=time.monotonic()
     parser=argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("mode",choices=("inbox","corrections","notifications"))
+    parser.add_argument("mode",choices=("inbox","corrections","notifications","start","drain","tls"))
     parser.add_argument("--profile",required=True)
     args=parser.parse_args()
     def interrupted(*_):raise KeyboardInterrupt()
     signal.signal(signal.SIGTERM,interrupted)
     try:
         if not sys.flags.isolated or not sys.dont_write_bytecode:raise ValueError()
+        os.umask(0o077)
         host=load_processing()
-        result=operate(args.mode,profile(args.profile,host),host)
+        value={} if args.mode=="drain" else profile(args.profile,host)
+        result=operate(args.mode,value,host,started=started)
     except (OSError,ValueError,TypeError,KeyError,RuntimeError,subprocess.SubprocessError,KeyboardInterrupt):
         result=dict(ok=False,uncertain=True,code="automation_host_failed")
     print(json.dumps(result))

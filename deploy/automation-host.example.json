@@ -4,5 +4,7 @@
   "processing_state": "/var/lib/invoice-importer/processing-schedule.json",
   "notification_image": "sha256:REPLACE_WITH_REVIEWED_NOTIFICATION_IMAGE_ID",
   "notification_key": "/etc/invoice-importer/notification.key",
-  "public_origin": "https://invoice.example.invalid"
+  "public_origin": "https://invoice.example.invalid",
+  "runtime_profile": "/etc/invoice-importer/runtime-host.json",
+  "tls_profile": "/etc/invoice-importer/tls-source.json"
 }

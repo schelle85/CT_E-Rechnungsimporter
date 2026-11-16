@@ -1,5 +1,15 @@
-# Disabled example; consumes already approved decisions only.
+# Disabled AP08 example; consumes already approved decisions only.
+[Unit]
+Description=Invoice correction opportunities every fifteen Berlin minutes
+Requires=invoice-importer.service
+After=invoice-importer.service time-sync.target
+PartOf=invoice-importer.service
+
 [Timer]
-OnCalendar=*:0/15
+OnCalendar=*-*-* *:0/15:00 Europe/Berlin
 Unit=invoice-processing@corrections.service
-Persistent=false
+Persistent=true
+AccuracySec=1s
+
+[Install]
+WantedBy=timers.target

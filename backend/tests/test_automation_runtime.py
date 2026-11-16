@@ -69,13 +69,17 @@ class AutomationRuntimeTests(unittest.TestCase):
         def lock(path):yield True
         with patch.object(host.os,"name","posix"),patch.object(host.os,"geteuid",return_value=0,create=True),\
                 patch.object(host,"host_lock",lock),patch.object(host,"command",return_value=""),\
+                patch.object(host,"draining",return_value=False),\
                 patch.object(host,"scheduled_queue",side_effect=[({},None),({},"inbox"),({},None)]),\
                 patch.object(host,"operate_locked",return_value=dict(ok=True)) as run:
             host.operate("inbox",IMAGE,{},1,scheduled_state="/state/schedule.json")
         self.assertEqual(run.call_args.args[3],host.AUTOMATIC_MAX_QUANTA)
+        binding=SimpleNamespace(profile=lambda *args:{},ready=Mock())
         with patch.object(automatic.os,"name","posix"),patch.object(automatic.os,"geteuid",return_value=0,create=True),\
+                patch.object(automatic,"load_processing",return_value=binding),\
                 patch.object(host,"profile",return_value={}),patch.object(host,"operate",return_value=dict(ok=True)) as run:
-            automatic.operate("inbox",dict(processing_profile="/private/profile",processing_image=IMAGE,processing_state="/state/schedule.json"),host)
+            automatic.operate("inbox",dict(processing_profile="/private/profile",processing_image=IMAGE,processing_state="/state/schedule.json",
+                runtime_profile="/private/runtime",public_origin="https://invoice.example.invalid"),host)
         self.assertEqual(run.call_args.args[3],host.AUTOMATIC_MAX_QUANTA)
 
     def test_manual_and_scheduled_entry_use_same_lock_and_do_not_work_when_busy(self):
@@ -118,7 +122,7 @@ class AutomationRuntimeTests(unittest.TestCase):
             if args[0]=="image":return IMAGE
             if args[0]=="start":return 0,dict(ok=True,persisted=True)
             return ""
-        fake=SimpleNamespace(host_lock=lock,command=command,CleanupFailure=host.CleanupFailure,
+        fake=SimpleNamespace(host_lock=lock,command=command,CleanupFailure=host.CleanupFailure,draining=lambda:False,
             Runtime=SimpleNamespace(cleanup=lambda name,deadline,**kwargs:clean.append((name,deadline,kwargs))))
         config=dict(networks=["dbnet","egress"],db_host="db",db_name="synthetic",db_user="synthetic",
             graph_config="/graph",graph_credential="/credential",db_password="/dbpassword",storage_root="/must-not-bind")

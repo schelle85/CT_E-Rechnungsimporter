@@ -1,0 +1,10 @@
+{
+  "containers": {
+    "db": {"name": "invoice-importer-db-1", "image": "sha256:REPLACE_WITH_REVIEWED_DATABASE_IMAGE_ID"},
+    "api": {"name": "invoice-importer-api-1", "image": "sha256:REPLACE_WITH_REVIEWED_API_IMAGE_ID"},
+    "nginx": {"name": "invoice-importer-nginx-1", "image": "sha256:REPLACE_WITH_REVIEWED_WEB_IMAGE_ID"}
+  },
+  "instance_id": "REPLACE_WITH_CONFIRMED_INSTANCE_UUID",
+  "tls_root": "/etc/invoice-importer/tls",
+  "peer_address": "192.0.2.10"
+}

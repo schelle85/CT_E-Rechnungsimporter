@@ -1,0 +1,16 @@
+# Disabled AP08 example; replace the mount path with the reviewed SSL source.
+[Unit]
+Description=Invoice external TLS candidate adoption
+Requires=invoice-importer.service
+After=invoice-importer.service
+PartOf=invoice-importer.service
+RequiresMountsFor=/mnt/ssl
+
+[Service]
+Type=oneshot
+User=root
+UMask=0077
+ExecStart=/usr/bin/python3 -I -B /etc/invoice-importer/run-automation.py tls --profile /etc/invoice-importer/automation-host.json
+TimeoutStartSec=180s
+TimeoutStopSec=45s
+KillMode=control-group

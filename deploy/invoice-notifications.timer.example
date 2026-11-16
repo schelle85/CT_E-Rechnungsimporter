@@ -1,0 +1,15 @@
+# Disabled AP08 example: stored settings and this file activate no job.
+[Unit]
+Description=Invoice notification opportunities every Berlin minute
+Requires=invoice-importer.service
+After=invoice-importer.service time-sync.target
+PartOf=invoice-importer.service
+
+[Timer]
+OnCalendar=*-*-* *:*:00 Europe/Berlin
+Unit=invoice-notifications.service
+Persistent=true
+AccuracySec=1s
+
+[Install]
+WantedBy=timers.target

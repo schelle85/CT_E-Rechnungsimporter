@@ -1,11 +1,16 @@
-# Disabled template; review and configure an immutable image before installation.
+# Disabled AP08 example; fixed reviewed profiles and local image IDs required.
 [Unit]
 Description=Invoice importer bounded %i tick
+Requires=invoice-importer.service
+After=invoice-importer.service
+PartOf=invoice-importer.service
+RequiresMountsFor=/mnt/importer
 
 [Service]
 Type=oneshot
 User=root
-Environment=PROCESSING_IMAGE=sha256:REPLACE_WITH_REVIEWED_64_HEX_IMAGE_ID
-ExecStart=/usr/bin/python3 -I -B /etc/invoice-importer/run-processing.py %i --image ${PROCESSING_IMAGE} --profile /etc/invoice-importer/processing-host.json --max-quanta 20
-TimeoutStartSec=4h
+ExecStart=/usr/bin/python3 -I -B /etc/invoice-importer/run-automation.py %i --profile /etc/invoice-importer/automation-host.json
+TimeoutStartSec=780s
+TimeoutStopSec=45s
+KillMode=control-group
 UMask=0077

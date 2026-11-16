@@ -21,6 +21,7 @@ ENVIRONMENT = {"PATH": "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:
 KEY = re.compile(r"[0-9a-f]{64}")
 OWNER = re.compile(r"[0-9a-f]{32}")
 PROCESSING_LOCK = "/run/invoice-importer/processing.lock"
+DRAIN_FILE = "/run/invoice-importer/draining"
 TICK_SECONDS = 780
 AUTOMATIC_MAX_QUANTA = 20
 
@@ -120,7 +121,7 @@ def scheduled_queue(path,**change):
         return value,selected
 
 
-def mount_identity(fd,expected_source):
+def mount_identity(fd,expected_source,*,readonly=False):
     match=re.search(r"^mnt_id:\s*(\d+)$",Path(f"/proc/self/fdinfo/{fd}").read_text(encoding="ascii"),re.M)
     info=os.fstat(fd);device=f"{os.major(info.st_dev)}:{os.minor(info.st_dev)}"
     if not match:raise ValueError("processing_cifs_required")
@@ -133,7 +134,7 @@ def mount_identity(fd,expected_source):
         source=re.sub(r"\\([0-7]{3})",lambda value:chr(int(value[1],8)),parts[split+2])
         options=set(parts[5].split(","))|set(parts[split+3].split(","))
         if (parts[split+1]!="cifs" or parts[2]!=device or source.rstrip("/").casefold()!=expected_source.rstrip("/").casefold()
-                or "ro" in options or "nostrictsync" in options or "cache=loose" in options
+                or ("ro" in options)!=readonly or "nostrictsync" in options or "cache=loose" in options
                 or not options.intersection({"cache=strict","cache=none"})):raise ValueError("processing_cifs_required")
         return int(match[1]),info.st_dev,info.st_ino
     raise ValueError("processing_cifs_required")
@@ -286,10 +287,12 @@ def handoff(coordinate, classify, key, working):
 
 
 class Runtime:
-    def __init__(self, config, image):
+    def __init__(self, config, image,*,deadline=None):
         if not re.fullmatch(r"sha256:[0-9a-f]{64}", image):
             raise ValueError()
-        if command(["image", "inspect", "--format", "{{.Id}}", image], 10) != image:
+        timeout=10 if deadline is None else min(10,deadline-time.monotonic())
+        if timeout<=0:raise ValueError("processing_deadline")
+        if command(["image", "inspect", "--format", "{{.Id}}", image], timeout) != image:
             raise ValueError()
         self.config, self.image = config, image
 
@@ -373,15 +376,25 @@ class Runtime:
             raise CleanupFailure("processing_cleanup_failed") from None
 
 
-def operate(mode, image, config, max_quanta=100,*,scheduled_state=None):
+def draining():
+    try:protected(DRAIN_FILE)
+    except FileNotFoundError:return False
+    return True
+
+
+def operate(mode, image, config, max_quanta=100,*,scheduled_state=None,deadline=None):
     if os.name != "posix" or os.geteuid() != 0 or mode not in {"inbox", "corrections"} or not 1 <= max_quanta <= 100:
         raise ValueError()
-    until=time.monotonic()+TICK_SECONDS
+    until=min(time.monotonic()+TICK_SECONDS,deadline) if deadline is not None else time.monotonic()+TICK_SECONDS
+    if until<=time.monotonic():raise ValueError("processing_deadline")
     if scheduled_state:scheduled_queue(scheduled_state,request=mode)
     with host_lock(PROCESSING_LOCK) as acquired:
         if not acquired:return dict(ok=True,mode=mode,deferred=True,quanta=0,code="processing_host_busy")
+        if draining():return dict(ok=True,mode=mode,deferred=True,quanta=0,code="processing_draining")
         # A killed host client may have left a daemon-owned container running.
-        if command(["container","ls","-a","--filter","label=invoice.processing.operation","--format","{{.Names}}"],10):
+        remaining=min(10,until-time.monotonic())
+        if remaining<=0:raise ValueError("processing_deadline")
+        if command(["container","ls","-a","--filter","label=invoice.processing.operation","--format","{{.Names}}"],remaining):
             raise CleanupFailure("processing_prior_operation_unreconciled")
         schedule,selected=scheduled_queue(scheduled_state,start=True,now=int(time.time())) if scheduled_state else ({},mode)
         if selected is None:return dict(ok=True,mode=mode,quanta=0,states={},remaining=0,deferred=True,retry_not_before=schedule.get("not_before",0))
@@ -395,7 +408,7 @@ def operate(mode, image, config, max_quanta=100,*,scheduled_state=None):
 
 
 def operate_locked(mode,image,config,max_quanta,until):
-    runtime = Runtime(config, image)
+    runtime = Runtime(config, image,deadline=until-40)
     with tempfile.TemporaryDirectory(prefix="invoice-processing-", dir="/dev/shm") as working:
         os.chown(working, 10001, 10001)
         os.chmod(working, 0o700)

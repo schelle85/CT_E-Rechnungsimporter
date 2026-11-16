@@ -64,6 +64,7 @@ class BackoffTests(unittest.TestCase):
                 def close(self,fd):
                     if fd!=-91:os.close(fd)
             with patch.object(host,"os",HostOS()),patch.object(host,"host_lock",lock),\
+                    patch.object(host,"draining",return_value=False),\
                     patch.object(host,"protected",side_effect=Path),patch.object(host,"controlled_directory"),\
                     patch.object(host,"time",SimpleNamespace(monotonic=lambda:0,time=lambda:self.now[0])),\
                     patch.object(host,"command",return_value=""),\

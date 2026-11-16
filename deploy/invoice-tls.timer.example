@@ -1,0 +1,15 @@
+# Disabled AP08 example: external HTTPS renewal only, no Graph rotation.
+[Unit]
+Description=Invoice external TLS check every Berlin hour
+Requires=invoice-importer.service
+After=invoice-importer.service time-sync.target
+PartOf=invoice-importer.service
+
+[Timer]
+OnCalendar=*-*-* *:00:00 Europe/Berlin
+Unit=invoice-tls.service
+Persistent=true
+AccuracySec=1s
+
+[Install]
+WantedBy=timers.target

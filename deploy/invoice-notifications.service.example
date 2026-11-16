@@ -1,0 +1,15 @@
+# Disabled AP08 example: no import or SSL source mount dependency.
+[Unit]
+Description=Invoice bounded automatic notifications
+Requires=invoice-importer.service
+After=invoice-importer.service
+PartOf=invoice-importer.service
+
+[Service]
+Type=oneshot
+User=root
+UMask=0077
+ExecStart=/usr/bin/python3 -I -B /etc/invoice-importer/run-automation.py notifications --profile /etc/invoice-importer/automation-host.json
+TimeoutStartSec=95s
+TimeoutStopSec=15s
+KillMode=control-group

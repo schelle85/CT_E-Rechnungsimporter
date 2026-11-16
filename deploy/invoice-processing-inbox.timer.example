@@ -1,5 +1,15 @@
-# Disabled example; no AP08 activation from AP05.
+# Disabled AP08 example; Root reviews paths and activates separately.
+[Unit]
+Description=Invoice inbox opportunities every five Berlin minutes
+Requires=invoice-importer.service
+After=invoice-importer.service time-sync.target
+PartOf=invoice-importer.service
+
 [Timer]
-OnCalendar=*:0/5
+OnCalendar=*-*-* *:0/5:00 Europe/Berlin
 Unit=invoice-processing@inbox.service
-Persistent=false
+Persistent=true
+AccuracySec=1s
+
+[Install]
+WantedBy=timers.target

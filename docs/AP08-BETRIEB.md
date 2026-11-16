@@ -1,7 +1,8 @@
 # AP08 – Betriebsübergang
 
 Stand: 16. November 2026. AP08 ist zur Umsetzung freigegeben. Paket A liefert
-die Laufzeitbasis zur Quellprüfung; es ist noch keine Hostbereitstellung oder
+die Laufzeitbasis; Paket B ergänzt Start-/Timervorlagen und HTTPSübernahme zur
+Quellprüfung. Es ist noch keine Hostbereitstellung oder
 Aktivierungsabnahme. Der Kundenbetrieb bleibt beim abgenommenen AP07-Stand,
 Schema 007 und inaktiver Import-/Korrektur-/Benachrichtigungsautomatik.
 
@@ -116,6 +117,89 @@ Ein eigener Hostlock und die Prüfung älterer Notificationcontainer verhindern
 überlappende automatische Hüllen. Der ausdrückliche AP07-Einzelweg nutzt weiter
 die gemeinsamen DBreservierungen/Quoten. Es gibt keine neue HTTPsteuerroute.
 
+## Start, Zeitplanung und Drain – Paket B
+
+Die Beispiele installieren oder aktivieren nichts. Root übernimmt die drei
+geschützten Nachbarskripte `run-automation.py`, `run-processing.py` und
+`host-runtime.py`, bindet die tatsächlichen lokalen Image-IDs/Instanz/Origin und
+passt die Mountpfade in den Vorlagen an. `runtime-host.example.json` benennt
+bereits vorhandene DB/API/Nginx-Container; Boot erstellt keine neuen Container
+und führt weder Composebuild/Pull noch Migration aus. Eine kanonische, geprüfte
+Composebereitstellung mit passenden Images bleibt der getrennte Rootschritt.
+
+`invoice-importer.service` startet ausschließlich diese vorhandenen gepinnten
+Container-IDs: DB healthy → API healthy → Nginx running → vertrauenswürdiges
+HTTPS mit lokalem Leaf-Fingerprint und `/api/health/ready`, journal/Instanzgleich.
+240s Gesamtfrist. Die Portalprüfung liest den lokalen TLSbaum, keinen SSLquell-
+oder Importmount. Notifications benötigen anschließend DBbereitschaft und
+können einen späteren APIausfall weiter beobachten. Processing verlangt zusätzlich
+Portal-/Instanzbereitschaft und seinen eigenen geprüften Importmount; TLS hat
+eine getrennte RO-Quellmountbedingung. `RequiresMountsFor` ersetzt nie die
+zusätzliche CIFSidentitätsprüfung. Kein DMSgate.
+
+`invoice-importer.tmpfiles.example` wird von Root als passende tmpfiles-Konfiguration
+bereitgestellt. Sie erzeugt die beiden geschützten Hostverzeichnisse; kein
+kurzlebiges RuntimeDirectory. Die Timer bieten Inbox5min, Korrekturen15min,
+Notifications1min und HTTPSprüfung1h, jeweils ausdrücklich Europe/Berlin auf
+unverändertem UTC-Host. `Persistent=true` bietet eine Nachholmöglichkeit statt
+einer Wiederholung aller verpassten Perioden. Die vorhandene Processingqueue
+fasst weitere Fälligkeiten weiterhin je Mode zusammen. Selbstüberlappung wird
+von systemd, modesübergreifende/manuelle Überlappung von Hostflock verhindert.
+
+Die Worker hängen von der Startunit ab und werden mit ihr gestoppt. Processing
+hat780s Start-/45s Stopfrist, Notifications95s/15s, TLS180s/45s. Die Hosthülle
+reicht die ursprüngliche Frist einschließlich Vorprüfungen weiter; keine neue
+Frist nach der Bereitschaftsprüfung. Stop/Cleanup entfernt nur eigene Helfer.
+
+Deaktivierung bedeutet Timer und aktive Worker stoppen, Drain und getrenntes
+Rücklesen. Der Drainweg benötigt keine intakten Runtime-/TLS-/Secretprofile.
+Er setzt zuerst eine geschützte Sperrdatei und wartet begrenzt auf Lifecycle-,
+Processing- und Notificationsperre. Aktive manuelle Vorgänge oder alte
+markierte Container verhindern einen bestätigten Drain; die Sperrdatei bleibt.
+Keine automatische Fremdbereinigung. Ein erfolgreicher Start öffnet die Sperre
+erst nach Bereitschaft und überschreibt keinen währenddessen neu eingegangenen
+Drainauftrag. Die Portalcontainer bleiben beim Drain erreichbar; eine Abschaltung
+der DB/API/Webcontainer wäre ein eigener Betreiberauftrag. Root ersetzt/stoppt
+auch den bestehenden manuellen Operator passend, damit derselbe Sperrweg gilt.
+
+## Externe HTTPSübernahme – Paket B
+
+`tls-source.example.json` benennt die eigene RO-CIFSquelle und eine geschützte
+Passwortdatei. Der Betreiber bestätigt das Quellformat/Passwort; kein Erraten.
+Für das vorgefundene RC2-PFX-Format wird `-legacy` ausschließlich beim PKCS12lesen
+verwendet, keine globale Provider-/Cipheränderung. Eine bestätigte leere
+Passwortdatei wird nur in privatem Staging als leere Passwortzeile normalisiert;
+der Prozess erhält den Dateipfad, keinen Passwortwert. Vorhandenes OpenSSL statt
+neuer Kryptobibliothek: [PKCS12](https://docs.openssl.org/3.5/man1/openssl-pkcs12/),
+[Server-/Hostnameprüfung](https://docs.openssl.org/3.0/man1/openssl-verification-options/).
+
+Höchstens32 reguläre geschützte PFXdateien mit je höchstens1MiB, keine Symlinks.
+Mountquelle/-ID/Gerät/Inode, RO und sichere Cacheoptionen werden am gehaltenen
+Directory-FD geprüft. Zwei identische Inhaltslesungen und unveränderte
+Dateiidentität bilden den privaten Snapshot; vor Übernahme wird er erneut mit
+der Quelle verglichen. Auswahl nach validiertem Zertifikatinhalt, nicht Dateiname:
+genau ein privater Schlüssel, passender öffentlicher Schlüssel des Leafs,
+geordnete vollständige Kette mit2–8 Zertifikaten, Systemtrust/sslserver/Hostname,
+aktuelle Gültigkeit und mehr als1h Restgültigkeit. Keine Rückstufung auf älteres
+Material. Gleicher Leaf ist No-op mit tatsächlichem Peer-/Bereitschaftsrücklesen.
+
+Neuer privater Release, abschließend root:10002/0750 und vier Dateien0440:
+cert/chain/fullchain/privkey.pem. Kein API-/Graphkeywechsel. Der gesamte TLSbaum
+bleibt Nginx RO gebunden. Vor Wechsel werden tatsächliches Nginximage, UID10002,
+RO-Wurzel und exakter TLSmount sowie Container-ID geprüft. Relativer current-Link
+wird atomar gewechselt; nginx-test vor gezieltem Reload genau dieser ID.
+Erfolg erst nach vertrauenswürdigem HTTPS, exaktem Peerfingerprint und identischer
+bereiter Instanz. Ergebnis enthält den bestätigten Quellsnapshot-Hash.
+
+Ein rootprivater `.tls-pending.json`-Beleg entsteht vor dem Linkwechsel. Bei
+Testfehler wird der alte Link ohne Reload wiederhergestellt; bei Reload-/Livefehler
+folgen alter Link, Test, Reload und alter Peerreadback. Die45s Rückwegreserve
+ist von der135s Vorwärtsphase ausgenommen. Alter Release/Quelle bleiben erhalten.
+Nur bestätigter Erfolg/Rückweg entfernt den Vorgangsbeleg. Unterbrechung oder
+unbestätigter Rückweg blockieren den nächsten TLSwechsel bis Root Link, Release,
+genannte Container-ID und tatsächlichen Peer abgeglichen hat. Keine automatische
+Löschung dieses Belegs und keine pauschale Release-/Quellenbereinigung.
+
 ## Nachweis und nächste Lieferteile
 
 Paket A ist lokal mit synthetischer SQLite, echten Notificationverschlüsselungs-
@@ -128,8 +212,10 @@ Modewechsel, Abbruchfortsetzung und bekannte 429-Leseablehnung. Keine Aussage
 Nach festem Quellreview folgen gezielte native Rootprüfungen. Neues Backend
 muss in API/Notification und dem separaten Processingconsumer ankommen;
 Processing wird mit dem eingefrorenen Classifier und neuem Backend gebaut.
-Alte Pins und Schema 007 für den Rückweg erhalten. Noch ausstehend sind die
-Units/Timer samt Berlin-Kalender, Startbereitschaft, externe HTTPSübernahme,
-frischer lesender Betriebsstatus einschließlich Oberfläche, isolierter
-Wiederanlauf und kontrollierte Aktivierung mit getrenntem Rücklesen.
-Die bisherigen Processing-Unitbeispiele sind kein AP08-Installationsauftrag.
+Alte Pins und Schema 007 für den Rückweg erhalten. Paket B liefert lokale
+Fehler-/Ablaufprüfungen mit ausdrücklichen OpenSSL-/Docker-/Hostdoubles, keine
+native Krypto-, Mount-, Frist- oder systemd-Abnahme. Root prüft die tatsächlichen
+Kalender/Units, Starts, Mounts, neuen Leaf und Rückweg separat. Zugehörige
+Wiederanlaufnachweise führt Root getrennt. Frischer lesender Betriebsstatus samt
+Oberfläche folgt C; kontrollierte Aktivierung/Readbacks bleiben ausstehend.
+Alle Unitbeispiele bleiben bis zur passenden Prüfung ohne Installationsauftrag.

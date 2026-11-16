@@ -1,0 +1,22 @@
+# Disabled example: Root binds existing reviewed local containers first.
+[Unit]
+Description=Invoice importer pinned local startup and bounded drain
+Requires=docker.service
+PartOf=docker.service
+After=docker.service network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+User=root
+UMask=0077
+ExecStartPre=/usr/bin/systemd-tmpfiles --create /etc/tmpfiles.d/invoice-importer.conf
+ExecStart=/usr/bin/python3 -I -B /etc/invoice-importer/run-automation.py start --profile /etc/invoice-importer/automation-host.json
+ExecStop=/usr/bin/python3 -I -B /etc/invoice-importer/run-automation.py drain --profile /etc/invoice-importer/automation-host.json
+TimeoutStartSec=240s
+TimeoutStopSec=50s
+KillMode=control-group
+
+[Install]
+WantedBy=multi-user.target
