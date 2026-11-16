@@ -65,13 +65,21 @@ Reboot oder vollständiger VMrestore ist damit nachgewiesen.
 
 AP12-Nachtrag vom 16.11.2026: [AP12](AP12-GRAPH-ZERTIFIKATSROTATION.md) für
 Graph-Zertifikatsrotation und Administration → Graph-Zertifikat ausdrücklich
-zur Umsetzung freigegeben. Kern B als Quellstand mit gebundenem Appadapter,
-festem 180-Tage-Kandidaten/PoP, additiven 008-Aufträgen, privatem Rootwirkungsjournal
-und Inventar geliefert; 28 gezielte synthetische lokale Fälle bestanden.
+zur Umsetzung freigegeben. Kern B mit gebundenem Appadapter, festem 180-Tage-
+Kandidaten/PoP, additiven 008-Aufträgen, privatem Rootwirkungsjournal und Inventar
+ist aus ebb36879 im isolierten Umfang unabhängig abgenommen. Native MariaDB-
+Bestandserhaltung/identische konkurrierende Anforderungen und Linux-Rootjournal
+samt tatsächlichen Rechten/flock/Prozessende/Wiederaufnahme sind separat bestätigt.
+Keine produktive Migration oder Graphrotation daraus; Kundenbetrieb weiter AP08.
 Ein Sendestadium wird vor addKey dauerhaft geschrieben; Wiederaufnahme liest nur.
 Eine abgelehnte/unklare Generation erhält keinen automatischen Ersatzauftrag.
 Kandidatenprobe schreibt keinen produktiven AP07-Proof. Erst Host-/APIgrenze,
 Verbraucherübernahme und Reiter in Folgepaketen; daraus kein Deployment behaupten.
+C1 ergänzt Graphfreigabe/Hostwriter als noch nicht eingebundene stdlib-Bibliothek,
+14 lokale Fälle mit ausdrücklichen POSIX-/Lockdoubles bestanden. Quelle/Boot/Instanz/
+Material, vererbter Shared-deskriptor, enges Host-Lesepermit und getrennte Proof-
+Freigabe sind vorgesehen. Native C1- sowie vollständige API-/Kind-/Hostintegration
+bleiben zu prüfen; bestehende produktive Graphpfade sind bisher unverändert.
 Nach AP08 und vor AP11/09 eingeplant. Bestehende AP07-Prüfung, Warnserie und
 Schlüsselgrenzen wiederverwenden; neuer Hostauftrag zuerst konkret prüfen.
 

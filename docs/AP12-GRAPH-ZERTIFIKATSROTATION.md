@@ -1,8 +1,9 @@
 # AP12 – Graph-Zertifikatsrotation und Administration
 
 Stand: 16. November 2026. **AP12 ist ausdrücklich zur Umsetzung freigegeben.**
-Kern B ist als Quellstand geliefert; die unabhängige Quell-/Nativeprüfung und
-Bereitstellung sind getrennte Schritte. Im tatsächlich bereitgestellten
+Kern B aus `ebb36879ccd3c25d03371b92c71b6cee7cc29eb0` ist im isolierten Umfang
+unabhängig abgenommen. C1 liefert die Graphfreigabe als noch nicht eingebundene
+Bibliothek zur Quellprüfung. Bereitstellung bleibt ein getrennter Schritt. Im tatsächlich bereitgestellten
 AP08-Betrieb gibt es weiterhin keinen automatischen Graph-Zertifikatswechsel.
 Reiter, Host-/API-Freigabe und Verbraucherübernahme folgen in getrennten Paketen.
 
@@ -39,12 +40,47 @@ oder neue Bedienaktion daraus ableiten.
 sind bestanden, einschließlich echter synthetischer 007→008-Bestandserhaltung
 und ausgewählter unveränderter API-/Notification-/Processing-/Vorschauleser.
 POSIX-Dateirechte/flock/Verzeichnis-fsync und Linuxfristen haben in den lokalen
-Windowsprüfungen ausdrückliche Doubles; native Belege bleiben separat nötig.
+Windowsprüfungen ausdrückliche Doubles. Die anschließenden nativen B2-Belege
+bestätigen auf isolierter MariaDB 007→008 mit unverändertem Bestand und zwei
+identischen Anforderungen unter REPEATABLE READ/snapshot ON: gleiche Quittung,
+genau eine Auftrags-/Auditwirkung. Separat sind echte Linux-Rootrechte, flock,
+Prozessende und Wiederaufnahme ohne zweiten POST sowie Rechte-/Symlinkablehnung
+bestanden und unabhängig geprüft. Kein Kundenbestand, Mail- oder Graphzugriff
+dieser Tests; keine produktive Migration oder Zertifikatsrotation daraus.
 
 SQL-Nachtrag B-R1: Head wird vor der ersten konsistenten Lesung gesperrt und die
 ursprüngliche Quittung danach ebenfalls sperrend gelesen. Das erhält identische
 parallele Anforderungen unter der vorgesehenen Serialisierung. Der gezielte
 SQLite-Nachlauf ersetzt keinen MariaDB-Nachweis mit tatsächlicher Isolation.
+Der oben genannte separate native B2-Nachweis schließt diesen Befund im
+geprüften Kernumfang. AP12 insgesamt bleibt in Arbeit.
+
+## C1 – lokale Freigabe als Bibliotheksstand
+
+`app/graph_access.py` und `deploy/graph-access-host.py` sind feste stdlib-Bausteine,
+noch ohne Verdrahtung in API, Kinder oder Hosteinstieg. Sie installieren/öffnen
+keine Freigabe und ersetzen keinen Bereitstellungsauftrag. Die vollständige
+Host-/API-Übernahme bleibt das anschließende Paket.
+
+Die Freigabe ist an Quelle/Deployment/Instanz/Scope, Kernelboot, Generation und
+tatsächliche PEMbytes gebunden. Fehlende/ungültige Daten sperren. Shared-flock
+trägt die zugelassene Aktion; ein explizit übertragener Kinddeskriptor hält diese
+Bindung auch nach Elternende. Schließen erfolgt ohne LOCK_UN, das sonst auch
+einen geerbten Deskriptor vorzeitig entsperren könnte. Root schreibt zuerst blocked,
+wartet exklusiv und öffnet ausschließlich ausdrücklich nach Abschlussbeleg.
+
+Gesonderte Hostproben sind an ein 256-bit-Geheimnis, Auftrag/Generation/Boot,
+Verbraucher, Material und höchstens 60 Sekunden gebunden. Im lesbaren Beleg steht
+nur der Hash. Leseprobe erlaubt ausschließlich GET und keinen produktiven
+Nachfolgerproof; dafür ist ein eigener finalize-proof-Zweck erforderlich.
+Pause, Epochkonflikt, falscher Boot/Deskriptor/Verbraucher und abgelaufener oder
+widerrufener Grant bleiben gesperrt. Das ändert das Runtimeprofil name/image nicht.
+
+14 gezielte lokale C1-Fälle bestanden; POSIXrechte, flock und Verzeichnis-fsync
+sind dabei ausdrücklich ersetzt. Echte Dateideskriptor-Duplikation und
+Fehlerpfad-Schließen wurden lokal geprüft. Native C1- und vollständige API-/
+Kind-/Hostintegration sind damit noch nicht nachgewiesen. Bestehende Graphpfade
+und Kundenruntime sind durch diese unverdrahtete Lieferung unverändert.
 
 Geplant nach AP08 und vor AP11/der finalen AP09-Übergabe. Technische Grundlage ist
 AP07. Vorhandene Betriebsbausteine aus AP08/AP10 nutzen, soweit vorhanden; keine
