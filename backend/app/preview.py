@@ -1,5 +1,6 @@
 """Two bounded original responses, owning child, private files and slot until ASGI end."""
 import hashlib
+from contextlib import ExitStack
 import json
 import multiprocessing
 import os
@@ -89,6 +90,7 @@ class ManagedOriginal(Response):
                 headers={'Cache-Control':'no-store','Retry-After':'2','X-Content-Type-Options':'nosniff'})(scope,receive,send)
             return
         directory=process=receiver=sender=None
+        admission=ExitStack()
         started=False
         async def tracked(message):
             nonlocal started
@@ -98,6 +100,8 @@ class ManagedOriginal(Response):
                     (b'cache-control',b'no-store'),(b'x-content-type-options',b'nosniff')])
             await send(message)
         try:
+            from app.graph_access_runtime import api_operation, ChildAccess, transfer
+            admission.enter_context(api_operation(manager.engine))
             async with anyio.create_task_group() as group:
                 async def disconnect():
                     while True:
@@ -111,7 +115,7 @@ class ManagedOriginal(Response):
                         context=multiprocessing.get_context('spawn')
                         receiver,sender=context.Pipe(duplex=False)
                         process=context.Process(target=manager.worker,args=(sender,snapshot,str(directory),
-                            '/run/importer/graph.json','/run/secrets/graph_credential'),daemon=True)
+                            '/run/importer/graph.json','/run/secrets/graph_credential',ChildAccess(transfer())),daemon=True)
                         process.start();sender.close()
                         deadline=time.monotonic()+manager.child_seconds
                         while not receiver.poll():
@@ -120,6 +124,7 @@ class ManagedOriginal(Response):
                             await anyio.sleep(0.05)
                         result=json.loads(receiver.recv_bytes(4096))
                         await anyio.to_thread.run_sync(manager.reap,process);process=None
+                        admission.close()  # Child is reaped; only checked local bytes remain to stream.
                         if not isinstance(result,dict) or result.get('ok') is not True:
                             raise AccessError(409,'Original ist nicht verfügbar oder wurde geändert.')
                         selected=snapshot['selected']
@@ -164,7 +169,8 @@ class ManagedOriginal(Response):
                 finally:group.cancel_scope.cancel()
         finally:
             with anyio.CancelScope(shield=True):
-                await anyio.to_thread.run_sync(manager.reap,process)
+                try:await anyio.to_thread.run_sync(manager.reap,process)
+                finally:admission.close()
                 if receiver is not None:receiver.close()
                 if sender is not None:sender.close()
                 if directory is not None:shutil.rmtree(directory)

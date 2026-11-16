@@ -69,8 +69,18 @@ def read_original(snapshot, directory, config, credential):
         return {'ok':True,'size':size,'sha256':checksum.hexdigest(),'pdf':magic==b'%PDF-' and (finding.get('format') or original.get('format'))=='PDF'}
 
 
-def preview_child(connection, snapshot, directory, config, credential):
+def preview_child(connection, snapshot, directory, config, credential, access_transfer=None):
+    from contextlib import ExitStack
+    from app.graph import GraphConfig
+    from app.notification_certificate import CertificateMaterial
+    from app.graph_access_runtime import receive
+    admission=ExitStack()
     try:
+        try:
+            admission.enter_context(receive(access_transfer,GraphConfig.load(config),CertificateMaterial.load(credential)))
+        except Exception:
+            connection.send_bytes(b'{"ok":false,"code":"graph_access_closed"}')
+            return
         try:result=read_original(snapshot,directory,config,credential)
         except GraphError as error:result={'ok':False,'code':error.code}
         except BaseException:result={'ok':False,'code':'preview_unavailable'}
@@ -78,4 +88,5 @@ def preview_child(connection, snapshot, directory, config, credential):
         if len(payload)>1024:payload=b'{"ok":false,"code":"preview_unavailable"}'
         connection.send_bytes(payload)
     finally:
-        connection.close()
+        try:connection.close()
+        finally:admission.close()

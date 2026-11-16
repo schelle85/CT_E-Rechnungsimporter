@@ -1,3 +1,4 @@
+from graph_access_test_support import transport_access
 """Explicit isolated test server: synthetic directory/Graph, private RO PDF input, private SQLite.
 
 Only present in the test image; production app.main never imports this module.
@@ -133,7 +134,7 @@ async def advance():
     message=store.get_message(key);rows=store.get_attachments(key)
     remote=remote_for(message,rows)
     with httpx.Client(transport=httpx.MockTransport(remote),trust_env=False) as http:
-        client=GraphClient(CONFIG,Credential(),http,sleep=lambda _:None)
+        client=GraphClient(CONFIG,Credential(),http,sleep=lambda _:None,**transport_access())
         files=PathFiles();service=ProcessingService(store,GraphProcessing(client,GraphActions(client,ActionStore(store.engine))),f['storage'],files,'isolated-ui')
         for _ in range(8):
             with tempfile.TemporaryDirectory(prefix='advance-',dir=f['temp'].name) as directory:

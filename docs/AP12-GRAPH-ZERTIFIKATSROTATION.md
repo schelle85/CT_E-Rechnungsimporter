@@ -2,8 +2,9 @@
 
 Stand: 16. November 2026. **AP12 ist ausdrücklich zur Umsetzung freigegeben.**
 Kern B aus `ebb36879ccd3c25d03371b92c71b6cee7cc29eb0` ist im isolierten Umfang
-unabhängig abgenommen. C1 liefert die Graphfreigabe als noch nicht eingebundene
-Bibliothek zur Quellprüfung. Bereitstellung bleibt ein getrennter Schritt. Im tatsächlich bereitgestellten
+unabhängig abgenommen. C1 ist als Bibliothek einschließlich isoliertem nativem
+Komponententest unabhängig abgenommen. C2a bindet die Freigabe im Quellstand an
+Graphfabriken, API und Kinder. Bereitstellung bleibt ein getrennter Schritt. Im tatsächlich bereitgestellten
 AP08-Betrieb gibt es weiterhin keinen automatischen Graph-Zertifikatswechsel.
 Reiter, Host-/API-Freigabe und Verbraucherübernahme folgen in getrennten Paketen.
 
@@ -78,9 +79,53 @@ widerrufener Grant bleiben gesperrt. Das ändert das Runtimeprofil name/image ni
 
 14 gezielte lokale C1-Fälle bestanden; POSIXrechte, flock und Verzeichnis-fsync
 sind dabei ausdrücklich ersetzt. Echte Dateideskriptor-Duplikation und
-Fehlerpfad-Schließen wurden lokal geprüft. Native C1- und vollständige API-/
-Kind-/Hostintegration sind damit noch nicht nachgewiesen. Bestehende Graphpfade
-und Kundenruntime sind durch diese unverdrahtete Lieferung unverändert.
+Fehlerpfad-Schließen wurden lokal geprüft. Anschließend wurden alle sieben
+isolierten Linux-Komponentenchecks samt separatem Rücklesen unabhängig bestätigt:
+Writerinitialisierung, echter flock nach SIGKILL des eigenen Elternprozesses,
+gesondertes Kindende vor EX, Sperre neuer Zulassungen, alte Generation, falscher
+Boot und enges Host-Lesepermit. Dieser Lauf war UID0:GID10001, ohne Graph/Mail;
+er belegt keine tatsächliche UID10001-API-/Verbrauchereinbindung.
+
+## C2a – Freigabe in bestehenden Graphwegen
+
+`graph_access_runtime.py` liest eine zusätzliche rootgeschützte Bindung unter
+`/run/importer/graph-access-binding.json`. Sie enthält ausschließlich Schema,
+Quelle, Deployment, Instanz, eigene App-Objekt-ID und den daraus mit tenant/client/
+mailbox berechneten Rotationsscope. Das bestehende Graph-JSON bleibt unverändert.
+Die API vergleicht zusätzlich die tatsächliche DBinstanz. Fehlend, ungültig oder
+abweichend bedeutet gesperrt; kein Legacy-Fallback und keine Browseroption.
+
+Beide vorhandenen Graphfabriken verlangen die Freigabe vor Credentialerzeugung.
+Der unterste Graphtransport prüft sie vor jeder Tokenanforderung/HTTPaktion;
+ein direkter Client ohne Permit bleibt geschlossen. Der lesende Testquellclient
+übernimmt die vorhandene Bindung. Der AP07-Proof benötigt denselben Kontext;
+Kandidaten-/Verbraucherlesegrants dürfen keine Warnserie schließen oder senden.
+
+Nach der unveränderten AD-/Origin-/CSRF-Grenze sperrt eine fehlende APIfreigabe
+Originalvorschau/Download/Original-HEAD und Testsendung mit 503, bevor ein Kind
+oder neuer Versandtestslot angelegt wird. Notificationkinder erhalten nur den
+serverseitig erzeugten Deskriptor mit Snapshot über feste IPC, keine HTTPfelder.
+Vorschaukinder erhalten ein Duplikat über multiprocessing.spawn und prüfen es
+vor Quellabruf. Eltern halten bis Kindende/Reap und beim Versand bis zum
+dauerhaften Readback; anschließend kann eine lokale geprüfte PDFantwort ohne
+Graphlock streamen. Fristen, Request-ID und einmalige POSTreservierung bleiben.
+Anmeldung, Health, gespeicherte Berichte/Historie und lokale Zertifikatsdaten
+bleiben Graph-unabhängig.
+
+Gezielte lokale Prüfung: Runde mit 46 Fällen, davon 45 bestanden und ein echter
+POSIX-Rechtetest unter Windows ausgelassen; vier zusätzliche Lebenszeit-/Budget-/
+Replayfälle und eine Vorschau-Lebenszeitprüfung bestanden. Rechte/flock/
+Verzeichnis-fsync sowie Linux-Spawning sind dabei ausdrücklich ersetzt; echte
+Dateideskriptorduplikation und API-/AD-/CSRF-/SQLiteabläufe wurden lokal geprüft.
+Synthetische Transportfixtures benennen ihre Testfreigabe ausdrücklich und
+werden vom APIimage nicht übernommen.
+
+Dieser feste Quellstand ist noch kein Bereitstellungspaket. RO-Bindungen aller
+Verbraucher, tatsächliche UID10001-API-/Kind-/Verbraucherprüfung, fester Host-
+Probeaufruf, privilegierte Übernahme/Rückweg und Öffnen zuletzt folgen separat.
+Ohne diese Bindungen bleibt der neue Quellstand absichtlich gesperrt. Das
+Runtimeprofil bleibt name/image; API-ID gehört nur in den privaten Abschlussbeleg.
+Kundenruntime, produktive Graphpfade, Schema 007 und AP08-Timer bleiben erhalten.
 
 Geplant nach AP08 und vor AP11/der finalen AP09-Übergabe. Technische Grundlage ist
 AP07. Vorhandene Betriebsbausteine aus AP08/AP10 nutzen, soweit vorhanden; keine

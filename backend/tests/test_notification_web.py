@@ -6,6 +6,7 @@ import asyncio
 import time
 from uuid import uuid4
 from unittest.mock import patch
+from graph_access_test_support import admitted_transport
 import sqlalchemy as sa
 from app.notification_certificate import record_certificate
 from app.notification_model import CERTIFICATE_TOKEN,DEFAULTS,OperationBudget
@@ -20,6 +21,8 @@ from notification_test_support import CONFIG,SCOPE,material
 class NotificationWebFixture:
     async def asyncSetUp(self):
         await process_fixture.ProcessApiTests.asyncSetUp(self)
+        admission=patch("app.graph_access_runtime.api_operation",side_effect=admitted_transport)
+        admission.start();self.addCleanup(admission.stop)
         self.now[0]=int(datetime(2026,12,1,12,tzinfo=timezone.utc).timestamp())
         with self.engine.begin() as c:
             for table in reversed(metadata.sorted_tables):c.execute(table.delete())

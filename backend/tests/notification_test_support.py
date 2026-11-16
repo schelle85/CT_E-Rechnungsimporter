@@ -1,3 +1,5 @@
+from graph_access_test_support import transport_access
+from graph_access_test_support import admitted_transport
 """Synthetic B fixtures: real Fernet and generated RSA certificates, no accounts/network."""
 from contextlib import contextmanager, nullcontext
 from datetime import datetime, timezone
@@ -82,8 +84,8 @@ class Fixture:
             credential=SimpleNamespace(get_token=lambda _:SimpleNamespace(token="synthetic-token"))
             with httpx.Client(transport=httpx.MockTransport(respond),trust_env=False) as http:
                 # These are transport doubles; actual process deadlines are tested separately.
-                with patch("app.graph_deadline.request_deadline",side_effect=lambda *a,**k:nullcontext()):
-                    yield GraphClient(config,credential,http,read_attempts=1)
+                with admitted_transport(),patch("app.graph_deadline.request_deadline",side_effect=lambda *a,**k:nullcontext()):
+                    yield GraphClient(config,credential,http,read_attempts=1,**transport_access())
         return create
 
     def request_row(self):

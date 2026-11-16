@@ -9,7 +9,7 @@ from app.notification_model import NotificationError, canonical, checked_key
 
 ENVIRONMENT = {"PATH","SystemRoot","SYSTEMROOT","LANG","TZ","PYTHONPATH",
     "DB_HOST","DB_NAME","DB_USER","DB_PASSWORD_FILE","NOTIFICATION_KEY_FILE",
-    "GRAPH_CONFIG_FILE","GRAPH_CREDENTIAL_FILE","PUBLIC_ORIGIN"}
+    "GRAPH_CONFIG_FILE","GRAPH_CREDENTIAL_FILE","GRAPH_ACCESS_BINDING_FILE","PUBLIC_ORIGIN"}
 
 def worker_environment():
     return {**{key:value for key,value in os.environ.items() if key in ENVIRONMENT},
@@ -39,6 +39,7 @@ async def _reap(process,seconds):
 
 async def invoke(job,*,deadline,worker="app.notification_worker",cleanup_seconds=2):
     """The worker module override is a test seam, never a CLI/HTTP input."""
+    if "_graph_access" in job:raise NotificationError("notification_job_invalid",422)
     process = None
     spawn = None
     stopped = True
@@ -48,12 +49,14 @@ async def invoke(job,*,deadline,worker="app.notification_worker",cleanup_seconds
         remaining = work_deadline-time.monotonic()
         if remaining <= 0:
             return None,True
-        body = canonical(dict(job,deadline=work_deadline)).encode("ascii")
+        from app.graph_access_runtime import transfer
+        admission=transfer()
+        body = canonical(dict(job,deadline=work_deadline,**({"_graph_access":admission} if admission is not None else {}))).encode("ascii")
         if len(body) > 16384:
             raise NotificationError("notification_job_invalid",422)
         spawn = asyncio.create_task(asyncio.create_subprocess_exec(sys.executable,"-B","-m",worker,
             stdin=asyncio.subprocess.PIPE,stdout=asyncio.subprocess.PIPE,stderr=asyncio.subprocess.DEVNULL,
-            env=worker_environment()))
+            env=worker_environment(),**({"pass_fds":(admission["fd"],)} if admission is not None else {})))
         process = await asyncio.wait_for(asyncio.shield(spawn),remaining)
         async def collect():
             process.stdin.write(body)
@@ -93,6 +96,12 @@ async def invoke(job,*,deadline,worker="app.notification_worker",cleanup_seconds
 
 async def execute_notification(job,*,budget,runner=invoke):
     """Caller creates the budget before preflight; this function never resets it."""
+    from app.graph_access_runtime import notification_operation
+    with notification_operation(job):
+        return await _execute_notification(job,budget=budget,runner=runner)
+
+
+async def _execute_notification(job,*,budget,runner):
     command = job["command"]
     if command == "automatic":
         # One original CLI budget covers planning, selection, send and readback.

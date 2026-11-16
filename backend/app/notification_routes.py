@@ -94,6 +94,12 @@ async def test_preview(candidate:NotificationTestInput,request:Request):
 
 @router.post("/api/notifications/test")
 async def test_send(candidate:NotificationTestInput,request:Request):
+    from app.graph_access_runtime import api_operation
+    with api_operation(request.app.state.runtime.engine):
+        return await _test_send(candidate,request)
+
+
+async def _test_send(candidate,request):
     prepared=await run_in_threadpool(prepare_test,request,candidate)
     receipt=prepared["receipt"]
     if receipt["state"] != "prepared" or receipt["reservations"]:

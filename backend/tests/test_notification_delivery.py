@@ -1,3 +1,5 @@
+from graph_access_test_support import transport_access
+from graph_access_test_support import admitted_transport
 from contextlib import nullcontext
 import json
 import time
@@ -21,7 +23,7 @@ class DeliveryTests(Fixture,unittest.TestCase):
         def limit(seconds,**kwargs):limits.append(seconds);return nullcontext()
         with httpx.Client(transport=httpx.MockTransport(lambda request:(calls.append(request) or httpx.Response(200,json={"id":"inbox"})))) as http:
             client=GraphClient(CONFIG,SimpleNamespace(get_token=lambda _:SimpleNamespace(token="synthetic")),http,
-                clock=lambda:now[0],deadline=100.25)
+                clock=lambda:now[0],deadline=100.25,**transport_access())
             with patch("app.graph_deadline.request_deadline",side_effect=limit):client.probe()
             self.assertEqual(limits,[.25])
             now[0]=100.3
@@ -52,12 +54,12 @@ class DeliveryTests(Fixture,unittest.TestCase):
             return httpx.Response(503 if len(calls)<3 else 200,json={"id":"inbox"})
         credential=SimpleNamespace(get_token=lambda _:SimpleNamespace(token="synthetic"))
         with httpx.Client(transport=httpx.MockTransport(handler)) as http:
-            client=GraphClient(CONFIG,credential,http,sleep=lambda _:None)
+            client=GraphClient(CONFIG,credential,http,sleep=lambda _:None,**transport_access())
             with client._response("GET",client.root+"/mailFolders/inbox") as response:self.assertEqual(response.status_code,200)
         self.assertEqual(len(calls),3)
         calls.clear()
         with httpx.Client(transport=httpx.MockTransport(lambda request:(calls.append(request) or httpx.Response(429)))) as http:
-            client=GraphClient(CONFIG,credential,http,sleep=lambda _:None)
+            client=GraphClient(CONFIG,credential,http,sleep=lambda _:None,**transport_access())
             with self.assertRaises(GraphError):
                 with client._response("POST",client.root+"/sendMail",payload={}):pass
         self.assertEqual(len(calls),1)
@@ -226,7 +228,7 @@ class CertificateTests(Fixture,unittest.TestCase):
         newer=self.service(healthy)
         newer.observe(probe=True)
         before=self.store.monitor_state(SCOPE,"certificate",CERTIFICATE_TOKEN)
-        with self.assertRaises(NotificationError):stale._proof()
+        with admitted_transport(),self.assertRaises(NotificationError):stale._proof()
         with self.assertRaises(NotificationError):stale.local_observation()
         self.assertEqual(self.store.monitor_state(SCOPE,"certificate",CERTIFICATE_TOKEN),before)
         self.assertIsNone(before["data"]["warning"])
@@ -237,7 +239,7 @@ class CertificateTests(Fixture,unittest.TestCase):
             loaded=CertificateMaterial.load("/synthetic/credential")
         reader.assert_called_once_with("/synthetic/credential")
         clients=[]
-        with patch("azure.identity.CertificateCredential") as provider:
+        with admitted_transport(),patch("azure.identity.CertificateCredential") as provider:
             for _ in range(2):
                 with certificate_client(CONFIG,loaded) as client:clients.append(client)
             self.assertEqual(provider.call_count,2)

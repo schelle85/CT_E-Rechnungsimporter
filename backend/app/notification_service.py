@@ -25,6 +25,8 @@ class NotificationService:
         return self._record(current)
 
     def _proof(self):
+        from app.graph_access_runtime import proof_access
+        proof_access(self.config,self.material)
         now = int(self.store.clock())
         current = self.material.metadata(now)
         proof = dict(fingerprint=self.material.fingerprint,scope_key=self.scope,at=now) if current["valid"] else None

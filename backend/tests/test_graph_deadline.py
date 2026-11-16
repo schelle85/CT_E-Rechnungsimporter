@@ -1,3 +1,4 @@
+from graph_access_test_support import transport_access
 import time
 from unittest.mock import patch
 import unittest
@@ -30,7 +31,7 @@ class GraphDeadlineTests(unittest.TestCase):
         now = [0]
         stream = Trickle(lambda: now.__setitem__(0, now[0] + 1))
         with httpx.Client(transport=httpx.MockTransport(lambda _: httpx.Response(200, stream=stream))) as http:
-            client = GraphClient(CONFIG, Credential(), http, clock=lambda: now[0])
+            client = GraphClient(CONFIG, Credential(), http, clock=lambda: now[0],**transport_access())
             with self.assertRaises(GraphError) as raised:
                 client.probe()
         self.assertEqual(raised.exception.code, "graph_response_limit")
@@ -40,7 +41,7 @@ class GraphDeadlineTests(unittest.TestCase):
     def test_blocking_read_interrupted_and_write_uncertainty_preserved(self):
         stream = Trickle(lambda: time.sleep(30))
         with httpx.Client(transport=httpx.MockTransport(lambda _: httpx.Response(200, stream=stream))) as http:
-            client = GraphClient(CONFIG, Credential(), http)
+            client = GraphClient(CONFIG, Credential(), http,**transport_access())
             def short_deadline(*_, **kwargs):
                 return request_deadline(0.03, **kwargs)
             with patch("app.graph_deadline.request_deadline", side_effect=short_deadline):
@@ -56,7 +57,7 @@ class GraphDeadlineTests(unittest.TestCase):
         credential = Credential()
         credential.get_token = lambda _: blocked_authentication()
         with httpx.Client(transport=httpx.MockTransport(lambda _: self.fail("no HTTP"))) as http:
-            client = GraphClient(CONFIG, credential, http)
+            client = GraphClient(CONFIG, credential, http,**transport_access())
             with patch("app.graph_deadline.request_deadline", side_effect=lambda *_, **kw: request_deadline(0.03, **kw)):
                 with self.assertRaises(GraphError) as raised:
                     client.probe()

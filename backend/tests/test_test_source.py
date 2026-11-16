@@ -1,3 +1,4 @@
+from graph_access_test_support import transport_access
 from contextlib import contextmanager
 from hashlib import sha256
 import json
@@ -64,7 +65,7 @@ class TestSourceTests(unittest.TestCase):
         self.addCleanup(transport.close)
         credential = Mock()
         credential.get_token.return_value = SimpleNamespace(token="synthetic")
-        client = ReadOnlyGraphClient(CONFIG, credential, transport, sleep=lambda _: None)
+        client = ReadOnlyGraphClient(CONFIG, credential, transport, sleep=lambda _: None,**transport_access())
         source = TestSource(client, BINDING)
         self.addCleanup(lambda: self.assertTrue(all(r.method == "GET" for r in remote.calls)))
         return source, remote, credential
@@ -106,7 +107,7 @@ class TestSourceTests(unittest.TestCase):
                         TestBinding.load("protected", CONFIG.mailbox)
         source, _, _ = self.source()
         with self.assertRaises(GraphError):
-            TestSource(GraphClient(CONFIG, None, None), BINDING)
+            TestSource(GraphClient(CONFIG, None, None,**transport_access()), BINDING)
 
     def test_missing_renamed_moved_and_ambiguous_folder_fail(self):
         for variant in ("missing", "renamed", "moved", "duplicate", "hidden_duplicate"):

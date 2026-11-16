@@ -4,6 +4,7 @@ import os
 import time
 import sqlalchemy as sa
 from cryptography.fernet import Fernet
+from contextlib import ExitStack
 from app.database import make_engine
 from app.graph import GraphConfig, GraphError, protected_bytes
 from app.notification_certificate import CERTIFICATE_TOKEN, CertificateMaterial
@@ -22,6 +23,25 @@ def load_notification_cipher():
         raise NotificationError("notification_key_unavailable",503) from None
 
 def run_job(job):
+    job=dict(job)
+    inherited=job.pop("_graph_access",None)
+    admission=ExitStack()
+    try:
+        if inherited is not None:
+            from app.graph_access_runtime import receive
+            config=GraphConfig.load(os.environ.get("GRAPH_CONFIG_FILE","/run/importer/graph.json"))
+            material=CertificateMaterial.load(os.environ.get("GRAPH_CREDENTIAL_FILE","/run/secrets/graph_credential"))
+            engine=make_engine()
+            try:
+                with engine.connect() as c:
+                    instance=c.execute(sa.text("SELECT instance_id FROM app_metadata WHERE singleton=1")).scalar_one()
+            finally:engine.dispose()
+            admission.enter_context(receive(inherited,config,material,expected_instance=instance))
+        return _run_job(job)
+    finally:admission.close()
+
+
+def _run_job(job):
     deadline = job["deadline"]
     now = time.monotonic()
     if type(deadline) not in (int,float) or not now < deadline <= now+80:

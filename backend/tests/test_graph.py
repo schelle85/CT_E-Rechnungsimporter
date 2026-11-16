@@ -1,3 +1,6 @@
+from graph_access_test_support import transport_access
+from graph_access_test_support import admitted_transport
+from contextlib import nullcontext
 import json
 import os
 import stat
@@ -18,10 +21,16 @@ class Credential:
 
 
 class GraphTransportTests(unittest.TestCase):
+    def setUp(self):
+        if os.name!="posix":
+            # Transport-only Windows check; real Linux deadlines have a separate suite.
+            limit=patch("app.graph_deadline.request_deadline",side_effect=lambda *a,**k:nullcontext())
+            limit.start();self.addCleanup(limit.stop)
+
     def client(self, handler):
         http = httpx.Client(transport=httpx.MockTransport(handler), trust_env=False)
         self.addCleanup(http.close)
-        return GraphClient(CONFIG, Credential(), http, sleep=lambda _: None)
+        return GraphClient(CONFIG, Credential(), http, sleep=lambda _: None,**transport_access())
 
     def test_bound_probe_and_immutable_header(self):
         def handler(request):
@@ -99,6 +108,7 @@ class GraphTransportTests(unittest.TestCase):
         with self.assertRaises(GraphError):
             client._checked_url(client.root + "/messages", expected)
 
+    @unittest.skipUnless(os.name=="posix","Requires actual POSIX file ownership and link semantics")
     def test_operator_file_permissions_and_symlink(self):
         import tempfile
         with tempfile.TemporaryDirectory() as folder:
@@ -123,13 +133,15 @@ class GraphTransportTests(unittest.TestCase):
                     protected_bytes(link)
 
     def test_operator_identity_options_and_close(self):
+        from notification_test_support import material
+        certificate=material()
         value = json.dumps({"tenant_id": CONFIG.tenant_id, "client_id": CONFIG.client_id, "mailbox": CONFIG.mailbox}).encode()
-        with patch("app.graph.protected_bytes", side_effect=[value, b"synthetic-pem"]), patch("azure.identity.CertificateCredential") as provider:
+        with admitted_transport(),patch("app.graph.protected_bytes", side_effect=[value, certificate.pem]), patch("azure.identity.CertificateCredential") as provider:
             with operator_client("config", "pem") as client:
                 self.assertEqual(client.config.mailbox, CONFIG.mailbox)
             options = provider.call_args.kwargs
             self.assertEqual(options["retry_total"], 0)
-            self.assertEqual(options["certificate_data"], b"synthetic-pem")
+            self.assertEqual(options["certificate_data"], certificate.pem)
             self.assertNotIn("cache_persistence_options", options)
             self.assertNotIn("additionally_allowed_tenants", options)
             provider.return_value.close.assert_called_once()

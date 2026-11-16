@@ -1,3 +1,4 @@
+from graph_access_test_support import transport_access
 import hashlib
 import os
 from pathlib import Path
@@ -53,7 +54,7 @@ class ProcessingServiceTests(unittest.TestCase):
         self.remote.override = self.respond
         self.http = httpx.Client(transport=httpx.MockTransport(self.remote), trust_env=False)
         self.addCleanup(self.http.close)
-        client = GraphClient(CONFIG, Credential(), self.http, sleep=lambda _: None)
+        client = GraphClient(CONFIG, Credential(), self.http, sleep=lambda _: None,**transport_access())
         self.graph = GraphProcessing(client, GraphActions(client, ActionStore(self.engine, clock=lambda: self.now[0])))
         self.service = ProcessingService(self.store, self.graph, self.storage, self.files, "synthetic-processing")
         self.sequence = 0

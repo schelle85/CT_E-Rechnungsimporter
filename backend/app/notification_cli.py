@@ -4,6 +4,7 @@ import asyncio
 import json
 import time
 from app.notification_model import NotificationError, OperationBudget, checked_key, test_request
+from app.graph import GraphError
 from app.notification_process import execute_notification
 
 def arguments(argv=None):
@@ -36,8 +37,8 @@ def main(argv=None):
     budget = OperationBudget(clock=time.monotonic)  # Includes argument/preflight/spawn/cleanup/readback time.
     try:
         value = asyncio.run(execute_notification(arguments(argv),budget=budget))
-    except (NotificationError,OSError,ValueError) as error:
-        value = dict(ok=False,persisted=False,code=error.code if isinstance(error,NotificationError) else "notification_runtime_unavailable")
+    except (NotificationError,GraphError,OSError,ValueError) as error:
+        value = dict(ok=False,persisted=False,code=error.code if isinstance(error,(NotificationError,GraphError)) else "notification_runtime_unavailable")
     print(json.dumps(value))
     return 0 if value.get("ok") else 1
 

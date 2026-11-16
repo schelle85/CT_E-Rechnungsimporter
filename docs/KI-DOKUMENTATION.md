@@ -75,11 +75,18 @@ Ein Sendestadium wird vor addKey dauerhaft geschrieben; Wiederaufnahme liest nur
 Eine abgelehnte/unklare Generation erhält keinen automatischen Ersatzauftrag.
 Kandidatenprobe schreibt keinen produktiven AP07-Proof. Erst Host-/APIgrenze,
 Verbraucherübernahme und Reiter in Folgepaketen; daraus kein Deployment behaupten.
-C1 ergänzt Graphfreigabe/Hostwriter als noch nicht eingebundene stdlib-Bibliothek,
-14 lokale Fälle mit ausdrücklichen POSIX-/Lockdoubles bestanden. Quelle/Boot/Instanz/
-Material, vererbter Shared-deskriptor, enges Host-Lesepermit und getrennte Proof-
-Freigabe sind vorgesehen. Native C1- sowie vollständige API-/Kind-/Hostintegration
-bleiben zu prüfen; bestehende produktive Graphpfade sind bisher unverändert.
+C1-Graphfreigabe/Hostwriter ist als stdlib-Bibliothek unabhängig abgenommen:
+14 lokale Fälle sowie sieben tatsächliche isolierte Linux-Komponentenchecks mit
+separatem Rücklesen bestanden. Der native Lauf war UID0:GID10001, keine UID10001-
+API-/Verbraucherprüfung. C2a bindet beide Graphfabriken, untersten Transport,
+APIaktionen, serverseitige Kinderdeskriptoren und AP07-Proof im Quellstand ein.
+Neue APIgrapharbeit bleibt ohne gültige Rootbindung/Generation geschlossen;
+Eltern halten bis tatsächlichem Kindende/Reap beziehungsweise Versandreadback.
+46 gezielte lokale Fälle: 45 bestanden/1 POSIXskip; fünf ergänzende Lebenszeit-/
+Budget-/Replayfälle bestanden. Lokale POSIX-/Spawndoubles ausdrücklich getrennt.
+Noch kein Deployment: RO-Verbraucherbindungen, tatsächliche UID10001-API-/Kind-/
+Verbraucherprüfung und Hostübernahme/Rückweg/letztes Öffnen bleiben Folgepaket.
+Produktive Graphpfade und AP08-Kundenstand sind unverändert.
 Nach AP08 und vor AP11/09 eingeplant. Bestehende AP07-Prüfung, Warnserie und
 Schlüsselgrenzen wiederverwenden; neuer Hostauftrag zuerst konkret prüfen.
 

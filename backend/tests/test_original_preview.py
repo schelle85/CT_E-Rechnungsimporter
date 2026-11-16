@@ -1,3 +1,6 @@
+from graph_access_test_support import transport_access
+from graph_access_test_support import admitted_transport
+from unittest.mock import patch
 """Real spawned reader lifetimes and authenticated original HTTP route; synthetic bytes only."""
 import asyncio
 import hashlib
@@ -39,6 +42,9 @@ def changed_worker(connection,snapshot,directory,*_):
 class OriginalTests(unittest.IsolatedAsyncioTestCase):
     async def asyncSetUp(self):
         await fixture.ProcessApiTests.asyncSetUp(self)
+        for mock in (patch("app.graph_access_runtime.api_operation",side_effect=admitted_transport),
+                patch("app.graph_access_runtime.ChildAccess",return_value=None)):
+            mock.start();self.addCleanup(mock.stop)
         self.preview_root=Path(self.temp.name)/'preview';self.preview_root.mkdir(mode=0o700)
         self.manager=PreviewManager(self.engine,root=self.preview_root,worker=good_worker,child_seconds=3,response_seconds=6)
         self.app.state.preview=self.manager
@@ -221,7 +227,7 @@ class OriginalTests(unittest.IsolatedAsyncioTestCase):
                 return result
             try:
                 with httpx.Client(transport=httpx.MockTransport(remote),trust_env=False) as http:
-                    client=GraphClient(CONFIG,Credential(),http,sleep=lambda _:None)
+                    client=GraphClient(CONFIG,Credential(),http,sleep=lambda _:None,**transport_access())
                     with patch('app.preview_worker.operator_client',return_value=contextlib.nullcontext(client)),patch('app.graph_mail.TemporaryFile',side_effect=private_temporary):
                         result=read_original(snapshot,directory,'unused','unused')
                     self.assertTrue(result['pdf'])
@@ -265,7 +271,7 @@ class OriginalTests(unittest.IsolatedAsyncioTestCase):
         original_temp=tempfile.tempdir
         try:
             with httpx.Client(transport=httpx.MockTransport(remote),trust_env=False) as http:
-                client=GraphClient(CONFIG,Credential(),http,sleep=lambda _:None)
+                client=GraphClient(CONFIG,Credential(),http,sleep=lambda _:None,**transport_access())
                 # A durable close intent permits the already moved source before finish_close.
                 for finished in (False,True):
                     if finished:self.store.finish_close(key,owned['owner'],0,parent_id=intent['destination_id'],flagged=True,intent_key=intent['intent_key'])

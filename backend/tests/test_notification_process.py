@@ -1,4 +1,5 @@
 import asyncio
+from contextlib import nullcontext
 from pathlib import Path
 import os
 import sys
@@ -13,6 +14,8 @@ from notification_test_support import Fixture,INSTANCE,SCOPE
 class ProcessTests(Fixture,unittest.IsolatedAsyncioTestCase):
     def setUp(self):
         super().setUp()
+        admission=patch("app.graph_access_runtime.notification_operation",side_effect=lambda _:nullcontext())
+        admission.start();self.addCleanup(admission.stop)
         environment=patch.dict(os.environ,{"PYTHONPATH":os.pathsep.join(sys.path)})
         environment.start();self.addCleanup(environment.stop)
 

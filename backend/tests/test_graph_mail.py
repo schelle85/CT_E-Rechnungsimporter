@@ -1,3 +1,4 @@
+from graph_access_test_support import transport_access
 from datetime import datetime, timezone
 import unittest
 from unittest.mock import patch
@@ -56,7 +57,7 @@ class GraphMailTests(unittest.TestCase):
         remote = remote or InboxDouble()
         http = httpx.Client(transport=httpx.MockTransport(remote), trust_env=False)
         self.addCleanup(http.close)
-        return Mailbox(GraphClient(CONFIG, Credential(), http, sleep=lambda _: None)), remote
+        return Mailbox(GraphClient(CONFIG, Credential(), http, sleep=lambda _: None,**transport_access())), remote
 
     def test_cutoff_inclusive_and_offsets(self):
         self.assertEqual(CUTOFF.isoformat(), "2026-11-30T23:00:00+00:00")

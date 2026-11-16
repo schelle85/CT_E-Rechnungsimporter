@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "source_commit": "REPLACE_WITH_REVIEWED_FULL_COMMIT",
+  "deployment_id": "REPLACE_WITH_DEPLOYMENT_UUID",
+  "instance_id": "REPLACE_WITH_EXISTING_DB_INSTANCE_UUID",
+  "application_id": "REPLACE_WITH_OWN_APPLICATION_OBJECT_UUID",
+  "scope_key": "REPLACE_WITH_BOUND_ROTATION_SCOPE_SHA256"
+}

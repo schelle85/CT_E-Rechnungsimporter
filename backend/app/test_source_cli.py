@@ -17,7 +17,8 @@ def execute(command, message_id, attachment_id, directory, case=None, attachment
     try:
         with operator_client("/run/importer/graph.json", "/run/secrets/graph_credential") as base:
             binding = TestBinding.load("/run/importer/test-source.json", base.config.mailbox)
-            client = ReadOnlyGraphClient(base.config, base.credential, base.http, clock=base.clock, sleep=base.sleep)
+            client = ReadOnlyGraphClient(base.config, base.credential, base.http, clock=base.clock, sleep=base.sleep,
+                access=base.access,access_material=base.access_material)
             source = TestSource(client, binding)
             if command == "scan" or case is not None:
                 messages = sorted(source.messages(), key=lambda item: (item.received_at, item.id))

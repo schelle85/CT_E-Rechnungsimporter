@@ -1,3 +1,4 @@
+from graph_access_test_support import transport_access
 """Synthetic two-role runtime probe; invoke only in a private network-none test container.
 No customer sources/configuration, no production mount gate override, no runtime route.
 """
@@ -97,7 +98,7 @@ def main():
         files.published = value["published"]
     store = ProcessingStore(engine)
     with httpx.Client(transport=httpx.MockTransport(remote), trust_env=False) as http:
-        client = GraphClient(CONFIG, Credential(), http, sleep=lambda _: None)
+        client = GraphClient(CONFIG, Credential(), http, sleep=lambda _: None,**transport_access())
         service = ProcessingService(store, GraphProcessing(client, GraphActions(client, ActionStore(engine))),
                                     StorageStore(engine, destination_key=files.destination_key), files, "synthetic-runtime")
         if command == "init":

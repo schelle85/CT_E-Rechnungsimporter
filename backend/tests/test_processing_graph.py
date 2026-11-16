@@ -1,3 +1,4 @@
+from graph_access_test_support import transport_access
 from contextlib import nullcontext
 import json
 from pathlib import Path
@@ -28,7 +29,7 @@ class ProcessingGraphTests(unittest.TestCase):
         self.remote.folders = {name: {"id": "folder-" + name, "displayName": name, "parentFolderId": "inbox", "isHidden": False} for name in FOLDERS}
         self.http = httpx.Client(transport=httpx.MockTransport(self.remote), trust_env=False)
         self.addCleanup(self.http.close)
-        self.client = GraphClient(CONFIG, Credential(), self.http, sleep=lambda _: None)
+        self.client = GraphClient(CONFIG, Credential(), self.http, sleep=lambda _: None,**transport_access())
         self.store = ActionStore(self.engine)
         self.api = GraphActions(self.client, self.store)
         # Synchronous synthetic transport only; Linux wallclock tests remain in the native suite.

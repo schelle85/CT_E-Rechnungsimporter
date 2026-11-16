@@ -1,3 +1,4 @@
+from graph_access_test_support import transport_access
 import json
 import contextlib
 import io
@@ -83,7 +84,7 @@ class GraphActionTests(unittest.TestCase):
         self.remote = ActionRemote()
         self.http = httpx.Client(transport=httpx.MockTransport(self.remote), trust_env=False)
         self.addCleanup(self.http.close)
-        self.client = GraphClient(CONFIG, Credential(), self.http, sleep=lambda _: None)
+        self.client = GraphClient(CONFIG, Credential(), self.http, sleep=lambda _: None,**transport_access())
         self.api = GraphActions(self.client, self.store)
 
     def ready_folders(self):

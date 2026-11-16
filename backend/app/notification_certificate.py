@@ -49,13 +49,16 @@ class CertificateMaterial:
 @contextmanager
 def certificate_client(config, material):
     from azure.identity import CertificateCredential
+    from app.graph_access_runtime import operation
     credential = None
     try:
-        credential = CertificateCredential(config.tenant_id,config.client_id,certificate_data=material.pem,
-            retry_total=0,connection_timeout=5,read_timeout=10)
-        with httpx.Client(timeout=httpx.Timeout(10,connect=5),trust_env=False,follow_redirects=False,
-                limits=httpx.Limits(max_connections=1)) as http:
-            yield GraphClient(config,credential,http,read_attempts=1)
+        with operation(config,material) as permit:
+            credential = CertificateCredential(config.tenant_id,config.client_id,certificate_data=material.pem,
+                retry_total=0,connection_timeout=5,read_timeout=10)
+            with httpx.Client(timeout=httpx.Timeout(10,connect=5),trust_env=False,follow_redirects=False,
+                    limits=httpx.Limits(max_connections=1)) as http:
+                yield GraphClient(config,credential,http,read_attempts=1,access=permit,
+                    access_material=(material.pem,material.fingerprint))
     except GraphError:
         raise
     except Exception:

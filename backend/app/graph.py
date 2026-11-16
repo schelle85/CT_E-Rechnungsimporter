@@ -96,13 +96,15 @@ class GraphConfig:
 
 
 class GraphClient:
-    def __init__(self, config, credential, http, *, sleep=time.sleep, clock=time.monotonic, read_attempts=3, deadline=None):
+    def __init__(self, config, credential, http, *, sleep=time.sleep, clock=time.monotonic, read_attempts=3, deadline=None,
+                 access=None, access_material=None):
         self.config, self.credential, self.http = config, credential, http
         self.sleep, self.clock = sleep, clock
         if type(read_attempts) is not int or not 1 <= read_attempts <= 3:
             raise GraphError("graph_configuration_invalid")
         self.read_attempts = read_attempts
         self.deadline = deadline
+        self.access,self.access_material=access,access_material
         self.root = ORIGIN + "/v1.0/users/" + quote(config.mailbox, safe="")
 
     def _checked_url(self, url, collection=None):
@@ -119,7 +121,12 @@ class GraphClient:
         except (ValueError, AttributeError, TypeError):
             raise GraphError("graph_untrusted_url") from None
 
-    def _headers(self):
+    def _headers(self,method="GET"):
+        if self.access is None or self.access_material is None:
+            raise GraphError("graph_access_closed")
+        from app.graph_access import GraphAccessError
+        try:self.access.check(*self.access_material,method=method)
+        except GraphAccessError as error:raise GraphError(error.code) from None
         try:
             token = self.credential.get_token(SCOPE).token
             if not isinstance(token, str) or not token or "\r" in token or "\n" in token:
@@ -136,7 +143,7 @@ class GraphClient:
         for attempt in range(self.read_attempts if method == "GET" else 1):
             try:
                 with self.http.stream(method, url, params=params, json=payload,
-                                      headers=self._headers(), follow_redirects=False) as response:
+                                      headers=self._headers(method), follow_redirects=False) as response:
                     if method == "GET" and response.status_code in (429, 500, 502, 503, 504) and attempt < self.read_attempts-1:
                         value = response.headers.get("Retry-After", "1")
                         try:
@@ -208,15 +215,18 @@ class GraphClient:
 @contextmanager
 def operator_client(config_path, certificate_path):
     from azure.identity import CertificateCredential
+    from app.notification_certificate import CertificateMaterial
+    from app.graph_access_runtime import operation
     config = GraphConfig.load(config_path)
-    pem = protected_bytes(certificate_path)
+    material = CertificateMaterial.parse(protected_bytes(certificate_path))
     credential = None
     try:
-        credential = CertificateCredential(config.tenant_id, config.client_id, certificate_data=pem,
-            retry_total=0, connection_timeout=10, read_timeout=20)
-        with httpx.Client(timeout=httpx.Timeout(20, connect=5), trust_env=False,
-                          follow_redirects=False, limits=httpx.Limits(max_connections=2)) as http:
-            yield GraphClient(config, credential, http)
+        with operation(config,material) as permit:
+            credential = CertificateCredential(config.tenant_id, config.client_id, certificate_data=material.pem,
+                retry_total=0, connection_timeout=10, read_timeout=20)
+            with httpx.Client(timeout=httpx.Timeout(20, connect=5), trust_env=False,
+                              follow_redirects=False, limits=httpx.Limits(max_connections=2)) as http:
+                yield GraphClient(config, credential, http,access=permit,access_material=(material.pem,material.fingerprint))
     except GraphError:
         raise
     except Exception:

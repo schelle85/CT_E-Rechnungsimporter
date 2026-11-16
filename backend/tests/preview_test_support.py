@@ -1,3 +1,4 @@
+from graph_access_test_support import transport_access
 """Test-image-only Graph source for isolated browser/resource checks. Never in API image."""
 import contextlib
 import json
@@ -78,6 +79,12 @@ def isolated_reader(connection,snapshot,directory,*_):
                     time.sleep(0.01)
                 time.sleep(0.3)
     with httpx.Client(transport=httpx.MockTransport(remote),trust_env=False) as http:
-        client=GraphClient(CONFIG,Credential(),http,sleep=lambda _:None)
+        client=GraphClient(CONFIG,Credential(),http,sleep=lambda _:None,**transport_access())
         with patch('app.preview_worker.operator_client',return_value=contextlib.nullcontext(client)),patch('app.graph_mail.TemporaryFile',side_effect=held_temporary):
-            preview_child(connection,snapshot,directory,'unused','unused')
+            # C2 admission is outside this historical transport-only fixture.
+            from graph_access_test_support import admitted_transport
+            from notification_test_support import material
+            with patch('app.graph_access_runtime.receive',side_effect=admitted_transport),patch(
+                    'app.graph.GraphConfig.load',return_value=CONFIG),patch(
+                    'app.notification_certificate.CertificateMaterial.load',return_value=material()):
+                preview_child(connection,snapshot,directory,'unused','unused')

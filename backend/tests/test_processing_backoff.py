@@ -1,3 +1,4 @@
+from graph_access_test_support import transport_access
 """A-R1/V3: 429 boundary from actual CLI/store to persistent host schedule.
 
 SQLite by default; host file writes are real, Linux ownership/flock/fsync-dir
@@ -180,7 +181,7 @@ class BackoffTests(unittest.TestCase):
                 if active:return httpx.Response(429,headers={} if header is None else {"Retry-After":header})
         remote.override=respond
         with httpx.Client(transport=httpx.MockTransport(remote),trust_env=False) as http:
-            client=GraphClient(CONFIG,Credential(),http,read_attempts=1)
+            client=GraphClient(CONFIG,Credential(),http,read_attempts=1,**transport_access())
             # Observe the received error without replacing GraphActions or
             # GraphProcessing; their real reads, claims and forwarding run.
             with patch("app.processing.known_429_not_before",wraps=known_429_not_before) as boundary:
