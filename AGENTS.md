@@ -63,9 +63,13 @@
   oder vollständiger VMrestore ist damit nachgewiesen.
   Führender Vertrag: docs/AP08-BETRIEB.md. AP09/10/11 bleiben ohne Go;
   AP11-Planung erhalten.
-  AP12 ist seit16.11.2026 für Graph-Zertifikatsrotation und Administration →
-  Graph-Zertifikat geplant, ohne Umsetzungs-Go. Führender Umfang:
-  docs/AP12-GRAPH-ZERTIFIKATSROTATION.md. Keine Implementierung aus der Planannahme ableiten.
+  AP12 ist seit 16.11.2026 ausdrücklich zur Umsetzung freigegeben. Kern B liefert
+  Appadapter/PoP/Kandidat, additive 008-Aufträge, Rootwirkungsjournal und Inventar
+  als Quellstand mit 28 gezielten lokalen synthetischen Prüfungen. Kein Deployment,
+  keine Graphmutation und noch keine neue Bedienaktion daraus ableiten.
+  Dauerhafte Graphfreigabe/Hostübernahme und Reiter folgen als getrennte Pakete;
+  K1-Entwurf ist unabhängig akzeptiert, Implementierungs-/Nativebelege bleiben nötig.
+  Führender Umfang: docs/AP12-GRAPH-ZERTIFIKATSROTATION.md; AP08 bleibt im Regelbetrieb.
   DMS-Anbindung, -Konfiguration und -Prüfung liegen außerhalb unseres Auftrags
   und sind keine Abnahmebedingung. AP03 und Stichtag bleiben unverändert.
 - Keine zusätzlichen Agenten oder Chats ohne entsprechenden Auftrag.

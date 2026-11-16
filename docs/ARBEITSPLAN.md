@@ -16,10 +16,11 @@ und Notificationvorlauf sind bestätigt; Startdienst/fünf Timer seit 16.11.2026
 Tages-/Wochenbericht sind bestätigt. Wiederanlauf nach kontrolliertem Reboot und
 TLS-Stundenlauf um 20:00 sind belegt. Drei automatische Statuszyklen nach dem
 separat gesetzten Phasenversatz sind bestanden.
-AP09/10/11 und AP12 bleiben ohne Umsetzungs-Go.**
+AP12 ist seit 16.11.2026 zur Umsetzung freigegeben; Kern B als Quellstand geliefert.
+AP09/10/11 bleiben ohne Umsetzungs-Go.**
 AP10 ist für die spätere wöchentliche Wartung ergänzt.
 AP12 ist seit 16.11.2026 für Graph-Zertifikatsrotation und einen zusätzlichen
-Adminreiter geplant; Umsetzung erst nach eigenem Go.
+Adminreiter freigegeben; aktuelle Lieferung und Grenzen unten.
 ORGA koordiniert, DEV implementiert, REVIEW prüft.
 Die Repositoryvorbereitung ist kein Beginn der Anwendungsentwicklung.
 
@@ -242,8 +243,12 @@ KI-Dokumentation bleiben eigene Lieferungen. Umfang und Ausgabe siehe
 ## AP12: Graph-Zertifikatsrotation und Administration - DEV / REVIEW / ORGA
 
 Am 16.11.2026 als eigenes Arbeitspaket angenommen und eingeplant.
-Status: geplant, noch kein AP12-Umsetzungs-Go. AP12 ist noch nicht bereitgestellt; aktueller Betrieb siehe AP08.
-Ein AP08-Go gibt AP12 weder zur Umsetzung noch zur Aktivierung frei.
+Status: Eigenes Umsetzungs-Go seit 16.11.2026. Entwurf samt K1 zur dauerhaften
+Graphgrenze akzeptiert. Kern B liefert Appadapter/PoP/Kandidat, additive 008-Aufträge,
+Rootwirkungsjournal, lesenden Wiederabgleich und Keyinventar als Quellstand;
+28 gezielte lokale Fälle bestanden. Noch kein Deployment oder Wechsel im Betrieb.
+Host-/API-Freigabe, Verbraucherübernahme, Reiter und Zeitplanung folgen getrennt.
+AP08 bleibt der tatsächlich bereitgestellte Betriebsstand.
 
 | Teil | Ergebnis und Prüfung |
 | --- | --- |

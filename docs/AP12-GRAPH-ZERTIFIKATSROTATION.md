@@ -1,9 +1,45 @@
 # AP12 – Graph-Zertifikatsrotation und Administration
 
-Stand: 16. November 2026. Vorschlag durch den Betreiber angenommen und als
-eigenes Arbeitspaket eingeplant. **Noch kein AP12-Umsetzungs-Go.** Der zusätzliche
-Reiter und die Rotation sind geplant; der bereitgestellte AP07-Stand enthält
-bereits Überwachung und Warnungen, aber keinen automatischen Zertifikatswechsel.
+Stand: 16. November 2026. **AP12 ist ausdrücklich zur Umsetzung freigegeben.**
+Kern B ist als Quellstand geliefert; die unabhängige Quell-/Nativeprüfung und
+Bereitstellung sind getrennte Schritte. Im tatsächlich bereitgestellten
+AP08-Betrieb gibt es weiterhin keinen automatischen Graph-Zertifikatswechsel.
+Reiter, Host-/API-Freigabe und Verbraucherübernahme folgen in getrennten Paketen.
+
+## Gelieferter Kern B und seine Grenze
+
+`rotation_model.py` und `rotation_graph.py` begrenzen den Adapter auf die eigene
+fest gebundene App. Vorhandene Kryptografie/Azure Identity/httpx bleiben erhalten:
+RSA 3072, tatsächlich 180 Tage einschließlich Vordatierung, gesonderter PoP mit
+App-Objekt-ID, selektiver Bestands-GET, genau ein addKey-POST je dauerhaftem Auftrag.
+Es wird keine zusätzliche Graphberechtigung oder Laufzeit installiert.
+
+Die additive Migration 008 legt ausschließlich zwei neue Auftragstabellen an;
+Automatik ist zunächst aus. Ursprüngliche Instanz/Scope/Akteur/Request-ID bleiben
+gebunden. Leases oder ein späterer Tageslauf erzeugen nach unklarer/abgelehnter
+Registrierung keinen Ersatzauftrag. Eine ausdrücklich neue berechtigte manuelle
+Anforderung bleibt von der alten Quittung getrennt. Alte Tabellen/Migrationen bleiben.
+
+`rotation_journal.py` speichert den einen Kandidaten und das Sendestadium vor dem
+POST rootprivat mit Dateiflush/atomarem Ersatz/Verzeichnis-fsync. Wiederaufnahme
+verwendet dieselben Bytes und liest ausschließlich den gebundenen Bestand.
+Genau eine passende neue Key-ID mit unverändertem Altbestand ist erforderlich;
+Null-/Mehrfachtreffer, andere App oder widersprüchliche Antwort bleiben unknown.
+Das Inventar übernimmt neue eigene Keys nach bestätigter Registrierung; bestehende
+Keys werden nur nach gesonderter Rootattestierung als verwaltet gekennzeichnet.
+Der Entfernen-Adapter und lesende Inventarabgleich sind noch kein Cleanupauftrag.
+
+Die frische Kandidatenprobe verwendet exakt das gespeicherte PEM und schreibt
+keinen produktiven AP07-Monitor-/Nachfolgerproof. Aktivierung, Rückweg,
+dauerhafte Graphfreigabe, Timer und Webrouten werden von diesem Kern nicht ausgeführt.
+Bestehende API-/Hostpfade sind in Paket B unverändert; keine produktive Mutation
+oder neue Bedienaktion daraus ableiten.
+
+28 gezielte lokale Fälle mit realer Kryptografie, synthetischem HTTP und SQLite
+sind bestanden, einschließlich echter synthetischer 007→008-Bestandserhaltung
+und ausgewählter unveränderter API-/Notification-/Processing-/Vorschauleser.
+POSIX-Dateirechte/flock/Verzeichnis-fsync und Linuxfristen haben in den lokalen
+Windowsprüfungen ausdrückliche Doubles; native Belege bleiben separat nötig.
 
 Geplant nach AP08 und vor AP11/der finalen AP09-Übergabe. Technische Grundlage ist
 AP07. Vorhandene Betriebsbausteine aus AP08/AP10 nutzen, soweit vorhanden; keine

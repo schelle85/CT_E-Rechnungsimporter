@@ -63,9 +63,15 @@ abgeschlossen. Der Versatz wurde nach dem belegten Reboot gesetzt; kein zweiter
 Reboot oder vollständiger VMrestore ist damit nachgewiesen.
 [Führender Betriebsvertrag](AP08-BETRIEB.md).
 
-Planungsnachtrag vom 16.11.2026: [AP12](AP12-GRAPH-ZERTIFIKATSROTATION.md) für
-Graph-Zertifikatsrotation und Administration → Graph-Zertifikat angenommen.
-Noch kein Umsetzungs-Go; keine neue Funktion daraus als bereitgestellt bezeichnen.
+AP12-Nachtrag vom 16.11.2026: [AP12](AP12-GRAPH-ZERTIFIKATSROTATION.md) für
+Graph-Zertifikatsrotation und Administration → Graph-Zertifikat ausdrücklich
+zur Umsetzung freigegeben. Kern B als Quellstand mit gebundenem Appadapter,
+festem 180-Tage-Kandidaten/PoP, additiven 008-Aufträgen, privatem Rootwirkungsjournal
+und Inventar geliefert; 28 gezielte synthetische lokale Fälle bestanden.
+Ein Sendestadium wird vor addKey dauerhaft geschrieben; Wiederaufnahme liest nur.
+Eine abgelehnte/unklare Generation erhält keinen automatischen Ersatzauftrag.
+Kandidatenprobe schreibt keinen produktiven AP07-Proof. Erst Host-/APIgrenze,
+Verbraucherübernahme und Reiter in Folgepaketen; daraus kein Deployment behaupten.
 Nach AP08 und vor AP11/09 eingeplant. Bestehende AP07-Prüfung, Warnserie und
 Schlüsselgrenzen wiederverwenden; neuer Hostauftrag zuerst konkret prüfen.
 
