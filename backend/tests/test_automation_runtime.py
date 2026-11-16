@@ -90,20 +90,20 @@ class AutomationRuntimeTests(unittest.TestCase):
             self.assertTrue(result["deferred"]);command.assert_not_called();run.assert_not_called()
             self.assertEqual(queue.call_count,int(scheduled is not None))
 
-    def test_fd_binding_is_held_and_rejects_changed_mount_before_create(self):
+    def test_cifs_reference_is_held_and_rejects_changed_mount_before_create(self):
         config=dict(processing_config="/private/config",storage_root="/mount/importer")
         source=SimpleNamespace(read_text=lambda **_:json.dumps(dict(expected_source="//files.example.invalid/importer")))
         with patch.object(host,"protected",return_value=source),patch.object(host,"open_directory",side_effect=[10,11]),\
                 patch.object(host,"mount_identity",side_effect=[(1,2,3),(9,2,3)]),patch.object(host.os,"close") as close:
             with host.CifsBinding(config) as binding:
-                self.assertTrue(binding.path.endswith("/fd/10"))
+                self.assertEqual(binding.path,config["storage_root"])
                 with self.assertRaisesRegex(ValueError,"processing_mount_changed"):binding.check()
                 self.assertEqual(close.call_args_list[0].args,(11,))
             self.assertEqual(close.call_args_list[-1].args,(10,))
         runtime=host.Runtime.__new__(host.Runtime);runtime.image=IMAGE
         runtime.config=dict(networks=["isolated"],storage_gid=10001,db_host="db",db_name="synthetic",db_user="synthetic",
             graph_config="/config",graph_credential="/credential",processing_config="/processing",db_password="/password")
-        binding=SimpleNamespace(path="/proc/123/fd/10",check=Mock(side_effect=ValueError("processing_mount_changed")))
+        binding=SimpleNamespace(path="/mount/importer",identity=(1,2,3),check=Mock(side_effect=ValueError("processing_mount_changed")))
         with patch.object(host,"command") as command,patch.object(runtime,"cleanup"):
             with self.assertRaisesRegex(ValueError,"processing_mount_changed"):
                 runtime._coordinator(["select"],"/exchange",host.time.monotonic()+180,binding)

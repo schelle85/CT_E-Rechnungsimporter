@@ -55,7 +55,7 @@ class ProcessingRuntimeTests(unittest.TestCase):
             for args in (["advance"], ["advance", "--message-key", "a"*64, "--owner", "b"*32],
                          ["select", "--cutoff", "2020-01-01"], ["select", "--limit", "101"]):
                 with self.assertRaises(SystemExit):
-                    arguments(args)
+                    arguments([*args,"--expected-root-device","1","--expected-root-inode","2"])
         good = {"scope": "synthetic", "storage_root": "/importer", "expected_source": "//server/share",
                 "staging_name": "_staging", "staging_excluded": True}
         for changed in ({"storage_root": "/"}, {"staging_excluded": False}, {"cutoff": "2020-01-01"}):
@@ -96,7 +96,7 @@ class ProcessingRuntimeTests(unittest.TestCase):
                  (b"invoice", "recognized", "PDF", "invoice_fields", {})]
         key = fixture.add_mail("handoff", specs)
         def coordinate(args):
-            parsed = arguments(args)
+            parsed = arguments([*args,"--expected-root-device","1","--expected-root-inode","2"])
             finding = json.loads((working / "finding.json").read_text()) if parsed.finding else None
             result = fixture.service.advance(parsed.message_key, working, owner=parsed.owner,
                 revision=parsed.revision, attachment_key=parsed.attachment_key, finding=finding)

@@ -71,13 +71,24 @@ startet keine Hintergrundwiederholung im beendeten Operator.
 
 Vor jedem Processingkind öffnet der Host den Importpfad komponentenweise ohne
 Symlinkverfolgung und prüft seine Mount-ID, Geräte-/Inodeidentität, CIFSquelle,
-Schreibbarkeit und strikten/ungepufferten Cache. Docker erhält den gehaltenen
-Hostdeskriptorpfad `/proc/<Hostpid>/fd/<fd>`. Vor Create und vor Start werden
+Schreibbarkeit und strikten/ungepufferten Cache. Docker bindet den regulären
+geprüften Fstab-Pfad; ein Host-proc-FD als Bindquelle wird auf der Ziel-VM von
+runc abgelehnt und wird nicht mehr verwendet. Vor Create und vor Start werden
 aktueller Pfad und gehaltener Deskriptor erneut verglichen. Der Deskriptor bleibt
-bis nach dem Containercleanup offen. Die vorhandene CIFSprüfung im Consumer
-bleibt zusätzlich bestehen. Ein lokales Ersatzverzeichnis erfüllt diese Prüfung
-nicht. Die tatsächliche Bindwirkung und Austausch-/Unmountfälle benötigen den
-nativen Rootnachweis; Windows-Doubles belegen sie nicht.
+bis nach dem Containercleanup offen. Sein Geräte-/Inodepaar wird als zwei feste
+Pflichtargumente an jeden Worker übergeben, ohne neues Profilfeld. Der Consumer
+öffnet sein tatsächliches `CifsFiles`, prüft unmittelbar nochmals dessen Guard
+und vergleicht Geräte-/Inodewerte vor `operator_client` und Servicearbeit.
+Fehlende, unvollständige, ungültige oder abweichende Werte erlauben keinen
+Kompatibilitäts-Bypass. Die vorhandenen CIFS-/Quellen-/Options-, FD-/Root- und
+Publikationsprüfungen bleiben unverändert. Ein lokales Ersatzverzeichnis
+scheitert vor Graph und Publikation; es wird kein Importroot erzeugt.
+
+Der normale Bind und die Vergleichbarkeit von Host-/Consumergerät und Inode
+sind auf der Ziel-VM als reine Metadatenprobe belegt. Der feste neue
+Consumer-Guard benötigt noch den schmalen nativen positiven/negativen Nachweis.
+Kein neuer Schreib-/Durchsatznachweis aus diesem Transportfix; die bereits
+bestandenen SQLprüfungen werden dafür nicht pauschal wiederholt.
 
 ## Begrenzte automatische Notifications
 

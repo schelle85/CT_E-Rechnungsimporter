@@ -160,7 +160,7 @@ class CifsBinding:
         self.fd=open_directory(self.config["storage_root"])
         try:self.identity=mount_identity(self.fd,self.source)
         except BaseException:os.close(self.fd);self.fd=None;raise
-        self.path=f"/proc/{os.getpid()}/fd/{self.fd}"
+        self.path=self.config["storage_root"]
         return self
     def check(self):
         current=open_directory(self.config["storage_root"])
@@ -294,8 +294,8 @@ class Runtime:
         self.config, self.image = config, image
 
     def coordinator(self, arguments, working, deadline):
-        # Hold the verified CIFS FD through create/start/cleanup. Docker receives
-        # this host process's descriptor path, never an unchecked local directory.
+        # Hold the checked host reference through cleanup. Docker binds the
+        # normal path; the worker must match this FD's device/inode before work.
         with CifsBinding(self.config) as binding:
             return self._coordinator(arguments,working,deadline,binding)
 
@@ -321,7 +321,8 @@ class Runtime:
                 (config["db_password"], "/run/secrets/db_password", True),
                 (binding.path, "/importer", False), (working, "/exchange", False)):
             args += ["--mount", "type=bind,source=" + str(source) + ",target=" + target + (",readonly" if readonly else "")]
-        args += [self.image, "python", "-m", "app.processing_cli", *arguments]
+        args += [self.image, "python", "-m", "app.processing_cli", *arguments,
+            "--expected-root-device",str(binding.identity[1]),"--expected-root-inode",str(binding.identity[2])]
         try:
             binding.check()
             command(args, min(15, remaining()))

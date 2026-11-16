@@ -59,14 +59,25 @@ def select(service, mode, limit):
     return {"ok": True, "mode": mode, "message_keys": selected}
 
 
+def expected_root(args):
+    values=(getattr(args,"expected_root_device",None),getattr(args,"expected_root_inode",None))
+    if any(type(value) is not int or not 0<=value<=18446744073709551615 for value in values):
+        raise ProcessingError("processing_root_identity_invalid")
+    return values
+
+
 def execute(args):
     logging.disable(logging.CRITICAL)
     engine = None
     try:
+        expected=expected_root(args)
         config = configuration(args.config)
         engine = make_engine()
         with CifsFiles(config["storage_root"], config["expected_source"], config["staging_name"],
                        staging_excluded=config["staging_excluded"]) as files:
+            files.guard()
+            if (files.identity[1],files.inode)!=expected:
+                raise ProcessingError("processing_root_identity_changed")
             with operator_client(args.graph_config, args.certificate) as client:
                 service = ProcessingService(ProcessingStore(engine),
                     GraphProcessing(client, GraphActions(client, ActionStore(engine))),
@@ -105,7 +116,11 @@ def arguments(argv=None):
     parser.add_argument("--revision", type=int)
     parser.add_argument("--attachment-key")
     parser.add_argument("--finding")
+    parser.add_argument("--expected-root-device",type=int,required=True)
+    parser.add_argument("--expected-root-inode",type=int,required=True)
     args = parser.parse_args(argv)
+    try:expected_root(args)
+    except ProcessingError as error:parser.error(error.code)
     if not 1 <= args.limit <= 100:
         parser.error("Limit must be 1..100.")
     if args.command == "advance" and not re.fullmatch(r"[0-9a-f]{64}", args.message_key or ""):

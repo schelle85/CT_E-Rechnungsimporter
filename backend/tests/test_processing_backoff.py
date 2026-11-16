@@ -33,7 +33,7 @@ class BackoffTests(unittest.TestCase):
         with self.engine.begin() as connection:connection.execute(actions.delete())
 
     def execute(self,args,graph,*,real_client=None):
-        files=SimpleNamespace(destination_key="synthetic")
+        files=SimpleNamespace(destination_key="synthetic",identity=(1,2),inode=3,guard=Mock())
         with patch.object(cli,"configuration",return_value=dict(scope="synthetic",storage_root="/unused",
                 expected_source="//files.example.invalid/importer",staging_name="_staging",staging_excluded=True)),\
                 patch.object(cli,"make_engine",return_value=self.engine),\
@@ -45,7 +45,7 @@ class BackoffTests(unittest.TestCase):
                 patch.object(cli,"ProcessingStore",return_value=self.store),\
                 patch.object(cli,"StorageStore",return_value=files),\
                 patch.object(cli.time,"time",side_effect=lambda:self.now[0]):
-            return cli.execute(cli.arguments(args))
+            return cli.execute(cli.arguments([*args,"--expected-root-device","2","--expected-root-inode","3"]))
 
     def persistent_host_boundary(self,result,expected):
         host=runtime.host

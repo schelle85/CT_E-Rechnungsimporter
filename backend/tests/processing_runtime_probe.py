@@ -105,7 +105,8 @@ def main():
             value["key"] = key
             result = {"ok": True, "message_key": key}
         elif command == "advance":
-            args = arguments(sys.argv[1:])
+            device,inode=(files.identity[1],files.inode) if cifs_source else (1,2)
+            args = arguments([*sys.argv[1:],"--expected-root-device",str(device),"--expected-root-inode",str(inode)])
             finding = json.loads(Path(args.finding).read_text()) if args.finding else None
             result = {"ok": True, **service.advance(args.message_key, "/exchange", owner=args.owner, revision=args.revision,
                        attachment_key=args.attachment_key, finding=finding).result()}

@@ -3,6 +3,9 @@
 AP08-Quellnachtrag vom16.11.2026: [Betriebsvertrag](AP08-BETRIEB.md).
 Der neue, noch nicht nativ abgenommene Hoststand begrenzt auch manuelle Läufe auf
 780 s, nutzt eine gemeinsame Processinghostsperre und prüft CIFS vor dem Bind.
+Worker benötigen das vollständige erwartete Root-Geräte-/Inodepaar aus dem
+gehaltenen Host-FD; regulärer Pfadbind und zusätzlicher Consumerabgleich vor
+Graph/Verarbeitung gemäß AP08. Kein direkter Workeraufruf ohne diese Werte.
 Die folgenden AP05-Laufzeitnachweise beziehen sich auf den damaligen Lieferstand.
 
 Der begrenzte manuelle Operator ist nach Quellen-/Runtime-/CIFS-Prüfung
