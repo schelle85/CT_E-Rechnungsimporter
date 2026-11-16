@@ -29,6 +29,16 @@ services:
         read_only: true
         bind: {create_host_path: false}
       - type: bind
+        source: ${GRAPH_ACCESS_BINDING_HOST_FILE:?Set the protected AP12 binding file}
+        target: /run/importer/graph-access-binding.json
+        read_only: true
+        bind: {create_host_path: false}
+      - type: bind
+        source: ${GRAPH_ACCESS_GATE_HOST_DIR:?Set the root-owned AP12 gate directory}
+        target: /run/importer/operations/graph-access
+        read_only: true
+        bind: {create_host_path: false}
+      - type: bind
         source: ${TEST_SOURCE_BINDING_HOST_FILE:?Set protected approved folder binding}
         target: /run/importer/test-source.json
         read_only: true

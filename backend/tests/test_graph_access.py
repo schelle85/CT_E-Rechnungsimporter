@@ -22,8 +22,9 @@ PEM=b"synthetic-material-for-admission-contract"
 FP="c"*64
 NOW=1794864000
 
+deployed=Path(__file__).parent.parent/"operator/graph-access-host.py"
 spec=importlib.util.spec_from_file_location("graph_access_host_fixture",
-    Path(__file__).parents[2]/"deploy/graph-access-host.py")
+    deployed if deployed.exists() else Path(__file__).parents[2]/"deploy/graph-access-host.py")
 host_module=importlib.util.module_from_spec(spec);spec.loader.exec_module(host_module)
 
 

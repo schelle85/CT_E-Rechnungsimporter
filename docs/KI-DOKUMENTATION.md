@@ -87,6 +87,12 @@ Budget-/Replayfälle bestanden. Lokale POSIX-/Spawndoubles ausdrücklich getrenn
 Noch kein Deployment: RO-Verbraucherbindungen, tatsächliche UID10001-API-/Kind-/
 Verbraucherprüfung und Hostübernahme/Rückweg/letztes Öffnen bleiben Folgepaket.
 Produktive Graphpfade und AP08-Kundenstand sind unverändert.
+C2b ergänzt die feste stdin-Hostprobe als UID10001 ohne Pfad-/HTTPoption und
+RO-Gatebindungen der bestehenden Compose-/Hostverbraucher. Leseprobe ohne DB/
+Proof; finalize-proof nur über eigenen Grant nach frischem GET. Separates
+Rootprofil binding_file/directory; Runtimeprofil bleibt name/image. Acht lokale
+gezielte Fälle bestanden. Kein nativer Probe-/Verbrauchernachweis und noch kein
+Controller für APIneuerstellung/Rückweg/dauerhaften Abschluss/Öffnen zuletzt.
 Nach AP08 und vor AP11/09 eingeplant. Bestehende AP07-Prüfung, Warnserie und
 Schlüsselgrenzen wiederverwenden; neuer Hostauftrag zuerst konkret prüfen.
 

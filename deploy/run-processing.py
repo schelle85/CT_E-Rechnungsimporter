@@ -319,6 +319,8 @@ class Runtime:
     def _coordinator(self, arguments, working, deadline, binding):
         name = "invoice-processing-" + uuid.uuid4().hex
         config = self.config
+        binding.check()
+        gate_mounts=load_peer("graph-access-host.py").consumer_mounts(protected,controlled_directory)
         def remaining():
             seconds = min(180, deadline - time.monotonic() - 35)
             if seconds <= 0:
@@ -336,7 +338,8 @@ class Runtime:
                 (config["graph_credential"], "/run/secrets/graph_credential", True),
                 (config["processing_config"], "/run/importer/processing.json", True),
                 (config["db_password"], "/run/secrets/db_password", True),
-                (binding.path, "/importer", False), (working, "/exchange", False)):
+                (binding.path, "/importer", False), (working, "/exchange", False),
+                *((source,target,True) for source,target in gate_mounts)):
             args += ["--mount", "type=bind,source=" + str(source) + ",target=" + target + (",readonly" if readonly else "")]
         args += [self.image, "python", "-m", "app.processing_cli", *arguments,
             "--expected-root-device",str(binding.identity[1]),"--expected-root-inode",str(binding.identity[2])]

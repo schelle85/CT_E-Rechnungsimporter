@@ -127,6 +127,44 @@ Ohne diese Bindungen bleibt der neue Quellstand absichtlich gesperrt. Das
 Runtimeprofil bleibt name/image; API-ID gehört nur in den privaten Abschlussbeleg.
 Kundenruntime, produktive Graphpfade, Schema 007 und AP08-Timer bleiben erhalten.
 
+## C2b – feste Hostprobe und Verbraucherbindungen
+
+`python -B -m app.graph_access_probe` ist ein fester interner Aufruf als
+UID10001:GID10001, ohne HTTProute, Workerflag oder Pfadargument. Root übergibt
+genau ein begrenztes JSONpaket über anschließend geschlossenes stdin: Schema1,
+operation_id,epoch,purpose,consumer_role,consumer_id und ein 256-bit-Geheimnis
+als64 Hexzeichen. Keine Geheimnisse in Argumenten, Umgebung oder Ergebnis.
+Der vorhandene Gatebeleg muss den passenden höchstens60s-Grant enthalten.
+Config/PEM/Bindung haben feste Containerpfade; Probe ist auf40s begrenzt.
+
+candidate-read/consumer-read verwenden eine frische Credentialinstanz und einen
+minimalen Inbox-GET, ohne DBzugriff oder AP07-Proof. Nur finalize-proof darf nach
+dem GET den aktuellen Monitorrevision-/DBinstanz-gebundenen AP07-Proof schreiben.
+Der Grant wird anschließend nochmals geprüft. Rückgabe enthält nur öffentliche
+Bindungen, Materialhash, Fingerprint, Proofrevision/-zeit und BelegSHA256. Root
+muss das Ergebnis der tatsächlich ausgewählten Consumer-ID zuordnen; stdin ist
+keine Browser-/API-Schnittstelle. Ein Grant allein bestätigt keine Übernahme.
+
+Composevorlagen für API, Graphoperator, Notification und lesende Testquelle
+erhalten ausschließlich RO-Bindungen für das zusätzliche Bindingfile und den
+Gateunterordner. Die neuen Hostvariablen GRAPH_ACCESS_BINDING_HOST_FILE und
+GRAPH_ACCESS_GATE_HOST_DIR sind ausdrücklich erforderlich; keine Pfaderzeugung.
+Bestehende Secret-/Netz-/User-/Capabilitygrenzen bleiben. Graphmigration und
+Klassifikation benötigen keine neue Graphbindung.
+
+Processing-/Notification-Hoststarts lesen ein getrenntes rootgeschütztes Profil
+`/etc/invoice-importer/graph-access-host.json` mit ausschließlich binding_file
+und directory. Sie geben zwei feste RO-Ziele weiter. Kein APIcontainer-ID-Feld
+im Runtimeprofil name/image und kein allgemeines Hoststatus-/Rootjournalmount.
+Die Pfade müssen mit den tatsächlich installierten Composebindungen übereinstimmen;
+Hostübernahme prüft dies separat. Acht gezielte lokale synthetische Prüfungen
+bestanden; tatsächliche native Verbraucher-/ProbeCLIprüfung bleibt offen.
+
+Die Hoststeuerung muss Verbraucherbelege vor finalize-proof und diesen Proof
+vor dem dauerhaften Abschluss bestätigen. Erst danach darf sie die normale
+Freigabe öffnen. APIneuerstellung, Rückweg, Quittungen und Cleanup sind durch
+diesen Probe-/Mountstand weiterhin nicht implementiert oder bereitgestellt.
+
 Geplant nach AP08 und vor AP11/der finalen AP09-Übergabe. Technische Grundlage ist
 AP07. Vorhandene Betriebsbausteine aus AP08/AP10 nutzen, soweit vorhanden; keine
 anderen AP-Freigaben aus diesem Plan ableiten.

@@ -63,6 +63,7 @@ def notify(value,host,config,*,deadline=None):
         image=value["notification_image"]
         if host.command(["image","inspect","--format","{{.Id}}",image],seconds(5))!=image:raise ValueError()
         name="invoice-notification-"+uuid.uuid4().hex
+        gate_mounts=load_processing("graph-access-host.py").consumer_mounts(host.protected,host.controlled_directory)
         args=["create","--init","--name",name,"--label","invoice.notification.operation="+name,
             "--network",config["networks"][0],"--user","10001:10001","--read-only",
             "--cap-drop","ALL","--security-opt","no-new-privileges:true","--memory","512m",
@@ -76,7 +77,7 @@ def notify(value,host,config,*,deadline=None):
         for source,target in ((config["graph_config"],"/run/importer/graph.json"),
                 (config["graph_credential"],"/run/secrets/graph_credential"),
                 (config["db_password"],"/run/secrets/db_password"),
-                (value["notification_key"],"/run/secrets/notification_key")):
+                (value["notification_key"],"/run/secrets/notification_key"),*gate_mounts):
             args += ["--mount","type=bind,source="+source+",target="+target+",readonly"]
         args += [image,"python","-B","-m","app.notification_cli","automatic"]
         try:

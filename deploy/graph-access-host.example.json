@@ -1,0 +1,4 @@
+{
+  "binding_file": "/etc/invoice-importer/graph-access-binding.json",
+  "directory": "/var/lib/invoice-importer/status/graph-access"
+}

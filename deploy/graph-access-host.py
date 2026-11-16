@@ -3,12 +3,36 @@ from contextlib import contextmanager
 import hashlib
 import json
 import os
+import stat
 from pathlib import Path
 import secrets
 import tempfile
 import time
 
 WRITER_LOCK="/run/invoice-importer/graph-rotation.lock"
+CONSUMER_PROFILE="/etc/invoice-importer/graph-access-host.json"
+
+
+def _unique(pairs):
+    value={}
+    for name,item in pairs:
+        if name in value:raise ValueError()
+        value[name]=item
+    return value
+
+
+def consumer_mounts(protected,controlled_directory):
+    """Separate protected host profile; existing runtime name/image stays intact."""
+    value=json.loads(protected(CONSUMER_PROFILE).read_text(encoding="utf-8"),object_pairs_hook=_unique)
+    if not isinstance(value,dict) or set(value)!={"binding_file","directory"}:raise ValueError()
+    for path in value.values():
+        if not isinstance(path,str) or "," in path or any(ord(char)<32 for char in path):raise ValueError()
+    binding=protected(value["binding_file"])
+    directory=controlled_directory(value["directory"])
+    info=directory.stat()
+    if info.st_gid!=10001 or stat.S_IMODE(info.st_mode)!=0o750:raise ValueError()
+    return ((str(binding),"/run/importer/graph-access-binding.json"),
+        (str(directory),"/run/importer/operations/graph-access"))
 
 
 def root_policy():

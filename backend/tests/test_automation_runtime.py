@@ -126,11 +126,15 @@ class AutomationRuntimeTests(unittest.TestCase):
             Runtime=SimpleNamespace(cleanup=lambda name,deadline,**kwargs:clean.append((name,deadline,kwargs))))
         config=dict(networks=["dbnet","egress"],db_host="db",db_name="synthetic",db_user="synthetic",
             graph_config="/graph",graph_credential="/credential",db_password="/dbpassword",storage_root="/must-not-bind")
-        result=automatic.notify(dict(notification_image=IMAGE,notification_key="/notifykey",public_origin="https://invoice.example.invalid"),fake,config)
+        fake.protected=Mock();fake.controlled_directory=Mock()
+        mounts_peer=SimpleNamespace(consumer_mounts=lambda *args:(("/binding","/run/importer/graph-access-binding.json"),
+            ("/gate","/run/importer/operations/graph-access")))
+        with patch.object(automatic,"load_processing",return_value=mounts_peer):
+            result=automatic.notify(dict(notification_image=IMAGE,notification_key="/notifykey",public_origin="https://invoice.example.invalid"),fake,config)
         self.assertTrue(result["ok"])
         create=next(args for args,_ in calls if args[0]=="create")
         mounts=[create[i+1] for i,item in enumerate(create) if item=="--mount"]
-        self.assertEqual(len(mounts),4);self.assertTrue(all(item.endswith(",readonly") for item in mounts))
+        self.assertEqual(len(mounts),6);self.assertTrue(all(item.endswith(",readonly") for item in mounts))
         self.assertFalse(any("/importer," in item or "LDAP" in item or "CONFIG_KEY" in item for item in create))
         self.assertEqual(create[-6:],[IMAGE,"python","-B","-m","app.notification_cli","automatic"])
         name=create[create.index("--name")+1]
