@@ -33,12 +33,14 @@ class RotationStore:
                 raise
 
     def _head(self, c):
-        instance = c.execute(sa.text("SELECT instance_id FROM app_metadata WHERE singleton=1")).scalar_one()
-        if instance != self.binding.instance_id:
-            raise GraphError("rotation_scope_changed")
+        # Serialize before the first consistent read: a pre-lock REPEATABLE READ
+        # snapshot must not hide the winner's immutable request receipt.
         row = c.execute(sa.select(head).where(head.c.singleton == 1).with_for_update()).mappings().first()
         if row is None:
             raise GraphError("rotation_schema_unavailable")
+        instance = c.execute(sa.text("SELECT instance_id FROM app_metadata WHERE singleton=1")).scalar_one()
+        if instance != self.binding.instance_id:
+            raise GraphError("rotation_scope_changed")
         if row["scope_key"] not in {None, self.binding.scope} or row["instance_id"] not in {None, self.binding.instance_id}:
             raise GraphError("rotation_scope_changed")
         return dict(row)
@@ -70,7 +72,7 @@ class RotationStore:
         now = int(self.clock())
         with self.transaction() as c:
             current = self._head(c)
-            existing = c.execute(sa.select(requests).where(requests.c.operation_id == operation)).mappings().first()
+            existing = c.execute(sa.select(requests).where(requests.c.operation_id == operation).with_for_update()).mappings().first()
             if existing is not None:
                 if existing["request_hash"] != request_hash or existing["scope_key"] != self.binding.scope:
                     raise GraphError("rotation_request_conflict")

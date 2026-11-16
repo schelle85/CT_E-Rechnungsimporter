@@ -41,6 +41,11 @@ und ausgewählter unveränderter API-/Notification-/Processing-/Vorschauleser.
 POSIX-Dateirechte/flock/Verzeichnis-fsync und Linuxfristen haben in den lokalen
 Windowsprüfungen ausdrückliche Doubles; native Belege bleiben separat nötig.
 
+SQL-Nachtrag B-R1: Head wird vor der ersten konsistenten Lesung gesperrt und die
+ursprüngliche Quittung danach ebenfalls sperrend gelesen. Das erhält identische
+parallele Anforderungen unter der vorgesehenen Serialisierung. Der gezielte
+SQLite-Nachlauf ersetzt keinen MariaDB-Nachweis mit tatsächlicher Isolation.
+
 Geplant nach AP08 und vor AP11/der finalen AP09-Übergabe. Technische Grundlage ist
 AP07. Vorhandene Betriebsbausteine aus AP08/AP10 nutzen, soweit vorhanden; keine
 anderen AP-Freigaben aus diesem Plan ableiten.

@@ -15,6 +15,7 @@ from app.graph import GraphError
 from app.rotation_state import RotationStore
 from app.rotation_schema008 import metadata, head, requests
 from app.schema import metadata as security_metadata
+from app.schema import audit
 from rotation_test_support import BINDING, NOW
 
 
@@ -67,6 +68,18 @@ class RotationStateTests(unittest.TestCase):
         with ThreadPoolExecutor(max_workers=2) as pool:results=list(pool.map(attempt,range(2)))
         self.assertEqual(sum(value is not None for value in results),1)
         with self.engine.connect() as c:self.assertEqual(c.execute(sa.select(sa.func.count()).select_from(requests)).scalar_one(),1)
+
+    def test_identical_concurrent_requests_return_same_receipt_and_one_audit(self):
+        barrier=Barrier(2);operation=str(uuid4())
+        def attempt(_):
+            barrier.wait()
+            return self.store.request(operation,"ad:"+"a"*32,0,"b"*64)
+        with ThreadPoolExecutor(max_workers=2) as pool:receipts=list(pool.map(attempt,range(2)))
+        self.assertEqual(receipts[0],receipts[1])
+        with self.engine.connect() as c:
+            self.assertEqual(c.execute(sa.select(sa.func.count()).select_from(requests)).scalar_one(),1)
+            self.assertEqual(c.execute(sa.select(sa.func.count()).select_from(audit).where(
+                audit.c.action=="graph_rotation_requested")).scalar_one(),1)
 
     def test_unknown_not_released_by_time_new_id_or_configuration(self):
         self.store.configure(0,True,"operator")
