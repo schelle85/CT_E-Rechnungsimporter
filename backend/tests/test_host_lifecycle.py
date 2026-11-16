@@ -133,8 +133,11 @@ class AdoptionTests(unittest.TestCase):
             if failure in {"peer","rollback"} and args[-1]==NEW:raise ValueError("tls_peer_changed")
             return args[-1]
         fake=SimpleNamespace(command=command)
+        clock=[0.0]
+        def sleep(seconds):clock[0]+=seconds
         with patch.object(runtime,"switch",side_effect=switch),patch.object(runtime.os,"readlink",side_effect=lambda path:state[0]),\
-                patch.object(runtime,"sync_directory"),patch.object(runtime,"peer",side_effect=peer):
+                patch.object(runtime,"sync_directory"),patch.object(runtime,"peer",side_effect=peer),\
+                patch.object(runtime,"time",SimpleNamespace(monotonic=lambda:clock[0],sleep=sleep)):
             if failure:
                 with self.assertRaises((ValueError,OSError,subprocess.TimeoutExpired,RuntimeError)) as caught:
                     runtime.adopt(dict(tls_root=str(root)),ORIGIN,fake,runtime.time.monotonic()+30,

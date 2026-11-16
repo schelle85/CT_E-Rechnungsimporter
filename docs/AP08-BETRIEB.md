@@ -131,7 +131,9 @@ Composebereitstellung mit passenden Images bleibt der getrennte Rootschritt.
 Container-IDs: DB healthy → API healthy → Nginx running → vertrauenswürdiges
 HTTPS mit lokalem Leaf-Fingerprint und `/api/health/ready`, journal/Instanzgleich.
 240s Gesamtfrist. Die Portalprüfung liest den lokalen TLSbaum, keinen SSLquell-
-oder Importmount. Notifications benötigen anschließend DBbereitschaft und
+oder Importmount. Innerhalb der ursprünglichen Frist werden vorübergehende
+Verbindungs-/Bereitschaftsfehler nur lesend erneut geprüft; die erste HTTPSantwort
+ist kein Endentscheid. Notifications benötigen anschließend DBbereitschaft und
 können einen späteren APIausfall weiter beobachten. Processing verlangt zusätzlich
 Portal-/Instanzbereitschaft und seinen eigenen geprüften Importmount; TLS hat
 eine getrennte RO-Quellmountbedingung. `RequiresMountsFor` ersetzt nie die
@@ -190,6 +192,10 @@ RO-Wurzel und exakter TLSmount sowie Container-ID geprüft. Relativer current-Li
 wird atomar gewechselt; nginx-test vor gezieltem Reload genau dieser ID.
 Erfolg erst nach vertrauenswürdigem HTTPS, exaktem Peerfingerprint und identischer
 bereiter Instanz. Ergebnis enthält den bestätigten Quellsnapshot-Hash.
+Vorwärts- und Rückweg warten innerhalb ihrer bereits übergebenen monotonen
+Fristen auf diese Bestätigung. Ein noch alter Peer nach Reload ist kein sofortiger
+Endfehler. Wiederholt werden ausschließlich neue HTTPSlesungen, kein Linkwechsel,
+Reload oder Graphaufruf. Fristablauf bleibt Fehler beziehungsweise Pendingbeleg.
 
 Ein rootprivater `.tls-pending.json`-Beleg entsteht vor dem Linkwechsel. Bei
 Testfehler wird der alte Link ohne Reload wiederhergestellt; bei Reload-/Livefehler

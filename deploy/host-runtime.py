@@ -30,6 +30,20 @@ def seconds(until,maximum=5):
     return value
 
 
+def wait_readiness(check,until):
+    """Retry only reads, inside the caller's original monotonic deadline."""
+    while True:
+        seconds(until)
+        try:
+            value=check()
+            seconds(until)  # A late successful read cannot renew the budget.
+            return value
+        except (OSError,ValueError,subprocess.SubprocessError):
+            remaining=until-time.monotonic()
+            if remaining<=0:raise ValueError("host_deadline") from None
+            time.sleep(min(.5,remaining))
+
+
 def profile(path,host):
     value=json.loads(host.protected(path).read_text(encoding="utf-8"))
     if not isinstance(value,dict) or set(value)!={"containers","instance_id","tls_root","peer_address"}:raise ValueError()
@@ -146,7 +160,7 @@ def start(binding,origin,host,until):
                 if current["id"]!=item["id"]:raise ValueError("host_container_changed")
                 if current["state"].get("Running") and (kind=="nginx" or current["state"].get("Health",{}).get("Status")=="healthy"):break
                 time.sleep(seconds(until,1))
-        ready(binding,origin,host,until)
+        wait_readiness(lambda:ready(binding,origin,host,until),until)
         with host.host_lock(GATE_LOCK,wait=seconds(until,5)) as acquired:
             if not acquired:raise ValueError("host_gate_busy")
             if gate(host)==previous_gate and previous_gate is not None:
@@ -297,7 +311,7 @@ def adopt(binding,origin,host,until,old,target,expected,nginx):
         host.command(["exec",nginx,"nginx","-t"],seconds(until))
         reload_attempted=True
         host.command(["exec",nginx,"nginx","-s","reload"],seconds(until))
-        peer(binding,origin,until,expected)
+        wait_readiness(lambda:peer(binding,origin,until,expected),until)
         clear_tls_pending(root)
         return dict(ok=True,changed=True,fingerprint=expected)
     except BaseException as error:
@@ -310,7 +324,7 @@ def adopt(binding,origin,host,until,old,target,expected,nginx):
                 host.command(["exec",nginx,"nginx","-t"],seconds(rollback))
                 if reload_attempted:
                     host.command(["exec",nginx,"nginx","-s","reload"],seconds(rollback))
-                peer(binding,origin,rollback,old[1])
+                wait_readiness(lambda:peer(binding,origin,rollback,old[1]),rollback)
                 clear_tls_pending(root)
             except BaseException:raise RuntimeError("tls_rollback_unconfirmed") from None
         elif current==old[0]:clear_tls_pending(root)
