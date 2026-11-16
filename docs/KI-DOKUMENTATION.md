@@ -16,17 +16,52 @@ Fälligkeiten, Budgets und Host-/Consumer-CIFSbindung. B ergänzt Start/Drain,
 Berlin-Timer und externe HTTPSübernahme mit begrenzter lesender Bereitschafts-
 wiederholung. Frühere isolierte native A-/TLS-Nachweise sind erhalten.
 C liefert den begrenzten Hostcollector, atomare erlaubte Statusdaten, gebundene
-GETprojektion und GUI zur Quellprüfung. Beide AD-Rollen lesen; keine Steuerroute.
+GETprojektion und GUI, bereitgestellt aus
+`413095f823702d39b02bc8b3c989b526fdf808d0`. Beide AD-Rollen lesen; keine Steuerroute.
 Fehlend, ungültig, falsche Quelle/Deployment/Instanz/Boot oder >180s alt/>30s
 zukünftig ergibt unbekannt, nie automatisch inaktiv oder aktiv.
 `automatic_schedule_active` ist boolean|null, zusätzlich Zustand
 active/paused/degraded/unknown. Die minimale externe Notification-CLI ohne
 Statusverzeichnis bleibt unbekannt. Sidebar/Footer/Übersicht/Notifications
 teilen eine Quelle; Login bleibt neutral. Monotone Browserablaufzeit verwirft
-alte Aktivität auch ohne neue Antwort. C-Bereitstellung und Aktivierung offen.
-API/Notification und separater Processingconsumer benötigen denselben neuen
-Backendstand; Classifier, Locks und Schema007 bleiben erhalten.
-[Führender Betriebsvertrag](AP08-BETRIEB.md). Der Kunde bleibt beim AP07-Stand.
+alte Aktivität auch ohne neue Antwort. C-GUI mit drei Desktopgruppen und
+Mobile 390 × 844 sowie getrenntem Readback bestanden; synthetische API-/Rollenfixtures,
+kein neuer tatsächlicher Kunden-/AD-Anmeldenachweis daraus.
+Base-Apply getrennt bestätigt: neue API/Web, DB-ID/Startzeit, DBzeilen und
+Konfigurationshashes unverändert; Schema 007/Instanz erhalten. Bestehende
+PDF-Vorschau nutzt lesende Graphabrufe und privates Tmpfs mit 128 MiB; tatsächlicher
+Tmpfsmount getrennt bestätigt. API/Notification und separater Processingconsumer
+stammen aus derselben C-Backendquelle; Classifier und Paketlocks unverändert.
+Echte HTTPSübernahme changed=true, Folgeprüfung changed=false; vertrauenswürdiger
+Peer bis 12.02.2027 gültig, Instanz/Schema/Konfiguration erhalten. Notificationvorlauf
+mit Version 1/drei privat verwalteten Empfängern, Tages-/Wochenvorschauen mit 0 Zählern
+und ursprünglichem Testslot accepted/1/202 getrennt bestätigt; keine neue Testmail.
+Startdienst und fünf Timer sind seit 16.11.2026 19:44:23 Europe/Berlin enabled/active;
+frische gebundene Statusprojektion active, Statuspublikation minütlich.
+Normale geplante Korrekturen um 19:45 und Inbox um 19:50 je 0 Quanten / 0 remaining erfolgreich;
+Inbox um 19:45 wurde vorher wegen gemeinsamer Sperre zurückgestellt, folgende
+Gelegenheit belegt normale Queuefairness. Tages-/Wochenbericht um 19:45/19:46 je
+einmal HTTP 202 accepted, weitere Notificationläufe ohne zusätzliche Sendung;
+Testslot accepted/1/202 erhalten, keine unbekannten/offenen Postwirkungen.
+Graphannahme ist keine Zustellbestätigung. Preboot-Gate um 19:50:28 bestätigt inaktive
+Worker/keine Operationscontainer und drei eindeutig angenommene Slots.
+Kontrollierter Reboot mit neuer Boot-ID, gleichen Container-IDs/Images, gesundem
+HTTPS, beiden CIFSmounts und erhaltenen Schema-/Instanz-/Konfigurations-/
+Testslotbindungen erfolgt. Weitere Inboxläufe nach Boot 0 Quanten / 0 remaining,
+drei Mailbelege weiterhin accepted/ein Versuch/202. Erster geplanter TLS-
+Stundenlauf um 20:00 changed=false/gleicher Peer/status_recorded=true bestätigt.
+Nach dem Reboot wurde am 16.11.2026 um 20:15:08 Europe/Berlin separat ein persistenter
+Status-Timer-Drop-in `10-phase.conf` angewandt: genau ein effektiver Kalender
+`*-*-* *:*:20 Europe/Berlin`, Ziel invoice-status.service, Timer active/enabled.
+Anwendung, Hostskripte und Images bleiben unverändert auf 413095f. Drei
+aufeinanderfolgende automatische Kontrollzyklen am 16.11.2026 um 20:16:21,
+20:17:21 und 20:18:21 Europe/Berlin bestätigen jeweils active und running=false;
+der Notificationlauf war jeweils seit 15 Sekunden abgeschlossen. Kein manueller
+Collector wurde gestartet. Boot-/Quellbindung, Drop-in, Dienstziel und übrige
+Wiederanlaufprüfungen sind bestätigt. AP08 ist im vereinbarten Umfang technisch
+abgeschlossen. Der Versatz wurde nach dem belegten Reboot gesetzt; kein zweiter
+Reboot oder vollständiger VMrestore ist damit nachgewiesen.
+[Führender Betriebsvertrag](AP08-BETRIEB.md).
 
 Planungsnachtrag vom 16.11.2026: [AP12](AP12-GRAPH-ZERTIFIKATSROTATION.md) für
 Graph-Zertifikatsrotation und Administration → Graph-Zertifikat angenommen.
@@ -70,8 +105,11 @@ Meldung über Benachrichtigungsfehler. Bei Ausfall der eigenen VM/DB keine
 zuverlässige Selbstalarmierung. APIkind teilt die API-Dateisystemgrenze;
 Envstrip ist keine physische Isolation. Externe CLI bleibt minimal gebunden.
 
-Import-/Korrektur-/Notificationautomatik ist weiterhin inaktiv. Gespeicherte
-Zeiten werden im freigegebenen AP08 erst nach gesonderter Prüfung dauerhaft aktiviert.
+Zum AP07-Abschluss war die Automatik inaktiv. Die tatsächliche Aktivierung der
+Hostzeitpläne erfolgte in AP08 am 16.11.2026; erste normale Läufe bestätigt,
+Wiederanlauf und erster geplanter TLS-Stundenlauf bestätigt. Drei automatische
+Kontrollzyklen des nach Reboot separat gesetzten Statusphasenversatzes sind
+bestanden; AP08 ist im vereinbarten Umfang technisch abgeschlossen.
 AP09/10/11 sind nicht freigegeben; AP11-Planung, Dezemberstichtag, AP03 und
 DMS-Abgrenzung erhalten.
 Siehe [AP07-Vertrag](AP07-NOTIFICATIONS.md), [Operatorvertrag](AP07-OPERATOR.md)

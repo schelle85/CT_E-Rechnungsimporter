@@ -36,11 +36,31 @@
   mit HTTP 202/Reservierung 1/getrenntem Status bestätigt; Empfang ausschließlich im
   eigenen Abnahmepostfach nachgewiesen. Keine neue tatsächliche Kundenanmeldung
   nach AP07 behaupten; AP01-AD-Abnahme bleibt historisch. Bestehende Fehlerzähler erhalten.
-  Import-/Korrektur-/Notificationautomatik bleibt inaktiv; gespeicherte Zeiten
+  Zum AP07-Abschluss blieb die Automatik inaktiv; gespeicherte Zeiten allein
   aktivieren keine Jobs. AP08 ist seit16.11.2026 zur Umsetzung freigegeben;
   A liefert Laufzeitbasis, B Start/Timer/HTTPSübernahme, C frischen gebundenen
-  Betriebsstatus für API/GUI zur Quellprüfung. C ist noch nicht bereitgestellt;
-  kontrollierte Aktivierung und zugehörige Readbacks bleiben offen.
+  Betriebsstatus für API/GUI. C ist aus 413095f823702d39b02bc8b3c989b526fdf808d0
+  bereitgestellt; Base-Apply erhält Schema 007/Instanz/Konfiguration und DBzustand.
+  C-GUI samt getrenntem Readback bestanden, tatsächliche HTTPSübernahme und
+  folgender No-op bestätigt; aktueller Peer gültig bis 12.02.2027.
+  Notificationvorlauf/Nullvorschauen geprüft, ursprünglicher Testslot accepted/1/202
+  erhalten, keine zusätzliche Testmail. Startdienst und fünf Timer seit 16.11.2026
+  19:44:23 Europe/Berlin enabled/active; frischer Status active, Publikation minütlich.
+  Erste Korrekturen um 19:45 und Inbox um 19:50 nach vorherigem Sperrdeferred erfolgreich,
+  je 0 Quanten / 0 remaining. Tages-/Wochenbericht um 19:45/19:46 je einmal mit 202 angenommen;
+  keine Zustellbestätigung daraus, Testslot erhalten, keine offenen Postwirkungen.
+  Preboot-Gate um 19:50:28 und kontrollierter Reboot erfolgt: neue Boot-ID, gleiche
+  Container-IDs/Images, gesundes HTTPS, beide CIFSmounts und DB-/Konfigurations-
+  bindungen erhalten. Erster geplanter TLS-Stundenlauf um 20:00 changed=false,
+  status_recorded=true. Anwendung/Images bleiben auf 413095f. Nach dem Reboot ist
+  seit 16.11.2026, 20:15:08 Europe/Berlin der separate Status-Timerphasenversatz wirksam:
+  genau ein Kalender jede Minute Sekunde 20, Timer active/enabled, Ziel
+  invoice-status.service. Drei aufeinanderfolgende automatische Kontrollzyklen
+  am 16.11.2026 um 20:16:21, 20:17:21 und 20:18:21 Europe/Berlin bestätigen active,
+  abgeschlossene Notificationläufe und erhaltene Boot-/Quellbindungen; kein
+  manueller Collector. AP08 ist im vereinbarten Umfang technisch abgeschlossen.
+  Der Phasenversatz wurde nach dem belegten Reboot gesetzt; kein zweiter Reboot
+  oder vollständiger VMrestore ist damit nachgewiesen.
   Führender Vertrag: docs/AP08-BETRIEB.md. AP09/10/11 bleiben ohne Go;
   AP11-Planung erhalten.
   AP12 ist seit16.11.2026 für Graph-Zertifikatsrotation und Administration →

@@ -1,11 +1,63 @@
 # Betriebsstand
 
-Quellnachtrag vom16.11.2026: AP08 ist in Umsetzung. A/B liefern begrenzte
-Laufzeit, Start/Drain, Timer und HTTPSübernahme; C ergänzt Hoststatus, geschützte
-API und konsistente Oberfläche zur Quellprüfung. Frühere isolierte native
-A-/TLS-Nachweise sind erhalten. C ist noch nicht bereitgestellt, kontrollierte
-Aktivierung/Readbacks stehen aus. Diese Quelllieferung ändert den nachfolgenden
-Kundenbetriebsstand nicht. Siehe [AP08-Betrieb](AP08-BETRIEB.md).
+Aktueller Stand: 16. November 2026. AP08 ist aus
+`413095f823702d39b02bc8b3c989b526fdf808d0` bereitgestellt. Neue API/Web und
+Processing-/Notificationquelle sind gebunden; getrennte Base-Readbacks bestätigen
+erhaltene DB-ID/Startzeit, DBzeilen und Konfiguration sowie Schema 007/Instanz.
+HTTPS ist ready/journal mit derselben Instanz. Bestehende PDF-Vorschau verwendet
+lesenden Graphabruf und ein privates Tmpfs mit 128 MiB; dessen tatsächlicher Mount ist bestätigt.
+
+Echte externe HTTPSübernahme mit changed=true und anschließender No-op mit
+changed=false sind getrennt bestätigt. Vertrauenswürdiger öffentlicher Peer bis
+12.02.2027 gültig; Schema, Instanz und Konfiguration bleiben erhalten.
+Reiner Notificationvorlauf und separater Readback bestätigen Version 1, drei
+privat verwaltete Empfänger und Tages-/Wochenvorschauen mit 0 Zählwerten.
+Ursprünglicher Testslot accepted/Reservierung 1/HTTP 202 erhalten; keine neue Testmail.
+
+Startdienst und fünf Timer sind seit 16.11.2026 19:44:23 Europe/Berlin
+enabled/active. Inbox alle 5 min, Korrekturen alle 15 min, Notifications jede Minute, TLS stündlich und
+Status jede Minute; Kalender Europe/Berlin. Frische gebundene Statusprojektion active
+separat bestätigt; Status wird jede Minute publiziert.
+
+Erste geplante Korrekturen um 19:45 erfolgreich mit 0 Quanten / 0 remaining. Eingang um 19:45
+wegen gemeinsamer Sperre deferred, nächste tatsächliche Gelegenheit um 19:50
+ebenfalls erfolgreich mit 0 Quanten / 0 remaining. Normale Queuefairness beobachtet;
+diese Leerlaufläufe sind kein belegter Rechnungsimport. Die Notificationjobs
+19:45/19:46 haben den vorbereiteten Tages-/Wochenbericht je einmal mit HTTP 202
+angenommen; weitere normale Läufe ohne zusätzliche Sendung. Der ursprüngliche
+Testslot bleibt accepted/eine Reservierung/202. Keine unbekannten oder offenen
+Postwirkungen; Graphannahme ist keine Zustellbestätigung.
+
+Preboot-Gate um 19:50:28 Europe/Berlin bestätigt alle Worker inaktiv, keine
+Operationscontainer und drei eindeutig angenommene Slots. Der erste geplante
+TLS-Stundenlauf um 20:00 ist mit changed=false, gleichem Peer und status_recorded=true
+bestätigt; die vorherige reale TLSübernahme bleibt ein eigener Nachweis.
+
+Kontrollierter Reboot erfolgt: neue Boot-ID, gleiche API-/Web-/DBcontainer-IDs
+und Images, gesundes HTTPS mit übernommenem Peer, beide CIFSmounts,
+Schema/Instanz/Konfiguration und ursprünglicher Testslot erhalten. Weitere
+Nachboot-Inboxläufe: 0 Quanten / 0 remaining; alle drei Mailbelege accepted/ein Versuch/202.
+Der frische Nachbootstatus kann beim laufenden Notificationjob konservativ
+degraded/unknown melden. Status- und Notificationtimer liefen bislang gleichphasig.
+Nach dem Reboot wurde am 16.11.2026 um 20:15:08 Europe/Berlin separat der persistente
+Statusphasen-Drop-in `10-phase.conf` gesetzt: genau ein effektiver Kalender
+`*-*-* *:*:20 Europe/Berlin`, Ziel invoice-status.service, Timer active/enabled.
+Anwendung, Hostskripte und Images bleiben unverändert auf 413095f. Drei
+aufeinanderfolgende automatische Kontrollzyklen am 16.11.2026 um 20:16:21,
+20:17:21 und 20:18:21 Europe/Berlin bestätigen jeweils active, den seit 15 Sekunden
+abgeschlossenen Notificationlauf und running=false. Boot-/Quellbindung, Drop-in,
+Dienstziel und übrige Wiederanlaufprüfungen sind bestätigt; kein manueller
+Collector wurde gestartet. Die technische Serverabnahme und AP08 im vereinbarten
+Umfang sind abgeschlossen. Der Versatz wurde nach dem belegten Reboot gesetzt;
+ein zweiter Reboot oder vollständiger VMrestore ist damit nicht nachgewiesen.
+Siehe [AP08-Betrieb](AP08-BETRIEB.md).
+
+Die isolierte C-GUIprüfung umfasst drei Desktopgruppen und Mobile 390 × 844 mit
+tatsächlichen C-Webassets/eigener HTTPSbindung und synthetischen APIantworten.
+Sie ersetzt keine neue tatsächliche Kunden-/AD-Anmeldung. Frühere isolierte
+A-/TLS-/Status-/Wiederanlaufnachweise bleiben nach ihrem konkreten Umfang getrennt.
+
+## Historischer AP07-Abschluss vom 15. November 2026
 
 Stand: 15. November 2026. AP07 ist technisch abgeschlossen und bereitgestellt aus
 Codepin `5ecfd59270b63947d3f92af98a1b9f8e5a267aeb`. Kundenschema007 sowie API und
@@ -31,9 +83,9 @@ HTTP 202 angenommen; Reservierung 1 und Status wurden getrennt bestätigt.
 Der Empfang ist im eigenen Abnahmepostfach nachgewiesen. Für die beiden anderen
 Empfänger liegt damit kein Empfangsnachweis vor.
 
-Import-, Korrektur- und Benachrichtigungsautomatik bleiben inaktiv. Zeiten sind
-gespeichert, aktivieren aber keine dauerhaften Jobs. Die dauerhafte Aktivierung
-wird in AP08 getrennt geprüft. AP08 hat inzwischen Umsetzungs-Go;
+Zum AP07-Abschluss waren Import-, Korrektur- und Benachrichtigungsautomatik inaktiv.
+Gespeicherte Zeiten allein aktivierten keine dauerhaften Jobs. Die spätere
+Aktivierung ist im aktuellen AP08-Block oben beschrieben.
 AP09/10/11 bleiben ohne Umsetzungs-Go. AP11 bleibt geplant. Stichtag
 1. Dezember 2026, eingefrorene AP03-Erkennung und DMS-Abgrenzung sind unverändert.
 Interne Laufzeitnachweise, Verbindungswerte, Empfänger und geschützte Hostpfade

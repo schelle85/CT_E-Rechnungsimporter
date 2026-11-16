@@ -4,7 +4,7 @@ Description=Invoice operations status every Berlin minute
 After=time-sync.target
 
 [Timer]
-OnCalendar=*-*-* *:*:00 Europe/Berlin
+OnCalendar=*-*-* *:*:20 Europe/Berlin
 Unit=invoice-status.service
 Persistent=true
 AccuracySec=1s

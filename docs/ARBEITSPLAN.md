@@ -9,9 +9,13 @@ Kundenmigration auf006 und getrenntes Rücklesen bestanden. AP07a–c ist techni
 abgeschlossen und bereitgestellt: A/B vollständig, C-Quellenreview, 21 native
 C-MariaDBfälle und acht isolierte HTTPS-Browsergruppen bestanden. Aktuell Schema 007,
 API/Web aus gleicher fester Quelle, Instanz/LDAP-Konfiguration und DBdienst erhalten.
-AP08 ist seit16.11.2026 zur Umsetzung freigegeben. A/B-Laufzeit-/Betriebsbausteine
-und C-Betriebsstatus sind als Quellstand geliefert; C-Prüfung/Bereitstellung offen.
-Dauerhafte Automatik bleibt bis zur geprüften Aktivierung inaktiv.
+AP08 ist im vereinbarten Umfang technisch abgeschlossen und aus
+413095f823702d39b02bc8b3c989b526fdf808d0 bereitgestellt. Echte HTTPSübernahme/No-op
+und Notificationvorlauf sind bestätigt; Startdienst/fünf Timer seit 16.11.2026,
+19:44:23 Europe/Berlin enabled/active. Geplante Leerlaufläufe und je ein angenommener
+Tages-/Wochenbericht sind bestätigt. Wiederanlauf nach kontrolliertem Reboot und
+TLS-Stundenlauf um 20:00 sind belegt. Drei automatische Statuszyklen nach dem
+separat gesetzten Phasenversatz sind bestanden.
 AP09/10/11 und AP12 bleiben ohne Umsetzungs-Go.**
 AP10 ist für die spätere wöchentliche Wartung ergänzt.
 AP12 ist seit 16.11.2026 für Graph-Zertifikatsrotation und einen zusätzlichen
@@ -94,7 +98,7 @@ danach folgen AD-Anmeldung, Administrationsgrundlage und gemeinsame Abnahme.
 | Teil | Ergebnis und Prüfung |
 | --- | --- |
 | AP05a | Mehrfachanhänge und Fahnen; bestätigte Mailpriorität Failed → unzugeordnet → Mahnung → Nachfragen → Zahlungsavis → Success umsetzen; Anhänge unabhängig passend ablegen |
-| AP05b | Persistente Zustände und gemeinsamer manueller Wiederaufnahmepfad ohne Doppelablage; Bedienung in AP06 implementiert. Geplante 5-/15-Minuten-Timer bleiben inaktiv. |
+| AP05b | Persistente Zustände und gemeinsamer manueller Wiederaufnahmepfad ohne Doppelablage; Bedienung in AP06 implementiert. Zum AP05-Abschluss blieben die geplanten 5-/15-Minuten-Timer inaktiv. |
 | AP05c | Kontrollierter Gesamtpfad; Erfolg erst nach erforderlicher Ablage und Mailaktionen |
 
 Prüfstand 13.11.2026: Implementierung sowie Dienst-, Runtime- und CIFS-Helperreview
@@ -108,7 +112,7 @@ einschließlich Mahnung sind belegt. Echter Scan ab unverändertem Stichtag und
 manueller Operatorlauf bestätigen 0 passende Mails/0Quanten. API/GUI und die drei
 laufenden Dienste bleiben unverändert; keine Timer oder produktive Dateipublikation.
 Damit ist AP05 im definierten manuellen Umfang technisch abgeschlossen.
-Die 5-/15-Minuten-Zeitplanung bleibt inaktiv; dauerhafter Automatikbetrieb ist AP08.
+Zum AP05-Abschluss blieb die 5-/15-Minuten-Zeitplanung inaktiv; aktuelle Aktivierung unter AP08.
 
 ## AP06: Webprotokoll, Korrektur, Wiederholung und Archiv - DEV
 
@@ -145,34 +149,44 @@ DMS-Anbindung, -Konfiguration und -Prüfung sind keine Auftrags-/Abnahmebestandt
 | --- | --- |
 | AP07a | Bereitgestellt: versionierte Einstellungen, eigener Notificationkey, ursprüngliche AD-/UUIDbindung, feste Vorschau/Testaktion/Status und gemeinsames 80-s-Budget. A/B-/C-Quellen- und native Prüfungen bestanden; echte Anmeldung und genau eine Testmail (HTTP 202) mit Reservierung 1/getrenntem Status bestätigt. Empfang im eigenen Abnahmepostfach belegt. |
 | AP07b | Bereitgestellt und isoliert im Browser geprüft: lokale PEMmetadaten, offene Serie und gespeicherter Nachfolgerproof getrennt; exakte 10d-/1d-/0-/Negativschwellen, laufender Portal- und gesonderter Loginhinweis für beide Rollen. Pflichtwarnung nicht abschaltbar, negative Restzeit bleibt best effort warnpflichtig. |
-| AP07c | Bereitgestellt: tatsächliche Journal-/API-/Graphbeobachter und vorhandene Wiederholsperren; Administration→Berichte mit echten Tages-/Wochen-/freien Journalzeiträumen und korrekter Leere. 21 C-Fälle auf MariaDB, acht HTTPS-Browsergruppen und zusätzlicher synthetischer CLIplan bestanden. Dauerhafte Automatik inaktiv. |
+| AP07c | Bereitgestellt: tatsächliche Journal-/API-/Graphbeobachter und vorhandene Wiederholsperren; Administration→Berichte mit echten Tages-/Wochen-/freien Journalzeiträumen und korrekter Leere. 21 C-Fälle auf MariaDB, acht HTTPS-Browsergruppen und zusätzlicher synthetischer CLIplan bestanden. Zum AP07-Abschluss war die Automatik inaktiv. |
 
 AP07-Go vom 14.11.2026; technisch abgeschlossen und am 15.11.2026 bereitgestellt aus
 `5ecfd59270b63947d3f92af98a1b9f8e5a267aeb`. Schema 007, API/Web, erhaltene Instanz/
 LDAP-Konfiguration und DBdienst getrennt bestätigt. Drei Empfänger privat initialisiert;
 Empfang der einen Testmail ausschließlich im eigenen Abnahmepostfach nachgewiesen.
 Keine frische tatsächliche Kundenanmeldung nach AP07; echte AD-Abnahme aus AP01
-bleibt historisch. Import-/Korrektur-/Notificationautomatik inaktiv, Zeiten gespeichert.
-Dauerhafte Aktivierung wird in AP08 getrennt geprüft; AP09/10/11 bleiben ohne Freigabe.
+bleibt historisch. Zum AP07-Abschluss waren die Zeitpläne inaktiv, Zeiten gespeichert.
+Die aktuelle Aktivierung ist unten in AP08 dokumentiert; AP09/10/11 bleiben ohne Freigabe.
 AP11-Planung bleibt erhalten.
 Vertrag und Grenzen: [AP07](AP07-NOTIFICATIONS.md), [Betreiber-CLI](AP07-OPERATOR.md).
 
 ## AP08: Betriebsprüfung und Übergang - DEV / REVIEW / ORGA
 
-Status: Umsetzung seit16.11.2026 freigegeben. A: Laufzeitbasis,
+Status: Seit 16.11.2026 im vereinbarten Umfang technisch abgeschlossen. A: Laufzeitbasis,
 Testmailausschluss, Sperre, Grenzen und Fairness. B: Start/Drain, Timer und
 geprüfte HTTPSübernahme. C: eigener begrenzter Hoststatus, geschützte GETroute
-für beide Rollen und frische konsistente GUIanzeige als Quellstand.
-Die isolierten nativen A-/TLS-Nachweise sind von der noch offenen C-Prüfung,
-Bereitstellung und kontrollierten Aktivierung getrennt. Führender Vertrag:
+für beide Rollen und frische konsistente GUIanzeige, inzwischen aus 413095f
+bereitgestellt. Base-Apply und Readback erhalten DBzustand/Schema 007/Instanz/
+Konfiguration; C-GUI isoliert bestanden. Echte TLSübernahme und folgender No-op
+sowie Notificationvorlauf mit Nullvorschauen bestätigt. Startdienst/fünf Timer
+seit 16.11.2026 19:44:23 Europe/Berlin enabled/active. Korrekturen um 19:45 und
+Inbox um 19:50 nach Sperrdeferred je 0 Quanten / 0 remaining bestätigt; Tages-/Wochenbericht
+je einmal 202 accepted, keine offenen Postwirkungen. Preboot-Gate um 19:50:28 bestanden;
+kontrollierter Reboot und geplanter TLS-Stundenlauf um 20:00 belegt. Nach dem
+Reboot wurde am 16.11.2026 um 20:15:08 Europe/Berlin separat der Statusversatz
+gesetzt: genau ein Kalender auf Sekunde 20, Timer active/enabled. Drei
+aufeinanderfolgende automatische Kontrollzyklen um 20:16:21, 20:17:21 und 20:18:21
+bestätigen active, abgeschlossene Notificationläufe und erhaltene Bindungen.
+Führender Vertrag:
 [AP08-Betrieb](AP08-BETRIEB.md).
 
 | Teil | Ergebnis und Prüfung |
 | --- | --- |
-| AP08a | Zusammenhängende Gesamtprüfung einschließlich Neustart, Mounts, Rollen und SSL-Übernahme |
-| AP08b | Bestehende Sicherung berücksichtigen; isolierten Wiederanlauf mit belegtem Umfang koordinieren |
-| AP08c | Kontrollierter Automatikbetrieb mit wirksamem Stichtag und eindeutigem Vorgangsstand |
-| AP08d | Betreiberabläufe, Überwachung, Updates und Rückkehr zum Vorzustand zugeordnet |
+| AP08a | Abgeschlossen: C bereitgestellt; Base-/Status-/GUI-/Mount-/TLSnachweise, kontrollierter Wiederanlauf mit erhaltenen Bindungen und drei automatische Statuszyklen nach dem separaten Phasenversatz bestanden. Isolierte Rollenprüfung ist keine neue Kundenanmeldung. |
+| AP08b | Im belegten Sicherungs-/isolierten Wiederanlaufumfang abgeschlossen. Die bestehenden Nachweise bleiben erhalten; ein vollständiger VMrestore ist nicht nachgewiesen. |
+| AP08c | Abgeschlossen: Startdienst/fünf Timer enabled/active; geplante Inbox-/Korrekturleerlaufläufe samt Sperrdeferred/Folgegelegenheit, zwei einmalige 202-Berichtsannahmen und TLS-Stundenlauf um 20:00 bestätigt. Nachbootläufe erhalten eindeutige Mailbelege; drei automatische Statuszyklen nach dem Versatz bestanden. Stichtag unverändert. |
+| AP08d | Abgeschlossen: Betreiber-/Drain-/Rückwege, Statusvertrag, Preboot-Gate und kontrollierter Wiederanlauf belegt. Statusphasenversatz nach dem Reboot um 20:15:08 separat gesetzt und automatisch kontrolliert. Anwendung bleibt 413095f; kein zweiter Reboot daraus abgeleitet. |
 
 ## AP09: Abschlussdokumentation und Übergabe - ORGA / DEV / REVIEW
 
@@ -228,7 +242,7 @@ KI-Dokumentation bleiben eigene Lieferungen. Umfang und Ausgabe siehe
 ## AP12: Graph-Zertifikatsrotation und Administration - DEV / REVIEW / ORGA
 
 Am 16.11.2026 als eigenes Arbeitspaket angenommen und eingeplant.
-Status: geplant, noch kein AP12-Umsetzungs-Go. Der bereitgestellte AP07-Stand bleibt erhalten.
+Status: geplant, noch kein AP12-Umsetzungs-Go. AP12 ist noch nicht bereitgestellt; aktueller Betrieb siehe AP08.
 Ein AP08-Go gibt AP12 weder zur Umsetzung noch zur Aktivierung frei.
 
 | Teil | Ergebnis und Prüfung |

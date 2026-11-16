@@ -18,7 +18,15 @@ AP06 mit echten Journalansichten, Korrekturen, technischen Wiederholungen und
 PDF-Vorschau ist technisch abgeschlossen. AP07 ist geprüft und bereitgestellt:
 Schema 007 sowie API und Web aus derselben festen Quelle sind getrennt bestätigt,
 bestehende Instanz, LDAP-Konfiguration und Datenbankdienst erhalten.
-Import-, Korrektur- und Benachrichtigungsautomatik bleiben inaktiv.**
+AP08 ist im vereinbarten Umfang technisch abgeschlossen und aus
+`413095f823702d39b02bc8b3c989b526fdf808d0` bereitgestellt.
+Startdienst und fünf Timer sind seit 16.11.2026, 19:44:23 Europe/Berlin aktiv.
+Geplante Inbox-/Korrekturläufe mit 0 Quanten sowie je ein Tages-/Wochenbericht
+mit Graphannahme 202 sind bestätigt. Kontrollierter Reboot und erster geplanter
+TLS-Stundenlauf um 20:00 sind belegt. Der danach um 20:15:08 separat gesetzte
+Statusphasenversatz auf Sekunde 20 ist in drei aufeinanderfolgenden automatischen
+Zyklen um 20:16:21, 20:17:21 und 20:18:21 mit Status active bestätigt.
+Anwendung, Hostskripte und Images bleiben auf der genannten C-Quelle.**
 
 | Paket | Stand |
 | --- | --- |
@@ -31,9 +39,9 @@ Import-, Korrektur- und Benachrichtigungsautomatik bleiben inaktiv.**
 | AP04 – SMB-Ablage und Dubletten | Grundlagen technisch abgeschlossen: Quellreview, 115 native Backendtests einschließlich aller 28 AP04-Tests sowie fünf synthetische Fälle auf echtem CIFS bestanden. In AP05 in den gemeinsamen manuellen Pfad integriert. Siehe [AP04-Vertrag](docs/AP04-ABLAGE.md). |
 | AP05 – gemeinsamer Verarbeitungspfad | Im definierten manuellen Umfang technisch abgeschlossen. 155 native Backendtests einschließlich 40 AP05-Gruppen, gezielte Ausgabegrenz-/Timeoutprüfung und echter synthetischer CIFS-Handoff bestanden. Schema 005 und sechstes Inboxziel Mahnung bereitgestellt; Scan/manueller Tick bestätigen 0 passende Mails/0 Quanten. Zum AP05-Abschluss blieben API/GUI unverändert. Keine Timer oder produktive Dateipublikation. Siehe [AP05-Vertrag](docs/AP05-PROCESSING.md) und [Runtime](docs/AP05-RUNTIME.md). |
 | AP06 – Webprotokoll, Korrektur und PDF-Vorschau | Technisch abgeschlossen und bereitgestellt: echte Journalansichten, generationgebundene Freigabe/Retry, Einstellungen, Archiv und großer PDFdialog. Native006-/Sicherheits-/Konkurrenzprüfungen sowie fünf isolierte Browsergruppen mit sichtbarer Original-PDF bestanden. Kundenmigration auf006, Dienstpins, HTTPS und leeres echtes Journal getrennt zurückgelesen. Siehe [AP06](docs/AP06-WEB.md). |
-| AP07 – Berichte und Benachrichtigungen | Technisch abgeschlossen und bereitgestellt aus `5ecfd59270b63947d3f92af98a1b9f8e5a267aeb`, Schema 007. A/B vollständig geprüft, C-Quellenreview, 21 C-Fälle auf MariaDB und acht isolierte HTTPS-Browsergruppen bestanden. Administration→Berichte, Benachrichtigungseinstellungen, feste Vorschau/Testaktion, Verlauf und Zertifikats-/Loginhinweise geliefert. Echte Graph-Zertifikatsanmeldung und genau eine feste Testmail mit HTTP 202/Reservierung 1/getrenntem Statusabgleich bestätigt; Empfang im eigenen Abnahmepostfach nachgewiesen. Automatik bleibt inaktiv. Siehe [AP07](docs/AP07-NOTIFICATIONS.md) und [Betreiberweg](docs/AP07-OPERATOR.md). |
+| AP07 – Berichte und Benachrichtigungen | Technisch abgeschlossen und bereitgestellt aus `5ecfd59270b63947d3f92af98a1b9f8e5a267aeb`, Schema 007. A/B vollständig geprüft, C-Quellenreview, 21 C-Fälle auf MariaDB und acht isolierte HTTPS-Browsergruppen bestanden. Administration→Berichte, Benachrichtigungseinstellungen, feste Vorschau/Testaktion, Verlauf und Zertifikats-/Loginhinweise geliefert. Echte Graph-Zertifikatsanmeldung und genau eine feste Testmail mit HTTP 202/Reservierung 1/getrenntem Statusabgleich bestätigt; Empfang im eigenen Abnahmepostfach nachgewiesen. Zum AP07-Abschluss blieb die Automatik inaktiv. Siehe [AP07](docs/AP07-NOTIFICATIONS.md) und [Betreiberweg](docs/AP07-OPERATOR.md). |
 | AP12 – Graph-Zertifikatsrotation und Adminreiter | Geplant seit 16.11.2026: lokale Erneuerung, geprüfter Wechsel und zusätzlicher Reiter Administration → Graph-Zertifikat. Umsetzung erst nach AP12-Go; siehe [AP12-Plan](docs/AP12-GRAPH-ZERTIFIKATSROTATION.md). |
-| AP08 – Betriebsübergang | Seit16.11.2026 zur Umsetzung freigegeben. A liefert begrenzte Laufzeit/Fairness, B Start/Timer/HTTPSübernahme, C den gebundenen frischen Betriebsstatus für API und Oberfläche zur Quellprüfung. Frühere native A-/TLS-Nachweise bleiben getrennt; C-Bereitstellung und kontrollierte Aktivierung stehen aus. Kundenautomatik bleibt inaktiv. Siehe [AP08](docs/AP08-BETRIEB.md). |
+| AP08 – Betriebsübergang | Im vereinbarten Umfang technisch abgeschlossen. C-Quelle `413095f823702d39b02bc8b3c989b526fdf808d0` bereitgestellt; Instanz, Schema 007, Konfiguration und DBzustand erhalten. Reale HTTPSübernahme mit folgendem No-op, Notificationvorlauf ohne neue Testmail, aktive Zeitpläne und normale Leerlaufläufe bestätigt. Tages-/Wochenbericht je einmal mit HTTP 202 angenommen. Kontrollierter Wiederanlauf, geplanter TLS-Stundenlauf um 20:00 und drei automatische Statuszyklen nach dem separaten Sekunde-20-Versatz bestanden. Siehe [AP08](docs/AP08-BETRIEB.md). |
 | Weitere Pakete | AP09/10/11 ohne Umsetzungs-Go. AP12 bleibt ohne Umsetzungs-Go nach AP08 und vor dem Handbuch eingeplant. |
 
 Der begrenzte Titelvariantennachtrag wurde unabhängig geprüft und aus `e49ccdb`
@@ -104,8 +112,11 @@ Konten und Zugangsdaten werden separat verwaltet.
 Der gemeinsame manuelle Backendpfad verbindet Graph, Erkennung, SMB-Ablage,
 Dubletten und Mailabschluss. Webprotokoll, Korrekturoberfläche und Archiv sind in
 AP06 implementiert und isoliert geprüft. Benachrichtigungen sind mit AP07
-bereitgestellt. AP08 ist in Umsetzung; die dauerhafte Automatik bleibt bis zur
-gesondert geprüften Bereitstellung und Aktivierung inaktiv.
+bereitgestellt. AP08 ist im vereinbarten Umfang technisch abgeschlossen und die
+Zeitplanung seit 16.11.2026 aktiviert. Normale Leerlaufläufe, zwei automatische
+Berichtsannahmen, Wiederanlauf nach kontrolliertem Reboot und TLS-Stundenlauf um
+20:00 sind belegt. Drei automatische Kontrollzyklen bestätigen den anschließend
+separat gesetzten Statusversatz auf Sekunde 20.
 Bestehende frei lizenzierte Bibliotheken werden vor Eigenentwicklung geprüft.
 
 Der vereinbarte [GUI-/Erkennungsnachtrag](docs/ANFORDERUNGEN.md#webkorrektur-und-erkennungsverbesserung)
@@ -113,7 +124,7 @@ gehört zu AP05/AP06: unbekannte Anhänge gezielt zuordnen, freigeben und verarb
 bestätigte Korrekturen für spätere geprüfte Erkennungsregeln nutzen. Oberfläche und
 Freigabeschreibwege sind implementiert. Eine Freigabe erzeugt zunächst einen
 dauerhaften Auftrag; der vorhandene manuelle Korrekturmodus übernimmt ihn.
-Die 5-/15-Minuten-Zeitplanung ist inaktiv. Einzelne Zuordnungen ändern keine
+Die 5-/15-Minuten-Zeitplanung ist seit 16.11.2026 aktiviert. Einzelne Zuordnungen ändern keine
 globalen Erkennungsregeln; AP03 bleibt eingefroren.
 
 ## Prüfstand
@@ -170,7 +181,8 @@ Erkannte PDF-/E-Rechnungen sollen künftig automatisch weiterlaufen; nur Unbekan
 braucht Benutzerklärung. Korrekturoberfläche und Freigabeschreibwege sind in AP06
 implementiert und isoliert geprüft.
 Der gemeinsame manuelle Wiederaufnahmepfad ist in AP05 implementiert und geprüft.
-Die 5-/15-Minuten-Zeitplanung bleibt inaktiv; dauerhafter Automatikbetrieb ist AP08.
+Zum AP05-/AP06-Abschluss blieb die 5-/15-Minuten-Zeitplanung inaktiv;
+die aktuelle Aktivierung gehört zum oben beschriebenen AP08-Stand.
 
 ## Unterlagen
 
