@@ -9,7 +9,8 @@ Kundenmigration auf006 und getrenntes Rücklesen bestanden. AP07a–c ist techni
 abgeschlossen und bereitgestellt: A/B vollständig, C-Quellenreview, 21 native
 C-MariaDBfälle und acht isolierte HTTPS-Browsergruppen bestanden. Aktuell Schema 007,
 API/Web aus gleicher fester Quelle, Instanz/LDAP-Konfiguration und DBdienst erhalten.
-AP08 ist seit16.11.2026 zur Umsetzung freigegeben; Paket A steht zur Quellprüfung.
+AP08 ist seit16.11.2026 zur Umsetzung freigegeben. A/B-Laufzeit-/Betriebsbausteine
+und C-Betriebsstatus sind als Quellstand geliefert; C-Prüfung/Bereitstellung offen.
 Dauerhafte Automatik bleibt bis zur geprüften Aktivierung inaktiv.
 AP09/10/11 und AP12 bleiben ohne Umsetzungs-Go.**
 AP10 ist für die spätere wöchentliche Wartung ergänzt.
@@ -158,9 +159,12 @@ Vertrag und Grenzen: [AP07](AP07-NOTIFICATIONS.md), [Betreiber-CLI](AP07-OPERATO
 
 ## AP08: Betriebsprüfung und Übergang - DEV / REVIEW / ORGA
 
-Status: Umsetzung seit16.11.2026 freigegeben. Paket A: Laufzeitbasis,
-Testmailausschluss vor LIMIT/Versand, gemeinsame Sperre, Grenzen und Fairness.
-Noch keine native oder Aktivierungsabnahme. Führender Vertrag:
+Status: Umsetzung seit16.11.2026 freigegeben. A: Laufzeitbasis,
+Testmailausschluss, Sperre, Grenzen und Fairness. B: Start/Drain, Timer und
+geprüfte HTTPSübernahme. C: eigener begrenzter Hoststatus, geschützte GETroute
+für beide Rollen und frische konsistente GUIanzeige als Quellstand.
+Die isolierten nativen A-/TLS-Nachweise sind von der noch offenen C-Prüfung,
+Bereitstellung und kontrollierten Aktivierung getrennt. Führender Vertrag:
 [AP08-Betrieb](AP08-BETRIEB.md).
 
 | Teil | Ergebnis und Prüfung |

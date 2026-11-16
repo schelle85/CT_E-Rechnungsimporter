@@ -1,0 +1,13 @@
+# Apply only after source/native review with matching host status bindings.
+# The dedicated directory contains only public, whitelisted operations metadata.
+services:
+  api:
+    environment:
+      OPERATIONS_SOURCE_COMMIT: ${OPERATIONS_SOURCE_COMMIT:?Set the reviewed full source commit}
+      OPERATIONS_DEPLOYMENT_ID: ${OPERATIONS_DEPLOYMENT_ID:?Set the matching deployment UUID}
+    volumes:
+      - type: bind
+        source: ${OPERATIONS_STATUS_DIR:-/var/lib/invoice-importer/status}
+        target: /run/importer/operations
+        read_only: true
+        bind: {create_host_path: false}

@@ -1,0 +1,7 @@
+{
+  "source_commit": "REPLACE_WITH_REVIEWED_FULL_COMMIT",
+  "deployment_id": "REPLACE_WITH_NEW_DEPLOYMENT_UUID",
+  "automation_profile": "/etc/invoice-importer/automation-host.json",
+  "result_directory": "/var/lib/invoice-importer/results",
+  "output_directory": "/var/lib/invoice-importer/status"
+}

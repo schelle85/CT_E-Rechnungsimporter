@@ -1,9 +1,10 @@
 # AP08 – Betriebsübergang
 
-Stand: 16. November 2026. AP08 ist zur Umsetzung freigegeben. Paket A liefert
-die Laufzeitbasis; Paket B ergänzt Start-/Timervorlagen und HTTPSübernahme zur
-Quellprüfung. Es ist noch keine Hostbereitstellung oder
-Aktivierungsabnahme. Der Kundenbetrieb bleibt beim abgenommenen AP07-Stand,
+Stand: 16. November 2026. AP08 ist zur Umsetzung freigegeben. A liefert
+die Laufzeitbasis, B Start-/Timervorlagen und HTTPSübernahme, C den gebundenen
+Betriebsstatus für API/GUI zur Quellprüfung. Frühere isolierte native A-/TLS-
+Nachweise bleiben erhalten. C-Bereitstellung und kontrollierte
+Aktivierungsabnahme stehen aus. Der Kundenbetrieb bleibt beim abgenommenen AP07-Stand,
 Schema 007 und inaktiver Import-/Korrektur-/Benachrichtigungsautomatik.
 
 ## Bestehende Bausteine und Umfang
@@ -17,11 +18,12 @@ AP12-Graphrotation gehören nicht zu diesem Paket.
 
 ## Fester Hosteinstieg
 
-`deploy/run-automation.py` kennt ausschließlich `inbox`, `corrections` und
-`notifications` mit einem geschützten Profil. `automation-host.example.json`
+`deploy/run-automation.py` kennt ausschließlich `inbox`, `corrections`,
+`notifications`, `start`, `drain`, `tls` und den lesenden `status`-Weg.
+`automation-host.example.json`
 enthält absichtlich ungültige Imageplatzhalter. Vor einer nativen Probe müssen
 geprüfte unveränderliche Image-IDs und private Pfade eingesetzt werden.
-Beide Hostskripte, Profile und sämtliche Elternverzeichnisse müssen Root gehören,
+Alle Hostskripte, Profile und sämtliche Elternverzeichnisse müssen Root gehören,
 dürfen keine Symlinks und für Gruppe/andere nicht schreibbar sein. Skripte/Profile
 sind höchstens 64 KiB groß; Geheimnisdateien können für die bestehende
 Containergruppe lesbar sein. Ausführung ausschließlich als Root mit
@@ -87,7 +89,7 @@ scheitert vor Graph und Publikation; es wird kein Importroot erzeugt.
 
 Der normale Bind und die Vergleichbarkeit von Host-/Consumergerät und Inode
 sind auf der Ziel-VM als reine Metadatenprobe belegt. Der feste neue
-Consumer-Guard benötigt noch den schmalen nativen positiven/negativen Nachweis.
+Consumer-Guard ist separat in sechs nativen positiven/negativen Fällen geprüft.
 Kein neuer Schreib-/Durchsatznachweis aus diesem Transportfix; die bereits
 bestandenen SQLprüfungen werden dafür nicht pauschal wiederholt.
 
@@ -119,9 +121,11 @@ die gemeinsamen DBreservierungen/Quoten. Es gibt keine neue HTTPsteuerroute.
 
 ## Start, Zeitplanung und Drain – Paket B
 
-Die Beispiele installieren oder aktivieren nichts. Root übernimmt die drei
-geschützten Nachbarskripte `run-automation.py`, `run-processing.py` und
-`host-runtime.py`, bindet die tatsächlichen lokalen Image-IDs/Instanz/Origin und
+Die Beispiele installieren oder aktivieren nichts. Root übernimmt die fünf
+geschützten Nachbarskripte `run-automation.py`, `run-processing.py`,
+`host-runtime.py`, `operations-host.py` sowie die unveränderte Datei
+`backend/app/operations_status.py` unter dem Hostnamen `operations-status.py`,
+bindet die tatsächlichen lokalen Image-IDs/Instanz/Origin und
 passt die Mountpfade in den Vorlagen an. `runtime-host.example.json` benennt
 bereits vorhandene DB/API/Nginx-Container; Boot erstellt keine neuen Container
 und führt weder Composebuild/Pull noch Migration aus. Eine kanonische, geprüfte
@@ -140,7 +144,7 @@ eine getrennte RO-Quellmountbedingung. `RequiresMountsFor` ersetzt nie die
 zusätzliche CIFSidentitätsprüfung. Kein DMSgate.
 
 `invoice-importer.tmpfiles.example` wird von Root als passende tmpfiles-Konfiguration
-bereitgestellt. Sie erzeugt die beiden geschützten Hostverzeichnisse; kein
+bereitgestellt. Sie erzeugt die geschützten Host-, Ergebnis- und Statusverzeichnisse; kein
 kurzlebiges RuntimeDirectory. Die Timer bieten Inbox5min, Korrekturen15min,
 Notifications1min und HTTPSprüfung1h, jeweils ausdrücklich Europe/Berlin auf
 unverändertem UTC-Host. `Persistent=true` bietet eine Nachholmöglichkeit statt
@@ -206,6 +210,79 @@ unbestätigter Rückweg blockieren den nächsten TLSwechsel bis Root Link, Relea
 genannte Container-ID und tatsächlichen Peer abgeglichen hat. Keine automatische
 Löschung dieses Belegs und keine pauschale Release-/Quellenbereinigung.
 
+## Frischer lesender Betriebsstatus – Paket C
+
+Bestehendes systemd, Dockerinspect und die bereits geprüften Mount-/HTTPS-
+Lesebausteine bleiben die Quellen. Kein neuer Dienstanbieter, Scheduler,
+Socketzugang der API oder zusätzliches Paket. Der Rootcollector
+`run-automation.py status --profile /etc/invoice-importer/status-host.json`
+hat eine ursprüngliche 15s-Frist. Das feste Profil benennt Quellcommit,
+Deployment-UUID, vorhandenes Automationprofil und zwei getrennte Verzeichnisse.
+Die Beispielwerte sind absichtlich ungültig. Quellcommit und neue Deployment-
+UUID müssen exakt mit der APIkonfiguration derselben Bereitstellung stimmen;
+Instanz kommt aus dem bestehenden Runtimeprofil, Boot-ID aus dem laufenden Kernel.
+
+`invoice-status.service/timer.example` bietet eine lesende Gelegenheit pro
+Berlinminute. Der Collector ist unabhängig von Hauptdienst/Workertimern und
+läuft deshalb auch bei pausierten Jobs oder fehlgeschlagenem Start. Er ruft
+keinen Start, Enable, Reload, Graphabruf oder Versand auf. Er liest ausschließlich
+die neun festen Start-/Timer-/Workerunits, validierte Containerrollen, tatsächliche
+HTTPSbereitschaft, Mountmetadaten, Drainsperre, bestehendes flock und Queue-/TLS-
+Sperrmetadaten. Die echten Timerkalender und Trigger müssen zum vorgesehenen
+5-/15-/1-Minuten-/Stundenplan passen; bloße Konfiguration ist keine Aktivität.
+
+Die bestehenden Operatoren hinterlegen nach ihrem Ergebnis nur eine erlaubte
+kleine Ergebnisquittung pro festem Mode. Quelle/Deployment/Instanz/Boot, Anfang/
+Ende und ok/deferred/failed/unknown werden übernommen; keine freien Ergebnis-
+texte, Mail-/Empfänger-/Dateidaten oder Geheimnisse. Das Hostmodul wird im
+dynamischen Importweg ausdrücklich übergeben. Ein fehlgeschlagener Statusbeleg
+ändert kein bereits festgestelltes Verarbeitungsergebnis und erlaubt keinen
+erneuten Wirkungsversuch. Fehlende oder nicht zum jüngeren Unitlauf passende
+Quittung wird unbekannt; ohne passende Quittung bleibt ein bekannt
+fehlgeschlagener Unitlauf Fehler.
+
+Quittungen liegen nur unter root:root/0700
+`/var/lib/invoice-importer/results`. Ausschließlich die erlaubte Statusprojektion
+liegt unter root:10001/0750 `/var/lib/invoice-importer/status`, Datei
+`status.json` root:10001/0440. Vollständige temporäre Datei, Rechte, Datei-fsync,
+atomarer Ersatz und Verzeichnis-fsync; kein nachträgliches Beschreiben der
+bereits veröffentlichten Datei. Der Collector hat eine eigene Sperre und
+bereinigt ausschließlich seine eigene temporäre Datei. Kein Journal-/Schemawechsel.
+
+`compose.operations.yaml` ergänzt nur API mit diesem eigenen Verzeichnis als
+RO-Bind nach `/run/importer/operations`, `create_host_path=false` sowie
+`OPERATIONS_SOURCE_COMMIT` und `OPERATIONS_DEPLOYMENT_ID`. Keine Rootprofile,
+Quittungsablage, Docker-/systemd-Sockets oder neuen Secrets in der API.
+Root prüft die tatsächliche Dateigrenze und alle fünf installierten Peers vor
+Bereitstellung. API-/Webimage müssen denselben geprüften C-Stand enthalten;
+die minimale externe Notification-CLI erhält keinen Statusmount.
+
+`GET /api/operations/status` verwendet die bestehende AD-/Sitzungsgrenze für
+beide Rollen und `Cache-Control: no-store`. Keine Steuerroute. Der Leser öffnet
+ohne Symlinkfolge/nichtblockierend, verlangt reguläre Datei, Root/GID10001,
+0440, genau einen Link und höchstens32KiB. Striktes Schema1, nur feste Felder,
+keine doppelten JSONkeys. Quelle, Deployment, DBinstanz und aktueller Boot
+müssen passen. Mehr als180s alt oder mehr als30s zukünftig ist unbekannt;
+fehlend, unlesbar, ungültig und ungebunden ebenfalls. Fremde Rohdaten werden
+dann nicht als aktuelle Metadaten zurückgegeben.
+
+Die Projektion trennt eingerichtet, Timer aktiv, läuft, zurückgestellt, letzte
+Quittung, nächste Startgelegenheit, Start-/DB-/Portalbereitschaft und Mounts.
+`active` bedeutet belegter aktiver Zeitplan mit passenden Voraussetzungen;
+`paused` belegter inaktiver Timer; `degraded` aktiver Timer mit Einschränkung;
+`unknown` fehlender belastbarer Aktivitätsnachweis. Aktive Notifications
+benötigen DBbereitschaft, keinen verfügbaren Importmount oder Portalpeer.
+Die bestehende Notificationkonfiguration liefert aus derselben Quelle
+`automatic_schedule_active: boolean|null` und `automatic_schedule_state`.
+Die externe CLI ohne Statusbindung meldet null/unknown.
+
+Übersicht, Sidebar, Footer und Benachrichtigungsanzeige teilen dieselbe geprüfte
+Projektion. Der Login behauptet keinen Betriebszustand. Poll alle30s, begrenzte
+Anfrage und monotone Ablaufzeit einschließlich Anfragezeit; Fetchfehler,
+Ablauf oder Rückkehr zu einer abgelaufenen Ansicht entfernen alte Aktivität.
+Die Oberfläche bietet keinen Jobsteuerknopf. Zeitpläne bleiben ausdrücklich
+Startgelegenheiten; Stichtag01.12.2026 00:00 Europe/Berlin unverändert.
+
 ## Nachweis und nächste Lieferteile
 
 Paket A ist lokal mit synthetischer SQLite, echten Notificationverschlüsselungs-
@@ -219,9 +296,11 @@ Nach festem Quellreview folgen gezielte native Rootprüfungen. Neues Backend
 muss in API/Notification und dem separaten Processingconsumer ankommen;
 Processing wird mit dem eingefrorenen Classifier und neuem Backend gebaut.
 Alte Pins und Schema 007 für den Rückweg erhalten. Paket B liefert lokale
-Fehler-/Ablaufprüfungen mit ausdrücklichen OpenSSL-/Docker-/Hostdoubles, keine
-native Krypto-, Mount-, Frist- oder systemd-Abnahme. Root prüft die tatsächlichen
-Kalender/Units, Starts, Mounts, neuen Leaf und Rückweg separat. Zugehörige
-Wiederanlaufnachweise führt Root getrennt. Frischer lesender Betriebsstatus samt
-Oberfläche folgt C; kontrollierte Aktivierung/Readbacks bleiben ausstehend.
+Fehler-/Ablaufprüfungen mit ausdrücklichen OpenSSL-/Docker-/Hostdoubles.
+Die separat gemeldeten nativen A-/Consumer-/TLSprüfungen ersetzen keine C-
+Abnahme. C hat gezielte lokale Schema-/Frische-/Import-/Host-/ADrollen- und
+Frontendprüfungen sowie Typprüfung/Webbuild. OSrechte, flock, tatsächliche
+systemd-/Docker-/Mountintegration, C-GUI und Bereitstellung prüft Root separat.
+Zugehörige Wiederanlaufnachweise führt Root getrennt. Kontrollierte
+Aktivierung/Readbacks bleiben ausstehend.
 Alle Unitbeispiele bleiben bis zur passenden Prüfung ohne Installationsauftrag.

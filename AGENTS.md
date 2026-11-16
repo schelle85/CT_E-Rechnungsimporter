@@ -38,7 +38,9 @@
   nach AP07 behaupten; AP01-AD-Abnahme bleibt historisch. Bestehende Fehlerzähler erhalten.
   Import-/Korrektur-/Notificationautomatik bleibt inaktiv; gespeicherte Zeiten
   aktivieren keine Jobs. AP08 ist seit16.11.2026 zur Umsetzung freigegeben;
-  Paket A liefert Laufzeitbasis zur Quellprüfung, noch keine Aktivierungsabnahme.
+  A liefert Laufzeitbasis, B Start/Timer/HTTPSübernahme, C frischen gebundenen
+  Betriebsstatus für API/GUI zur Quellprüfung. C ist noch nicht bereitgestellt;
+  kontrollierte Aktivierung und zugehörige Readbacks bleiben offen.
   Führender Vertrag: docs/AP08-BETRIEB.md. AP09/10/11 bleiben ohne Go;
   AP11-Planung erhalten.
   AP12 ist seit16.11.2026 für Graph-Zertifikatsrotation und Administration →

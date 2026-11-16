@@ -1,0 +1,13 @@
+# Disabled AP08 example. The collector never starts or enables processing jobs.
+[Unit]
+Description=Invoice operations status every Berlin minute
+After=time-sync.target
+
+[Timer]
+OnCalendar=*-*-* *:*:00 Europe/Berlin
+Unit=invoice-status.service
+Persistent=true
+AccuracySec=1s
+
+[Install]
+WantedBy=timers.target

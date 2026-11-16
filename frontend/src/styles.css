@@ -113,6 +113,9 @@ a:focus-visible {
   background: #7ba8bc;
   margin-top: 5px;
 }
+.status-active { background: #69d5a1; }
+.status-degraded { background: #ffd56a; }
+.status-paused, .status-unknown { background: #9eafba; }
 .workspace {
   margin-left: 238px;
   flex: 1;

@@ -10,6 +10,7 @@ from app.process_routes import router as process_router
 from app.notification_routes import router as notification_router
 from app.notification_model import NotificationError
 from app.notification_web_boundary import NotificationBudgetBoundary
+from app.operations_status import read_status
 from app.preview import PreviewManager
 from app.http_boundary import SecurityBoundary
 from app.errors import AccessError
@@ -109,6 +110,12 @@ def create_app(runtime_factory=build_runtime):
 
     app.include_router(process_router)
     app.include_router(notification_router)
+
+    @app.get("/api/operations/status")
+    def operations_status():
+        with app.state.runtime.engine.connect() as connection:
+            instance=connection.execute(text("SELECT instance_id FROM app_metadata WHERE singleton=1")).scalar_one()
+        return read_status(instance,now=int(app.state.runtime.store.clock()))
 
     def admin(request):
         if request.state.principal.role!="admin":

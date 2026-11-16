@@ -95,6 +95,7 @@ def operate(mode,value,host,*,started=None):
     if os.name!="posix" or os.geteuid()!=0:raise ValueError()
     started=time.monotonic() if started is None else started
     runtime=load_processing("host-runtime.py")
+    if mode=="status":return load_processing("operations-host.py").collect(value["status_profile"],host,runtime,started+15)
     if mode=="drain":return runtime.drain(host,started+45)
     binding=runtime.profile(value["runtime_profile"],host)
     if mode=="start":return runtime.start(binding,value["public_origin"],host,started+240)
@@ -111,20 +112,24 @@ def operate(mode,value,host,*,started=None):
 
 def main():
     started=time.monotonic()
+    started_at=int(time.time())
     parser=argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("mode",choices=("inbox","corrections","notifications","start","drain","tls"))
+    parser.add_argument("mode",choices=("inbox","corrections","notifications","start","drain","tls","status"))
     parser.add_argument("--profile",required=True)
     args=parser.parse_args()
+    host=None
     def interrupted(*_):raise KeyboardInterrupt()
     signal.signal(signal.SIGTERM,interrupted)
     try:
         if not sys.flags.isolated or not sys.dont_write_bytecode:raise ValueError()
         os.umask(0o077)
         host=load_processing()
-        value={} if args.mode=="drain" else profile(args.profile,host)
+        value={} if args.mode=="drain" else dict(status_profile=args.profile) if args.mode=="status" else profile(args.profile,host)
         result=operate(args.mode,value,host,started=started)
     except (OSError,ValueError,TypeError,KeyError,RuntimeError,subprocess.SubprocessError,KeyboardInterrupt):
         result=dict(ok=False,uncertain=True,code="automation_host_failed")
+    if args.mode in {"start","inbox","corrections","notifications","tls"}:
+        result=dict(result,status_recorded=host is not None and host.record_operation(result.get("mode",args.mode),result,started_at,host))
     print(json.dumps(result))
     return 0 if result.get("ok") else 1
 

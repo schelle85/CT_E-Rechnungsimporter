@@ -12,6 +12,7 @@ import {
   Title,
 } from "@mantine/core";
 import App from "./App";
+import { OperationsProvider } from "./OperationsStatus";
 import { attemptLogin } from "./login-flow";
 import { api, ApiError, type AuthState } from "./api";
 export default function AuthApp() {
@@ -70,12 +71,12 @@ export default function AuthApp() {
             {error}
           </Alert>
         )}
-        <App
+        <OperationsProvider><App
           user={state.user}
           csrfToken={state.csrf_token}
           onLogout={logout}
           onReauthenticate={reauthenticate}
-        />
+        /></OperationsProvider>
       </>
     );
   return (
@@ -161,8 +162,8 @@ export default function AuthApp() {
           </Stack>
         </form>
         <Alert color="blue" mt="xl" title="Geschützter Arbeitsplatz">
-          Vorgänge und Originale sind nur nach Anmeldung zugänglich. Der
-          automatische Import und geplante Benachrichtigungen sind derzeit inaktiv.
+          Vorgänge und Originale sind nur nach Anmeldung zugänglich.
+          Betriebsstatus und Zeitpläne sehen Sie nach der Anmeldung.
         </Alert>
       </Paper>
     </div>

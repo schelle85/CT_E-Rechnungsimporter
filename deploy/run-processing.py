@@ -3,6 +3,7 @@ import argparse
 from collections import Counter, deque
 from contextlib import contextmanager
 import hashlib
+import importlib.util
 import json
 import os
 from pathlib import Path
@@ -24,6 +25,19 @@ PROCESSING_LOCK = "/run/invoice-importer/processing.lock"
 DRAIN_FILE = "/run/invoice-importer/draining"
 TICK_SECONDS = 780
 AUTOMATIC_MAX_QUANTA = 20
+STATUS_PROFILE="/etc/invoice-importer/status-host.json"
+
+
+def load_peer(filename):
+    path=protected(Path(__file__).with_name(filename))
+    spec=importlib.util.spec_from_file_location("invoice_host_peer",path)
+    module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+    return module
+
+
+def record_operation(mode,result,started_at,host):
+    try:return load_peer("operations-host.py").record(STATUS_PROFILE,mode,result,started_at,host)
+    except (OSError,ValueError,TypeError,KeyError,RuntimeError,KeyboardInterrupt):return False
 
 
 class CleanupFailure(RuntimeError):
@@ -443,6 +457,7 @@ def operate_locked(mode,image,config,max_quanta,until):
 
 
 def main():
+    started_at=int(time.time())
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("mode", choices=("inbox", "corrections"))
     parser.add_argument("--image", required=True)
@@ -460,6 +475,7 @@ def main():
         result = operate(args.mode, args.image, profile(args.profile), args.max_quanta,scheduled_state=args.scheduled_state)
     except (OSError, ValueError, TypeError, KeyError, CleanupFailure, subprocess.SubprocessError, KeyboardInterrupt):
         result = {"ok": False, "code": "processing_operator_failed", "uncertain": True}
+    result=dict(result,status_recorded=record_operation(result.get("mode",args.mode),result,started_at,sys.modules[__name__]))
     print(json.dumps(result))
     return 0 if result.get("ok") else 1
 

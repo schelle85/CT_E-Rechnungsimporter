@@ -3,6 +3,8 @@ import { Alert, Badge, Button, Card, Drawer, Group, Pagination, Paper, Select, T
 import { api, type User } from "./api";
 import Administration from "./Administration";
 import CertificateNotice from "./CertificateNotice";
+import { OperationsCard, useOperations } from "./OperationsStatus";
+import { stateColor, stateLabel } from "./operations";
 import ProcessDialog from "./ProcessDialog";
 import { type Attachment, type PageResult, type Process, type ProcessDetail, type ProcessingSettings, type Stats, StatusBadge, dateTime, reasonText } from "./processTypes";
 
@@ -31,6 +33,7 @@ export default function App({ user, csrfToken, onLogout, onReauthenticate }: {
   const [detailBusy, setDetailBusy] = useState(false);
   const detailSequence = useRef(0);
   const role = user.role === "admin" ? "Verwaltung" : "Lesen";
+  const operations = useOperations(), operationState = operations.status?.state ?? "unknown";
   function nav(next: Page) { setPage(next); setMobile(false); setPageNo(1); setQuery(""); setState(null); setCategory(null); setDuplicate(null); setFrom(""); setTo(""); }
   useEffect(() => {
     const controller = new AbortController();
@@ -76,7 +79,7 @@ export default function App({ user, csrfToken, onLogout, onReauthenticate }: {
       <button key={p.id} className={page === p.id ? "nav-item active" : "nav-item"} onClick={() => nav(p.id)} aria-current={page === p.id ? "page" : undefined}>
         <span aria-hidden="true">{p.icon}</span>{p.label}
       </button>)}</nav>
-    <div className="sidebar-bottom"><span className="status-dot" /><div>Manueller Betrieb<small>Automatischer Import inaktiv</small></div></div>
+    <div className="sidebar-bottom"><span className={"status-dot status-" + operationState} /><div>Zeitpläne<small>{stateLabel[operationState]}</small></div></div>
   </>;
   const processRows = <Table.ScrollContainer minWidth={760}><Table verticalSpacing="md" highlightOnHover>
     <Table.Thead><Table.Tr><Table.Th>Eingang / Vorgang</Table.Th><Table.Th>Anhänge</Table.Th><Table.Th>Kategorien</Table.Th><Table.Th>Status</Table.Th><Table.Th><span className="sr-only">Details</span></Table.Th></Table.Tr></Table.Thead>
@@ -98,10 +101,11 @@ export default function App({ user, csrfToken, onLogout, onReauthenticate }: {
       <CertificateNotice />
       <Group justify="space-between" align="flex-end" mb="xl" gap="md"><div><Text className="eyebrow">E-RECHNUNGSIMPORTER</Text><Title order={1}>{pages.find(p => p.id === page)?.label}</Title>
         <Text c="dimmed" mt={6}>{page === "unknown" ? "Unbekannte Anhänge einzeln prüfen und ausdrücklich zuordnen." : page === "archive" ? "Ältere Protokolle bleiben erhalten und können gelesen werden." : page === "admin" ? "Verbindungen, Zugriffsrechte und Verarbeitungseinstellungen verwalten." : "Eingänge, Entscheidungen und tatsächliche Ergebnisse nachvollziehen."}</Text></div>
-        <Group><Badge variant="light">{role} · AD geprüft</Badge><Button variant="light" onClick={() => setVersion(v => v + 1)} loading={loading}>Aktualisieren</Button></Group>
+        <Group><Badge variant="light">{role} · AD geprüft</Badge><Button variant="light" onClick={() => { setVersion(v => v + 1); void operations.refresh(); }} loading={loading}>Aktualisieren</Button></Group>
       </Group>
       {error && <Alert role="alert" color="red" mb="lg">{error}</Alert>}
       {page === "overview" && <>
+        <OperationsCard />
         <div className="metric-grid">{[
           { label: "Vorgänge", value: stats?.messages, note: "Aktive Verarbeitungsprotokolle", color: "blue", target: "processes" as Page },
           { label: "Unbekannt", value: stats?.unknown_open, note: "Offene Anhänge · einzeln zuordnen", color: "yellow", target: "unknown" as Page },
@@ -134,7 +138,7 @@ export default function App({ user, csrfToken, onLogout, onReauthenticate }: {
         {total > 25 && <Pagination total={Math.ceil(total / 25)} value={pageNo} onChange={setPageNo} p="lg" />}
       </Paper>}
       {page === "admin" && <Administration identity={user.guid} readOnly={user.role !== "admin"} csrfToken={csrfToken} onActivated={onReauthenticate} onSaved={() => setVersion(v => v + 1)} />}
-      <footer><span>E-Rechnungsimporter · Verarbeitungsprotokolle</span><span>Automatischer Import inaktiv</span></footer>
+      <footer><span>E-Rechnungsimporter · Verarbeitungsprotokolle</span><Badge variant="light" color={stateColor[operationState]}>Zeitpläne: {stateLabel[operationState]}</Badge></footer>
     </main></div>
     <ProcessDialog detail={detail} initialAttachment={initialAttachment} settings={settings} canEdit={user.role === "admin"} identity={user.guid} csrfToken={csrfToken}
       onClose={() => { detailSequence.current++; setDetail(null); setInitialAttachment(null); }} onChanged={changed} />

@@ -11,10 +11,19 @@ Stand: 16. November 2026. Lebende Markdown-Dokumentation, noch kein Gesamtabschl
 
 ## Aktueller Stand
 
-AP08-Go seit16.11.2026. Paket A liefert automatische Auswahl ohne Testmails,
-gemeinsame Processing-Hostsperre, feste Fälligkeiten, Gesamtbudgets und
-CIFSbindung vor Create/Start zur Quellprüfung. Gezielte lokale synthetische
-Prüfungen bestanden; native Host-/Mount-/Fristprüfung und Aktivierung stehen aus.
+AP08-Go seit16.11.2026. A liefert Auswahl ohne Testmails, gemeinsame Sperre,
+Fälligkeiten, Budgets und Host-/Consumer-CIFSbindung. B ergänzt Start/Drain,
+Berlin-Timer und externe HTTPSübernahme mit begrenzter lesender Bereitschafts-
+wiederholung. Frühere isolierte native A-/TLS-Nachweise sind erhalten.
+C liefert den begrenzten Hostcollector, atomare erlaubte Statusdaten, gebundene
+GETprojektion und GUI zur Quellprüfung. Beide AD-Rollen lesen; keine Steuerroute.
+Fehlend, ungültig, falsche Quelle/Deployment/Instanz/Boot oder >180s alt/>30s
+zukünftig ergibt unbekannt, nie automatisch inaktiv oder aktiv.
+`automatic_schedule_active` ist boolean|null, zusätzlich Zustand
+active/paused/degraded/unknown. Die minimale externe Notification-CLI ohne
+Statusverzeichnis bleibt unbekannt. Sidebar/Footer/Übersicht/Notifications
+teilen eine Quelle; Login bleibt neutral. Monotone Browserablaufzeit verwirft
+alte Aktivität auch ohne neue Antwort. C-Bereitstellung und Aktivierung offen.
 API/Notification und separater Processingconsumer benötigen denselben neuen
 Backendstand; Classifier, Locks und Schema007 bleiben erhalten.
 [Führender Betriebsvertrag](AP08-BETRIEB.md). Der Kunde bleibt beim AP07-Stand.

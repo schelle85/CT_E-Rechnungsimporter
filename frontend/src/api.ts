@@ -1,3 +1,4 @@
+import { isOperationsStatus, scheduleStateMatches } from "./operations.ts";
 export type User = {
   guid: string;
   dn: string;
@@ -22,6 +23,7 @@ export class ApiProtocolError extends Error {
 }
 function responseShape(path: string, method: string, data: Record<string, unknown>) {
   const route = path.split("?")[0];
+  if (method === "GET" && route === "/api/operations/status") return isOperationsStatus(data);
   const integer = (value: unknown, min = 0) => typeof value === "number" && Number.isSafeInteger(value) && value >= min;
   const key = (value: unknown) => typeof value === "string" && /^[0-9a-f]{64}$/.test(value);
   const receipt = (value: unknown) => {
@@ -32,7 +34,7 @@ function responseShape(path: string, method: string, data: Record<string, unknow
   };
   if (route === "/api/notifications/config") {
     const settings = data.settings as Record<string, unknown> | null;
-    return integer(data.version) && key(data.scope_key) && typeof data.configured === "boolean" && typeof data.can_edit === "boolean" && data.automatic_schedule_active === false && !!settings && Array.isArray(settings.recipients);
+    return integer(data.version) && key(data.scope_key) && typeof data.configured === "boolean" && typeof data.can_edit === "boolean" && scheduleStateMatches(data.automatic_schedule_active, data.automatic_schedule_state) && !!settings && Array.isArray(settings.recipients);
   }
   if (method === "GET" && route === "/api/notifications/history")
     return Array.isArray(data.items) && data.items.every(receipt) && integer(data.total) && integer(data.page, 1) && integer(data.page_size, 1);

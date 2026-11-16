@@ -22,6 +22,7 @@ CERTIFICATE=re.compile(rb"-----BEGIN CERTIFICATE-----\s+[A-Za-z0-9+/=\r\n]+-----
 ENV={"PATH":"/usr/sbin:/usr/bin:/sbin:/bin","LANG":"C.UTF-8"}
 OPENSSL="/usr/bin/openssl"
 CA_PATH="/etc/ssl/certs"
+CONTAINER_TEMPLATE='{"id":{{json .Id}},"image":{{json .Image}},"state":{{json .State}},"mounts":{{json .Mounts}},"user":{{json .Config.User}},"readonly":{{json .HostConfig.ReadonlyRootfs}},"command":{{json .Config.Cmd}},"entrypoint":{{json .Config.Entrypoint}}}'
 
 
 def seconds(until,maximum=5):
@@ -64,9 +65,14 @@ def profile(path,host):
 
 def inspect_container(binding,kind,host,until):
     item=binding["containers"][kind]
-    template='{"id":{{json .Id}},"image":{{json .Image}},"state":{{json .State}},"mounts":{{json .Mounts}},"user":{{json .Config.User}},"readonly":{{json .HostConfig.ReadonlyRootfs}},"command":{{json .Config.Cmd}},"entrypoint":{{json .Config.Entrypoint}}}'
-    code,value=host.command(["inspect","--format",template,item["name"]],seconds(until),json_output=True)
-    if (code or value.get("image")!=item["image"] or not re.fullmatch(r"[0-9a-f]{64}",value.get("id", ""))
+    code,value=host.command(["inspect","--format",CONTAINER_TEMPLATE,item["name"]],seconds(until),json_output=True)
+    if code:raise ValueError("host_container_changed")
+    return validate_container(binding,kind,value)
+
+
+def validate_container(binding,kind,value):
+    item=binding["containers"][kind]
+    if (not isinstance(value,dict) or value.get("image")!=item["image"] or not re.fullmatch(r"[0-9a-f]{64}",value.get("id", ""))
             or not isinstance(value.get("state"),dict) or not isinstance(value.get("mounts"),list)):raise ValueError("host_container_changed")
     expected={"db":["mariadbd"],"api":["uvicorn","app.main:app","--host","0.0.0.0","--port","8000",
         "--workers","1","--no-server-header","--no-access-log"],"nginx":["-g","daemon off;"]}

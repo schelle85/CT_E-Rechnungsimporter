@@ -1,9 +1,11 @@
 # Betriebsstand
 
-Quellnachtrag vom16.11.2026: AP08 ist in Umsetzung, Paket A steht zur
-Quellprüfung. Laufzeitbasis und gezielte lokale synthetische Prüfungen liefern
-noch keinen neuen Kundenbetriebsstand. Native Prüfung, weitere AP08-Teile und
-Aktivierung stehen aus. Siehe [AP08-Betrieb](AP08-BETRIEB.md).
+Quellnachtrag vom16.11.2026: AP08 ist in Umsetzung. A/B liefern begrenzte
+Laufzeit, Start/Drain, Timer und HTTPSübernahme; C ergänzt Hoststatus, geschützte
+API und konsistente Oberfläche zur Quellprüfung. Frühere isolierte native
+A-/TLS-Nachweise sind erhalten. C ist noch nicht bereitgestellt, kontrollierte
+Aktivierung/Readbacks stehen aus. Diese Quelllieferung ändert den nachfolgenden
+Kundenbetriebsstand nicht. Siehe [AP08-Betrieb](AP08-BETRIEB.md).
 
 Stand: 15. November 2026. AP07 ist technisch abgeschlossen und bereitgestellt aus
 Codepin `5ecfd59270b63947d3f92af98a1b9f8e5a267aeb`. Kundenschema007 sowie API und
@@ -30,8 +32,9 @@ Der Empfang ist im eigenen Abnahmepostfach nachgewiesen. Für die beiden anderen
 Empfänger liegt damit kein Empfangsnachweis vor.
 
 Import-, Korrektur- und Benachrichtigungsautomatik bleiben inaktiv. Zeiten sind
-gespeichert, aktivieren aber keine dauerhaften Jobs. Die Aktivierung benötigt
-AP08-Go; AP08/09/10/11 sind nicht freigegeben. AP11 bleibt geplant. Stichtag
+gespeichert, aktivieren aber keine dauerhaften Jobs. Die dauerhafte Aktivierung
+wird in AP08 getrennt geprüft. AP08 hat inzwischen Umsetzungs-Go;
+AP09/10/11 bleiben ohne Umsetzungs-Go. AP11 bleibt geplant. Stichtag
 1. Dezember 2026, eingefrorene AP03-Erkennung und DMS-Abgrenzung sind unverändert.
 Interne Laufzeitnachweise, Verbindungswerte, Empfänger und geschützte Hostpfade
 bleiben in den separaten Betreiberunterlagen.

@@ -167,7 +167,8 @@ class ObserverTests(Fixture,unittest.TestCase):
             self.assertEqual(first["receipts"],[])
             self.now[0]+=300
             second=run_job(dict(command="plan",deadline=time.monotonic()+20))
-        self.assertFalse(second["automatic_schedule_active"])
+        self.assertIsNone(second["automatic_schedule_active"])
+        self.assertEqual(second["automatic_schedule_state"],"unknown")
         self.assertEqual([row["kind"] for row in second["receipts"]],["outage"])
         self.assertEqual(second["receipts"][0]["reservations"],0)
         self.assertTrue(all(request.method=="GET" for request in self.http_calls))

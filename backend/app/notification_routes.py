@@ -16,6 +16,7 @@ from app.notification_model import checked_actor,identity
 from app.notification_process import execute_notification
 from app.notification_runtime import load_notification_cipher
 from app.notification_schema007 import outbox
+from app.operations_status import read_status
 
 router=APIRouter()
 
@@ -50,13 +51,17 @@ def configuration(request:Request):
     store,scope=configured_store(request)
     value=store.configuration()
     if value["scope_key"] not in {None,scope}:raise NotificationError("notification_scope_changed")
-    return dict(value,scope_key=scope,can_edit=request.state.principal.role=="admin",automatic_schedule_active=False)
+    status=read_status(store.instance,now=int(store.clock()))
+    return dict(value,scope_key=scope,can_edit=request.state.principal.role=="admin",
+        automatic_schedule_active=status["automatic_schedule_active"],automatic_schedule_state=status["automatic_schedule_state"])
 
 @router.put("/api/notifications/config")
 def save_configuration(candidate:NotificationSettingsInput,request:Request):
     store,scope=configured_store(request)
-    return dict(store.save_settings(candidate.expected_version,candidate.settings,scope,actor(request)),
-        can_edit=True,automatic_schedule_active=False)
+    value=store.save_settings(candidate.expected_version,candidate.settings,scope,actor(request))
+    status=read_status(store.instance,now=int(store.clock()))
+    return dict(value,can_edit=True,automatic_schedule_active=status["automatic_schedule_active"],
+        automatic_schedule_state=status["automatic_schedule_state"])
 
 @router.get("/api/notifications/history")
 def history(request:Request,page:int=1):

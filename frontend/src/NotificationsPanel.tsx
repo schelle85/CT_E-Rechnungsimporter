@@ -4,15 +4,18 @@ import { api } from "./api";
 import { closeTestIntent, ensureTestIntent, readTestIntent, testReceiptMatches, testTerminal, type NotificationReceipt, type TestIntent } from "./notification-intent";
 import { dateTime } from "./processTypes";
 import type { CertificateStatus } from "./CertificateNotice";
+import { useOperations } from "./OperationsStatus";
+import { stateColor, stateLabel, type Flag, type OperationState } from "./operations";
 
 type Settings = { recipients: string[]; certificate_time: string; daily_time: string; weekly_time: string; weekly_day: number; errors_enabled: boolean; outages_enabled: boolean; daily_enabled: boolean; weekly_enabled: boolean; error_bundle_minutes: number; error_repeat_hours: number; outage_after_minutes: number; outage_repeat_hours: number };
-type Config = { version: number; scope_key: string; settings: Settings; configured: boolean; can_edit: boolean; automatic_schedule_active: false };
+type Config = { version: number; scope_key: string; settings: Settings; configured: boolean; can_edit: boolean; automatic_schedule_active: Flag; automatic_schedule_state: OperationState };
 type History = { items: NotificationReceipt[]; total: number; page: number; page_size: number };
 type Payload = { message: { subject: string; body: { content: string }; toRecipients: { emailAddress: { address: string } }[] } };
 type Result = { ok: boolean; persisted: boolean; receipt: NotificationReceipt | null; payload?: Payload };
 export const notificationStates: Record<string, string> = { prepared: "Vorbereitet / wartet", sending: "Versand läuft / Abgleich erforderlich", accepted: "Angenommen (202), Zustellung nicht bestätigt", rejected: "Sicher abgewiesen", unknown: "Ausgang ungewiss · Einmalversuch verbraucht", obsolete: "Überholt" };
 const kinds: Record<string, string> = { certificate: "Zertifikatswarnung", test: "Testmail", daily: "Tagesbericht", weekly: "Wochenbericht", errors: "Verarbeitungsfehler", outage: "Technischer Ausfall", recovery: "Erholung" };
 export default function NotificationsPanel({ identity, readOnly, csrfToken }: { identity: string; readOnly: boolean; csrfToken: string }) {
+  const schedule = useOperations().status?.jobs.notifications.state ?? "unknown";
   const [config, setConfig] = useState<Config | null>(null), [recipients, setRecipients] = useState("");
   const [history, setHistory] = useState<History | null>(null), [page, setPage] = useState(1);
   const [cert, setCert] = useState<CertificateStatus | null>(null), [error, setError] = useState("");
@@ -59,7 +62,7 @@ export default function NotificationsPanel({ identity, readOnly, csrfToken }: { 
   }
   return <Stack>
     {error && <Alert color="red" role="alert">{error}</Alert>}
-    <Alert color="blue">Die automatische Zeitplanung ist inaktiv. Einstellungen bereiten die späteren Zeitpläne vor. Eine Testmail wird nur über die ausdrückliche Testaktion ausgelöst.</Alert>
+    <Alert color={stateColor[schedule]}>Benachrichtigungen: {stateLabel[schedule]}. Details zum aktuellen Betriebsstatus stehen in der Übersicht. Eine Testmail wird nur über die ausdrückliche Testaktion ausgelöst.</Alert>
     {cert && <Paper withBorder p="lg"><Title order={2}>Graph-Anmeldezertifikat</Title><Text mt="xs">{cert.local.expires_at ? "Lokale Datei: Ablauf " + dateTime(cert.local.expires_at) + " · Restzeit " + Math.floor((cert.local.remaining_seconds || 0) / 3600) + " Stunden." : "Lokale Datei nicht prüfbar."}</Text><Text size="sm">{cert.warning ? "Gespeicherte Pflichtwarnung offen." : "Keine offene Pflichtwarnserie gespeichert."} {cert.proof ? "Letzter erfolgreicher Nachfolgernachweis: " + dateTime(cert.proof.at) + "." : "Kein erfolgreicher Nachfolgernachweis gespeichert."}</Text></Paper>}
     {config && <Paper withBorder p="xl"><form onSubmit={async e => {
       e.preventDefault(); if (!editable) return; setBusy(true); setError("");
