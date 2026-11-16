@@ -11,11 +11,17 @@ import tempfile
 from types import SimpleNamespace
 import unittest
 from unittest.mock import Mock,patch
+import httpx
 import sqlalchemy as sa
-from app.graph import GraphError
+from app.graph import GraphClient,GraphError
 from app.graph_state import ActionStore,actions,metadata as graph_metadata
 from app.processing import known_429_not_before
+from app.storage import StorageResult
+from app.storage_state import StorageStore,metadata as storage_metadata,operations
 from app import processing_cli as cli
+from test_graph import CONFIG,Credential
+from test_graph_actions import ActionRemote
+from test_graph_mail import message,attachment
 import test_processing_state as fixtures
 import test_automation_runtime as runtime
 
@@ -26,14 +32,16 @@ class BackoffTests(unittest.TestCase):
         graph_metadata.create_all(self.engine)
         with self.engine.begin() as connection:connection.execute(actions.delete())
 
-    def execute(self,args,graph):
+    def execute(self,args,graph,*,real_client=None):
         files=SimpleNamespace(destination_key="synthetic")
         with patch.object(cli,"configuration",return_value=dict(scope="synthetic",storage_root="/unused",
                 expected_source="//files.example.invalid/importer",staging_name="_staging",staging_excluded=True)),\
                 patch.object(cli,"make_engine",return_value=self.engine),\
                 patch.object(cli,"CifsFiles",side_effect=lambda *a,**kw:nullcontext(files)),\
-                patch.object(cli,"operator_client",side_effect=lambda *a,**kw:nullcontext(None)),\
-                patch.object(cli,"GraphActions"),patch.object(cli,"GraphProcessing",return_value=graph),\
+                patch.object(cli,"operator_client",side_effect=lambda *a,**kw:nullcontext(real_client)),\
+                (patch.object(cli,"GraphActions") if graph is not None else nullcontext()),\
+                (patch.object(cli,"GraphProcessing",return_value=graph) if graph is not None else nullcontext()),\
+                patch.object(cli,"ActionStore",side_effect=lambda engine:ActionStore(engine,clock=lambda:self.now[0])),\
                 patch.object(cli,"ProcessingStore",return_value=self.store),\
                 patch.object(cli,"StorageStore",return_value=files),\
                 patch.object(cli.time,"time",side_effect=lambda:self.now[0]):
@@ -134,3 +142,72 @@ class BackoffTests(unittest.TestCase):
         result=self.execute(["select"],SimpleNamespace(scan=Mock(side_effect=error)))
         self.assertFalse(result["ok"]);self.assertTrue(result["uncertain"])
         self.assertNotIn("retry_not_before",result)
+
+    def real_action_boundary(self,header,forwarded,expected):
+        storage_metadata.create_all(self.engine)
+        with self.engine.begin() as connection:connection.execute(operations.delete())
+        claim=self.store.claim(self.key);owner,revision=claim["owner"],claim["revision"]
+        aid=fixtures.ProcessingStateTests.finding(self,owner,revision)
+        request=self.store.begin_storage(self.key,aid,owner,revision,"synthetic","d"*64)
+        storage=StorageStore(self.engine,destination_key="d"*64,clock=lambda:self.now[0])
+        reserved=storage.claim(request)
+        storage.begin_publication(request.key,reserved["owner"])
+        storage.finish(request.key,reserved["owner"],"stored")
+        self.store.stored(self.key,aid,owner,revision,StorageResult(request.key,"stored",storage.get(request.key)["target"]))
+        intent=self.store.prepare_close(self.key,owner,revision,fixtures.FOLDERS)
+        self.store.release(self.key,owner,revision)
+        journal=ActionStore(self.engine,clock=lambda:self.now[0])
+        token,actor,_=journal.claim(self.mailbox,"move","immutable-message",intent["destination"],intent_key=intent["intent_key"])
+        journal.finish(token,actor,"unknown",error="synthetic_lost_response")
+        before=self.store.get_message(self.key)
+        effects=[dict(row) for row in self.store.get_attachments(self.key)]
+        with self.engine.connect() as connection:
+            storage_before=list(connection.execute(sa.select(operations)).mappings())
+            graph_before=list(connection.execute(sa.select(actions)).mappings())
+        remote=ActionRemote()
+        remote.messages={"immutable-message":message(mid="immutable-message")}
+        item=attachment(size=999,name="invoice.pdf");item["contentType"]="application/pdf"
+        remote.attachments={"immutable-message":[item]}
+        remote.folders={name:dict(id=key,displayName=name,parentFolderId="inbox",isHidden=False) for name,key in fixtures.FOLDERS.items()}
+        def respond(request):
+            if request.url.path.endswith("/mailFolders/inbox/childFolders"):
+                # Earlier manifest GETs succeed. Reject only after the actual
+                # GraphActions._run has claimed its own first folder action.
+                with self.engine.connect() as connection:
+                    active=connection.execute(sa.select(actions.c.action_key).where(
+                        actions.c.kind=="folder",actions.c.owner.is_not(None))).first()
+                if active:return httpx.Response(429,headers={} if header is None else {"Retry-After":header})
+        remote.override=respond
+        with httpx.Client(transport=httpx.MockTransport(remote),trust_env=False) as http:
+            client=GraphClient(CONFIG,Credential(),http,read_attempts=1)
+            # Observe the received error without replacing GraphActions or
+            # GraphProcessing; their real reads, claims and forwarding run.
+            with patch("app.processing.known_429_not_before",wraps=known_429_not_before) as boundary:
+                result=self.execute(["advance","--message-key",self.key],None,real_client=client)
+            self.assertEqual(boundary.call_count,1)
+            error=boundary.call_args.args[0]
+            self.assertEqual((error.status,error.uncertain,error.retry_not_before),(429,False,forwarded))
+        self.assertEqual((result["status"],result["retry_not_before"]),("busy",expected))
+        after=self.store.get_message(self.key)
+        self.assertEqual(after["next_attempt"],expected)
+        for name in ("close_key","close_payload","completed_revision","revision","current_parent"):
+            self.assertEqual(after[name],before[name])
+        self.assertEqual([dict(row) for row in self.store.get_attachments(self.key)],effects)
+        with self.engine.connect() as connection:
+            self.assertEqual(list(connection.execute(sa.select(operations)).mappings()),storage_before)
+            graph_after={row["action_key"]:dict(row) for row in connection.execute(sa.select(actions)).mappings()}
+        for row in graph_before:self.assertEqual(graph_after[row["action_key"]],dict(row))
+        added=[row for key,row in graph_after.items() if key not in {row["action_key"] for row in graph_before}]
+        self.assertEqual(len(added),1)
+        self.assertEqual((added[0]["kind"],added[0]["state"],added[0]["reservations"],added[0]["owner"]),("folder","unknown",1,None))
+        self.assertEqual(remote.writes,[]);self.assertTrue(all(request.method=="GET" for request in remote.calls))
+        self.persistent_host_boundary(result,expected)
+
+    def test_real_graph_action_preserves_long_boundary_through_close_and_host(self):
+        self.real_action_boundary("3600",4600,4600)
+
+    def test_real_graph_action_short_boundary_keeps_three_hundred_minimum(self):
+        self.real_action_boundary("5",1005,1300)
+
+    def test_real_graph_action_missing_header_keeps_nine_hundred_fallback(self):
+        self.real_action_boundary(None,1900,1900)

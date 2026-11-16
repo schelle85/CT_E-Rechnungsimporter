@@ -80,7 +80,8 @@ class GraphActions:
                 raise GraphError(persistence_error.code, persistence_error.status,
                                  uncertain=error.uncertain or mutation_started or not may_send) from None
             raise GraphError(error.code, error.status,
-                             uncertain=error.uncertain or mutation_started or not may_send) from None
+                             uncertain=error.uncertain or mutation_started or not may_send,
+                             retry_not_before=error.retry_not_before) from None
 
     def ensure_folders(self, *, guard=None):
         result = {}

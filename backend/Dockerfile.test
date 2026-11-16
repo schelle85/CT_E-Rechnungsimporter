@@ -6,6 +6,7 @@ RUN pip install --no-cache-dir -r /tmp/requirements-test.lock
 COPY backend/tests /app/tests
 COPY deploy/run-test-source.py /app/operator/run-test-source.py
 COPY deploy/run-processing.py /app/operator/run-processing.py
+COPY deploy/run-automation.py /app/operator/run-automation.py
 COPY deploy/compose.notification.yaml /app/operator/compose.notification.yaml
 COPY deploy/compose.notification-init.yaml /app/operator/compose.notification-init.yaml
 USER 10001:10001
