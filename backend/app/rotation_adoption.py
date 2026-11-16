@@ -141,7 +141,7 @@ class AdoptionJournal:
         return self._save(value,target="old",phase="activation_started",consumers={},proof_intent=None,proof=None,seal=None)
 
     def rollback_unknown(self,operation):
-        value=self._current(operation,PHASES)
+        value=self._current(operation,PHASES-{"prepared","committed"})
         if value["target"]!="old":raise GraphError("rotation_transition_invalid")
         return self._save(value,phase="rollback_unknown")
 

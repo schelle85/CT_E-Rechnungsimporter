@@ -106,6 +106,10 @@ absolute Arbeitsfrist an das Kind gegeben, zwei Sekunden für Reap reserviert;
 GraphClient behält seinen echten POSIX-Transporttimer. Sechs lokale Fälle PASS,
 drei neue echte POSIX-/Spawnfälle unter Windows ausdrücklich übersprungen;
 gezielter nativer Nachweis bleibt vor R1-Abschluss nötig.
+C3A-R1 begrenzt rollback_unknown auf unversiegelte aktive Rückwegphasen. Ein
+bereits versiegelter Rückweg bleibt bei abgelehntem Aufruf bytegleich lesbar;
+der zulässige offene Unknown-Checkpoint bleibt ebenfalls lesbar. Zwei gezielte
+lokale Nachprüfungen, ohne Hostwirkung oder Änderung des B-Registrierungsbelegs.
 Nach AP08 und vor AP11/09 eingeplant. Bestehende AP07-Prüfung, Warnserie und
 Schlüsselgrenzen wiederverwenden; neuer Hostauftrag zuerst konkret prüfen.
 

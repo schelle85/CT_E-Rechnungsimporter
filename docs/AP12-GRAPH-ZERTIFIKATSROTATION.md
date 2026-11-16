@@ -198,6 +198,11 @@ Dieser Baustein öffnet kein Gate und führt keine Docker-/Dateiaktivierungsakti
 aus. Tatsächlicher Hostcontroller, Boot-/Unknown-Reconciliation und native
 Übernahme-/Rückwegprüfung bleiben getrennte Folgearbeit.
 
+Übergangskorrektur C3A-R1: rollback_unknown ist ausschließlich in noch nicht
+versiegelten Rückwegphasen zulässig. Nach committed wird der Aufruf vor jeder
+Änderung abgelehnt; Revision/Seal und gesamte Datei bleiben unverändert lesbar.
+Gezielt abgeschlossenen und weiterhin zulässigen offenen Rückweg lokal geprüft.
+
 Geplant nach AP08 und vor AP11/der finalen AP09-Übergabe. Technische Grundlage ist
 AP07. Vorhandene Betriebsbausteine aus AP08/AP10 nutzen, soweit vorhanden; keine
 anderen AP-Freigaben aus diesem Plan ableiten.

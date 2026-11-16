@@ -112,3 +112,13 @@ class AdoptionTests(unittest.TestCase):
         self.verified();receipt=self.proof();self.journal.proof_verified(self.operation,receipt,NOW)
         result=self.journal.commit(self.operation,now=NOW,paused=True,drain_identity="e"*64)
         self.assertEqual(result["target"],"old");self.assertTrue(result["paused"])
+        path=self.root.directory/(self.operation+".host.json");saved=path.read_bytes()
+        with self.assertRaises(GraphError):self.journal.rollback_unknown(self.operation)
+        self.assertEqual(path.read_bytes(),saved)
+        self.assertEqual(self.journal.state(self.operation),result)
+
+    def test_unsealed_rollback_unknown_checkpoint_stays_readable(self):
+        self.activate();self.journal.rollback(self.operation,NOW)
+        result=self.journal.rollback_unknown(self.operation)
+        self.assertEqual(result["phase"],"rollback_unknown");self.assertEqual(result["target"],"old")
+        self.assertIsNone(result["seal"]);self.assertEqual(self.journal.state(self.operation),result)
