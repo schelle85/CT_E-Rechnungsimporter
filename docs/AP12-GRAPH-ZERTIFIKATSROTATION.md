@@ -16,7 +16,8 @@ Benachrichtigungen sowie Verbindungen/Verarbeitung und verwendet die vorhandene
 Zertifikatsanzeige/-prüfung aus AP07.
 
 - Aktives Graph-Anmeldezertifikat, öffentlicher Fingerprint und Ablauf.
-- Letzte Prüfung und erfolgreiche Erneuerung, nächster geplanter Prüflauf.
+- Letzter Versuch, letzte erfolgreiche Prüfung und letzte erfolgreiche Erneuerung
+  getrennt anzeigen; nächster geplanter Prüflauf mit Solltermin.
 - Laufender Wechsel, Ergebnis und verständlicher Fehler-/Handlungsstatus.
 - Bisheriges und neues Zertifikat während der Übergangsfrist, Rückweg und
   ausstehende Bereinigung.
@@ -58,8 +59,10 @@ dafür keinen allgemeinen Root-/Shellzugriff, keinen Dockersocket und kein
 Schreibrecht auf die private Zertifikatsablage. Schnittstelle und Berechtigungen
 vor Implementierung konkret entwerfen und unabhängig prüfen.
 
-Wechsel-ID, öffentlicher Fingerprint, registrierte Schlüssel-ID und Fortschritt
-dauerhaft erfassen. Nach Abbruch oder verlorener Graph-Antwort zuerst den
+Wechsel-ID, auslösender berechtigter Benutzer beziehungsweise Automatik,
+öffentlicher Fingerprint, registrierte Schlüssel-ID und Fortschritt dauerhaft
+erfassen. Die aktive Vorgangsbindung über Doppelklick, Antwortverlust, Neustart
+und gleichzeitigen Zeitplanaufruf erhalten. Nach Abbruch oder verlorener Graph-Antwort zuerst den
 bekannten Vorgang abgleichen; Registrierung, Aktivierung oder Entfernung nicht
 blind wiederholen. Parallele manuelle und automatische Wechsel verhindern.
 
@@ -69,6 +72,11 @@ Vorgesehene Standardwerte: tägliche Prüfung, Beginn der Erneuerung 30 Tage vor
 Ablauf, sieben Tage Überlappung bei ausreichender Restgültigkeit. Zeitsteuerung
 und gültige Einstellgrenzen werden im AP12-Entwurf festgelegt und geprüft.
 Fehlgeschlagene Erneuerung sowie ausgebliebene Prüfläufe müssen sichtbar sein.
+Ein abgelaufenes Altzertifikat bietet keinen Rückweg; sieben Tage sind ein Zielwert
+innerhalb der tatsächlichen Gültigkeit. Notfall-/Eskalationsfrist im Entwurf
+festlegen. Ein Ausfall der gesamten VM oder Datenbank kann nicht zuverlässig durch
+dieselbe Anwendung alarmiert werden; dafür ist eine unabhängige Betriebsüberwachung
+erforderlich, ohne sie aus diesem AP als bereits vorhanden abzuleiten.
 
 Die AP07-Pflichtwarnung ab zehn Tagen und die roten Hinweise ab einem Resttag,
 bei null und danach bleiben erhalten. Eine Warnserie wird weiterhin erst nach

@@ -190,6 +190,8 @@ tatsächlich implementierten Stand erstellen, keine fertige Installation vortäu
 Kein Wartungsskript oder Timer ist bereits installiert. Keine ungeprüften
 Anwendungs-/Datenbankschemaupgrades aus der Linux-Wartungsfreigabe ableiten.
 AP10-Einrichtung und Prüfung vor der Finalisierung der Abschlussunterlagen berücksichtigen.
+Nach Lieferung von AP12 Wartung und Zertifikatswechsel koordinieren, damit ein
+Neustart nicht unkontrolliert in einen laufenden Wechsel eingreift.
 
 ## AP11: Handbuch zum Produkt - ORGA / DEV / REVIEW
 
@@ -217,6 +219,7 @@ KI-Dokumentation bleiben eigene Lieferungen. Umfang und Ausgabe siehe
 
 Am 16.11.2026 als eigenes Arbeitspaket angenommen und eingeplant.
 Status: geplant, noch kein AP12-Umsetzungs-Go. Der bereitgestellte AP07-Stand bleibt erhalten.
+Ein AP08-Go gibt AP12 weder zur Umsetzung noch zur Aktivierung frei.
 
 | Teil | Ergebnis und Prüfung |
 | --- | --- |
