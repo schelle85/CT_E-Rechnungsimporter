@@ -5,13 +5,14 @@ import logging
 import os
 import re
 import stat
+import time
 from sqlalchemy.exc import SQLAlchemyError
 from app.database import make_engine
 from app.graph import GraphError, operator_client, protected_bytes
 from app.graph_actions import GraphActions
 from app.graph_deadline import bounded_operation
 from app.graph_state import ActionStore
-from app.processing import GraphProcessing, ProcessingService
+from app.processing import GraphProcessing, ProcessingService,known_429_not_before
 from app.processing_plan import ProcessingError
 from app.processing_state import ProcessingStore
 from app.processing_decisions import DecisionStore
@@ -80,9 +81,9 @@ def execute(args):
                     value["retry_not_before"]=service.store.get_message(args.message_key)["next_attempt"]
                 return value
     except (GraphError, ProcessingError, StorageError) as error:
-        if isinstance(error,GraphError) and error.status==429 and not error.uncertain and args.command=="select":
-            import time
-            return dict(ok=True,mode=args.mode,message_keys=[],retry_not_before=error.retry_not_before or int(time.time())+900)
+        retry_at=known_429_not_before(error,int(time.time()))
+        if retry_at is not None and args.command=="select":
+            return dict(ok=True,mode=args.mode,message_keys=[],retry_not_before=retry_at)
         return {"ok": False, "code": error.code, "uncertain": True}
     except (OSError, ValueError, TypeError, SQLAlchemyError):
         return {"ok": False, "code": "processing_runtime_unavailable", "uncertain": True}

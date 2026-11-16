@@ -207,7 +207,9 @@ class ProcessingStore:
                 messages.c.revision == row["revision"]).values(**changes))
             return dict(row, **changes, mode="owned") if result.rowcount == 1 else dict(row, mode="busy")
 
-    def release(self, key, owner, revision, *, error=None, blocked=False, delay=0):
+    def release(self, key, owner, revision, *, error=None, blocked=False, delay=0,not_before=None):
+        if not_before is not None and (type(not_before) is not int or not 0<=not_before<=9223372036854775807):
+            raise ProcessingError("processing_retry_invalid")
         with self.engine.begin() as connection:
             row = self._owned(connection, key, owner, revision)
             if blocked:
@@ -217,8 +219,10 @@ class ProcessingStore:
                 connection.execute(retries.update().where(retries.c.message_key == key,
                     retries.c.applied_revision == revision, retries.c.state == "processing").values(
                         state="failed", finished_at=int(self.clock()), error_code=error))
+            next_attempt=int(self.clock())+delay
+            if not_before is not None:next_attempt=max(next_attempt,not_before)
             self._write(connection, messages, messages.c.message_key, key,
-                dict(owner=None, lease_until=0, error_code=error, next_attempt=int(self.clock()) + delay,
+                dict(owner=None, lease_until=0, error_code=error, next_attempt=next_attempt,
                      state="operator_required" if blocked else ("closing" if row["close_key"] else "processing"),
                      updated_at=int(self.clock())), key, owner, revision)
 

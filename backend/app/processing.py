@@ -14,6 +14,14 @@ from app.storage import StorageResult, store_attachment
 from app.storage_plan import StorageError
 
 
+def known_429_not_before(error,now):
+    """One absolute boundary for known rejected reads; no unknown-write retry."""
+    if not isinstance(error,GraphError) or error.status!=429 or error.uncertain:return None
+    boundary=error.retry_not_before
+    if type(boundary) is not int or boundary<=now:boundary=now+900
+    return min(9223372036854775807,max(now+300,boundary))
+
+
 @dataclass(frozen=True)
 class ProcessingResult:
     status: str
@@ -205,12 +213,11 @@ class ProcessingService:
                 "graph_journal_source_changed", "graph_journal_manifest_changed", "graph_identity_changed", "graph_inbox_changed"}
             rows = self.store.get_attachments(key)
             row = next((value for value in rows if value["attachment_key"] == (selected or aid)), None)
-            if (isinstance(error,GraphError) and error.status==429 and not error.uncertain
-                    and not message["close_key"] and (row is None or not row["effect_key"])):
+            retry_at=known_429_not_before(error,int(self.store.clock()))
+            if retry_at is not None:
                 # A known rejected read is not a classification failure. Preserve
                 # all journals and never shorten the server's retry boundary.
-                until=max(int(self.store.clock())+300,error.retry_not_before or int(self.store.clock())+900)
-                self.store.release(key,owner,revision,error=reason,delay=until-int(self.store.clock()))
+                self.store.release(key,owner,revision,error=reason,not_before=retry_at)
                 return ProcessingResult("busy",key,reason=reason)
             if row is not None and not row["effect_key"] and not message["close_key"] and not identity_failure:
                 self.store.failed(key, row["attachment_key"], owner, revision, reason)
