@@ -1,7 +1,8 @@
 # AP09: Dokumentübergabe
 
-Stand: 17. November 2026. Vollständiges Dokumentpaket zur gemeinsamen abschließenden
-Prüfung. Produktlaufzeit unverändert `d9f32a5a9c9fb642f59a13ed2550f74532fc3ebe`,
+Stand: 17. November 2026. Die einmalige unabhängige Abschlussprüfung des festen
+Dokumentpakets `330c749` ist mit PASS ohne notwendige Korrekturbefunde abgeschlossen.
+Produktlaufzeit unverändert `d9f32a5a9c9fb642f59a13ed2550f74532fc3ebe`,
 Schema `008`. Dokumentversion AP09 bezeichnet keine neue Programmversion.
 
 ## Lieferumfang
@@ -11,7 +12,7 @@ Schema `008`. Dokumentversion AP09 bezeichnet keine neue Programmversion.
 | AP09a | Offen: Vollständiges AP11-Nutzerhandbuch fehlt; AP11 ist nicht freigegeben. Die technische Unterlage ersetzt es nicht. |
 | AP09b | [Technische Quelle](TECHNISCHE-DOKUMENTATION.md) und [PDF](handbuecher/Technische-Dokumentation.pdf): Architektur, datierte Versionen, Lizenzorientierung, Konfiguration, Datenfluss, Betrieb, Rotation, Sicherung/Restore und Grenzen. |
 | AP09c | [KI-Dokumentation](KI-DOKUMENTATION.md) als aktueller Wiedereinstieg; historische Einzelstände in Originalverträgen und Git erhalten. |
-| AP09d | Eigenprüfung des vollständigen MD-/PDF-Pakets; danach eine gemeinsame unabhängige Prüfung. Lokaler Dokumentcommit ohne Push, Veröffentlichung gesondert. |
+| AP09d | Vollständige Eigenprüfung und genau eine unabhängige Abschlussprüfung bestanden. Öffentliche Dateien im Repository; Veröffentlichung und separate vertrauliche Dateiübergabe durch ORGA. AP09a bleibt offen. |
 | Vertraulicher Betrieb | Betriebsblatt separat übergeben; keine privaten Anschlussdaten, Dienst-/Instanzkennungen, Empfänger oder Geheimnisse in diesem Repository. |
 
 ## Abgleich und Nachweisgrenzen
@@ -22,8 +23,9 @@ dem vorhandenen ReportLab, eingebetteten umlautfähigen Vera-Schriften,
 Inhaltsverzeichnis, Lesezeichen, Tabellen und Seitenzahlen erzeugt. [Buildhinweise](handbuecher/README.md)
 beschreiben die Reproduktion. Fester Commit, SHA256werte, Werkzeugversionen,
 Text-/Link-/Datenschutzabgleich und vollständige gerenderte Seitensicht werden
-im getrennten Prüfbericht dokumentiert. Die unabhängige Prüfung wird durch diese
-Eigenprüfung nicht vorweggenommen.
+im getrennten Prüfbericht dokumentiert. Die unabhängige Abschlussprüfung hat
+Faktenkonsistenz, Datentrennung, Verweise und PDF-Stichprobe bestätigt. Nachträgliche
+Statusfortschreibung ändert weder geprüfte Technikquelle/PDF noch das Betriebsblatt.
 
 Die führende [AP12-Übergabe](AP12-UEBERGABE.md) bleibt unverändert maßgeblich.
 Erster echter Wechselversuch mit kontrolliertem Altmaterialrückweg und ungeklärter

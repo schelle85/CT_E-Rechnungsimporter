@@ -21,7 +21,7 @@ und Abschlussproof unabhängig nativ bestätigt; Überlappung läuft, Rotationti
 Kontrollierter AP12-Boot mit erhaltenem Kundenbetrieb bestätigt; Wiederaufnahme
 mit qualifizierten Grenzen dokumentiert. Spätere produktive Bereinigung bleibt offen.
 AP09 ist seit 17.11.2026 zur Abschlussdokumentation freigegeben; vollständiges
-Dokumentpaket zur gemeinsamen Abschlussprüfung erstellt. AP09a bleibt wegen des
+Dokumentpaket erstellt und einmalig unabhängig mit PASS geprüft. AP09a bleibt wegen des
 fehlenden AP11-Handbuchs offen. AP10/11 bleiben ohne Umsetzungs-Go.**
 AP10 ist für die spätere wöchentliche Wartung ergänzt.
 AP12 ist seit 16.11.2026 für Graph-Zertifikatsrotation und einen zusätzlichen
@@ -199,9 +199,9 @@ Führender Vertrag:
 | Teil | Ergebnis |
 | --- | --- |
 | AP09a | Offen: AP11-Handbuch fehlt und hat kein Go. Vertrauliches Betriebsblatt separat; kein Ersatzhandbuch aus AP09. |
-| AP09b | Vollständige [Technikquelle](TECHNISCHE-DOKUMENTATION.md) und [PDF](handbuecher/Technische-Dokumentation.pdf) für d9/008 zur Abschlussprüfung erstellt. |
+| AP09b | Vollständige [Technikquelle](TECHNISCHE-DOKUMENTATION.md) und [PDF](handbuecher/Technische-Dokumentation.pdf) für d9/008 erstellt und abschließend geprüft. |
 | AP09c | [KI-Dokumentation](KI-DOKUMENTATION.md) als aktueller Wiedereinstieg finalisiert; historische Fakten in Originalverträgen erhalten. |
-| AP09d | Dokumentpaket gegen Quellen abgleichen, PDF vollständig rendern/sichten und einmal gemeinsam unabhängig prüfen. Veröffentlichung folgt dem gesonderten Auftrag; kein Push aus dieser DEV-Lieferung. |
+| AP09d | Quellenabgleich, vollständige PDF-Eigenprüfung und genau eine unabhängige Abschlussprüfung bestanden. Öffentliche Veröffentlichung und getrennte vertrauliche Dateiübergabe durch ORGA; AP09a bleibt offen. |
 
 DEV liefert technische Fakten und Prüfbelege. ORGA führt die Dokumentation zusammen;
 REVIEW prüft Widersprüche und nicht belegte Behauptungen. PDFs erst aus dem

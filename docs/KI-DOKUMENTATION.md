@@ -51,7 +51,8 @@ Fehlerfallserie. Führend: [AP12-Übergabe](AP12-UEBERGABE.md).
 
 AP09 ist seit 17.11.2026 zur Abschlussdokumentation freigegeben. Technikquelle/PDF,
 dieser Wiedereinstieg und konsistente Übergabedateien bilden das vollständige Paket
-für eine gemeinsame abschließende unabhängige Prüfung. Keine Kapitelreviews.
+der einmaligen unabhängigen Abschlussprüfung am festen Stand `330c749`, Ergebnis PASS.
+Keine notwendigen Korrekturbefunde und keine Kapitelreviews.
 Ein vertrauliches Betriebsblatt wird separat übergeben. Erstellung ist keine
 neue Betriebs- oder Kundenabnahme.
 
@@ -139,9 +140,11 @@ AP01-Kundenabnahme bleibt der tatsächliche ADnachweis.
 
 ## Offene Punkte und nächster Schritt
 
-Vollständiges festes AP09-MD-/PDF-Paket nach Eigenprüfung einmal unabhängig prüfen
-lassen. Erst konkretes Ergebnis übernehmen. AP09a-Handbuchlücke erhalten.
-Veröffentlichung, AP10, AP11 und zusätzliche Liveeingriffe nur auf konkreten Auftrag.
+Die einmalige finale AP09-Prüfung ist bestanden. Geprüfte Technikquelle, PDF und
+vertrauliches Betriebsblatt bleiben bei der anschließenden Statusfortschreibung unverändert.
+AP09a-Handbuchlücke erhalten; AP10, AP11 und zusätzliche Liveeingriffe benötigen
+weiterhin ihren konkreten Auftrag. Öffentliche Dokumente und vertrauliche Zuordnungen
+werden getrennt übergeben; keine neue Produktbereitstellung daraus ableiten.
 
 Weitere Grenzen: spätere produktive Altkeybereinigung, zukünftiger automatischer
 Erneuerungsauslöser, vollständiger VM-/Offsite-Restore, fachliche Erkennungsrestfälle,

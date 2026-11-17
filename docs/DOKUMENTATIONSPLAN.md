@@ -1,8 +1,8 @@
 # Dokumentationslieferungen
 
 Stand: 17. November 2026. AP09 ist zur Abschlussdokumentation freigegeben.
-Vollständige Technikquelle/PDF und KI-Wiedereinstieg sind zur gemeinsamen
-Abschlussprüfung erstellt; siehe [AP09-Übergabe](AP09-UEBERGABE.md). AP10/11
+Vollständige Technikquelle/PDF und KI-Wiedereinstieg sind erstellt und gemeinsam
+einmalig abschließend mit PASS geprüft; siehe [AP09-Übergabe](AP09-UEBERGABE.md). AP10/11
 bleiben ohne Umsetzungs-Go. AP09a ist wegen des fehlenden AP11-Handbuchs offen.
 AP12 ist aus d9 bereitgestellt; der echte Zertifikatswechsel ist unabhängig
 nativ bestätigt. Genau ein AP12-Kundenboot mit erhaltenem Betrieb und qualifizierten
@@ -70,8 +70,8 @@ Prüfgrenzen; Kundenrückmeldungen fließen vor der abschließenden Übergabe ei
 
 Erstellte Quelle/Ausgabe: [Technische Dokumentation](TECHNISCHE-DOKUMENTATION.md)
 und [PDF](handbuecher/Technische-Dokumentation.pdf). Reproduzierbarer dokumentbezogener
-Build und Eigenprüfung gemäß [PDF-Hinweisen](handbuecher/README.md). Die unabhängige
-Prüfung erfolgt einmal am vollständigen festen Paket, nicht kapitelweise.
+Build und Eigenprüfung gemäß [PDF-Hinweisen](handbuecher/README.md). Die einmalige
+unabhängige Prüfung des vollständigen festen Pakets ist bestanden; keine Kapitelreviews.
 Echte Kundenzugänge, Schlüssel und private Konfiguration nicht in die öffentliche
 Version aufnehmen. Nötige vertrauliche Betriebsangaben separat übergeben.
 
