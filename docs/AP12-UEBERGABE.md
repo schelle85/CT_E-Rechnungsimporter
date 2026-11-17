@@ -117,3 +117,12 @@ Unitdateien sind deaktivierte Vorlagen. Erst ihr tatsächlicher Rücklesebeleg
 bestätigt Aktivität und Termine. Runtimeprofile bleiben name/image; tatsächliche
 Container-IDs gehören ausschließlich in private Hostbelege. AP08-Status und
 HTTPS-Zertifikatsbetrieb bleiben eigenständige Verträge.
+
+Der AP08-Statussammler akzeptiert im öffentlichen Statusverzeichnis zusätzlich
+genau den vorgesehenen Unterordner `graph-access`: Rootbesitz, Gruppe10001,
+Modus0750, geschützte Eltern und kein Symlink. Fremde Namen oder abweichende
+Metadaten werden weiterhin abgewiesen. Der Sammler liest oder verändert den
+AP12-Inhalt nicht; sein Statusschema mit vier Jobs bleibt unverändert. Die lokale
+Profilprüfung verwendet ausdrücklich simulierte POSIX-Metadaten. Reale
+Verzeichnisrechte, verschachtelte RO-Mounts und gemeinsamer Betrieb von
+Statussammler und Gate benötigen weiterhin den getrennten Linuxnachweis.

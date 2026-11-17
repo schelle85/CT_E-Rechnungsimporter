@@ -30,7 +30,12 @@ def profile(path,host):
     results=Path(value["result_directory"]);output=Path(value["output_directory"])
     if results==output or stat.S_IMODE(results.stat().st_mode)!=0o700:raise ValueError()
     if output.stat().st_gid!=10001 or stat.S_IMODE(output.stat().st_mode)!=0o750:raise ValueError()
-    if any(item.name!="status.json" and not item.name.startswith(".status-") for item in output.iterdir()):raise ValueError()
+    for item in output.iterdir():
+        if item.name=="status.json" or item.name.startswith(".status-"):continue
+        if item.name!="graph-access":raise ValueError()
+        host.controlled_directory(item)
+        info=item.stat()
+        if info.st_gid!=10001 or stat.S_IMODE(info.st_mode)!=0o750:raise ValueError()
     automation=host.load_peer("run-automation.py").profile(value["automation_profile"],host)
     binding=json.loads(host.protected(automation["runtime_profile"]).read_text(encoding="utf-8"))
     if str(uuid.UUID(binding["instance_id"]))!=binding["instance_id"]:raise ValueError()
