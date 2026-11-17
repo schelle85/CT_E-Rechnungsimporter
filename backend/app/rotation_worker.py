@@ -23,6 +23,7 @@ from app.rotation_journal import RootJournal
 from app.rotation_model import RotationBinding,sha,unique_json,uuid
 from app.rotation_state import RotationStore
 from app.rotation_maintenance import maintain,project_cleanup
+from app.rotation_schedule import ScheduleJournal,overview
 
 DIRECTORY="/var/lib/invoice-importer/rotation"
 FIELDS={"status":set(),"register":set(),"candidate-verified":{"receipt"},
@@ -33,6 +34,8 @@ FIELDS={"status":set(),"register":set(),"candidate-verified":{"receipt"},
 FIELDS["publish"]=set()
 FIELDS["resume-closed"]={"seal"}
 FIELDS["cleanup"]=set()
+FIELDS["scheduled-check"]=set()
+FIELDS["overview"]=set()
 
 
 def request(raw):
@@ -41,7 +44,8 @@ def request(raw):
         value=json.loads(raw,object_pairs_hook=unique_json)
         command=value["command"]
         if (command not in FIELDS or set(value)!={"command","operation_id"}|FIELDS[command]):raise ValueError()
-        if command not in {"status","monitor"} or value["operation_id"] is not None:uuid(value["operation_id"])
+        if command in {"scheduled-check","overview"} and value["operation_id"] is not None:raise ValueError()
+        if command not in {"status","monitor","scheduled-check","overview"} or value["operation_id"] is not None:uuid(value["operation_id"])
         return value
     except (ValueError,KeyError,TypeError,GraphError):raise GraphError("rotation_host_request_invalid") from None
 
@@ -117,11 +121,13 @@ def execute(value,deadline):
             current=CertificateMaterial.load("/run/secrets/graph_credential")
             if command=="status":
                 active=head["active_operation"]
-                return dict(ok=True,binding=access.fields(),head=head,current=metadata(current),
+                return dict(ok=True,binding=access.fields(),head=head,current=metadata(current),request=store.read(active) if active else None,
                     notification_scope=graph_scope(config.tenant_id,config.client_id,config.mailbox),
                     core=journal.state(active) if active else None,host=host.state(active) if active else None,
                     cleanup=CleanupJournal(host).state(active) if active else None)
             if command=="monitor":return dict(ok=True,observed=monitor_state(engine,config))
+            if command=="scheduled-check":return ScheduleJournal(journal).check(store,access,current,deadline,lambda:monitor_state(engine,config))
+            if command=="overview":return overview(store,host,access,current)
             if command=="read":return dict(ok=True,core=journal.state(operation),host=host.state(operation))
             if command=="resume-closed":
                 from app.graph_access import AccessGate
@@ -150,10 +156,12 @@ def execute(value,deadline):
                 row=store.read(operation);cleanup=None
                 if state["target"]=="old":row=store.project_host(operation,row["revision"],"failed",code="rotation_rolled_back")
                 else:
-                    cleanup=CleanupJournal(host).plan(operation);row=project_cleanup(store,operation,cleanup)
+                    cleanup=CleanupJournal(host).plan(operation);ScheduleJournal(journal).renewed(operation,cleanup)
+                    row=project_cleanup(store,operation,cleanup)
                 return dict(ok=True,request=row,cleanup=cleanup)
             if command=="cleanup":return maintain(store,host,access,operation,current,deadline)
             if command=="register":
+                ScheduleJournal(journal).attempt(operation,now)
                 core=journal.state(operation)
                 if core is None:
                     row=store.read(operation)
