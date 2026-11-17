@@ -689,7 +689,11 @@ class Controller:
                     or any(release.get(name)!=value for name,value in self.access.fields().items()) or self.external_drain() is not None):
                 raise ValueError("rotation_attestation_paused")
         with self.writer.session():
-            self.recover_job();status=self.worker("status")
+            # Ownership is a bounded attestation, never recovery of interrupted jobs.
+            # Reject before starting even a status worker beside an unknown old job.
+            if next(self.journal.glob("invoice-rotation-*.job.json"),None) is not None:
+                raise ValueError("rotation_attestation_jobs_unreconciled")
+            check();status=self.worker("status")
             if status["binding"]!=self.access.fields() or status["head"]["active_operation"] is not None:raise ValueError("rotation_attestation_unavailable")
             if status["current"]["fingerprint"]!=fingerprint:raise ValueError("rotation_credential_changed")
             check()

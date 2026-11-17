@@ -1,5 +1,5 @@
 """Explicit ownership: real SQL/files/crypto; inherited OS, Docker and Graph doubles."""
-from contextlib import contextmanager,redirect_stderr
+from contextlib import ExitStack,contextmanager,redirect_stderr
 import copy
 import io
 import json
@@ -148,6 +148,33 @@ class CompletedOwnershipTests(unittest.TestCase):
         result=f.fresh_controller().attest_current(NEW_ID,f.current.fingerprint,"e"*64)
         self.assertTrue(result["already_managed"]);self.assertEqual(f.root.inventory(),before)
         self.assertEqual(result["evidence"],created["evidence"]);self.assertEqual(m.graph.removes,1);self.assertEqual(f.remote.adds,1)
+
+
+class PendingOwnershipJobTests(unittest.TestCase):
+    def left_job(self,kind):
+        f=flow_fixture.IntegratedHostTests();f.setUp();self.addCleanup(f.doCleanups);c=f.controller
+        name="invoice-rotation-"+uuid4().hex
+        job=dict(kind=kind,name=name,image=f.images["api"],operation_id=f.operation,**f.access.fields())
+        if kind=="exec":job["container_id"]=f.api_data["Id"]
+        else:job.update(uid="10001:10001",command="app.graph_access_probe")
+        path=c.job_path(name);path.write_text(json.dumps(job));raw=path.read_bytes()
+        drain=Path(c.host.DRAIN_FILE);drain.write_text("existing-operator-drain");drain_bytes=drain.read_bytes()
+        before=dict(gate=copy.deepcopy(f.gate),api=copy.deepcopy(f.api_data),inventory=f.root.inventory(),head=f.store.status(),material=f.active.read_bytes())
+        self.assertEqual(before["head"]["active_operation"],f.operation)
+        with ExitStack() as stack:
+            spies={name:stack.enter_context(patch.object(c,name,side_effect=ValueError("forbidden_"+name))) for name in
+                ("recover_job","recover_exec","worker","stop","cleanup","finish_job","block","drain","command","inspect")}
+            with self.assertRaisesRegex(ValueError,"rotation_attestation_jobs_unreconciled"):
+                c.attest_current(OLD_ID,f.current.fingerprint,"d"*64)
+            for spy in spies.values():spy.assert_not_called()
+        self.assertEqual(path.read_bytes(),raw);self.assertEqual(drain.read_bytes(),drain_bytes)
+        self.assertEqual(f.gate,before["gate"]);self.assertEqual(f.api_data,before["api"]);self.assertEqual(f.root.inventory(),before["inventory"])
+        self.assertEqual(f.store.status(),before["head"]);self.assertEqual(f.active.read_bytes(),before["material"])
+        self.assertEqual(f.remote.reads,0);self.assertEqual(f.remote.adds,0)
+
+    def test_existing_exec_job_and_active_request_reject_before_any_worker_or_recovery(self):self.left_job("exec")
+
+    def test_existing_container_probe_job_is_preserved_without_stop_cleanup_or_worker(self):self.left_job("container")
 
 
 class AttestationBoundaryTests(unittest.TestCase):

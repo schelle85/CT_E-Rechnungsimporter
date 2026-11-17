@@ -27,6 +27,9 @@ haben. Nach einer Rotation muss die aktuelle versiegelte Übernahme mit SQL
 übereinstimmen; bei neuem Material gehört dazu abgeschlossener Cleanup. Ein
 bestätigter Rückweg verlangt den abgeschlossenen failed/old-Auftrag. Pausen,
 fremder Drain, unklarer Abschluss und laufende Überlappung sperren die Zuordnung.
+Jeder hinterlassene Hostjob sperrt bereits vor dem ersten Statusworker. Der
+Zuordnungsweg führt keine Recovery aus und erhält Jobbelege, API und Probe;
+ihre Behandlung gehört ausschließlich in den gesonderten Resume-/Rückweg.
 
 ## Begrenzter Abgleich
 
