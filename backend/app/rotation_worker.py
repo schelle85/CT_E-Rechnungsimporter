@@ -36,6 +36,7 @@ FIELDS["resume-closed"]={"seal"}
 FIELDS["cleanup"]=set()
 FIELDS["scheduled-check"]=set()
 FIELDS["overview"]=set()
+FIELDS["attest-current"]={"key_id","fingerprint","evidence"}
 
 
 def request(raw):
@@ -44,8 +45,9 @@ def request(raw):
         value=json.loads(raw,object_pairs_hook=unique_json)
         command=value["command"]
         if (command not in FIELDS or set(value)!={"command","operation_id"}|FIELDS[command]):raise ValueError()
-        if command in {"scheduled-check","overview"} and value["operation_id"] is not None:raise ValueError()
-        if command not in {"status","monitor","scheduled-check","overview"} or value["operation_id"] is not None:uuid(value["operation_id"])
+        if command in {"scheduled-check","overview","attest-current"} and value["operation_id"] is not None:raise ValueError()
+        if command not in {"status","monitor","scheduled-check","overview","attest-current"} or value["operation_id"] is not None:uuid(value["operation_id"])
+        if command=="attest-current":uuid(value["key_id"]);sha(value["fingerprint"]);sha(value["evidence"])
         return value
     except (ValueError,KeyError,TypeError,GraphError):raise GraphError("rotation_host_request_invalid") from None
 
@@ -129,6 +131,9 @@ def execute(value,deadline):
             if command=="monitor":return dict(ok=True,observed=monitor_state(engine,config))
             if command=="scheduled-check":return ScheduleJournal(journal).check(store,access,current,deadline,lambda:monitor_state(engine,config))
             if command=="overview":return overview(store,host,access,current)
+            if command=="attest-current":
+                from app.rotation_ownership import attest
+                return attest(store,host,access,current,key_id=value["key_id"],fingerprint=value["fingerprint"],evidence=value["evidence"],deadline=deadline)
             if command=="read":return dict(ok=True,core=journal.state(operation),host=host.state(operation))
             if command=="resume-closed":
                 from app.graph_access import AccessGate

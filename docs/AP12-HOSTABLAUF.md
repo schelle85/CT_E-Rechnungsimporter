@@ -4,8 +4,10 @@ Quellstand, noch nicht bereitgestellt oder vollständig nativ abgenommen.
 Kundenbetrieb bleibt AP08 auf Schema007. C2a-UID10001-Integration und C2B-R1-
 POSIXfrist sind separat unabhängig nativ abgeschlossen.
 
-`deploy/run-rotation.py` bietet ausschließlich bootstrap/run/resume/rollback
-als Root über geschützte feste Profile. `app.rotation_worker` verarbeitet
+`deploy/run-rotation.py` bietet bootstrap/run/resume/rollback sowie die festen
+[Tages-/Gelegenheitsläufe](AP12-AUTOMATIK.md) und die ausdrückliche
+[Zertifikatszuordnung](AP12-OWNERSHIP.md) als Root über geschützte feste Profile.
+`app.rotation_worker` verarbeitet
 begrenztes privates stdin, eigene DBanforderungen und die bestehenden Rootjournale.
 Die API erhält weder Root-/Dockerzugang noch private Journal-/Credentialschreibrechte.
 

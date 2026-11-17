@@ -13,7 +13,7 @@ import subprocess
 import sys
 import tempfile
 import time
-from uuid import uuid4
+from uuid import UUID,uuid4
 
 PROFILE="/etc/invoice-importer/rotation-host.json"
 WORKER_DIRECTORY="/var/lib/invoice-importer/rotation"
@@ -680,6 +680,23 @@ class Controller:
             result=self.worker("cleanup",operation)
             return dict(phase=result["cleanup"]["phase"],state=result["request"]["state"],error_code=result["cleanup"]["error_code"])
 
+    def attest_current(self,key_id,fingerprint,evidence):
+        if (str(UUID(key_id))!=key_id or UUID(key_id).int==0 or not re.fullmatch("[0-9a-f]{64}",fingerprint)
+                or not re.fullmatch("[0-9a-f]{64}",evidence)):raise ValueError("rotation_attestation_invalid")
+        def check():
+            release=self.writer.gate.read()
+            if (self.writer.binding!=self.access or release["mode"]!="allowed" or release["boot_id"]!=self.model.boot_id()
+                    or any(release.get(name)!=value for name,value in self.access.fields().items()) or self.external_drain() is not None):
+                raise ValueError("rotation_attestation_paused")
+        with self.writer.session():
+            self.recover_job();status=self.worker("status")
+            if status["binding"]!=self.access.fields() or status["head"]["active_operation"] is not None:raise ValueError("rotation_attestation_unavailable")
+            if status["current"]["fingerprint"]!=fingerprint:raise ValueError("rotation_credential_changed")
+            check()
+            with self.lifecycle_locks():
+                check();self.api();self.runtime.ready(self.binding,self.auto["public_origin"],self.host,self.until)
+                return self.worker("attest-current",key_id=key_id,fingerprint=fingerprint,evidence=evidence)
+
     def operate(self,mode,*,startup=False,locked=False):
         if locked:self.writer._require()
         with nullcontext() if locked else self.writer.session():
@@ -742,11 +759,16 @@ class Controller:
 
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("mode",choices=("bootstrap","run","resume","rollback","daily","opportunity"));parser.add_argument("--profile",default=PROFILE)
+    parser.add_argument("mode",choices=("bootstrap","run","resume","rollback","daily","opportunity","attest-current"));parser.add_argument("--profile",default=PROFILE)
+    parser.add_argument("--key-id");parser.add_argument("--fingerprint");parser.add_argument("--evidence")
     args=parser.parse_args()
+    if args.mode=="attest-current":
+        if not all((args.key_id,args.fingerprint,args.evidence)):parser.error("attest-current requires key ID, fingerprint and evidence digest")
+    elif any(value is not None for value in (args.key_id,args.fingerprint,args.evidence)):parser.error("attestation fields are only valid with attest-current")
     try:
         controller=Controller(args.profile)
-        result=peer("rotation-schedule-host.py").run(controller,args.mode) if args.mode in {"daily","opportunity"} else controller.operate(args.mode)
+        if args.mode=="attest-current":result=controller.attest_current(args.key_id,args.fingerprint,args.evidence)
+        else:result=peer("rotation-schedule-host.py").run(controller,args.mode) if args.mode in {"daily","opportunity"} else controller.operate(args.mode)
     except (OSError,ValueError,KeyError,TypeError,subprocess.SubprocessError,KeyboardInterrupt):result=dict(ok=False,code="rotation_host_unconfirmed")
     print(json.dumps(result,separators=(",",":")))
     return 0 if result.get("ok") else 1

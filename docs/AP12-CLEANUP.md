@@ -87,6 +87,9 @@ lokale Abschluss gibt den ursprünglichen SQLauftrag frei. Verlorene Antworten
 lassen sich aus dem Rootjournal nachprojizieren; weder neue UUID noch neuer POST.
 Ein fremder/unverwalteter Altkey bleibt erhalten und der Abschluss enthält seinen
 neutralen Hinweis. Explizite Eigentumsattestierung bleibt eine Rootentscheidung.
+Der feste [Zuordnungsweg](AP12-OWNERSHIP.md) verlangt einen privaten Betreibernachweis,
+aktuell bestätigtes Material und einen eigenen Bestandsabgleich vor einem neuen
+Rotationsauftrag. Ein bereits laufender Cleanup übernimmt keine nachträgliche Zuordnung.
 
 Auch nach abgeschlossenem Cleanup und leerem active_operation kann ein neuer
 Boot genau die ursprüngliche Gate-/SQL-/Journalbindung wieder aufnehmen. Ein
