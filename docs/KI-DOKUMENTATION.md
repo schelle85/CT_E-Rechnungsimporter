@@ -1,6 +1,6 @@
 # KI-Dokumentation
 
-Stand: 17. November 2026. AP09-Wiedereinstieg zum aktuellen Lieferstand.
+Stand: 18. November 2026. Wiedereinstieg nach AP09 und zur AP11-Dokumentlieferung.
 Historische Detailverläufe bleiben in den Paketverträgen und der Git-Historie.
 Keine privaten Chatprotokolle und kein pauschaler Gesamtabschlussbericht.
 
@@ -56,8 +56,11 @@ Keine notwendigen Korrekturbefunde und keine Kapitelreviews.
 Ein vertrauliches Betriebsblatt wird separat übergeben. Erstellung ist keine
 neue Betriebs- oder Kundenabnahme.
 
-AP09a bleibt offen: Das vollständige AP11-Nutzerhandbuch fehlt. AP11 hat kein Go;
-keine Ersatzbedienungsanleitung aus AP09 ableiten. AP10 zur wöchentlichen
+AP11 hat seit17.11.2026 Go. Eine führende [Nutzer-/Administrationsanleitung](HANDBUCH-ZUM-PRODUKT.md)
+mit zwölf neutralen Aufnahmen und [PDF](handbuecher/Handbuch-zum-Produkt.pdf) liegt
+eigengeprüft vor. Genau eine unabhängige Prüfung am fertigen festen Paket steht aus.
+AP09a übernimmt dieses Handbuch danach; keine konkurrierende Anleitung.
+AP09-Technikquelle/PDF bleibt als geprüfte datierte Ausgabe unverändert. AP10 zur wöchentlichen
 Linuxwartung bleibt ohne Go. Gestaltung der Tages-/Wochenberichtsmails ist nur
 als separater AP07-Nachtrag geplant. Kein Push oder Deployment aus einer lokalen
 Dokumentlieferung ableiten.
@@ -80,6 +83,7 @@ Dokumentlieferung ableiten.
 | Aktuelle Rotationsabnahme | [AP12-Übergabe](AP12-UEBERGABE.md); führend vor historischen C-Teilständen. |
 | Rotationsdetails | [Hostablauf](AP12-HOSTABLAUF.md), [Automatik](AP12-AUTOMATIK.md), [Admin-API](AP12-ADMIN-API.md), [Ownership](AP12-OWNERSHIP.md), [Cleanup](AP12-CLEANUP.md). |
 | Browsergrenzen | [AP12-Browserprüfung](AP12-BROWSERPRUEFUNG.md); isolierte Fixtures sind kein echter ADlogin. |
+| Nutzerhandbuch | [AP11-Handbuch](HANDBUCH-ZUM-PRODUKT.md), [PDF](handbuecher/Handbuch-zum-Produkt.pdf); alle Bedienbereiche, neutrale Bilder, keine neue Kundenabnahme. |
 | Dokumenterzeugung | [PDF-Buildhinweise](handbuecher/README.md); Quelle bleibt führend. |
 
 ## Architekturentscheidungen
@@ -142,7 +146,8 @@ AP01-Kundenabnahme bleibt der tatsächliche ADnachweis.
 
 Die einmalige finale AP09-Prüfung ist bestanden. Geprüfte Technikquelle, PDF und
 vertrauliches Betriebsblatt bleiben bei der anschließenden Statusfortschreibung unverändert.
-AP09a-Handbuchlücke erhalten; AP10, AP11 und zusätzliche Liveeingriffe benötigen
+AP11-Gesamtpaket einmal unabhängig prüfen lassen, anschließend AP09a übernehmen.
+AP10 und zusätzliche Liveeingriffe benötigen
 weiterhin ihren konkreten Auftrag. Öffentliche Dokumente und vertrauliche Zuordnungen
 werden getrennt übergeben; keine neue Produktbereitstellung daraus ableiten.
 

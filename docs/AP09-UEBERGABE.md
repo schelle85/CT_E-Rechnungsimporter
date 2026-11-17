@@ -1,6 +1,6 @@
 # AP09: Dokumentübergabe
 
-Stand: 17. November 2026. Die einmalige unabhängige Abschlussprüfung des festen
+Stand: 18. November 2026. AP11-Ergänzung; historische AP09-Prüfung bleibt erhalten. Die einmalige unabhängige Abschlussprüfung des festen
 Dokumentpakets `330c749` ist mit PASS ohne notwendige Korrekturbefunde abgeschlossen.
 Produktlaufzeit unverändert `d9f32a5a9c9fb642f59a13ed2550f74532fc3ebe`,
 Schema `008`. Dokumentversion AP09 bezeichnet keine neue Programmversion.
@@ -9,10 +9,10 @@ Schema `008`. Dokumentversion AP09 bezeichnet keine neue Programmversion.
 
 | Teil | Quelle / Ausgabe und Status |
 | --- | --- |
-| AP09a | Offen: Vollständiges AP11-Nutzerhandbuch fehlt; AP11 ist nicht freigegeben. Die technische Unterlage ersetzt es nicht. |
+| AP09a | Eine führende [Nutzer-/Administrationsanleitung](HANDBUCH-ZUM-PRODUKT.md) mit [PDF](handbuecher/Handbuch-zum-Produkt.pdf) und synthetischen Bildern liegt eigengeprüft vor. AP11 seit17.11.2026 freigegeben; Übernahme nach dessen einmaliger unabhängiger Abschlussprüfung. |
 | AP09b | [Technische Quelle](TECHNISCHE-DOKUMENTATION.md) und [PDF](handbuecher/Technische-Dokumentation.pdf): Architektur, datierte Versionen, Lizenzorientierung, Konfiguration, Datenfluss, Betrieb, Rotation, Sicherung/Restore und Grenzen. |
 | AP09c | [KI-Dokumentation](KI-DOKUMENTATION.md) als aktueller Wiedereinstieg; historische Einzelstände in Originalverträgen und Git erhalten. |
-| AP09d | Vollständige Eigenprüfung und genau eine unabhängige Abschlussprüfung bestanden. Öffentliche Dateien im Repository; Veröffentlichung und separate vertrauliche Dateiübergabe durch ORGA. AP09a bleibt offen. |
+| AP09d | Vollständige Eigenprüfung und genau eine unabhängige Abschlussprüfung bestanden. Öffentliche Dateien im Repository; Veröffentlichung und separate vertrauliche Dateiübergabe durch ORGA. AP09a ergänzt das AP11-Handbuch nach dessen Abschlussprüfung. |
 | Vertraulicher Betrieb | Betriebsblatt separat übergeben; keine privaten Anschlussdaten, Dienst-/Instanzkennungen, Empfänger oder Geheimnisse in diesem Repository. |
 
 ## Abgleich und Nachweisgrenzen
@@ -48,4 +48,5 @@ sind unverändert. Keine App-, Image-, Schema- oder Serveränderung aus AP09 abl
 2. Einmalige unabhängige Prüfung am vollständigen festen Paket; Ergebnis und
    gegebenenfalls konkret notwendige Korrekturen nachvollziehbar dokumentieren.
 3. Veröffentlichung und Kundenübergabe nach dem entsprechenden Auftrag durchführen.
-   AP09a bis zur freigegebenen AP11-Lieferung als offen erhalten.
+   AP09a übernimmt ausschließlich das eine AP11-Handbuch nach dessen Abschlussprüfung.
+   Die bereits geprüfte AP09-Technikquelle/PDF bleibt unverändert auf Stand17.11.2026.

@@ -1,32 +1,34 @@
 # Dokumentationslieferungen
 
-Stand: 17. November 2026. AP09 ist zur Abschlussdokumentation freigegeben.
+Stand: 18. November 2026. AP09 ist zur Abschlussdokumentation freigegeben.
 Vollständige Technikquelle/PDF und KI-Wiedereinstieg sind erstellt und gemeinsam
-einmalig abschließend mit PASS geprüft; siehe [AP09-Übergabe](AP09-UEBERGABE.md). AP10/11
-bleiben ohne Umsetzungs-Go. AP09a ist wegen des fehlenden AP11-Handbuchs offen.
+einmalig abschließend mit PASS geprüft; siehe [AP09-Übergabe](AP09-UEBERGABE.md). AP10 bleibt ohne Go. AP11 ist seit 17.11.2026 freigegeben; vollständige Nutzeranleitung
+mit Bildern und PDF eigengeprüft vorhanden. Einmalige unabhängige AP11-Abschlussprüfung
+steht aus; anschließend übernimmt AP09a diese eine führende Anleitung.
 AP12 ist aus d9 bereitgestellt; der echte Zertifikatswechsel ist unabhängig
 nativ bestätigt. Genau ein AP12-Kundenboot mit erhaltenem Betrieb und qualifizierten
 Wiederaufnahmebelegen ist dokumentiert; spätere produktive Bereinigung bleibt offen. [Lieferstand und Übergabefakten](AP12-UEBERGABE.md) trennen
 diese Grenzen von historischen Einzelprüfungen.
-Das vollständige Nutzerhandbuch ist
-seit14.11.2026 ein eigenes geplantes AP11. Die technische AP09-Lieferung beschreibt den geprüften Produktpin d9/008.
-Das vollständige Nutzerhandbuch entsteht erst mit einem gesonderten AP11-Go;
-sein Fehlen wird nicht durch eine technische Ersatzbedienungsanleitung verdeckt.
+AP11 liefert die Nutzer-/Administrationsanleitung für denselben Produktpin d9/008.
+Die bereits geprüfte AP09-Technikquelle/PDF bleibt unverändert auf Dokumentstand
+17.11.2026; damalige Plan- und Handbuchlücken sind datierte historische Angaben.
 
 ## AP09a: Kundenunterlagen und führende Nutzeranleitung
 
 AP09a übernimmt das vollständige Handbuch aus AP11 als Kundenanleitung. Es wird
 eine führende Anleitung gepflegt; die technische Dokumentation ergänzt sie für
 den Betrieb. Die frühere geplante separate Kundenanleitung wird damit in AP11
-zusammengeführt. AP09 prüft Version, Vollständigkeit und Übergabe des Gesamtpakets. Derzeit
-ist AP09a ausdrücklich offen, weil das AP11-Handbuch fehlt. Ein vertrauliches
+zusammengeführt. AP09 prüft Version, Vollständigkeit und Übergabe des Gesamtpakets. Die AP11-Quelle/PDF liegt nun eigengeprüft vor; die abschließende Übernahme erfolgt
+nach der einmaligen unabhängigen Prüfung des fertigen AP11-Pakets. Ein vertrauliches
 Betriebsblatt wird separat übergeben; es ersetzt die fehlende Nutzeranleitung nicht.
 
 ## AP11: Handbuch zum Produkt
 
-Eigenes Arbeitspaket auf ausdrücklichen Nutzerwunsch vom14.11.2026. Status: geplant,
-noch kein AP11-Go und noch kein fertig erstelltes Handbuch. Grundlage ist der
-geprüfte Auslieferungsstand nach AP08 und dem eingeplanten AP12.
+Eigenes Arbeitspaket vom14.11.2026, seit17.11.2026 freigegeben. Vollständiges
+Handbuch für d9/008 mit 24 Kapiteln und zwölf neutralen/synthetischen Aufnahmen
+der unveränderten Oberfläche eigengeprüft erstellt. Keine neue echte Anmeldung,
+Kundenrechnung oder Livewirkung aus den Bildern ableiten. Einmalige unabhängige
+Abschlussprüfung und Kundenrückmeldung stehen noch aus.
 
 Zielgruppe: Anwender und kundenseitige Administratoren.
 
@@ -50,8 +52,8 @@ Zielgruppe: Anwender und kundenseitige Administratoren.
 - Bildschirmbilder aus dem geprüften Auslieferungsstand mit neutralen oder
   synthetischen Beispielen; keine Kennwörter oder privaten Mail-/Rechnungsinhalte.
 
-Geplante Quelle: `docs/HANDBUCH-ZUM-PRODUKT.md`.
-Geplante Ausgabe: `docs/handbuecher/Handbuch-zum-Produkt.pdf`.
+Erstellte führende [Quelle](HANDBUCH-ZUM-PRODUKT.md), [26-seitige PDF](handbuecher/Handbuch-zum-Produkt.pdf)
+und [Bildhinweise](bilder/ap11/README.md). Build und Prüfung siehe [PDF-Unterlagen](handbuecher/README.md).
 Jeder Bedienweg wird mit der tatsächlich gelieferten Software abgeglichen.
 Die PDF wird vollständig gerendert und visuell geprüft. REVIEW prüft Inhalt und
 Prüfgrenzen; Kundenrückmeldungen fließen vor der abschließenden Übergabe ein.

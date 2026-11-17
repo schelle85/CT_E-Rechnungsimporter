@@ -1,10 +1,13 @@
 # PDF-Unterlagen
 
-Stand: 17. November 2026. AP09-Dokumentpaket zur gemeinsamen Abschlussprüfung.
+Stand: 18. November 2026. AP09-Technikunterlagen geprüft; AP11-Nutzerhandbuch eigengeprüft
+vorhanden, einmalige unabhängige Abschlussprüfung am vollständigen AP11-Paket ausstehend.
 
 - Führende Quelle: [Technische Dokumentation](../TECHNISCHE-DOKUMENTATION.md).
 - Ausgabe: [Technische Dokumentation als PDF](Technische-Dokumentation.pdf).
-- Das Nutzerhandbuch aus AP11 fehlt noch; AP09a bleibt offen. Kein AP11-Go.
+- Führendes [Nutzerhandbuch](../HANDBUCH-ZUM-PRODUKT.md) und [PDF](Handbuch-zum-Produkt.pdf):
+  24 Kapitel, zwölf synthetische Bildschirmbilder, 26 Seiten. AP11-Go seit17.11.2026;
+  AP09a übernimmt diese Anleitung nach deren Abschlussprüfung.
 - Ein vertrauliches Betriebsblatt wird separat übergeben und gehört nicht ins Repository.
 
 ## Reproduzierbarer Build
@@ -42,6 +45,19 @@ Repositorys werden abgewiesen, externe URLs bleiben unverändert. Die verlinkten
 Repositorydateien müssen im Veröffentlichungsablauf auf `main` bereitgestellt werden.
 Die einzelne PDF enthält den vollständigen technischen Haupttext; vertiefende
 Paketverträge werden nicht mit eingebettet.
+
+## Nutzerhandbuch bauen
+
+```text
+python -I -B tools/build_technical_pdf.py --handbook --input docs/HANDBUCH-ZUM-PRODUKT.md --output docs/handbuecher/Handbuch-zum-Produkt.pdf
+```
+
+Der kleine Handbuchmodus ergänzt eingebettete PNGabbildungen mit Bildunterschriften,
+kurze Kapitel auf eigener Seite und AP11-Metadaten. Das explizite Markdown-Inhaltsverzeichnis
+zwischen den zwei TOC-Kommentarmarken bleibt in der Quelle anklickbar; die PDF erzeugt
+ihr eigenes anklickbares Verzeichnis mit Seitenzahlen und Lesezeichen. Die unveränderte
+AP09-Quelle erzeugt im bisherigen Standardmodus weiterhin bytegleich dieselbe Technik-PDF.
+[Bildherkunft und Grenzen](../bilder/ap11/README.md).
 
 ## Freigabeprüfung
 

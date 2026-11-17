@@ -23,7 +23,7 @@ from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.platypus import (
     BaseDocTemplate, Frame, PageBreak, PageTemplate, Paragraph, Spacer,
-    Table, TableStyle,
+    Table, TableStyle, Image, KeepTogether,
 )
 from reportlab.platypus.tableofcontents import TableOfContents
 
@@ -37,6 +37,7 @@ WIDTH, HEIGHT = A4
 MARGIN = 46
 CONTENT = WIDTH - 2 * MARGIN
 rl_config.invariant = 1
+HANDBOOK = False
 
 
 def register_fonts():
@@ -93,7 +94,7 @@ class Document(BaseDocTemplate):
         super().__init__(str(output), pagesize=A4, leftMargin=MARGIN,
                          rightMargin=MARGIN, topMargin=53, bottomMargin=48,
                          title=title, author="CT E-Rechnungsimporter",
-                         subject="Technische Betriebs- und Übergabeunterlage / AP09",
+                         subject="Nutzer- und Administrationshandbuch / AP11" if HANDBOOK else "Technische Betriebs- und Übergabeunterlage / AP09",
                          pageCompression=1, allowSplitting=1)
         self.document_title = title
         self.addPageTemplates(PageTemplate(id="document", frames=[Frame(
@@ -106,7 +107,7 @@ class Document(BaseDocTemplate):
         canvas.line(MARGIN, 38, WIDTH - MARGIN, 38)
         canvas.setFont("Vera", 7.5)
         canvas.setFillColor(INK)
-        canvas.drawString(MARGIN, 25, "AP09 | Dokumentstand 17.11.2026")
+        canvas.drawString(MARGIN, 25, "AP11 | Dokumentstand 18.11.2026" if HANDBOOK else "AP09 | Dokumentstand 17.11.2026")
         canvas.drawRightString(WIDTH - MARGIN, 25, str(doc.page))
         if doc.page > 1:
             canvas.setFillColor(BLUE)
@@ -126,6 +127,8 @@ def styles():
     body = ParagraphStyle("Body", fontName="Vera", fontSize=9.3, leading=14,
                           textColor=INK, spaceAfter=8, splitLongWords=True,
                           allowWidows=0, allowOrphans=0)
+    if HANDBOOK:
+        body.fontSize, body.leading = 10, 15
     return {
         "body": body,
         "title": ParagraphStyle("Title", parent=body, fontName="Vera-Bold",
@@ -144,6 +147,8 @@ def styles():
                                spaceAfter=12),
         "list": ParagraphStyle("List", parent=body, leftIndent=13, firstLineIndent=-13,
                                spaceAfter=5),
+        "caption": ParagraphStyle("Caption", parent=body, fontSize=8.2, leading=11,
+                                  textColor=BLUE, spaceBefore=5, spaceAfter=12),
     }
 
 
@@ -166,14 +171,16 @@ def table(lines, style):
         ("VALIGN", (0, 0), (-1, -1), "TOP"),
         ("LEFTPADDING", (0, 0), (-1, -1), 8),
         ("RIGHTPADDING", (0, 0), (-1, -1), 8),
-        ("TOPPADDING", (0, 0), (-1, -1), 7),
-        ("BOTTOMPADDING", (0, 0), (-1, -1), 7),
+        ("TOPPADDING", (0, 0), (-1, -1), 5 if HANDBOOK else 7),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 5 if HANDBOOK else 7),
         ("LINEBELOW", (0, 0), (-1, 0), .4, BLUE),
     ]))
     return result
 
 
 def make_story(source, title):
+    if HANDBOOK:
+        source = re.sub(r"<!-- toc:start -->.*?<!-- toc:end -->", "", source, flags=re.S)
     style = styles()
     lines = source.splitlines()
     if not lines or not lines[0].startswith("# "):
@@ -209,6 +216,22 @@ def parse(lines, style):
         if not line:
             index += 1
             continue
+        if line.startswith("!["):
+            match = re.fullmatch(r"!\[([^\]]+)\]\(([^)]+)\)", line)
+            if not match:
+                raise ValueError("Expected a standalone Markdown image")
+            path = (SOURCE_PATH.parent / unquote(match[2])).resolve()
+            if not path.is_relative_to(ROOT.resolve()) or path.suffix.lower() != ".png":
+                raise ValueError("Only repository PNG illustrations are supported")
+            picture = Image(str(path))
+            height_limit = 420 if path.name == "06-zuordnung.png" else 320
+            scale = min(1, CONTENT / picture.imageWidth, height_limit / picture.imageHeight)
+            picture.drawWidth = picture.imageWidth * scale
+            picture.drawHeight = picture.imageHeight * scale
+            picture.hAlign = "LEFT"
+            result.append(KeepTogether([picture, Paragraph(inline(match[1]), style["caption"])]))
+            index += 1
+            continue
         if line.startswith("```"):
             code = []
             index += 1
@@ -227,6 +250,8 @@ def parse(lines, style):
             result.append(table(block, style))
         elif line.startswith("## ") or line.startswith("### "):
             level = "section" if line.startswith("## ") else "sub"
+            if HANDBOOK and level == "section" and result:
+                result.append(PageBreak())
             result.append(Paragraph(inline(line.split(" ", 1)[1]), style[level]))
             index += 1
         elif line.startswith("#"):
@@ -237,7 +262,7 @@ def parse(lines, style):
             index += 1
             while index < len(lines) and lines[index].strip():
                 following = lines[index].strip()
-                if following.startswith(("#", "|", "```", "- ")) or re.match(r"\d+\. ", following):
+                if following.startswith(("#", "|", "```", "- ", "![")) or re.match(r"\d+\. ", following):
                     break
                 content += " " + following
                 index += 1
@@ -254,11 +279,13 @@ def parse(lines, style):
 
 
 def main():
-    global SOURCE_PATH
+    global SOURCE_PATH, HANDBOOK
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--input", type=Path, default=ROOT / "docs/TECHNISCHE-DOKUMENTATION.md")
     parser.add_argument("--output", type=Path, default=ROOT / "docs/handbuecher/Technische-Dokumentation.pdf")
+    parser.add_argument("--handbook", action="store_true", help="AP11 page layout, figures and metadata")
     args = parser.parse_args()
+    HANDBOOK = args.handbook
     SOURCE_PATH = args.input.resolve()
     source_bytes = args.input.read_bytes()
     source = source_bytes.decode("utf-8-sig")

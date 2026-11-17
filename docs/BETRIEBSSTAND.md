@@ -16,7 +16,9 @@ vollständiger VM-/Offsite-Restore daraus.
 
 AP09 ist freigegeben; [Technikunterlage](TECHNISCHE-DOKUMENTATION.md), PDF und
 KI-Wiedereinstieg sind zur gemeinsamen Abschlussprüfung erstellt. [Übergabe](AP09-UEBERGABE.md).
-AP09a bleibt wegen des fehlenden AP11-Handbuchs offen; AP10/11 ohne Go. Ein
+AP11 seit17.11.2026 freigegeben: Nutzerhandbuch mit Bildern und PDF eigengeprüft
+vorhanden, einmalige unabhängige AP11-Abschlussprüfung ausstehend. AP09a übernimmt
+diese eine Anleitung nach Abschlussprüfung. AP10 bleibt ohne Go. Ein
 vertrauliches Betriebsblatt wird separat übergeben. Mailgestaltung nur geplant.
 
 Die folgenden früheren Abschlüsse bleiben datierte historische Nachweise.

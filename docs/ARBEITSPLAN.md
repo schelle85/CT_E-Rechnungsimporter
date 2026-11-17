@@ -21,8 +21,9 @@ und Abschlussproof unabhängig nativ bestätigt; Überlappung läuft, Rotationti
 Kontrollierter AP12-Boot mit erhaltenem Kundenbetrieb bestätigt; Wiederaufnahme
 mit qualifizierten Grenzen dokumentiert. Spätere produktive Bereinigung bleibt offen.
 AP09 ist seit 17.11.2026 zur Abschlussdokumentation freigegeben; vollständiges
-Dokumentpaket erstellt und einmalig unabhängig mit PASS geprüft. AP09a bleibt wegen des
-fehlenden AP11-Handbuchs offen. AP10/11 bleiben ohne Umsetzungs-Go.**
+Dokumentpaket erstellt und einmalig unabhängig mit PASS geprüft. AP11 ist seit 17.11.2026 freigegeben; vollständiges Nutzerhandbuch mit Bildern und
+PDF eigengeprüft erstellt, einmalige unabhängige Abschlussprüfung ausstehend. AP09a
+übernimmt dieses eine Handbuch nach Abschlussprüfung. AP10 bleibt ohne Umsetzungs-Go.**
 AP10 ist für die spätere wöchentliche Wartung ergänzt.
 AP12 ist seit 16.11.2026 für Graph-Zertifikatsrotation und einen zusätzlichen
 Adminreiter freigegeben; aktuelle Lieferung und Grenzen unten.
@@ -198,10 +199,10 @@ Führender Vertrag:
 
 | Teil | Ergebnis |
 | --- | --- |
-| AP09a | Offen: AP11-Handbuch fehlt und hat kein Go. Vertrauliches Betriebsblatt separat; kein Ersatzhandbuch aus AP09. |
+| AP09a | Führendes [AP11-Handbuch](HANDBUCH-ZUM-PRODUKT.md) und [PDF](handbuecher/Handbuch-zum-Produkt.pdf) eigengeprüft vorhanden. Übernahme nach einmaliger AP11-Abschlussprüfung; vertrauliches Betriebsblatt separat. |
 | AP09b | Vollständige [Technikquelle](TECHNISCHE-DOKUMENTATION.md) und [PDF](handbuecher/Technische-Dokumentation.pdf) für d9/008 erstellt und abschließend geprüft. |
 | AP09c | [KI-Dokumentation](KI-DOKUMENTATION.md) als aktueller Wiedereinstieg finalisiert; historische Fakten in Originalverträgen erhalten. |
-| AP09d | Quellenabgleich, vollständige PDF-Eigenprüfung und genau eine unabhängige Abschlussprüfung bestanden. Öffentliche Veröffentlichung und getrennte vertrauliche Dateiübergabe durch ORGA; AP09a bleibt offen. |
+| AP09d | Quellenabgleich, vollständige PDF-Eigenprüfung und genau eine unabhängige Abschlussprüfung bestanden. Öffentliche Veröffentlichung und getrennte vertrauliche Dateiübergabe durch ORGA; AP09a ergänzt das AP11-Handbuch nach dessen Abschlussprüfung. |
 
 DEV liefert technische Fakten und Prüfbelege. ORGA führt die Dokumentation zusammen;
 REVIEW prüft Widersprüche und nicht belegte Behauptungen. PDFs erst aus dem
@@ -226,8 +227,12 @@ Neustart nicht unkontrolliert in einen laufenden Wechsel eingreift.
 
 ## AP11: Handbuch zum Produkt - ORGA / DEV / REVIEW
 
-Am 14.11.2026 ausdrücklich als eigenes Arbeitspaket ergänzt. Status: geplant;
-die Erstellung beginnt mit dem gesonderten AP11-Go.
+Am 14.11.2026 ergänzt, am 17.11.2026 ausdrücklich freigegeben. Stand 18.11.2026:
+AP11a-f als vollständige Nutzer-/Administrationsanleitung mit zwölf neutralen
+Bildschirmbildern, Markdown und 26-seitiger PDF eigengeprüft geliefert. UItexte,
+Rollen, Schritte und Grenzen gegen Produktpin d9/008 abgeglichen. AP11g: genau
+eine unabhängige Prüfung erst am vollständigen festen Paket; diese und eine
+weitere Kundenrückmeldung stehen aus. Keine Zwischenreviews, kein neuer Betriebsnachweis.
 
 | Teil | Ergebnis und Prüfung |
 | --- | --- |
