@@ -8,6 +8,7 @@ from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 from app.process_routes import router as process_router
 from app.notification_routes import router as notification_router
+from app.rotation_routes import router as rotation_router
 from app.notification_model import NotificationError
 from app.notification_web_boundary import NotificationBudgetBoundary
 from app.operations_status import read_status
@@ -110,6 +111,7 @@ def create_app(runtime_factory=build_runtime):
 
     app.include_router(process_router)
     app.include_router(notification_router)
+    app.include_router(rotation_router)
 
     @app.get("/api/operations/status")
     def operations_status():

@@ -62,7 +62,7 @@ class RotationStore:
             self._head(c)
             return self._row(c, operation)
 
-    def request(self, operation, actor, expected_revision, old_fingerprint, *, trigger="manual"):
+    def request(self, operation, actor, expected_revision, old_fingerprint, *, trigger="manual",validate_new=None):
         uuid(operation); sha(old_fingerprint)
         actor = checked_actor(actor)
         if (trigger not in {"manual", "automatic"} or type(expected_revision) is not int or expected_revision < 0
@@ -85,6 +85,7 @@ class RotationStore:
                 previous = self._row(c, current["active_operation"])
                 if previous["state"] != "registration_rejected" or trigger != "manual":
                     raise GraphError("rotation_already_active")
+            if validate_new is not None:validate_new()
             c.execute(requests.insert().values(operation_id=operation, instance_id=self.binding.instance_id,
                 scope_key=self.binding.scope, actor=actor, trigger_kind=trigger, request_hash=request_hash,
                 expected_revision=expected_revision, old_fingerprint=old_fingerprint, state="requested", revision=0,
@@ -94,6 +95,27 @@ class RotationStore:
             c.execute(audit.insert().values(occurred_at=now, actor=actor, action="graph_rotation_requested",
                 result="ok", changed_fields='["operation:'+operation+'"]', config_id=None))
             return self._row(c, operation)
+
+    def request_receipt(self,operation,actor,expected_revision,old_fingerprint):
+        uuid(operation);sha(old_fingerprint);actor=checked_actor(actor)
+        if type(expected_revision) is not int or expected_revision<0:raise GraphError("rotation_request_invalid")
+        expected=identity([operation,self.binding.scope,actor,"manual",expected_revision,old_fingerprint])
+        with self.transaction() as c:
+            self._head(c)
+            row=c.execute(sa.select(requests).where(requests.c.operation_id==operation).with_for_update()).mappings().first()
+            if row is None:return None
+            if row["request_hash"]!=expected or row["scope_key"]!=self.binding.scope:raise GraphError("rotation_request_conflict")
+            return dict(row)
+
+    def history(self,page=1):
+        if type(page) is not int or not 1<=page<=10000:raise GraphError("rotation_page_invalid")
+        where=(requests.c.scope_key==self.binding.scope,requests.c.instance_id==self.binding.instance_id)
+        with self.transaction() as c:
+            self._head(c)
+            total=c.execute(sa.select(sa.func.count()).select_from(requests).where(*where)).scalar_one()
+            rows=c.execute(sa.select(requests).where(*where).order_by(requests.c.created_at.desc(),requests.c.operation_id.desc())
+                .offset((page-1)*20).limit(20)).mappings().all()
+            return dict(items=[dict(row) for row in rows],total=total,page=page,page_size=20)
 
     def configure(self, expected_revision, enabled, actor):
         actor = checked_actor(actor)
