@@ -295,6 +295,27 @@ class IntegratedHostTests(unittest.TestCase):
         self.assertEqual(self.gate["boot_id"],self.current_boot)
         self.assertEqual(self.root._read(self.operation+".host.json")["boot_id"],self.current_boot)
 
+    def test_prepared_same_boot_preserves_new_graph_pause_before_worker_transitions(self):
+        c=self.controller;c.worker("register",self.operation)
+        original=c.worker("prepare",self.operation,images=self.images,paused=False,drain_identity=None)["host"]
+        candidate=self.root.material(self.operation).pem
+        self.gate.update(mode="paused",admission_epoch=0)
+        result=self.fresh_controller().operate("resume")
+        saved=self.root._read(self.operation+".host.json")
+        self.assertTrue(result["ok"]);self.assertTrue(result["paused"]);self.assertEqual(self.gate["mode"],"paused")
+        self.assertTrue(saved["paused"]);self.assertEqual(saved["boot_id"],original["boot_id"])
+        self.assertEqual(self.archive_for(original)["checkpoint"],original);self.assertEqual(self.remote.adds,1)
+        self.assertEqual(result["operation_id"],self.operation);self.assertEqual(self.active.read_bytes(),candidate)
+        self.assertEqual(worker.AdoptionJournal(self.root,self.access).state(self.operation),saved)
+
+    def test_prepared_same_boot_without_new_pause_still_opens_after_confirmation(self):
+        c=self.controller;c.worker("register",self.operation)
+        c.worker("prepare",self.operation,images=self.images,paused=False,drain_identity=None)
+        result=self.fresh_controller().operate("resume")
+        self.assertTrue(result["ok"]);self.assertFalse(result["paused"]);self.assertEqual(self.gate["mode"],"allowed")
+        self.assertFalse(worker.AdoptionJournal(self.root,self.access).state(self.operation)["paused"])
+        self.assertEqual(self.remote.adds,1);self.assertEqual(result["operation_id"],self.operation)
+
     def test_complete_switch_recreates_file_bind_then_commits_before_open(self):
         result=self.controller.operate("run")
         self.assertTrue(result["ok"]);self.assertEqual(result["target"],"new")

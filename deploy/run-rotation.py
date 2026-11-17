@@ -551,7 +551,7 @@ class Controller:
 
     def switch(self,operation,state,mode,before,quiet):
         current_hash=hashlib.sha256(self.host.protected(self.processing["graph_credential"]).read_bytes()).hexdigest()
-        if mode=="rollback" or state["phase"]!="prepared" or state["boot_id"]!=self.model.boot_id():
+        if mode=="rollback" or state["phase"]!="prepared" or state["boot_id"]!=self.model.boot_id() or state["paused"]:
             state=self.worker("recover",operation,pem_hash=current_hash,quiet_evidence=digest(quiet),paused=state["paused"],drain_identity=self.external_drain())["host"]
         if mode=="rollback" and state["target"]=="new":state=self.worker("rollback",operation)["host"]
         if state["phase"]=="prepared":
