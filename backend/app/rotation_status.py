@@ -8,7 +8,7 @@ from app.rotation_model import sha,uuid,unique_json,PHASES
 
 PATH="/run/importer/operations/graph-access/rotation-status.json"
 FIELDS={"schema_version","source_commit","deployment_id","instance_id","scope_key","boot_id","observed_at",
-    "last_check","last_attempt","last_renewal","operation","timers"}
+    "last_check","last_successful_daily_check_at","last_attempt","last_renewal","operation","timers","check_due_at","check_overdue"}
 
 
 def validate(value,binding,now):
@@ -23,6 +23,14 @@ def validate(value,binding,now):
     if check is not None:
         if set(check)!={"at","ok","code"} or type(check["ok"]) is not bool:raise ValueError()
         stamp(check["at"]);code(check["code"])
+    success=value["last_successful_daily_check_at"]
+    if success is not None:
+        stamp(success)
+        if check is None or success>check["at"]:raise ValueError()
+    from app.rotation_schedule import due_slot
+    due=due_slot(value["observed_at"])
+    if (type(value["check_due_at"]) is not int or value["check_due_at"]!=due or type(value["check_overdue"]) is not bool
+            or value["check_overdue"]!=(value["observed_at"]>=due+7200 and (check is None or check["at"]<due))):raise ValueError()
     attempt=value["last_attempt"]
     if attempt is not None:
         if set(attempt)!={"operation_id","at","state","code"} or attempt["state"] not in PHASES:raise ValueError()

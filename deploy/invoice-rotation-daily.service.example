@@ -1,0 +1,14 @@
+# Disabled AP12 example. Fixed Root entry point; no API-triggered host command.
+[Unit]
+Description=Invoice Graph certificate daily check and bound renewal
+Requires=invoice-importer.service
+After=invoice-importer.service network-online.target time-sync.target
+
+[Service]
+Type=oneshot
+User=root
+UMask=0077
+ExecStart=/usr/bin/python3 -I -B /etc/invoice-importer/run-rotation.py daily --profile /etc/invoice-importer/rotation-host.json
+TimeoutStartSec=900s
+TimeoutStopSec=10s
+KillMode=control-group

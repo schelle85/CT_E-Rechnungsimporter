@@ -18,6 +18,7 @@ type LocalCertificate = PublicCertificate & { not_before: number; valid: boolean
 export type RotationHost = { available: false; code: "rotation_status_unconfirmed" } | {
   available: true; schema_version: 1; source_commit: string; deployment_id: string; instance_id: string; scope_key: string; boot_id: string;
   observed_at: number; last_check: { at: number; ok: boolean; code: string | null } | null;
+  last_successful_daily_check_at: number | null; check_due_at: number; check_overdue: boolean;
   last_attempt: { operation_id: string; at: number; state: RotationState; code: string | null } | null;
   last_renewal: { operation_id: string; at: number; fingerprint: string } | null;
   operation: { operation_id: string; phase: string; target: "old" | "new"; old: PublicCertificate; new: PublicCertificate;
@@ -53,6 +54,9 @@ function host(v: unknown, scope: string, now: number): v is RotationHost {
       !stamp(v.observed_at, now) || now - v.observed_at > 180) return false;
   const check = v.last_check, attempt = v.last_attempt, renewal = v.last_renewal, op = v.operation, timers = v.timers;
   if (check !== null && !(object(check) && stamp(check.at, v.observed_at) && typeof check.ok === "boolean" && code(check.code))) return false;
+  if ((v.last_successful_daily_check_at !== null && !(object(check) && stamp(v.last_successful_daily_check_at, Number(check.at)))) ||
+      !stamp(v.check_due_at, v.observed_at) || v.observed_at - v.check_due_at > 25 * 3600 || typeof v.check_overdue !== "boolean" ||
+      v.check_overdue !== (v.observed_at >= v.check_due_at + 7200 && (check === null || Number(check.at) < v.check_due_at))) return false;
   if (attempt !== null && !(object(attempt) && rotationUuid(attempt.operation_id) && stamp(attempt.at, v.observed_at) && state(attempt.state) && code(attempt.code))) return false;
   if (renewal !== null && !(object(renewal) && rotationUuid(renewal.operation_id) && stamp(renewal.at, v.observed_at) && rotationHash(renewal.fingerprint))) return false;
   if (op !== null && !(object(op) && rotationUuid(op.operation_id) && ["prepared", "activation_started", "activated", "consumers_verified", "proof_started", "proof_unknown", "proof_verified", "committed", "rollback_unknown"].includes(String(op.phase)) &&

@@ -1,0 +1,16 @@
+# Disabled AP12 example. A minute offers reconciliation, not another Graph POST.
+[Unit]
+Description=Invoice Graph certificate operation opportunities
+Requires=invoice-importer.service
+After=invoice-importer.service time-sync.target
+PartOf=invoice-importer.service
+
+[Timer]
+OnCalendar=*-*-* *:*:40 Europe/Berlin
+Unit=invoice-rotation-opportunity.service
+Persistent=true
+AccuracySec=1s
+RandomizedDelaySec=0
+
+[Install]
+WantedBy=timers.target

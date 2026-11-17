@@ -84,6 +84,7 @@ test("missing, malformed and truncated successful receipts cannot confirm POST; 
 
 test("status refuses stale or differently bound Host evidence and never fabricates successful renewal",async t=>{
   const host={available:true,schema_version:1,source_commit:"f".repeat(40),deployment_id:operation,instance_id:operation,scope_key:scope,boot_id:operation,observed_at:900,
+    last_successful_daily_check_at:null,check_due_at:800,check_overdue:false,
     last_check:null,last_attempt:null,last_renewal:null,operation:null,timers:{daily:false,opportunity:false,next_check_at:null}};
   const status={scope_key:scope,revision:0,enabled:true,can_edit:false,checked_at:1000,last_successful_check_at:null,active:null,host,
     local:{code:"notification_certificate_unavailable"},schedule:{timezone:"Europe/Berlin",daily_time:"03:35",renew_before_days:30,overlap_days:7}};

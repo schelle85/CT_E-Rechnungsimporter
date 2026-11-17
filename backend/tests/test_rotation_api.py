@@ -12,6 +12,7 @@ from app.rotation_model import RotationBinding
 from app.rotation_schema008 import requests
 from app.rotation_state import RotationStore
 from app import rotation_status
+from app.rotation_schedule import due_slot
 from app.schema import audit
 from app.notification_schema007 import monitor
 from app.notification_model import CERTIFICATE_TOKEN,graph_scope,identity,canonical
@@ -165,11 +166,13 @@ class PublicStatusTests(unittest.TestCase):
     def test_only_fresh_complete_bound_public_projection_is_accepted(self):
         access=AccessBinding("a"*40,str(uuid4()),str(uuid4()),"b"*64);boot=str(uuid4())
         value=dict(schema_version=1,**access.fields(),boot_id=boot,observed_at=NOW,last_check=dict(at=NOW,ok=True,code=None),
+            last_successful_daily_check_at=NOW,check_due_at=due_slot(NOW),check_overdue=False,
             last_attempt=None,last_renewal=None,operation=None,timers=dict(daily=True,opportunity=True,next_check_at=NOW+3600))
         with patch.object(rotation_status,"boot_id",return_value=boot),patch.object(rotation_status,"protected_bytes",return_value=json.dumps(value).encode()):
             self.assertTrue(rotation_status.read(access,NOW)["available"])
             self.assertFalse(rotation_status.read(access,NOW+181)["available"])
         for changes in (dict(source_commit="f"*40),dict(instance_id=str(uuid4())),dict(boot_id=str(uuid4())),
-                dict(observed_at=NOW+1),dict(schema_version=True),dict(pem="forbidden"),dict(timers=dict(value["timers"],next_check_at=NOW-1))):
+                dict(observed_at=NOW+1),dict(schema_version=True),dict(pem="forbidden"),dict(check_due_at=NOW),dict(check_overdue=True),
+                dict(last_successful_daily_check_at=NOW+1),dict(timers=dict(value["timers"],next_check_at=NOW-1))):
             with self.subTest(changes=changes),patch.object(rotation_status,"boot_id",return_value=boot),patch.object(rotation_status,"protected_bytes",return_value=json.dumps(dict(value,**changes)).encode()):
                 self.assertFalse(rotation_status.read(access,NOW)["available"])

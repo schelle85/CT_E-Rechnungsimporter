@@ -1,6 +1,6 @@
 """Fixed Linux AP12 host controller. Root-only; no API socket or general commands."""
 import argparse
-from contextlib import ExitStack,contextmanager
+from contextlib import ExitStack,contextmanager,nullcontext
 import hashlib
 import importlib.util
 import json
@@ -94,6 +94,7 @@ class Controller:
         self.automation=peer("run-automation.py");self.gates=peer("graph-access-host.py");self.model=peer("graph-access-model.py")
         if self.command(["info","--format","{{.CgroupDriver}}/{{.CgroupVersion}}"] )!="systemd/2":
             raise ValueError("rotation_cgroup_v2_required")
+        self.profile_path=str(self.host.protected(path))
         self.profile=json.loads(self.host.protected(path).read_text(encoding="utf-8"),object_pairs_hook=unique)
         if set(self.profile)!={"source_commit","api_image","automation_profile","journal_directory","compose_directory","compose_env","compose_files"}:
             raise ValueError("rotation_profile_invalid")
@@ -576,6 +577,8 @@ class Controller:
             state=self.worker("activation-started",operation)["host"]
         if state["phase"]=="activation_started":
             raw=self.material(operation,state[state["target"]],old=state["target"]=="old")
+            if state["target"]=="new" and getattr(self,"automatic_operation",None)==operation and state["old"]["expires_at"]-time.time()<3600:
+                raise ValueError("rotation_automatic_window_closed")
             self.activate(raw,state[state["target"]]["pem_hash"])
             state=self.worker("activated",operation)["host"]
         self.candidate_gate(operation,state[state["target"]])
@@ -677,8 +680,9 @@ class Controller:
             result=self.worker("cleanup",operation)
             return dict(phase=result["cleanup"]["phase"],state=result["request"]["state"],error_code=result["cleanup"]["error_code"])
 
-    def operate(self,mode,*,startup=False):
-        with self.writer.session():
+    def operate(self,mode,*,startup=False,locked=False):
+        if locked:self.writer._require()
+        with nullcontext() if locked else self.writer.session():
             self.recover_job()
             status=self.worker("status")
             if status["binding"]!=self.access.fields():raise ValueError("rotation_binding_changed")
@@ -700,6 +704,7 @@ class Controller:
                     self.worker("resume-closed",current["operation_id"],seal=current["release_hash"])
                     status=self.worker("status");operation=status["head"]["active_operation"]
                 else:return dict(ok=True,code="rotation_no_active_request")
+            self.automatic_operation=operation if status.get("request") and status["request"]["trigger_kind"]=="automatic" else None
             if self.writer.binding!=self.access:raise ValueError("rotation_bootstrap_required")
             initial_gate=self.writer.gate.read()
             if (mode!="rollback" and status["host"] and status["host"]["phase"]=="committed"
@@ -737,9 +742,11 @@ class Controller:
 
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("mode",choices=("bootstrap","run","resume","rollback"));parser.add_argument("--profile",default=PROFILE)
+    parser.add_argument("mode",choices=("bootstrap","run","resume","rollback","daily","opportunity"));parser.add_argument("--profile",default=PROFILE)
     args=parser.parse_args()
-    try:result=Controller(args.profile).operate(args.mode)
+    try:
+        controller=Controller(args.profile)
+        result=peer("rotation-schedule-host.py").run(controller,args.mode) if args.mode in {"daily","opportunity"} else controller.operate(args.mode)
     except (OSError,ValueError,KeyError,TypeError,subprocess.SubprocessError,KeyboardInterrupt):result=dict(ok=False,code="rotation_host_unconfirmed")
     print(json.dumps(result,separators=(",",":")))
     return 0 if result.get("ok") else 1

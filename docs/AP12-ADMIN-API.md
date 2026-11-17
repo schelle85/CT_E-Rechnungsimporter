@@ -1,7 +1,8 @@
 # AP12 – geschützte API für Zertifikatsaufträge
 
 Der Adminbaustein liefert feste APIwege und den Reiter Graph-Zertifikat im
-Quellstand. Root-Statuspublisher, Hosttimer und deren native Bereitstellung folgen. Die
+Quellstand. Root-Statuspublisher und Hosttimervorlagen sind mit dem
+[Automatikbaustein](AP12-AUTOMATIK.md) verbunden; deren native Bereitstellung folgt. Die
 API hat weiterhin keinen Dockersocket, keine Rootfunktion und keine schreibbare
 Schlüsselablage. Bestehende AD-/Sitzungs-/Origin-/CSRFprüfungen werden verwendet.
 
@@ -54,9 +55,10 @@ erfunden. Die letzte erfolgreiche Graphprüfung kommt zusätzlich aus dem passen
 AP07-Proof und wird nur für aktuellen Fingerprint/Scope mit nicht zukünftigem
 Zeitpunkt angezeigt. Auftrag, Prüfung und Erneuerung bleiben getrennte Fakten.
 
-Der Publisher und die beiden Hosttimer werden im nächsten Paket verbunden. Bis
-dahin ist der Hoststatus regulär unbestätigt. Das AP08-Statusformat und seine vier
-Jobs bleiben unverändert.
+Ohne tatsächliche Installation und frische Rootpublikation ist der Hoststatus
+regulär unbestätigt. Das AP08-Statusformat und seine vier Jobs bleiben unverändert.
+Die Projektion enthält zusätzlich die letzte erfolgreiche Tagesprüfung, den
+letzten erreichten03:35-Solltermin und die überprüfte Überfälligkeit ab+2h.
 
 ## Lokale Nachweise
 

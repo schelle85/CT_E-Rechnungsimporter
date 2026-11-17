@@ -70,9 +70,11 @@ class ScheduleTests(unittest.TestCase):
         with patch.object(self.f.store,"request",side_effect=SystemExit("synthetic pre-SQL interruption")):
             with self.assertRaises(SystemExit):self.check()
         self.assertEqual(self.count(),0);pending=json.loads((self.f.root.directory/(".automatic-"+self.current.fingerprint+".json")).read_text())
+        self.assertTrue(self.journal.pending(self.f.store,self.current))
         with patch.object(schedule,"uuid4",side_effect=AssertionError("no replacement")):
             replay=self.check();self.assertEqual(replay["operation_id"],pending["operation_id"])
         self.assertEqual(self.count(),1);self.assertEqual(self.events.count("fresh-get"),1)
+        self.assertFalse(self.journal.pending(self.f.store,self.current))
         # A separate synthetic generation with a changed head cannot silently obtain another UUID.
         with self.f.engine.begin() as c:c.execute(requests.delete());c.execute(head.update().values(active_operation=None,revision=20))
         with patch.object(schedule,"uuid4",side_effect=AssertionError("no replacement")):

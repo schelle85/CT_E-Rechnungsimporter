@@ -7,7 +7,7 @@ from uuid import uuid4
 from app.graph import GraphError
 from app.graph_access_runtime import operation as graph_operation
 from app.notification_certificate import certificate_client,record_certificate
-from app.notification_model import BERLIN,NotificationError,graph_scope
+from app.notification_model import BERLIN,NotificationError,graph_scope,identity
 from app.notification_state import NotificationStore
 from app.rotation_cleanup import CleanupJournal
 from app.rotation_model import sha,uuid
@@ -69,8 +69,7 @@ class ScheduleJournal:
         if previous and previous["at"]>=value["at"]:return previous
         return self.save(last_renewal=value)["last_renewal"]
 
-    def automatic(self,store,current,now,*,create=False):
-        """One immutable UUID per certificate generation, also after lost SQL commit response."""
+    def intent(self,current):
         name=".automatic-"+sha(current.fingerprint)+".json";intent=self.root._read(name)
         if intent is not None:
             if (set(intent)!={"version","operation_id","scope_key","expected_revision","old_fingerprint"}
@@ -78,6 +77,24 @@ class ScheduleJournal:
                     or intent["old_fingerprint"]!=current.fingerprint or type(intent["expected_revision"]) is not int or intent["expected_revision"]<0):
                 raise GraphError("rotation_schedule_invalid")
             uuid(intent["operation_id"])
+        return intent
+
+    def pending(self,store,current):
+        intent=self.intent(current)
+        if intent is None:return False
+        try:row=store.read(intent["operation_id"])
+        except GraphError as error:
+            if error.code!="rotation_not_found":raise
+            head=store.status()
+            return head["active_operation"] is None and head["revision"]==intent["expected_revision"] and head["enabled"] and head["blocked_fingerprint"]!=current.fingerprint
+        expected=identity([intent["operation_id"],intent["scope_key"],"system","automatic",intent["expected_revision"],intent["old_fingerprint"]])
+        if row["request_hash"]!=expected:raise GraphError("rotation_request_conflict")
+        return False
+
+    def automatic(self,store,current,now,*,create=False):
+        """One immutable UUID per certificate generation, also after lost SQL commit response."""
+        name=".automatic-"+sha(current.fingerprint)+".json";intent=self.intent(current)
+        if intent is not None:
             # Replay reads the immutable original before current settings/revision checks.
             try:store.read(intent["operation_id"])
             except GraphError as error:
@@ -138,12 +155,16 @@ class ScheduleJournal:
 def overview(store,host,access,current):
     """Project whitelisted public facts without giving the API any Root journal access."""
     from app.graph_access import AccessGate
-    gate=AccessGate(access);release=gate.read();head=store.status();schedule=ScheduleJournal(host.root).state()
+    gate=AccessGate(access);release=gate.read();gate._bound(release)
+    if release["mode"] in {"allowed","paused"}:gate._material(release,current.pem,current.fingerprint)
+    head=store.status();schedule=ScheduleJournal(host.root).state()
     if any(release.get(name)!=expected for name,expected in access.fields().items()):raise GraphError("rotation_release_invalid")
     active=head["active_operation"];operation=active or release["operation_id"]
     state=host.state(operation);cleanup=CleanupJournal(host).state(operation) if state else None
     public=None
-    if state:
+    confirmed=state is not None and (state["phase"]!="committed" or release["mode"] in {"allowed","paused"}
+        and release["operation_id"]==operation and release["release_hash"]==state["seal"] and release["boot_id"]==state["boot_id"])
+    if confirmed:
         public=dict(operation_id=operation,phase=state["phase"],target=state["target"],
             **{name:{key:state[name][key] for key in ("fingerprint","expires_at")} for name in ("old","new")},
             cleanup_phase=cleanup["phase"] if cleanup else None,cleanup_not_before=cleanup["not_before"] if cleanup else None,

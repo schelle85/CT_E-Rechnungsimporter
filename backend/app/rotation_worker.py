@@ -120,8 +120,9 @@ def execute(value,deadline):
             host=AdoptionJournal(journal,access);now=int(time.time());command=value["command"]
             current=CertificateMaterial.load("/run/secrets/graph_credential")
             if command=="status":
-                active=head["active_operation"]
+                active=head["active_operation"];schedule=ScheduleJournal(journal)
                 return dict(ok=True,binding=access.fields(),head=head,current=metadata(current),request=store.read(active) if active else None,
+                    daily_check=schedule.state()["last_check"],automatic_pending=schedule.pending(store,current) if active is None else False,
                     notification_scope=graph_scope(config.tenant_id,config.client_id,config.mailbox),
                     core=journal.state(active) if active else None,host=host.state(active) if active else None,
                     cleanup=CleanupJournal(host).state(active) if active else None)

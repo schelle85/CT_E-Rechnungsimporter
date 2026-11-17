@@ -1,0 +1,16 @@
+# Disabled AP12 example. Root installs only after the matching source/native review.
+[Unit]
+Description=Invoice Graph certificate daily check
+Requires=invoice-importer.service
+After=invoice-importer.service time-sync.target
+PartOf=invoice-importer.service
+
+[Timer]
+OnCalendar=*-*-* 03:35:00 Europe/Berlin
+Unit=invoice-rotation-daily.service
+Persistent=true
+AccuracySec=1s
+RandomizedDelaySec=0
+
+[Install]
+WantedBy=timers.target

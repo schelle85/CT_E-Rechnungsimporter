@@ -12,6 +12,8 @@ COPY deploy/operations-host.py /app/operator/operations-host.py
 COPY deploy/graph-access-host.py /app/operator/graph-access-host.py
 COPY backend/app/graph_access.py /app/operator/graph-access-model.py
 COPY deploy/run-rotation.py /app/operator/run-rotation.py
+COPY deploy/rotation-schedule-host.py /app/operator/rotation-schedule-host.py
+COPY deploy/invoice-rotation-*.example /app/operator/
 COPY backend/app/operations_status.py /app/operator/operations-status.py
 COPY deploy/compose.notification.yaml /app/operator/compose.notification.yaml
 COPY deploy/compose.notification-init.yaml /app/operator/compose.notification-init.yaml

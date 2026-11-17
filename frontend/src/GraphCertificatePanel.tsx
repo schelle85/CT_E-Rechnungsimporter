@@ -118,11 +118,13 @@ export default function GraphCertificatePanel({ identity, readOnly, csrfToken }:
       {local ? <><Text>Ablauf: {time(local.expires_at)} · Restzeit: {Math.floor(local.remaining_seconds / 3600)} Stunden</Text>
         <Text size="sm" c="dimmed">Fingerabdruck (SHA-256)</Text>{fingerprint(local.fingerprint)}</> : <Text>Die lokale Zertifikatsdatei ist nicht bestätigt.</Text>}
       <Text size="sm" c="dimmed">Die lokale Gültigkeit allein bestätigt keine erfolgreiche Anmeldung. Das HTTPS-Zertifikat wird getrennt verwaltet.</Text>
+      <Text size="sm">Letzte erfolgreiche Anmeldung mit aktivem Zertifikat: {time(status?.last_successful_check_at)}.</Text>
+      {local && local.remaining_seconds <= 86400 && <Alert color="red">{local.remaining_seconds < 3600 ? "Weniger als eine Stunde Restgültigkeit: keine neue automatische Aktivierung. Sofort die Betreuung hinzuziehen." : "Höchstens ein Tag Restgültigkeit. Bitte die Betreuung innerhalb einer Stunde informieren."}</Alert>}
     </Stack></Paper>
     <SimpleGrid cols={{ base: 1, md: 3 }}>
       <Paper withBorder p="lg"><Text size="sm" c="dimmed">Letzter Erneuerungsversuch</Text><Text fw={600}>{time(host?.last_attempt?.at)}</Text>
         {host?.last_attempt && <Text size="sm">{rotationStates[host.last_attempt.state]}</Text>}</Paper>
-      <Paper withBorder p="lg"><Text size="sm" c="dimmed">Letzte erfolgreiche Anmeldung mit aktivem Zertifikat</Text><Text fw={600}>{time(status?.last_successful_check_at)}</Text></Paper>
+      <Paper withBorder p="lg"><Text size="sm" c="dimmed">Letzte erfolgreiche Tagesprüfung</Text><Text fw={600}>{time(host?.last_successful_daily_check_at)}</Text></Paper>
       <Paper withBorder p="lg"><Text size="sm" c="dimmed">Letzte erfolgreiche Erneuerung</Text><Text fw={600}>{time(host?.last_renewal?.at)}</Text></Paper>
     </SimpleGrid>
     <Paper withBorder p="lg"><Stack gap="md"><Title order={3}>Automatische Erneuerung</Title>
@@ -134,12 +136,13 @@ export default function GraphCertificatePanel({ identity, readOnly, csrfToken }:
         <Text size="sm" mt="xs">Nächster vorgesehener Prüftermin: {time(host?.timers.next_check_at)}.</Text>
       </Alert>
       {host?.last_check && <Text size="sm">Letzte Betreiberprüfung: {time(host.last_check.at)} · {host.last_check.ok ? "erfolgreich" : "nicht erfolgreich, Betreuung hinzuziehen"}.</Text>}
+      {host?.check_overdue && <Alert color="red">Die Tagesprüfung ist seit mehr als zwei Stunden überfällig. Solltermin: {time(host.check_due_at)}. Bitte die Betreuung informieren.</Alert>}
       {!editable && <Text size="sm" c="dimmed">Schreibgeschützt. Änderungen und manuelle Erneuerungen erfordern Verwaltungsrecht.</Text>}
     </Stack></Paper>
     <Paper withBorder p="lg"><Stack gap="md"><Title order={3}>Erneuerung & Überlappung</Title>
       {status?.active ? <Alert color={stateColor(status.active)} title={rotationStates[status.active.state]}>{guidance(status.active)}</Alert> :
         <Text>{status ? "Keine offene Erneuerung gespeichert." : "Offene Erneuerung nicht bestätigt."}</Text>}
-      {operation && <><Text size="sm">Bestätigtes Ziel: {operation.target === "new" ? "neues Zertifikat" : "altes Zertifikat / Rückkehr"}.</Text>
+      {operation && <><Text size="sm">{operation.phase === "committed" ? "Bestätigte Übernahme" : "Ziel des laufenden Wechsels"}: {operation.target === "new" ? "neues Zertifikat" : "altes Zertifikat / Rückkehr"}.</Text>
         <SimpleGrid cols={{ base: 1, md: 2 }}>{([['old', 'Altzertifikat'], ['new', 'Neues Zertifikat']] as const).map(([name, label]) => <Paper key={name} withBorder p="md"><Text fw={600}>{label}</Text>
           <Text size="sm">Ablauf: {time(operation[name].expires_at)}</Text>{fingerprint(operation[name].fingerprint)}</Paper>)}</SimpleGrid>
         {operation.cleanup_not_before && <Text size="sm">Bereinigung frühestens: {time(operation.cleanup_not_before)}. Vor dem Entfernen ist eine frische erfolgreiche Anmeldung erforderlich.</Text>}
