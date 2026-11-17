@@ -1,15 +1,21 @@
 # AP12 – Graph-Zertifikatsrotation und Administration
 
-Ausführbarer C3b-Quellstand: [Hostablauf, Rückweg und Resume](AP12-HOSTABLAUF.md).
-Noch keine vollständige native Host-/Produktionsabnahme; Kundenbetrieb bleibt AP08.
+Aktueller Quellstand und [Übergabe an Betrieb/AP11/AP09](AP12-UEBERGABE.md):
+[Hostablauf/Rückweg](AP12-HOSTABLAUF.md), [Cleanup](AP12-CLEANUP.md),
+[Admin/API](AP12-ADMIN-API.md), [feste Automatik](AP12-AUTOMATIK.md) und
+[Rootzuordnung](AP12-OWNERSHIP.md). Noch keine vollständige native
+Host-/Produktionsabnahme; Kundenbetrieb bleibt AP08.
 
-Stand: 16. November 2026. **AP12 ist ausdrücklich zur Umsetzung freigegeben.**
+Stand: 17. November 2026. **AP12 ist ausdrücklich zur Umsetzung freigegeben.**
 Kern B aus `ebb36879ccd3c25d03371b92c71b6cee7cc29eb0` ist im isolierten Umfang
 unabhängig abgenommen. C1 ist als Bibliothek einschließlich isoliertem nativem
 Komponententest unabhängig abgenommen. C2a bindet die Freigabe im Quellstand an
 Graphfabriken, API und Kinder. Bereitstellung bleibt ein getrennter Schritt. Im tatsächlich bereitgestellten
 AP08-Betrieb gibt es weiterhin keinen automatischen Graph-Zertifikatswechsel.
-Reiter, Host-/API-Freigabe und Verbraucherübernahme folgen in getrennten Paketen.
+Die folgenden B/C1/C2/C3a-Abschnitte dokumentieren ihre damaligen Einzelstände.
+Der aktuelle Quellstand umfasst darüber hinaus C3b–C7; aktuelle Nachweisgrenzen
+stehen in der verknüpften Übergabe. Kein damaliger offener Punkt wird allein
+durch einen späteren Quellenstand als nativ oder produktiv erledigt ausgegeben.
 
 ## Gelieferter Kern B und seine Grenze
 

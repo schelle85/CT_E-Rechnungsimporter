@@ -63,7 +63,19 @@ abgeschlossen. Der Versatz wurde nach dem belegten Reboot gesetzt; kein zweiter
 Reboot oder vollständiger VMrestore ist damit nachgewiesen.
 [Führender Betriebsvertrag](AP08-BETRIEB.md).
 
-AP12-Nachtrag vom 16.11.2026: [AP12](AP12-GRAPH-ZERTIFIKATSROTATION.md) für
+Aktueller AP12-Lieferstand17.11.2026: Hostablauf/Rückweg, Cleanup, Admin/API,
+feste Tages-/Gelegenheitsläufe und Rootzuordnung liegen bis C7 im Quellstand vor.
+C4–C6 sind im Quellen-/lokalen Nachweisumfang unabhängig bestätigt; C7 hat zwölf
+neue und sechs betroffene bestehende lokale Fälle bestanden, Review gesondert.
+C2a-UID10001-Integration und C2B-R1-Frist sind nativ abgeschlossen. Auf Pin24bb7568
+sind Bootstrap/Normalwechsel/expliziter Rückweg isoliert nativ bestätigt, mit
+synthetischem Entra/SDK und tatsächlichen Linux-/Docker-/MariaDB-/HTTPSwegen.
+Weitere Fehler-/Boot-/Cleanup-/Browser-/Timer-/Zuordnungsnachweise bleiben offen.
+Kundenbetrieb bleibt AP08/Schema007. Führend sind [Übergabe](AP12-UEBERGABE.md)
+und die dort verknüpften Teilverträge. Die folgenden AP12-Absätze halten frühere
+Lieferstände fest; ihre damaligen offenen Punkte sind nicht der aktuelle Gesamtstand.
+
+Historischer AP12-Nachtrag vom 16.11.2026: [AP12](AP12-GRAPH-ZERTIFIKATSROTATION.md) für
 Graph-Zertifikatsrotation und Administration → Graph-Zertifikat ausdrücklich
 zur Umsetzung freigegeben. Kern B mit gebundenem Appadapter, festem 180-Tage-
 Kandidaten/PoP, additiven 008-Aufträgen, privatem Rootwirkungsjournal und Inventar

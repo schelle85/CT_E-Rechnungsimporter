@@ -1,9 +1,10 @@
 # Dokumentationslieferungen
 
-Stand: 16. November 2026. Die folgenden Abschlussunterlagen sind beauftragt.
-Die Anwendung ist bis AP07 einschließlich Berichten, Benachrichtigungen und
-Zertifikatshinweisen technisch abgeschlossen und bereitgestellt. AP12 für die
-Zertifikatsrotation und den zusätzlichen Adminreiter ist geplant, noch nicht umgesetzt.
+Stand: 17. November 2026. Die folgenden Abschlussunterlagen sind beauftragt.
+Die Anwendung ist bis AP08 im vereinbarten Umfang technisch abgeschlossen und
+bereitgestellt. AP12 für Zertifikatsrotation, zusätzlichen Adminreiter und feste
+Automatik ist in Umsetzung. Sein [Quellstand und die Übergabefakten](AP12-UEBERGABE.md)
+sind von noch offenen nativen Nachweisen und der Bereitstellung getrennt.
 Das vollständige Nutzerhandbuch ist
 seit14.11.2026 ein eigenes geplantes AP11. Die finalen Unterlagen entstehen aus
 dem geprüften Lieferstand in AP11 beziehungsweise AP09 zum Projektabschluss.

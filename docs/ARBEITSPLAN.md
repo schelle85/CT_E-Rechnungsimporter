@@ -16,7 +16,8 @@ und Notificationvorlauf sind bestätigt; Startdienst/fünf Timer seit 16.11.2026
 Tages-/Wochenbericht sind bestätigt. Wiederanlauf nach kontrolliertem Reboot und
 TLS-Stundenlauf um 20:00 sind belegt. Drei automatische Statuszyklen nach dem
 separat gesetzten Phasenversatz sind bestanden.
-AP12 ist seit 16.11.2026 zur Umsetzung freigegeben; Kern B als Quellstand geliefert.
+AP12 ist seit 16.11.2026 zur Umsetzung freigegeben; Quellstand bis C7 geliefert,
+native Gesamtprüfung und Bereitstellung noch offen.
 AP09/10/11 bleiben ohne Umsetzungs-Go.**
 AP10 ist für die spätere wöchentliche Wartung ergänzt.
 AP12 ist seit 16.11.2026 für Graph-Zertifikatsrotation und einen zusätzlichen
@@ -244,11 +245,14 @@ KI-Dokumentation bleiben eigene Lieferungen. Umfang und Ausgabe siehe
 
 Am 16.11.2026 als eigenes Arbeitspaket angenommen und eingeplant.
 Status: Eigenes Umsetzungs-Go seit 16.11.2026. Entwurf samt K1 zur dauerhaften
-Graphgrenze akzeptiert. Kern B liefert Appadapter/PoP/Kandidat, additive 008-Aufträge,
-Rootwirkungsjournal, lesenden Wiederabgleich und Keyinventar als Quellstand;
-28 gezielte lokale Fälle bestanden. Noch kein Deployment oder Wechsel im Betrieb.
-Host-/API-Freigabe, Verbraucherübernahme, Reiter und Zeitplanung folgen getrennt.
-AP08 bleibt der tatsächlich bereitgestellte Betriebsstand.
+Graphgrenze akzeptiert. Quellstand umfasst Kern B/C1–C7: gebundene Aufträge,
+Graphfreigabe, Hostübernahme/Rückweg, Bereinigung, Adminreiter, feste Zeitplanung
+und ausdrückliche Rootzuordnung. C4–C6 sind im Quellen-/lokalen Nachweisumfang
+unabhängig geprüft; C7 ist lokal geprüft und gesondert zum Review übergeben.
+Bootstrap/Normalwechsel/expliziter Rückweg sind auf dem festen C3-Pin isoliert
+nativ bestätigt; weitere Fehler-/Boot- und C4–C7-Nachweise bleiben offen.
+Die [Übergabe](AP12-UEBERGABE.md) trennt diese Einzelumfänge. AP08 bleibt der
+tatsächlich bereitgestellte Betriebsstand, ohne produktive008/Rotation/AP12-Timer.
 
 | Teil | Ergebnis und Prüfung |
 | --- | --- |

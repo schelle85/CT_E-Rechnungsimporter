@@ -78,5 +78,8 @@ SDK-/Probe-Doubles prüfen Wechsel, gültigen Rückweg, Resume nach Dateiersatz,
 verlorene Proofantwort, Bootstrap ohne addKey und alte/neue Pause. Weitere Fälle
 prüfen Originalauftrag, Commit vor Veröffentlichung, Sperrfolge und tatsächliche
 Ruhekriterien anhand synthetischer OSdaten. Das ist kein nativer Hostnachweis.
-Der konkrete isolierte Nativ-Einstieg folgt separat; sichere eigene Altkey-
-Bereinigung, Reiter und feste Automatik/Frischeprojektion folgen im übrigen AP12.
+Der isolierte native Einzelumfang Bootstrap/Normalwechsel/expliziter Rückweg auf
+Pin24bb ist separat unabhängig bestätigt. Weitere Abbruch-/Boot-/Pausefenster
+bleiben offen. Bereinigung, Reiter, feste Automatik/Frischeprojektion und
+Rootzuordnung liegen in den verknüpften Folgepaketen als Quellstand vor;
+aktuelle Einzelgrenzen stehen in der [Übergabe](AP12-UEBERGABE.md).
