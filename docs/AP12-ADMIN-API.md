@@ -27,6 +27,11 @@ Payload, App/Instanz/Scope, falsche aktuelle Zertifikatsidentität und konkurrie
 andere Aufträge werden abgewiesen. Eine unbekannte Antwort wird über die
 ursprüngliche Bindung gelesen; kein neues UUID als Ersatz.
 
+Der lesende Originalabgleich meldet persisted=false/receipt=null, solange keine
+passende gespeicherte Zeile existiert. Erst eine vorhandene gebundene Quittung
+ergibt persisted=true. Die Oberfläche prüft diese Paarung; ein positives
+Speicherkennzeichen ohne Quittung wird als Protokollfehler behandelt.
+
 Ein POST startet keinen Graphzugriff und keine Hostaktion innerhalb der API.
 Der bestehende Rootablauf übernimmt den gespeicherten Auftrag später. Der
 Einstellwert enabled allein bestätigt noch keinen installierten oder aktiven Timer.

@@ -76,6 +76,9 @@ test("missing, malformed and truncated successful receipts cannot confirm POST; 
     fetchMock(t,async()=>new Response(body));await assert.rejects(api("/api/rotation/request",{method:"POST",body:"{}"}),ApiProtocolError);
   }
   fetchMock(t,async()=>new Response(JSON.stringify({ok:true,persisted:true,receipt:null})));
+  await assert.rejects(api("/api/rotation/request?operation_id="+operation),ApiProtocolError);
+  fetchMock(t,async()=>new Response(JSON.stringify({ok:true,persisted:false,receipt:null})));
+  await assert.rejects(api("/api/rotation/request",{method:"POST",body:"{}"}),ApiProtocolError);
   assert.equal((await api("/api/rotation/request?operation_id="+operation)).receipt,null);
 });
 

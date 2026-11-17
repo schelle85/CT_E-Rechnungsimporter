@@ -99,6 +99,23 @@ class RotationApiTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual((await self.client.get("/api/rotation/request",params=payload)).status_code,409)
         self.assertEqual(self.count(),1)
 
+    async def test_missing_original_receipt_is_not_persisted_and_later_same_post_is_confirmed_once(self):
+        await self.login();payload=self.payload();before=self.store.status()
+        def audited():
+            with self.engine.connect() as connection:
+                return connection.execute(sa.select(sa.func.count()).select_from(audit).where(audit.c.action=="graph_rotation_requested")).scalar_one()
+        before_audit=audited()
+        absent=await self.client.get("/api/rotation/request",params=payload)
+        self.assertEqual(absent.status_code,200,absent.text)
+        self.assertEqual(absent.json(),dict(ok=True,persisted=False,receipt=None))
+        self.assertEqual(self.count(),0);self.assertEqual(audited(),before_audit);self.assertEqual(self.store.status(),before)
+        accepted=await self.client.post("/api/rotation/request",json=payload,headers=self.headers())
+        self.assertEqual(accepted.status_code,200,accepted.text);self.assertTrue(accepted.json()["persisted"])
+        confirmed=await self.client.get("/api/rotation/request",params=payload)
+        self.assertEqual(confirmed.status_code,200,confirmed.text);self.assertEqual(confirmed.json(),accepted.json())
+        self.assertEqual(confirmed.json()["receipt"]["operation_id"],payload["operation_id"])
+        self.assertEqual(self.count(),1);self.assertEqual(audited(),before_audit+1)
+
     async def test_concurrent_different_requests_only_create_one_persistent_operation(self):
         await self.login();payload=self.payload();other=dict(payload,operation_id=str(uuid4()))
         responses=await asyncio.gather(*(self.client.post("/api/rotation/request",json=value,headers=self.headers()) for value in (payload,other)))

@@ -104,7 +104,8 @@ def history(request:Request,page:int=1):
 def request_status(request:Request,operation_id:str,scope_key:str,expected_revision:int,old_fingerprint:str):
     with boundary():
         store,_=context(request);scope(store,scope_key)
-        return dict(ok=True,persisted=True,receipt=receipt(store.request_receipt(operation_id,actor(request),expected_revision,old_fingerprint)))
+        row=store.request_receipt(operation_id,actor(request),expected_revision,old_fingerprint)
+        return dict(ok=True,persisted=row is not None,receipt=receipt(row))
 
 
 @router.post("/api/rotation/request")

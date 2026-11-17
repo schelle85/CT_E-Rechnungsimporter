@@ -11,7 +11,7 @@ export type RotationState = keyof typeof rotationStates;
 export type RotationReceipt = { operation_id: string; scope_key: string; actor: string; trigger_kind: "manual" | "automatic";
   request_hash: string; expected_revision: number; old_fingerprint: string; state: RotationState; revision: number;
   error_code: string | null; created_at: number; updated_at: number };
-export type RotationResult = { ok: true; persisted: true; receipt: RotationReceipt | null };
+export type RotationResult = { ok: true } & ({ persisted: true; receipt: RotationReceipt } | { persisted: false; receipt: null });
 export type RotationHistory = { items: RotationReceipt[]; total: number; page: number; page_size: number };
 type PublicCertificate = { fingerprint: string; expires_at: number };
 type LocalCertificate = PublicCertificate & { not_before: number; valid: boolean; remaining_seconds: number; severity: "healthy" | "orange" | "red" };
@@ -63,8 +63,8 @@ function host(v: unknown, scope: string, now: number): v is RotationHost {
     (timers.next_check_at === null || timers.daily && integer(timers.next_check_at, v.observed_at + 1) && timers.next_check_at <= v.observed_at + 172800);
 }
 export function rotationResponseShape(route: string, method: string, data: Record<string, unknown>): boolean {
-  if (route === "/api/rotation/request") return ["GET", "POST"].includes(method) && data.ok === true && data.persisted === true &&
-    (method === "GET" && data.receipt === null || isRotationReceipt(data.receipt));
+  if (route === "/api/rotation/request") return ["GET", "POST"].includes(method) && data.ok === true &&
+    (method === "GET" && data.persisted === false && data.receipt === null || data.persisted === true && isRotationReceipt(data.receipt));
   if (route === "/api/rotation/history") return method === "GET" && Array.isArray(data.items) && data.items.every(isRotationReceipt) &&
     integer(data.total, data.items.length) && integer(data.page, 1) && data.page <= 10000 && data.page_size === 20 && data.items.length <= 20;
   if (!rotationHash(data.scope_key) || !integer(data.revision) || typeof data.enabled !== "boolean" || typeof data.can_edit !== "boolean") return false;
