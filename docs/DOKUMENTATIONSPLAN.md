@@ -3,8 +3,9 @@
 Stand: 18. November 2026. AP09 ist zur Abschlussdokumentation freigegeben.
 Vollständige Technikquelle/PDF und KI-Wiedereinstieg sind erstellt und gemeinsam
 einmalig abschließend mit PASS geprüft; siehe [AP09-Übergabe](AP09-UEBERGABE.md). AP10 bleibt ohne Go. AP11 ist seit 17.11.2026 freigegeben; vollständige Nutzeranleitung
-mit Bildern und PDF eigengeprüft vorhanden. Einmalige unabhängige AP11-Abschlussprüfung
-steht aus; anschließend übernimmt AP09a diese eine führende Anleitung.
+mit Bildern und PDF vorhanden. Genau eine unabhängige AP11-Abschlussprüfung am
+festen Stand b565465 ist mit PASS bestanden; AP09a übernimmt diese eine Anleitung.
+Kundenrückmeldung zum Handbuch bleibt offen, keine neue Betriebs-/Gesamtabnahme.
 AP12 ist aus d9 bereitgestellt; der echte Zertifikatswechsel ist unabhängig
 nativ bestätigt. Genau ein AP12-Kundenboot mit erhaltenem Betrieb und qualifizierten
 Wiederaufnahmebelegen ist dokumentiert; spätere produktive Bereinigung bleibt offen. [Lieferstand und Übergabefakten](AP12-UEBERGABE.md) trennen
@@ -18,17 +19,17 @@ Die bereits geprüfte AP09-Technikquelle/PDF bleibt unverändert auf Dokumentsta
 AP09a übernimmt das vollständige Handbuch aus AP11 als Kundenanleitung. Es wird
 eine führende Anleitung gepflegt; die technische Dokumentation ergänzt sie für
 den Betrieb. Die frühere geplante separate Kundenanleitung wird damit in AP11
-zusammengeführt. AP09 prüft Version, Vollständigkeit und Übergabe des Gesamtpakets. Die AP11-Quelle/PDF liegt nun eigengeprüft vor; die abschließende Übernahme erfolgt
-nach der einmaligen unabhängigen Prüfung des fertigen AP11-Pakets. Ein vertrauliches
-Betriebsblatt wird separat übergeben; es ersetzt die fehlende Nutzeranleitung nicht.
+zusammengeführt. Version und Vollständigkeit des Dokumentpakets sind abgeglichen.
+Die AP11-Quelle/PDF ist nach der einmaligen unabhängigen Prüfung mit PASS übernommen.
+Ein vertrauliches Betriebsblatt wird separat übergeben; es ergänzt die Nutzeranleitung.
 
 ## AP11: Handbuch zum Produkt
 
 Eigenes Arbeitspaket vom14.11.2026, seit17.11.2026 freigegeben. Vollständiges
 Handbuch für d9/008 mit 24 Kapiteln und zwölf neutralen/synthetischen Aufnahmen
 der unveränderten Oberfläche eigengeprüft erstellt. Keine neue echte Anmeldung,
-Kundenrechnung oder Livewirkung aus den Bildern ableiten. Einmalige unabhängige
-Abschlussprüfung und Kundenrückmeldung stehen noch aus.
+Kundenrechnung oder Livewirkung aus den Bildern ableiten. Die einmalige unabhängige
+Abschlussprüfung ist mit PASS bestanden; Kundenrückmeldung steht noch aus.
 
 Zielgruppe: Anwender und kundenseitige Administratoren.
 

@@ -1,6 +1,6 @@
 # Arbeitspakete
 
-Stand: 17. November 2026. **AP00 ist im definierten Grundbereitstellungsumfang abgeschlossen;
+Stand: 18. November 2026. **AP00 ist im definierten Grundbereitstellungsumfang abgeschlossen;
 AP01 ist vollständig durch den Kunden abgenommen. AP02a–c ist technisch abgeschlossen;
 AP03 ist eingefroren, AP04 ist im Grundlagenumfang technisch abgeschlossen.
 AP05a–c ist im definierten manuellen Umfang technisch abgeschlossen und bereitgestellt.
@@ -22,8 +22,9 @@ Kontrollierter AP12-Boot mit erhaltenem Kundenbetrieb bestätigt; Wiederaufnahme
 mit qualifizierten Grenzen dokumentiert. Spätere produktive Bereinigung bleibt offen.
 AP09 ist seit 17.11.2026 zur Abschlussdokumentation freigegeben; vollständiges
 Dokumentpaket erstellt und einmalig unabhängig mit PASS geprüft. AP11 ist seit 17.11.2026 freigegeben; vollständiges Nutzerhandbuch mit Bildern und
-PDF eigengeprüft erstellt, einmalige unabhängige Abschlussprüfung ausstehend. AP09a
-übernimmt dieses eine Handbuch nach Abschlussprüfung. AP10 bleibt ohne Umsetzungs-Go.**
+PDF erstellt und am festen Stand b565465 genau einmal unabhängig mit PASS geprüft.
+AP09a übernimmt dieses eine Handbuch; Kundenrückmeldung bleibt offen.
+AP10 bleibt ohne Umsetzungs-Go.**
 AP10 ist für die spätere wöchentliche Wartung ergänzt.
 AP12 ist seit 16.11.2026 für Graph-Zertifikatsrotation und einen zusätzlichen
 Adminreiter freigegeben; aktuelle Lieferung und Grenzen unten.
@@ -199,10 +200,10 @@ Führender Vertrag:
 
 | Teil | Ergebnis |
 | --- | --- |
-| AP09a | Führendes [AP11-Handbuch](HANDBUCH-ZUM-PRODUKT.md) und [PDF](handbuecher/Handbuch-zum-Produkt.pdf) eigengeprüft vorhanden. Übernahme nach einmaliger AP11-Abschlussprüfung; vertrauliches Betriebsblatt separat. |
+| AP09a | Führendes [AP11-Handbuch](HANDBUCH-ZUM-PRODUKT.md) und [PDF](handbuecher/Handbuch-zum-Produkt.pdf) nach einmaliger AP11-Abschlussprüfung mit PASS übernommen; vertrauliches Betriebsblatt separat. Kundenrückmeldung bleibt offen, keine neue Betriebs-/Gesamtabnahme. |
 | AP09b | Vollständige [Technikquelle](TECHNISCHE-DOKUMENTATION.md) und [PDF](handbuecher/Technische-Dokumentation.pdf) für d9/008 erstellt und abschließend geprüft. |
 | AP09c | [KI-Dokumentation](KI-DOKUMENTATION.md) als aktueller Wiedereinstieg finalisiert; historische Fakten in Originalverträgen erhalten. |
-| AP09d | Quellenabgleich, vollständige PDF-Eigenprüfung und genau eine unabhängige Abschlussprüfung bestanden. Öffentliche Veröffentlichung und getrennte vertrauliche Dateiübergabe durch ORGA; AP09a ergänzt das AP11-Handbuch nach dessen Abschlussprüfung. |
+| AP09d | Quellenabgleich, vollständige PDF-Eigenprüfung und genau eine unabhängige Abschlussprüfung je vollständiger Dokumentlieferung bestanden. Öffentliche Veröffentlichung und getrennte vertrauliche Dateiübergabe durch ORGA; das geprüfte AP11-Handbuch ist in AP09a ergänzt. |
 
 DEV liefert technische Fakten und Prüfbelege. ORGA führt die Dokumentation zusammen;
 REVIEW prüft Widersprüche und nicht belegte Behauptungen. PDFs erst aus dem
@@ -231,8 +232,9 @@ Am 14.11.2026 ergänzt, am 17.11.2026 ausdrücklich freigegeben. Stand 18.11.202
 AP11a-f als vollständige Nutzer-/Administrationsanleitung mit zwölf neutralen
 Bildschirmbildern, Markdown und 26-seitiger PDF eigengeprüft geliefert. UItexte,
 Rollen, Schritte und Grenzen gegen Produktpin d9/008 abgeglichen. AP11g: genau
-eine unabhängige Prüfung erst am vollständigen festen Paket; diese und eine
-weitere Kundenrückmeldung stehen aus. Keine Zwischenreviews, kein neuer Betriebsnachweis.
+eine unabhängige Prüfung am vollständigen festen Paket b565465 mit PASS ohne
+notwendige Korrekturbefunde bestanden. Kundenrückmeldung bleibt offen.
+Keine Zwischenreviews, kein neuer Betriebsnachweis.
 
 | Teil | Ergebnis und Prüfung |
 | --- | --- |

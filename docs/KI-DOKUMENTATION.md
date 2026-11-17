@@ -58,8 +58,9 @@ neue Betriebs- oder Kundenabnahme.
 
 AP11 hat seit17.11.2026 Go. Eine führende [Nutzer-/Administrationsanleitung](HANDBUCH-ZUM-PRODUKT.md)
 mit zwölf neutralen Aufnahmen und [PDF](handbuecher/Handbuch-zum-Produkt.pdf) liegt
-eigengeprüft vor. Genau eine unabhängige Prüfung am fertigen festen Paket steht aus.
-AP09a übernimmt dieses Handbuch danach; keine konkurrierende Anleitung.
+eigengeprüft vor. Genau eine unabhängige Prüfung am fertigen festen Paket b565465
+ist mit PASS ohne notwendige Korrekturbefunde bestanden. AP09a übernimmt dieses
+eine Handbuch; Kundenrückmeldung bleibt offen, keine konkurrierende Anleitung.
 AP09-Technikquelle/PDF bleibt als geprüfte datierte Ausgabe unverändert. AP10 zur wöchentlichen
 Linuxwartung bleibt ohne Go. Gestaltung der Tages-/Wochenberichtsmails ist nur
 als separater AP07-Nachtrag geplant. Kein Push oder Deployment aus einer lokalen
@@ -146,7 +147,9 @@ AP01-Kundenabnahme bleibt der tatsächliche ADnachweis.
 
 Die einmalige finale AP09-Prüfung ist bestanden. Geprüfte Technikquelle, PDF und
 vertrauliches Betriebsblatt bleiben bei der anschließenden Statusfortschreibung unverändert.
-AP11-Gesamtpaket einmal unabhängig prüfen lassen, anschließend AP09a übernehmen.
+AP11-Gesamtpaket genau einmal unabhängig mit PASS geprüft und in AP09a übernommen.
+Handbuchquelle, PDF und Bilder bleiben bei der anschließenden Statuspflege unverändert.
+Kundenrückmeldung zum Handbuch ist offen; Dokumentvollständigkeit ist keine neue Betriebsabnahme.
 AP10 und zusätzliche Liveeingriffe benötigen
 weiterhin ihren konkreten Auftrag. Öffentliche Dokumente und vertrauliche Zuordnungen
 werden getrennt übergeben; keine neue Produktbereitstellung daraus ableiten.

@@ -15,10 +15,10 @@ Restorehelper-Aufrufs stehen in der [AP12-Übergabe](AP12-UEBERGABE.md). Kein
 vollständiger VM-/Offsite-Restore daraus.
 
 AP09 ist freigegeben; [Technikunterlage](TECHNISCHE-DOKUMENTATION.md), PDF und
-KI-Wiedereinstieg sind zur gemeinsamen Abschlussprüfung erstellt. [Übergabe](AP09-UEBERGABE.md).
+KI-Wiedereinstieg sind abschließend geprüft. [Übergabe](AP09-UEBERGABE.md).
 AP11 seit17.11.2026 freigegeben: Nutzerhandbuch mit Bildern und PDF eigengeprüft
-vorhanden, einmalige unabhängige AP11-Abschlussprüfung ausstehend. AP09a übernimmt
-diese eine Anleitung nach Abschlussprüfung. AP10 bleibt ohne Go. Ein
+vorhanden und am festen Stand b565465 genau einmal unabhängig mit PASS geprüft.
+AP09a übernimmt diese eine Anleitung; Kundenrückmeldung bleibt offen. AP10 bleibt ohne Go. Ein
 vertrauliches Betriebsblatt wird separat übergeben. Mailgestaltung nur geplant.
 
 Die folgenden früheren Abschlüsse bleiben datierte historische Nachweise.

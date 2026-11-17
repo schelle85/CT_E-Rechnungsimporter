@@ -9,7 +9,7 @@ internen Webportal für Protokolle, Fehler und Dubletten.
 
 ## Projektstatus
 
-**Stand: 17. November 2026. AP01 ist durch den Kunden vollständig abgenommen.
+**Stand: 18. November 2026. AP01 ist durch den Kunden vollständig abgenommen.
 AP02a–c ist im vereinbarten Grundlagenumfang technisch abgeschlossen und
 bereitgestellt. AP04 ist technisch im isolierten Grundlagenumfang abgeschlossen.
 AP05 ist im definierten manuellen Umfang technisch abgeschlossen und bereitgestellt:
@@ -46,8 +46,8 @@ Wiederaufnahmezustände sind inzwischen bestätigt; siehe AP12-Übergabe.**
 | AP07 – Berichte und Benachrichtigungen | Technisch abgeschlossen und bereitgestellt aus `5ecfd59270b63947d3f92af98a1b9f8e5a267aeb`, Schema 007. A/B vollständig geprüft, C-Quellenreview, 21 C-Fälle auf MariaDB und acht isolierte HTTPS-Browsergruppen bestanden. Administration→Berichte, Benachrichtigungseinstellungen, feste Vorschau/Testaktion, Verlauf und Zertifikats-/Loginhinweise geliefert. Echte Graph-Zertifikatsanmeldung und genau eine feste Testmail mit HTTP 202/Reservierung 1/getrenntem Statusabgleich bestätigt; Empfang im eigenen Abnahmepostfach nachgewiesen. Zum AP07-Abschluss blieb die Automatik inaktiv. Siehe [AP07](docs/AP07-NOTIFICATIONS.md) und [Betreiberweg](docs/AP07-OPERATOR.md). |
 | AP12 – Graph-Zertifikatsrotation und Adminreiter | d9 bereitgestellt, Schema008. Echte neue Übernahme mit drei Verbrauchern und Abschlussproof unabhängig nativ bestätigt; SQL overlap und aktive Rotationtimer. Der erste Versuch kehrte kontrolliert zum Originalzertifikat zurück, seine Ursache bleibt offen. Genau ein AP12-Boot mit erhaltenem Kundenbetrieb bestätigt; qualifizierte Wiederaufnahmegrenzen siehe Übergabe. Spätere produktive Bereinigung bleibt offen. Siehe [AP12](docs/AP12-GRAPH-ZERTIFIKATSROTATION.md) und [Lieferstand](docs/AP12-UEBERGABE.md). |
 | AP08 – Betriebsübergang | Im vereinbarten Umfang technisch abgeschlossen. C-Quelle `413095f823702d39b02bc8b3c989b526fdf808d0` bereitgestellt; Instanz, Schema 007, Konfiguration und DBzustand erhalten. Reale HTTPSübernahme mit folgendem No-op, Notificationvorlauf ohne neue Testmail, aktive Zeitpläne und normale Leerlaufläufe bestätigt. Tages-/Wochenbericht je einmal mit HTTP 202 angenommen. Kontrollierter Wiederanlauf, geplanter TLS-Stundenlauf um 20:00 und drei automatische Statuszyklen nach dem separaten Sekunde-20-Versatz bestanden. Siehe [AP08](docs/AP08-BETRIEB.md). |
-| AP09 – Dokumentation | Technische Markdown-/PDF-Unterlage, KI-Wiedereinstieg und einmalige unabhängige Abschlussprüfung bestanden. AP11-Handbuch liegt eigengeprüft vor; AP09a übernimmt es nach dessen einmaliger Abschlussprüfung. Vertrauliches Betriebsblatt separat; siehe [Dokumentübergabe](docs/AP09-UEBERGABE.md). |
-| AP11 – Nutzerhandbuch | Seit 17.11.2026 freigegeben. Vollständige [Nutzer-/Administrationsanleitung](docs/HANDBUCH-ZUM-PRODUKT.md) und [PDF](docs/handbuecher/Handbuch-zum-Produkt.pdf), 24 Kapitel und zwölf synthetische Bildschirmbilder eigengeprüft. Einmalige unabhängige Abschlussprüfung steht aus. |
+| AP09 – Dokumentation | Technische Markdown-/PDF-Unterlage, KI-Wiedereinstieg und unabhängige Abschlussprüfung bestanden. Das ebenfalls abschließend geprüfte AP11-Handbuch ist in AP09a übernommen. Vertrauliches Betriebsblatt separat; siehe [Dokumentübergabe](docs/AP09-UEBERGABE.md). Keine neue Betriebs- oder Gesamtabnahme. |
+| AP11 – Nutzerhandbuch | Vollständige [Nutzer-/Administrationsanleitung](docs/HANDBUCH-ZUM-PRODUKT.md) und [PDF](docs/handbuecher/Handbuch-zum-Produkt.pdf): 24 Kapitel, zwölf synthetische Bildschirmbilder, 26 Seiten. Genau eine unabhängige Abschlussprüfung am festen Stand `b565465` mit PASS ohne notwendige Korrekturbefunde. Kundenrückmeldung zum Handbuch bleibt offen. |
 | Weitere Pakete | AP10 ohne Umsetzungs-Go. Mailgestaltung als gesonderter AP07-Nachtrag nur geplant. |
 
 Der begrenzte Titelvariantennachtrag wurde unabhängig geprüft und aus `e49ccdb`

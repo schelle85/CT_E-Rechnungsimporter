@@ -1,13 +1,14 @@
 # PDF-Unterlagen
 
-Stand: 18. November 2026. AP09-Technikunterlagen geprüft; AP11-Nutzerhandbuch eigengeprüft
-vorhanden, einmalige unabhängige Abschlussprüfung am vollständigen AP11-Paket ausstehend.
+Stand: 18. November 2026. AP09-Technikunterlagen geprüft; AP11-Nutzerhandbuch
+eigengeprüft und am vollständigen festen Paket b565465 genau einmal unabhängig
+mit PASS geprüft. Kundenrückmeldung zum Handbuch bleibt offen.
 
 - Führende Quelle: [Technische Dokumentation](../TECHNISCHE-DOKUMENTATION.md).
 - Ausgabe: [Technische Dokumentation als PDF](Technische-Dokumentation.pdf).
 - Führendes [Nutzerhandbuch](../HANDBUCH-ZUM-PRODUKT.md) und [PDF](Handbuch-zum-Produkt.pdf):
   24 Kapitel, zwölf synthetische Bildschirmbilder, 26 Seiten. AP11-Go seit17.11.2026;
-  AP09a übernimmt diese Anleitung nach deren Abschlussprüfung.
+  AP09a hat diese Anleitung nach deren bestandener Abschlussprüfung übernommen.
 - Ein vertrauliches Betriebsblatt wird separat übergeben und gehört nicht ins Repository.
 
 ## Reproduzierbarer Build

@@ -64,9 +64,9 @@
   Führender Vertrag: docs/AP08-BETRIEB.md. AP09 ist seit 17.11.2026 zur
   Abschlussdokumentation freigegeben. AP10 bleibt ohne Go. AP11 ist seit
   17.11.2026 zur Handbucherstellung freigegeben. Eine führende Nutzeranleitung
-  mit zwölf synthetischen Bildern, Markdown und PDF ist eigengeprüft erstellt;
-  genau eine unabhängige Abschlussprüfung steht aus. AP09a übernimmt diese
-  Anleitung nach Abschluss dieser Prüfung, keine zweite Nutzeranleitung.
+  mit zwölf synthetischen Bildern, Markdown und PDF ist erstellt und am festen
+  Stand b565465 genau einmal unabhängig mit PASS geprüft. AP09a übernimmt diese
+  eine Anleitung; Kundenrückmeldung bleibt offen, keine neue Betriebsabnahme.
   AP12 ist aus d9f32a5a9c9fb642f59a13ed2550f74532fc3ebe mit Schema008
   bereitgestellt. Echter Wechsel auf neues Graph-Zertifikat, drei Verbraucher,
   Abschlussproof und SQL overlap unabhängig nativ bestätigt; Rotationtimer aktiv.
