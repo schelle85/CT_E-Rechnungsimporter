@@ -666,6 +666,17 @@ class Controller:
                 self.clear_drain()
                 return dict(ok=True,code="rotation_guarded_consumers_ready",operation_id=operation,seal=record["seal"],paused=record["paused"])
 
+    def maintain(self,operation,published):
+        cleanup=published.get("cleanup")
+        if cleanup is None or cleanup["phase"]=="completed":return dict(phase=cleanup["phase"] if cleanup else None)
+        if cleanup["phase"]=="planned" and time.time()<cleanup["not_before"]:return dict(phase="planned",not_before=cleanup["not_before"])
+        if self.external_drain() is not None or self.writer.gate.read()["mode"]!="allowed":return dict(deferred="paused")
+        with self.lifecycle_locks():
+            if self.external_drain() is not None or self.writer.gate.read()["mode"]!="allowed":return dict(deferred="paused")
+            self.api();self.runtime.ready(self.binding,self.auto["public_origin"],self.host,self.until)
+            result=self.worker("cleanup",operation)
+            return dict(phase=result["cleanup"]["phase"],state=result["request"]["state"],error_code=result["cleanup"]["error_code"])
+
     def operate(self,mode,*,startup=False):
         with self.writer.session():
             self.recover_job()
@@ -684,7 +695,7 @@ class Controller:
                         if current["mode"]!="blocked" and current["release_hash"]!=record.get("seal"):
                             return dict(ok=False,code="rotation_blocked_unreconciled")
                         return self.bootstrap(status)
-                    # A published old-key return has no active SQL request. Claim only
+                    # A published return or completed cleanup has no active request. Claim only
                     # the exact closed gate/SQL/journal binding, never an arbitrary ID.
                     self.worker("resume-closed",current["operation_id"],seal=current["release_hash"])
                     status=self.worker("status");operation=status["head"]["active_operation"]
@@ -694,10 +705,11 @@ class Controller:
             if (mode!="rollback" and status["host"] and status["host"]["phase"]=="committed"
                     and initial_gate["mode"] in {"allowed","paused"} and initial_gate["boot_id"]==self.model.boot_id()
                     and initial_gate["release_hash"]==status["host"]["seal"] and status["current"]==status["host"][status["host"]["target"]]):
-                self.worker("publish",operation)
+                published=self.worker("publish",operation)
                 path=self.journal/(operation+".controller.json")
-                if path.exists():self.control=json.loads(self.host.protected(path).read_text(),object_pairs_hook=unique);self.clear_drain()
-                return dict(ok=True,operation_id=operation,phase="committed",target=status["host"]["target"],unchanged=True)
+                if path.exists():self.control_record(operation);self.clear_drain()
+                cleanup=self.maintain(operation,published)
+                return dict(ok=True,operation_id=operation,phase="committed",target=status["host"]["target"],unchanged=True,cleanup=cleanup)
             if mode in {"run","resume"}:
                 if status["host"] is None and (status["core"] is None or status["core"]["phase"]=="prepared"):
                     if startup:self.runtime.start(self.binding,self.auto["public_origin"],self.host,self.until,preserve_drain=True)

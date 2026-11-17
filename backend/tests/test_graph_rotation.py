@@ -3,6 +3,7 @@ import base64
 from dataclasses import replace
 import json
 import unittest
+from types import SimpleNamespace
 from cryptography import x509
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import padding
@@ -80,6 +81,28 @@ class GraphRotationTests(unittest.TestCase):
         with transport(handler,self.new) as graph:graph.remove(OLD_ID)
         self.assertEqual(json.loads(calls[0].content)["keyId"],OLD_ID)
         self.assertEqual(len(calls),1)
+
+    def test_cleanup_admission_checked_before_credential_and_before_remove_transport(self):
+        events=[]
+        def check(pem,fingerprint,*,method):
+            self.assertEqual(pem,self.new.pem);self.assertEqual(fingerprint,self.new.fingerprint)
+            self.assertEqual(method,"POST");events.append("admission")
+        def handler(request):events.append("http");return httpx.Response(204)
+        with transport(handler,self.new) as graph:
+            graph.access=SimpleNamespace(check=check)
+            graph.credential=SimpleNamespace(get_token=lambda scope:(events.append("token") or SimpleNamespace(token="synthetic")))
+            graph.remove(OLD_ID)
+        self.assertEqual(events,["admission","token","admission","http"])
+
+    def test_changed_cleanup_admission_after_credential_prevents_remove_transport(self):
+        events=[]
+        def check(*args,**kwargs):
+            events.append("admission")
+            if len(events)==2:raise GraphError("synthetic_admission_changed")
+        with transport(lambda request:self.fail("remove after changed admission"),self.new) as graph:
+            graph.access=SimpleNamespace(check=check)
+            with self.assertRaises(GraphError):graph.remove(OLD_ID)
+        self.assertEqual(events,["admission","admission"])
 
     def test_invalid_or_large_response_stays_uncertain(self):
         for response in (httpx.Response(200,content=b"invalid"),httpx.Response(200,content=b"x"*131073),

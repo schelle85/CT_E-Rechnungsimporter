@@ -126,17 +126,19 @@ class RotationStore:
                 c.execute(head.update().where(head.c.singleton == 1).values(blocked_fingerprint=row["old_fingerprint"]))
             return self._row(c, operation)
 
-    def resume_closed(self,operation,expected_revision,fingerprint):
+    def resume_closed(self,operation,expected_revision,fingerprint,*,completed=False):
         """Root has verified the matching closed gate/journal; retain original request."""
         with self.transaction() as c:
             current=self._head(c);row=self._row(c,operation)
-            if (current["active_operation"] is not None or row["revision"]!=expected_revision
-                    or row["state"]!="failed" or row["error_code"]!="rotation_rolled_back"
-                    or row["old_fingerprint"]!=fingerprint or current["blocked_fingerprint"]!=fingerprint):
+            outcome=(row["state"]=="completed" and row["error_code"] in {None,"rotation_old_key_unmanaged"}
+                and row["old_fingerprint"]!=fingerprint) if completed else (
+                row["state"]=="failed" and row["error_code"]=="rotation_rolled_back"
+                and row["old_fingerprint"]==fingerprint and current["blocked_fingerprint"]==fingerprint)
+            if current["active_operation"] is not None or row["revision"]!=expected_revision or not outcome:
                 raise GraphError("rotation_operation_changed")
             now=int(self.clock())
             c.execute(requests.update().where(requests.c.operation_id==operation).values(state="adopting",
-                error_code="rotation_rollback_pending",revision=row["revision"]+1,updated_at=now))
+                error_code=None if completed else "rotation_rollback_pending",revision=row["revision"]+1,updated_at=now))
             c.execute(head.update().where(head.c.singleton==1).values(active_operation=operation,
                 revision=current["revision"]+1,updated_at=now))
             return self._row(c,operation)
@@ -146,8 +148,10 @@ class RotationStore:
         transitions={"registered":{"adoption_prepared"},"candidate_verified":{"adoption_prepared"},
             "adoption_prepared":{"adopting"},"adopting":{"rollback_unknown","adopted"},
             "rollback_unknown":{"adopting","adopted"},"adopted":{"adopting","overlap","failed"},
-            "overlap":{"adopting","completed"}}
-        codes={None,"rotation_rollback_pending","rotation_rollback_unknown","rotation_proof_unknown","rotation_rolled_back"}
+            "overlap":{"adopting","cleanup_started"},"cleanup_started":{"adopting","cleanup_unknown","completed"},
+            "cleanup_unknown":{"adopting","cleanup_started","completed"}}
+        codes={None,"rotation_rollback_pending","rotation_rollback_unknown","rotation_proof_unknown","rotation_rolled_back",
+            "rotation_cleanup_unknown","rotation_old_key_unmanaged"}
         if state not in {target for values in transitions.values() for target in values} or code not in codes:
             raise GraphError("rotation_transition_invalid")
         with self.transaction() as c:

@@ -307,6 +307,20 @@ AP11 beschreibt den ausgelieferten Reiter und die erlaubten Bedienwege.
 AP09 ergänzt technische Durchführung, Rückweg und administrative Wiederherstellung.
 Keine Geheimnisse oder privaten Betriebswerte in die öffentlichen Unterlagen.
 
+## C4 – Rootbereinigung nach bestätigter Übernahme
+
+Der Quellstand verbindet den dauerhaften sieben Tage begrenzten Überlappungsplan,
+eine einmalige eigene removeKey-Freigabe, lesenden Unknown-Abgleich und begrenzte
+Altdateibereinigung mit dem festen Hostcontroller. Vor Wirkungen prüft der
+Rootworker die normale Graphfreigabe und selbst eine frische Nachfolgeranmeldung.
+Öffentliche Materialattestierungen erhalten historische Hostbelege ohne alte
+private Schlüssel. Abschluss und Wiederanlauf behalten die ursprüngliche
+Request-ID; nicht verwaltetes Altmaterial bleibt ausdrücklich erhalten.
+
+Einzelheiten, lokale Belege und offene native Grenzen stehen im
+[Cleanupvertrag](AP12-CLEANUP.md). Kein Timer-/Admin-/Produktivabschluss daraus;
+AP08 bleibt der bestätigte Betriebsstand bis zur getrennten Übernahme.
+
 Primärquellen:
 [Microsoft addKey](https://learn.microsoft.com/en-us/graph/api/application-addkey?view=graph-rest-1.0),
 [Microsoft removeKey](https://learn.microsoft.com/en-us/graph/api/application-removekey?view=graph-rest-1.0),

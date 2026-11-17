@@ -17,10 +17,12 @@ from app.notification_model import CERTIFICATE_TOKEN,OperationBudget,graph_scope
 from app.notification_schema007 import monitor
 from app.rotation_adoption import AdoptionJournal,metadata
 from app.rotation_core import register
+from app.rotation_cleanup import CleanupJournal
 from app.rotation_graph import rotation_client
 from app.rotation_journal import RootJournal
 from app.rotation_model import RotationBinding,sha,unique_json,uuid
 from app.rotation_state import RotationStore
+from app.rotation_maintenance import maintain,project_cleanup
 
 DIRECTORY="/var/lib/invoice-importer/rotation"
 FIELDS={"status":set(),"register":set(),"candidate-verified":{"receipt"},
@@ -30,6 +32,7 @@ FIELDS={"status":set(),"register":set(),"candidate-verified":{"receipt"},
     "recover":{"pem_hash","quiet_evidence","paused","drain_identity"},"monitor":set(),"read":set()}
 FIELDS["publish"]=set()
 FIELDS["resume-closed"]={"seal"}
+FIELDS["cleanup"]=set()
 
 
 def request(raw):
@@ -116,22 +119,27 @@ def execute(value,deadline):
                 active=head["active_operation"]
                 return dict(ok=True,binding=access.fields(),head=head,current=metadata(current),
                     notification_scope=graph_scope(config.tenant_id,config.client_id,config.mailbox),
-                    core=journal.state(active) if active else None,host=host.state(active) if active else None)
+                    core=journal.state(active) if active else None,host=host.state(active) if active else None,
+                    cleanup=CleanupJournal(host).state(active) if active else None)
             if command=="monitor":return dict(ok=True,observed=monitor_state(engine,config))
             if command=="read":return dict(ok=True,core=journal.state(operation),host=host.state(operation))
             if command=="resume-closed":
                 from app.graph_access import AccessGate
                 state=host.state(operation);release=AccessGate(access).read()
-                if (head["active_operation"] is not None or state is None or state["phase"]!="committed" or state["target"]!="old"
-                        or metadata(current)!=state["old"] or state["seal"]!=value["seal"]
+                if (head["active_operation"] is not None or state is None or state["phase"]!="committed"
+                        or metadata(current)!=state[state["target"]] or state["seal"]!=value["seal"]
                         or any(release.get(name)!=expected for name,expected in access.fields().items())
                         or release["operation_id"]!=operation or release["release_hash"]!=state["seal"]
                         or release["boot_id"]!=state["boot_id"] or release["mode"] not in {"allowed","paused","blocked"}
-                        or any(release[name]!=state["old"][name] for name in ("pem_hash","fingerprint"))):
+                        or any(release[name]!=state[state["target"]][name] for name in ("pem_hash","fingerprint"))):
                     raise GraphError("rotation_release_invalid")
+                completed=state["target"]=="new"
+                if completed:
+                    cleanup=CleanupJournal(host).state(operation)
+                    if cleanup is None or cleanup["phase"]!="completed" or cleanup["new"]!=metadata(current):raise GraphError("rotation_release_invalid")
                 host.reconcile_proof(state,monitor_state(engine,config),now)
                 row=store.read(operation)
-                row=store.resume_closed(operation,row["revision"],current.fingerprint)
+                row=store.resume_closed(operation,row["revision"],current.fingerprint,completed=completed)
                 return dict(ok=True,request=row)
             if command=="publish":
                 from app.graph_access import AccessGate
@@ -139,9 +147,12 @@ def execute(value,deadline):
                 if state is None or state["phase"]!="committed" or release["operation_id"]!=operation or release["mode"] not in {"allowed","paused"} or release["release_hash"]!=state["seal"]:
                     raise GraphError("rotation_release_invalid")
                 gate._material(release,current.pem,current.fingerprint)
-                row=store.read(operation);target="failed" if state["target"]=="old" else "overlap"
-                row=store.project_host(operation,row["revision"],target,code="rotation_rolled_back" if target=="failed" else None)
-                return dict(ok=True,request=row)
+                row=store.read(operation);cleanup=None
+                if state["target"]=="old":row=store.project_host(operation,row["revision"],"failed",code="rotation_rolled_back")
+                else:
+                    cleanup=CleanupJournal(host).plan(operation);row=project_cleanup(store,operation,cleanup)
+                return dict(ok=True,request=row,cleanup=cleanup)
+            if command=="cleanup":return maintain(store,host,access,operation,current,deadline)
             if command=="register":
                 core=journal.state(operation)
                 if core is None:

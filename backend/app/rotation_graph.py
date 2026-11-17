@@ -14,9 +14,10 @@ LIMIT = 131072
 
 
 class RotationGraph:
-    def __init__(self, binding, signer, credential, http, *, deadline, clock=time.monotonic, wall=time.time):
+    def __init__(self, binding, signer, credential, http, *, deadline, clock=time.monotonic, wall=time.time, access=None):
         self.binding, self.signer, self.credential, self.http = binding, signer, credential, http
         self.deadline, self.clock, self.wall = deadline, clock, wall
+        self.access=access
         self.root = "https://graph.microsoft.com/v1.0/applications/" + binding.application_id
 
     def _request(self, action, payload=None):
@@ -28,6 +29,7 @@ class RotationGraph:
             raise GraphError("rotation_deadline", uncertain=False)
         try:
             with request_deadline(seconds, uncertain=writing):
+                if self.access is not None:self.access.check(self.signer.pem,self.signer.fingerprint,method="POST" if writing else "GET")
                 token = self.credential.get_token(SCOPE).token
                 if not isinstance(token, str) or not token or any(c in token for c in "\r\n"):
                     raise GraphError("rotation_authentication_failed")
@@ -35,6 +37,7 @@ class RotationGraph:
                     "Content-Type": "application/json", "Accept-Encoding": "identity"}
                 url = self.root if not writing else self.root + "/" + action
                 params = {"$select": "id,appId,keyCredentials"} if not writing else None
+                if self.access is not None:self.access.check(self.signer.pem,self.signer.fingerprint,method="POST" if writing else "GET")
                 with self.http.stream("POST" if writing else "GET", url, params=params,
                         json=payload, headers=headers, follow_redirects=False) as response:
                     status = response.status_code
@@ -96,7 +99,7 @@ class RotationGraph:
 
 
 @contextmanager
-def rotation_client(binding, signer, *, deadline):
+def rotation_client(binding, signer, *, deadline,access=None):
     """Host-core factory only; no HTTP/CLI route installs or invokes it in package B."""
     from azure.identity import CertificateCredential
     credential = CertificateCredential(binding.tenant_id, binding.client_id, certificate_data=signer.pem,
@@ -104,6 +107,6 @@ def rotation_client(binding, signer, *, deadline):
     try:
         with httpx.Client(timeout=httpx.Timeout(10, connect=5), trust_env=False,
                 follow_redirects=False, limits=httpx.Limits(max_connections=1)) as http:
-            yield RotationGraph(binding, signer, credential, http, deadline=deadline)
+            yield RotationGraph(binding, signer, credential, http, deadline=deadline,access=access)
     finally:
         credential.close()
