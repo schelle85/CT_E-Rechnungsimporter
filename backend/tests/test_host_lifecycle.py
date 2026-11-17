@@ -75,6 +75,17 @@ class LifecycleTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError,"host_deadline"):runtime.start({},ORIGIN,fake,3)
         self.assertEqual(set(seen),{"db"});fake.command.assert_not_called()
 
+    def test_ap12_start_preserves_an_unchanged_manual_or_rotation_drain(self):
+        with tempfile.TemporaryDirectory() as directory:
+            gate=Path(directory)/"draining";gate.write_bytes(b"preserve-this-pause")
+            fake=SimpleNamespace(DRAIN_FILE=str(gate),protected=protected,host_lock=acquired,
+                command=Mock(),draining=lambda:gate.exists())
+            with patch.object(runtime,"inspect_container",return_value=dict(id="a"*64,state=dict(Running=True,Health=dict(Status="healthy")))),patch.object(
+                    runtime,"ready"),patch.object(runtime,"sync_directory"):
+                result=runtime.start({},ORIGIN,fake,runtime.time.monotonic()+10,preserve_drain=True)
+            self.assertTrue(result["ready"]);self.assertTrue(result["draining"])
+            self.assertEqual(gate.read_bytes(),b"preserve-this-pause");fake.command.assert_not_called()
+
     def test_notifications_require_db_and_keep_running_when_api_is_unavailable(self):
         fake=SimpleNamespace()
         with patch.object(runtime,"inspect_container",return_value=dict(state=dict(Running=True,Health=dict(Status="healthy")))) as inspect,\

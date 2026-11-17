@@ -154,7 +154,7 @@ def drain(host,until):
     return dict(ok=True,drained=True)
 
 
-def start(binding,origin,host,until):
+def start(binding,origin,host,until,*,preserve_drain=False):
     with host.host_lock(LIFECYCLE_LOCK) as acquired:
         if not acquired:raise ValueError("host_lifecycle_busy")
         previous_gate=gate(host)
@@ -169,7 +169,7 @@ def start(binding,origin,host,until):
         wait_readiness(lambda:ready(binding,origin,host,until),until)
         with host.host_lock(GATE_LOCK,wait=seconds(until,5)) as acquired:
             if not acquired:raise ValueError("host_gate_busy")
-            if gate(host)==previous_gate and previous_gate is not None:
+            if not preserve_drain and gate(host)==previous_gate and previous_gate is not None:
                 os.unlink(host.DRAIN_FILE);sync_directory(Path(host.DRAIN_FILE).parent)
         return dict(ok=True,ready=True,draining=host.draining())
 

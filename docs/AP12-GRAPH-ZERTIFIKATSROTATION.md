@@ -1,5 +1,8 @@
 # AP12 – Graph-Zertifikatsrotation und Administration
 
+Ausführbarer C3b-Quellstand: [Hostablauf, Rückweg und Resume](AP12-HOSTABLAUF.md).
+Noch keine vollständige native Host-/Produktionsabnahme; Kundenbetrieb bleibt AP08.
+
 Stand: 16. November 2026. **AP12 ist ausdrücklich zur Umsetzung freigegeben.**
 Kern B aus `ebb36879ccd3c25d03371b92c71b6cee7cc29eb0` ist im isolierten Umfang
 unabhängig abgenommen. C1 ist als Bibliothek einschließlich isoliertem nativem

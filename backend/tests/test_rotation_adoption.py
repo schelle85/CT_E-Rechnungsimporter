@@ -9,7 +9,7 @@ from uuid import uuid4
 
 from app.graph import GraphError
 from app.graph_access import AccessBinding
-from app.notification_model import identity
+from app.notification_model import graph_scope,identity
 from app import rotation_adoption as module
 from app.rotation_core import register
 from notification_test_support import NOW,material
@@ -122,3 +122,25 @@ class AdoptionTests(unittest.TestCase):
         result=self.journal.rollback_unknown(self.operation)
         self.assertEqual(result["phase"],"rollback_unknown");self.assertEqual(result["target"],"old")
         self.assertIsNone(result["seal"]);self.assertEqual(self.journal.state(self.operation),result)
+
+    def test_unknown_effect_is_read_reconciled_before_new_boot_revalidation(self):
+        self.activate();self.verified();receipt=self.proof();self.journal.proof_unknown(self.operation)
+        original=self.journal.state(self.operation);new_boot=str(uuid4())
+        config=BINDING.config
+        observed=dict(revision=8,proof=dict(fingerprint=receipt["probe"]["fingerprint"],
+            scope_key=graph_scope(config.tenant_id,config.client_id,config.mailbox),at=NOW))
+        with patch.object(module,"boot_id",return_value=new_boot):
+            result=self.journal.recover(self.operation,pem_hash=original["new"]["pem_hash"],quiet_evidence="d"*64,
+                observed=observed,now=NOW+1,paused=False,drain_identity=None)
+        self.assertEqual(result["boot_id"],new_boot);self.assertEqual(result["phase"],"activated");self.assertTrue(result["paused"])
+        self.assertIsNone(result["proof_intent"]);self.assertEqual(result["consumers"],{})
+        archived=self.root._read(self.operation+".host-checkpoint-"+str(original["revision"])+".json")
+        self.assertEqual(archived["checkpoint"],original);self.assertEqual(archived["observed_proof"],observed)
+
+    def test_unreconciled_proof_never_resets_intent_or_writes_a_recovery_checkpoint(self):
+        self.activate();self.verified();self.proof();self.journal.proof_unknown(self.operation)
+        original=self.journal.state(self.operation)
+        with self.assertRaises(GraphError):self.journal.recover(self.operation,pem_hash=original["new"]["pem_hash"],quiet_evidence="d"*64,
+            observed=dict(revision=9,proof=None),now=NOW+1,paused=False,drain_identity=None)
+        self.assertEqual(self.journal.state(self.operation),original)
+        self.assertEqual(list(self.root.directory.glob("*.host-checkpoint-*.json")),[])

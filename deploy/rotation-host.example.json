@@ -1,0 +1,13 @@
+{
+  "source_commit": "REPLACE_WITH_REVIEWED_FULL_SOURCE_COMMIT",
+  "api_image": "sha256:REPLACE_WITH_REVIEWED_API_IMAGE_ID",
+  "automation_profile": "/etc/invoice-importer/automation-host.json",
+  "journal_directory": "/var/lib/invoice-importer/rotation",
+  "compose_directory": "/opt/invoice-importer/deploy",
+  "compose_env": "/etc/invoice-importer/compose.env",
+  "compose_files": [
+    "/opt/invoice-importer/deploy/compose.yaml",
+    "/opt/invoice-importer/deploy/compose.notification-web.yaml",
+    "/opt/invoice-importer/deploy/compose.operations.yaml"
+  ]
+}
