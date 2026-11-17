@@ -9,7 +9,7 @@ internen Webportal für Protokolle, Fehler und Dubletten.
 
 ## Projektstatus
 
-**Stand: 16. November 2026. AP01 ist durch den Kunden vollständig abgenommen.
+**Stand: 17. November 2026. AP01 ist durch den Kunden vollständig abgenommen.
 AP02a–c ist im vereinbarten Grundlagenumfang technisch abgeschlossen und
 bereitgestellt. AP04 ist technisch im isolierten Grundlagenumfang abgeschlossen.
 AP05 ist im definierten manuellen Umfang technisch abgeschlossen und bereitgestellt:
@@ -104,6 +104,31 @@ für das eigene Abnahmepostfach vor. Drei Empfänger sind privat konfiguriert.
   versionierte Einstellungen, feste Testvorschau und gespeicherten Versandverlauf.
   Zertifikatswarnungen erscheinen im Portal und zusätzlich nach Login für beide Rollen.
   Gespeicherte Zeiten aktivieren keine Jobs; die dauerhafte Aktivierung gehört zu AP08.
+
+### Ergänzter AP12-Quellstand
+
+Die folgenden Funktionen sind implementiert und zur getrennten Abnahme geliefert.
+Der Kundenbetrieb verwendet weiterhin den oben genannten AP08-Stand.
+
+- Administration → Graph-Zertifikat mit aktuellem Fingerprint/Ablauf, getrennten
+  Prüf-/Versuchs-/Erneuerungszeiten, Überlappung, Bereinigung und Auftragsverlauf.
+- GR_CEO liest; GR_Rechnung kann die automatische Erneuerung erlauben und
+  „Jetzt erneuern“ auslösen. Der Klick speichert einen gebundenen Auftrag.
+  Antwortverlust, Neuanmeldung und mehrere Fenster behalten dessen ursprüngliche UUID.
+- Gemeinsamer Rootablauf für manuelle und automatische Anforderungen: lokaler
+  Nachfolger, einmalige Registrierung, frische Anmeldung, drei tatsächliche
+  Verbraucher und gesonderter Abschlussproof vor dauerhafter Freigabe.
+- Feste Tagesprüfung um03:35 Europe/Berlin, Erneuerungsbeginn ab30 Tagen Restzeit
+  und minütliche Auftragsbearbeitung. Gespeicherte Einstellung und nachgewiesene
+  Hosttimer bleiben getrennte Angaben; veralteter Status ist unbestätigt.
+- Überlappung höchstens sieben Tage innerhalb der Altgültigkeit, gezielte
+  Bereinigung ausschließlich eigener Altkeys/-dateien und gebundener Rückweg.
+  Vorhandenes Altmaterial bleibt bis zur ausdrücklichen Rootzuordnung unverwaltet.
+
+Quellen-/lokale Nachweise sind von nativer Host-/Browserabnahme und Bereitstellung
+getrennt. Der vorbereitete [Browserprüfumfang](docs/AP12-BROWSERPRUEFUNG.md) verwendet
+das gebaute Frontend und private APIfixtures; er behauptet keine echte ADanmeldung.
+Führender [Lieferstand und Betriebsübergabe](docs/AP12-UEBERGABE.md).
 
 Der Zugang erfolgt ausschließlich im Kundennetz beziehungsweise über die
 vorgesehene VPN und die konfigurierte HTTPS-Adresse. Tatsächliche Hostnamen,
