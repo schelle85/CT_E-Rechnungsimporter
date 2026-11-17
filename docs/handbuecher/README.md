@@ -34,8 +34,12 @@ Inhaltsverzeichnis, Lesezeichen und Seitenzahlen erzeugt. Dokumentmetadaten sind
 konstant. Gleiche Quelle, Renderer-, Python-/ReportLabversion und Schriftdateien
 ergeben dieselben PDFbytes; eine abweichende Werkzeugversion ist neu zu prüfen.
 
-Querverweise innerhalb des Repositorys bleiben relative Verweise. Für deren Nutzung
-die Markdownquelle beziehungsweise PDF mit zugehörigem Repository bereitstellen.
+Markdownverweise innerhalb des Repositorys bleiben relativ. Der Renderer löst sie
+für die PDF vom Verzeichnis der Markdownquelle aus zu absoluten GitHub-Verweisen
+auf `schelle85/CT_E-Rechnungsimporter`, Zweig `main`, auf. Dateiverweise verwenden
+`blob`, Verzeichnisse `tree`; Fragmente bleiben erhalten. Ziele außerhalb des
+Repositorys werden abgewiesen, externe URLs bleiben unverändert. Die verlinkten
+Repositorydateien müssen im Veröffentlichungsablauf auf `main` bereitgestellt werden.
 Die einzelne PDF enthält den vollständigen technischen Haupttext; vertiefende
 Paketverträge werden nicht mit eingebettet.
 

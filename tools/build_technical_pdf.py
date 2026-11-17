@@ -11,6 +11,7 @@ import html
 import json
 from pathlib import Path
 import re
+from urllib.parse import quote, unquote, urlsplit
 
 import reportlab
 from reportlab import rl_config
@@ -27,6 +28,8 @@ from reportlab.platypus import (
 from reportlab.platypus.tableofcontents import TableOfContents
 
 ROOT = Path(__file__).resolve().parents[1]
+SOURCE_PATH = ROOT / "docs/TECHNISCHE-DOKUMENTATION.md"
+GITHUB = "https://github.com/schelle85/CT_E-Rechnungsimporter"
 INK = colors.HexColor("#172A3A")
 BLUE = colors.HexColor("#165C79")
 PALE = colors.HexColor("#EDF3F6")
@@ -45,6 +48,26 @@ def register_fonts():
                                 italic="Vera-Italic", boldItalic="Vera-BoldItalic")
 
 
+def pdf_link(target):
+    """Resolve this repository's document links from the Markdown source location."""
+    parts = urlsplit(target)
+    if parts.scheme or parts.netloc:
+        return target
+    resolved = ((SOURCE_PATH.parent / unquote(parts.path)).resolve()
+                if parts.path else SOURCE_PATH.resolve())
+    try:
+        relative = resolved.relative_to(ROOT.resolve())
+    except ValueError as error:
+        raise ValueError("Relative PDF link leaves the repository") from error
+    kind = "tree" if resolved.is_dir() else "blob"
+    result = f"{GITHUB}/{kind}/main/{quote(relative.as_posix(), safe='/')}"
+    if parts.query:
+        result += "?" + parts.query
+    if parts.fragment:
+        result += "#" + parts.fragment
+    return result
+
+
 def inline(value):
     # Protect inline tokens before XML escaping; code remains literal.
     tokens = []
@@ -56,7 +79,7 @@ def inline(value):
     value = re.sub(r"`([^`]+)`", lambda m: hold(
         '<font color="#344C60">' + html.escape(m[1]) + '</font>'), value)
     value = re.sub(r"\[([^\]]+)\]\(([^)]+)\)", lambda m: hold(
-        '<a href="' + html.escape(m[2], quote=True) + '" color="#165C79">'
+        '<a href="' + html.escape(pdf_link(m[2]), quote=True) + '" color="#165C79">'
         + html.escape(m[1]) + '</a>'), value)
     value = html.escape(value)
     value = re.sub(r"\*\*([^*]+)\*\*", r"<b>\1</b>", value)
@@ -231,10 +254,12 @@ def parse(lines, style):
 
 
 def main():
+    global SOURCE_PATH
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--input", type=Path, default=ROOT / "docs/TECHNISCHE-DOKUMENTATION.md")
     parser.add_argument("--output", type=Path, default=ROOT / "docs/handbuecher/Technische-Dokumentation.pdf")
     args = parser.parse_args()
+    SOURCE_PATH = args.input.resolve()
     source_bytes = args.input.read_bytes()
     source = source_bytes.decode("utf-8-sig")
     title = source.splitlines()[0].removeprefix("# ")

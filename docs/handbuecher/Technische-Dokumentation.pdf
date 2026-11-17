@@ -196,7 +196,7 @@ endobj
 37 0 obj
 <<
 /A <<
-/S /URI /Type /Action /URI (AP12-UEBERGABE.md)
+/S /URI /Type /Action /URI (https://github.com/schelle85/CT_E-Rechnungsimporter/blob/main/docs/AP12-UEBERGABE.md)
 >> /Border [ 0 0 0 ] /Rect [ 275.68 590.7298 348.3227 601.8898 ] /Subtype /Link /Type /Annot
 >>
 endobj
@@ -213,35 +213,35 @@ endobj
 39 0 obj
 <<
 /A <<
-/S /URI /Type /Action /URI (../backend/requirements.lock)
+/S /URI /Type /Action /URI (https://github.com/schelle85/CT_E-Rechnungsimporter/blob/main/backend/requirements.lock)
 >> /Border [ 0 0 0 ] /Rect [ 194.1733 378.3298 278.5409 389.4898 ] /Subtype /Link /Type /Annot
 >>
 endobj
 40 0 obj
 <<
 /A <<
-/S /URI /Type /Action /URI (../backend/requirements-classifier.lock)
+/S /URI /Type /Action /URI (https://github.com/schelle85/CT_E-Rechnungsimporter/blob/main/backend/requirements-classifier.lock)
 >> /Border [ 0 0 0 ] /Rect [ 416.5832 378.3298 545.38 389.4898 ] /Subtype /Link /Type /Annot
 >>
 endobj
 41 0 obj
 <<
 /A <<
-/S /URI /Type /Action /URI (../backend/requirements-classifier-native.lock)
+/S /URI /Type /Action /URI (https://github.com/schelle85/CT_E-Rechnungsimporter/blob/main/backend/requirements-classifier-native.lock)
 >> /Border [ 0 0 0 ] /Rect [ 66.648 364.3298 227.8495 375.4898 ] /Subtype /Link /Type /Annot
 >>
 endobj
 42 0 obj
 <<
 /A <<
-/S /URI /Type /Action /URI (../frontend/package-lock.json)
+/S /URI /Type /Action /URI (https://github.com/schelle85/CT_E-Rechnungsimporter/blob/main/frontend/package-lock.json)
 >> /Border [ 0 0 0 ] /Rect [ 320.4681 364.3298 403.991 375.4898 ] /Subtype /Link /Type /Annot
 >>
 endobj
 43 0 obj
 <<
 /A <<
-/S /URI /Type /Action /URI (../frontend/package.json)
+/S /URI /Type /Action /URI (https://github.com/schelle85/CT_E-Rechnungsimporter/blob/main/frontend/package.json)
 >> /Border [ 0 0 0 ] /Rect [ 454.8958 336.3298 516.2903 347.4898 ] /Subtype /Link /Type /Annot
 >>
 endobj
@@ -328,7 +328,7 @@ endobj
 54 0 obj
 <<
 /A <<
-/S /URI /Type /Action /URI (../backend/migrations)
+/S /URI /Type /Action /URI (https://github.com/schelle85/CT_E-Rechnungsimporter/tree/main/backend/migrations)
 >> /Border [ 0 0 0 ] /Rect [ 141.2024 538.7298 235.3104 549.8898 ] /Subtype /Link /Type /Annot
 >>
 endobj
@@ -355,7 +355,7 @@ endobj
 57 0 obj
 <<
 /A <<
-/S /URI /Type /Action /URI (AP08-BETRIEB.md)
+/S /URI /Type /Action /URI (https://github.com/schelle85/CT_E-Rechnungsimporter/blob/main/docs/AP08-BETRIEB.md)
 >> /Border [ 0 0 0 ] /Rect [ 132.4791 281.9298 232.386 293.0898 ] /Subtype /Link /Type /Annot
 >>
 endobj
@@ -422,161 +422,161 @@ endobj
 64 0 obj
 <<
 /A <<
-/S /URI /Type /Action /URI (ANFORDERUNGEN.md)
+/S /URI /Type /Action /URI (https://github.com/schelle85/CT_E-Rechnungsimporter/blob/main/docs/ANFORDERUNGEN.md)
 >> /Border [ 0 0 0 ] /Rect [ 52.31201 724.7298 122.112 735.8898 ] /Subtype /Link /Type /Annot
 >>
 endobj
 65 0 obj
 <<
 /A <<
-/S /URI /Type /Action /URI (ARBEITSPLAN.md)
+/S /URI /Type /Action /URI (https://github.com/schelle85/CT_E-Rechnungsimporter/blob/main/docs/ARBEITSPLAN.md)
 >> /Border [ 0 0 0 ] /Rect [ 128.0244 724.7298 180.9908 735.8898 ] /Subtype /Link /Type /Annot
 >>
 endobj
 66 0 obj
 <<
 /A <<
-/S /URI /Type /Action /URI (BETRIEBSSTAND.md)
+/S /URI /Type /Action /URI (https://github.com/schelle85/CT_E-Rechnungsimporter/blob/main/docs/BETRIEBSSTAND.md)
 >> /Border [ 0 0 0 ] /Rect [ 204.595 724.7298 269.2091 735.8898 ] /Subtype /Link /Type /Annot
 >>
 endobj
 67 0 obj
 <<
 /A <<
-/S /URI /Type /Action /URI (AP01-SECURITY.md)
+/S /URI /Type /Action /URI (https://github.com/schelle85/CT_E-Rechnungsimporter/blob/main/docs/AP01-SECURITY.md)
 >> /Border [ 0 0 0 ] /Rect [ 52.31201 705.7298 135.7623 716.8898 ] /Subtype /Link /Type /Annot
 >>
 endobj
 68 0 obj
 <<
 /A <<
-/S /URI /Type /Action /URI (AP02-GRAPH.md)
+/S /URI /Type /Action /URI (https://github.com/schelle85/CT_E-Rechnungsimporter/blob/main/docs/AP02-GRAPH.md)
 >> /Border [ 0 0 0 ] /Rect [ 141.6747 705.7298 217.5278 716.8898 ] /Subtype /Link /Type /Annot
 >>
 endobj
 69 0 obj
 <<
 /A <<
-/S /URI /Type /Action /URI (AP03-RECOGNITION.md)
+/S /URI /Type /Action /URI (https://github.com/schelle85/CT_E-Rechnungsimporter/blob/main/docs/AP03-RECOGNITION.md)
 >> /Border [ 0 0 0 ] /Rect [ 241.132 705.7298 291.4192 716.8898 ] /Subtype /Link /Type /Annot
 >>
 endobj
 70 0 obj
 <<
 /A <<
-/S /URI /Type /Action /URI (AP04-ABLAGE.md)
+/S /URI /Type /Action /URI (https://github.com/schelle85/CT_E-Rechnungsimporter/blob/main/docs/AP04-ABLAGE.md)
 >> /Border [ 0 0 0 ] /Rect [ 52.31201 686.7298 84.48511 697.8898 ] /Subtype /Link /Type /Annot
 >>
 endobj
 71 0 obj
 <<
 /A <<
-/S /URI /Type /Action /URI (AP05-PROCESSING.md)
+/S /URI /Type /Action /URI (https://github.com/schelle85/CT_E-Rechnungsimporter/blob/main/docs/AP05-PROCESSING.md)
 >> /Border [ 0 0 0 ] /Rect [ 90.39751 686.7298 140.4259 697.8898 ] /Subtype /Link /Type /Annot
 >>
 endobj
 72 0 obj
 <<
 /A <<
-/S /URI /Type /Action /URI (AP05-RUNTIME.md)
+/S /URI /Type /Action /URI (https://github.com/schelle85/CT_E-Rechnungsimporter/blob/main/docs/AP05-RUNTIME.md)
 >> /Border [ 0 0 0 ] /Rect [ 164.0301 686.7298 203.2917 697.8898 ] /Subtype /Link /Type /Annot
 >>
 endobj
 73 0 obj
 <<
 /A <<
-/S /URI /Type /Action /URI (AP06-WEB.md)
+/S /URI /Type /Action /URI (https://github.com/schelle85/CT_E-Rechnungsimporter/blob/main/docs/AP06-WEB.md)
 >> /Border [ 0 0 0 ] /Rect [ 52.31201 667.7298 140.0581 678.8898 ] /Subtype /Link /Type /Annot
 >>
 endobj
 74 0 obj
 <<
 /A <<
-/S /URI /Type /Action /URI (AP07-NOTIFICATIONS.md)
+/S /URI /Type /Action /URI (https://github.com/schelle85/CT_E-Rechnungsimporter/blob/main/docs/AP07-NOTIFICATIONS.md)
 >> /Border [ 0 0 0 ] /Rect [ 145.9705 667.7298 239.529 678.8898 ] /Subtype /Link /Type /Annot
 >>
 endobj
 75 0 obj
 <<
 /A <<
-/S /URI /Type /Action /URI (AP07-OPERATOR.md)
+/S /URI /Type /Action /URI (https://github.com/schelle85/CT_E-Rechnungsimporter/blob/main/docs/AP07-OPERATOR.md)
 >> /Border [ 0 0 0 ] /Rect [ 263.1332 667.7298 325.6902 678.8898 ] /Subtype /Link /Type /Annot
 >>
 endobj
 76 0 obj
 <<
 /A <<
-/S /URI /Type /Action /URI (AP08-BETRIEB.md)
+/S /URI /Type /Action /URI (https://github.com/schelle85/CT_E-Rechnungsimporter/blob/main/docs/AP08-BETRIEB.md)
 >> /Border [ 0 0 0 ] /Rect [ 52.31201 648.7298 138.2417 659.8898 ] /Subtype /Link /Type /Annot
 >>
 endobj
 77 0 obj
 <<
 /A <<
-/S /URI /Type /Action /URI (AP12-UEBERGABE.md)
+/S /URI /Type /Action /URI (https://github.com/schelle85/CT_E-Rechnungsimporter/blob/main/docs/AP12-UEBERGABE.md)
 >> /Border [ 0 0 0 ] /Rect [ 170.6009 648.7298 243.2436 659.8898 ] /Subtype /Link /Type /Annot
 >>
 endobj
 78 0 obj
 <<
 /A <<
-/S /URI /Type /Action /URI (AP12-GRAPH-ZERTIFIKATSROTATION.md)
+/S /URI /Type /Action /URI (https://github.com/schelle85/CT_E-Rechnungsimporter/blob/main/docs/AP12-GRAPH-ZERTIFIKATSROTATION.md)
 >> /Border [ 0 0 0 ] /Rect [ 52.31201 629.7298 130.59 640.8898 ] /Subtype /Link /Type /Annot
 >>
 endobj
 79 0 obj
 <<
 /A <<
-/S /URI /Type /Action /URI (AP12-HOSTABLAUF.md)
+/S /URI /Type /Action /URI (https://github.com/schelle85/CT_E-Rechnungsimporter/blob/main/docs/AP12-HOSTABLAUF.md)
 >> /Border [ 0 0 0 ] /Rect [ 136.5024 629.7298 186.7306 640.8898 ] /Subtype /Link /Type /Annot
 >>
 endobj
 80 0 obj
 <<
 /A <<
-/S /URI /Type /Action /URI (AP12-AUTOMATIK.md)
+/S /URI /Type /Action /URI (https://github.com/schelle85/CT_E-Rechnungsimporter/blob/main/docs/AP12-AUTOMATIK.md)
 >> /Border [ 0 0 0 ] /Rect [ 192.643 629.7298 240.6098 640.8898 ] /Subtype /Link /Type /Annot
 >>
 endobj
 81 0 obj
 <<
 /A <<
-/S /URI /Type /Action /URI (AP12-ADMIN-API.md)
+/S /URI /Type /Action /URI (https://github.com/schelle85/CT_E-Rechnungsimporter/blob/main/docs/AP12-ADMIN-API.md)
 >> /Border [ 0 0 0 ] /Rect [ 246.5222 629.7298 294.3936 640.8898 ] /Subtype /Link /Type /Annot
 >>
 endobj
 82 0 obj
 <<
 /A <<
-/S /URI /Type /Action /URI (AP12-OWNERSHIP.md)
+/S /URI /Type /Action /URI (https://github.com/schelle85/CT_E-Rechnungsimporter/blob/main/docs/AP12-OWNERSHIP.md)
 >> /Border [ 0 0 0 ] /Rect [ 300.306 629.7298 344.8851 640.8898 ] /Subtype /Link /Type /Annot
 >>
 endobj
 83 0 obj
 <<
 /A <<
-/S /URI /Type /Action /URI (AP12-CLEANUP.md)
+/S /URI /Type /Action /URI (https://github.com/schelle85/CT_E-Rechnungsimporter/blob/main/docs/AP12-CLEANUP.md)
 >> /Border [ 0 0 0 ] /Rect [ 368.4893 629.7298 424.7934 640.8898 ] /Subtype /Link /Type /Annot
 >>
 endobj
 84 0 obj
 <<
 /A <<
-/S /URI /Type /Action /URI (KI-DOKUMENTATION.md)
+/S /URI /Type /Action /URI (https://github.com/schelle85/CT_E-Rechnungsimporter/blob/main/docs/KI-DOKUMENTATION.md)
 >> /Border [ 0 0 0 ] /Rect [ 52.31201 610.7298 134.3591 621.8898 ] /Subtype /Link /Type /Annot
 >>
 endobj
 85 0 obj
 <<
 /A <<
-/S /URI /Type /Action /URI (DOKUMENTATIONSPLAN.md)
+/S /URI /Type /Action /URI (https://github.com/schelle85/CT_E-Rechnungsimporter/blob/main/docs/DOKUMENTATIONSPLAN.md)
 >> /Border [ 0 0 0 ] /Rect [ 140.2715 610.7298 237.1631 621.8898 ] /Subtype /Link /Type /Annot
 >>
 endobj
 86 0 obj
 <<
 /A <<
-/S /URI /Type /Action /URI (handbuecher/README.md)
+/S /URI /Type /Action /URI (https://github.com/schelle85/CT_E-Rechnungsimporter/blob/main/docs/handbuecher/README.md)
 >> /Border [ 0 0 0 ] /Rect [ 260.7673 610.7298 346.4381 621.8898 ] /Subtype /Link /Type /Annot
 >>
 endobj
@@ -1056,99 +1056,99 @@ xref
 0000004954 00000 n 
 0000005097 00000 n 
 0000005544 00000 n 
-0000005712 00000 n 
-0000005939 00000 n 
-0000006120 00000 n 
-0000006310 00000 n 
-0000006507 00000 n 
-0000006688 00000 n 
-0000006865 00000 n 
-0000007059 00000 n 
-0000007266 00000 n 
-0000007477 00000 n 
-0000007684 00000 n 
-0000007862 00000 n 
-0000008042 00000 n 
-0000008246 00000 n 
-0000008553 00000 n 
-0000008761 00000 n 
-0000008969 00000 n 
-0000009143 00000 n 
-0000009370 00000 n 
-0000009578 00000 n 
-0000009745 00000 n 
-0000009972 00000 n 
-0000010180 00000 n 
-0000010388 00000 n 
-0000010596 00000 n 
-0000010804 00000 n 
-0000011012 00000 n 
-0000011180 00000 n 
-0000011347 00000 n 
-0000011515 00000 n 
-0000011684 00000 n 
-0000011850 00000 n 
-0000012021 00000 n 
-0000012188 00000 n 
-0000012359 00000 n 
-0000012527 00000 n 
-0000012691 00000 n 
-0000012864 00000 n 
-0000013033 00000 n 
-0000013201 00000 n 
-0000013371 00000 n 
-0000013555 00000 n 
-0000013726 00000 n 
-0000013895 00000 n 
-0000014065 00000 n 
-0000014234 00000 n 
-0000014402 00000 n 
-0000014574 00000 n 
-0000014748 00000 n 
-0000014922 00000 n 
-0000015309 00000 n 
-0000016088 00000 n 
-0000034465 00000 n 
-0000034737 00000 n 
-0000036087 00000 n 
-0000036857 00000 n 
-0000054280 00000 n 
-0000054557 00000 n 
-0000055918 00000 n 
-0000056006 00000 n 
-0000056344 00000 n 
-0000056420 00000 n 
-0000056535 00000 n 
-0000056668 00000 n 
-0000056810 00000 n 
-0000056946 00000 n 
-0000057076 00000 n 
-0000057210 00000 n 
-0000057346 00000 n 
-0000057485 00000 n 
-0000057622 00000 n 
-0000057756 00000 n 
-0000057893 00000 n 
-0000058036 00000 n 
-0000058169 00000 n 
-0000058312 00000 n 
-0000058446 00000 n 
-0000058571 00000 n 
-0000058734 00000 n 
-0000059433 00000 n 
-0000060616 00000 n 
-0000063721 00000 n 
-0000066438 00000 n 
-0000069288 00000 n 
-0000072165 00000 n 
-0000075307 00000 n 
-0000078325 00000 n 
-0000081369 00000 n 
-0000084383 00000 n 
-0000087425 00000 n 
-0000090409 00000 n 
-0000091993 00000 n 
-0000094883 00000 n 
+0000005779 00000 n 
+0000006006 00000 n 
+0000006246 00000 n 
+0000006495 00000 n 
+0000006751 00000 n 
+0000006991 00000 n 
+0000007227 00000 n 
+0000007421 00000 n 
+0000007628 00000 n 
+0000007839 00000 n 
+0000008046 00000 n 
+0000008224 00000 n 
+0000008404 00000 n 
+0000008608 00000 n 
+0000008915 00000 n 
+0000009123 00000 n 
+0000009331 00000 n 
+0000009564 00000 n 
+0000009791 00000 n 
+0000009999 00000 n 
+0000010233 00000 n 
+0000010460 00000 n 
+0000010668 00000 n 
+0000010876 00000 n 
+0000011084 00000 n 
+0000011292 00000 n 
+0000011500 00000 n 
+0000011735 00000 n 
+0000011969 00000 n 
+0000012204 00000 n 
+0000012440 00000 n 
+0000012673 00000 n 
+0000012911 00000 n 
+0000013145 00000 n 
+0000013383 00000 n 
+0000013618 00000 n 
+0000013849 00000 n 
+0000014089 00000 n 
+0000014325 00000 n 
+0000014560 00000 n 
+0000014797 00000 n 
+0000015048 00000 n 
+0000015286 00000 n 
+0000015522 00000 n 
+0000015759 00000 n 
+0000015995 00000 n 
+0000016230 00000 n 
+0000016469 00000 n 
+0000016710 00000 n 
+0000016951 00000 n 
+0000017338 00000 n 
+0000018117 00000 n 
+0000036494 00000 n 
+0000036766 00000 n 
+0000038116 00000 n 
+0000038886 00000 n 
+0000056309 00000 n 
+0000056586 00000 n 
+0000057947 00000 n 
+0000058035 00000 n 
+0000058373 00000 n 
+0000058449 00000 n 
+0000058564 00000 n 
+0000058697 00000 n 
+0000058839 00000 n 
+0000058975 00000 n 
+0000059105 00000 n 
+0000059239 00000 n 
+0000059375 00000 n 
+0000059514 00000 n 
+0000059651 00000 n 
+0000059785 00000 n 
+0000059922 00000 n 
+0000060065 00000 n 
+0000060198 00000 n 
+0000060341 00000 n 
+0000060475 00000 n 
+0000060600 00000 n 
+0000060763 00000 n 
+0000061462 00000 n 
+0000062645 00000 n 
+0000065750 00000 n 
+0000068467 00000 n 
+0000071317 00000 n 
+0000074194 00000 n 
+0000077336 00000 n 
+0000080354 00000 n 
+0000083398 00000 n 
+0000086412 00000 n 
+0000089454 00000 n 
+0000092438 00000 n 
+0000094022 00000 n 
+0000096912 00000 n 
 trailer
 <<
 /ID 
@@ -1160,5 +1160,5 @@ trailer
 /Size 131
 >>
 startxref
-96547
+98576
 %%EOF
