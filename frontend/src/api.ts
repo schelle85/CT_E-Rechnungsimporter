@@ -1,4 +1,5 @@
 import { isOperationsStatus, scheduleStateMatches } from "./operations.ts";
+import { rotationResponseShape } from "./rotation.ts";
 export type User = {
   guid: string;
   dn: string;
@@ -23,6 +24,7 @@ export class ApiProtocolError extends Error {
 }
 function responseShape(path: string, method: string, data: Record<string, unknown>) {
   const route = path.split("?")[0];
+  if (route.startsWith("/api/rotation/")) return rotationResponseShape(route, method, data);
   if (method === "GET" && route === "/api/operations/status") return isOperationsStatus(data);
   const integer = (value: unknown, min = 0) => typeof value === "number" && Number.isSafeInteger(value) && value >= min;
   const key = (value: unknown) => typeof value === "string" && /^[0-9a-f]{64}$/.test(value);

@@ -1,7 +1,7 @@
 # AP12 – geschützte API für Zertifikatsaufträge
 
-Der erste Adminbaustein liefert feste APIwege im Quellstand. Der sichtbare Reiter,
-der Root-Statuspublisher, Hosttimer und deren native Bereitstellung folgen. Die
+Der Adminbaustein liefert feste APIwege und den Reiter Graph-Zertifikat im
+Quellstand. Root-Statuspublisher, Hosttimer und deren native Bereitstellung folgen. Die
 API hat weiterhin keinen Dockersocket, keine Rootfunktion und keine schreibbare
 Schlüsselablage. Bestehende AD-/Sitzungs-/Origin-/CSRFprüfungen werden verwendet.
 
@@ -63,3 +63,36 @@ zwei konkurrierende HTTPanforderungen, gebundene Quittung, strikte Eingaben,
 abgelaufenes/falsches Zertifikat und fehlende/veränderte/veraltete Projektion.
 Credential- und Rootworkeraufrufe sind als verbotene Testgrenzen abgesichert.
 Kein tatsächlicher Browser-, AD-, MariaDB-, Hosttimer- oder Kundenlauf daraus.
+
+## Reiter Graph-Zertifikat
+
+Administration enthält den zusätzlichen Reiter mit lokalem Zertifikat/Fingerprint,
+letztem Erneuerungsversuch, letzter erfolgreicher Anmeldung mit aktuellem Zertifikat
+und letzter erfolgreicher Erneuerung. Die drei Zeitangaben haben getrennte Quellen;
+fehlende Nachweise bleiben unbestätigt. Aktueller Auftrag, Alt/Neu, Rückkehr,
+Überlappungsfrist, unverwalteter Altbestand und Verlauf sind für beide Rollen
+sichtbar. Verwaltungsaktionen bleiben an aktuelle serverseitige Rechte gebunden.
+
+Der Browser speichert vor jedem ersten POST Actor, ursprüngliche UUID, Scope,
+erwartete Revision und Alt-Fingerprint dauerhaft in localStorage. Ein exklusiver
+Web-Lock derselben Identität umfasst Erzeugung, Speicherung und Übermittlung und
+verhindert konkurrierende Fensteraktionen. Fehlt sichere Speicherung oder Web-Lock,
+wird keine neue Anforderung erzeugt. Wechsel von Sitzung, Konfigurationsstand oder
+Zertifikat ersetzt die ursprüngliche Bindung nicht. CSRF stammt aus der aktuellen
+Sitzung. Erneutes Öffnen/Abfragen sendet ausschließlich GET.
+
+Ungewisse oder laufende Anforderungen bleiben erhalten. Eine passende bestätigte
+Endquittung kann ausdrücklich lokal geschlossen werden. Erst ein weiterer Klick
+auf Jetzt erneuern legt einen neuen Auftrag an. Eine noch nicht angenommene,
+überholte Absicht darf nur nach einem frisch gelesenen höheren SQLkopfstand und
+einem danach gelesenen fehlenden Originalauftrag ausdrücklich verworfen werden.
+Ein fehlender Datensatz allein oder ein HTTPfehler erlaubt kein Verwerfen.
+
+Der Reiter lädt seinen lesenden Status alle15 Sekunden; gespeicherte Erlaubnis
+und bestätigte Zeitpläne werden getrennt angezeigt. Protokollprüfungen verwerfen
+unvollständige Quittungen, unbekannte Zustände und ungebundene/veraltete Hostdaten.
+Lokale Nachweise: acht neue Absichts-/Protokollfälle sowie neun bestehende API-/
+Benachrichtigungsfälle bestehen; Typprüfung und Produktionsbuild bestehen. Ein
+anfänglicher TypeScript-Verengungsfehler ist mit Korrektur1/5 behoben. Die bestehende
+Buildwarnung zur Chunkgröße bleibt sichtbar. Isolierte HTTPS-Browserprüfung und
+unabhängiger Review des festen Lieferstands stehen noch aus.
