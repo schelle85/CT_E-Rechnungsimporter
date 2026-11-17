@@ -1,8 +1,11 @@
 # AP12 – feste Tagesprüfung und Hostgelegenheiten
 
-Als Quellstand liegen Rootjournal der Tagesprüfung, ursprüngliche automatische
-Anforderung, feste Hosteinträge und öffentliche Faktenprojektion vor. Keine
-Aktivierung oder native Abnahme aus diesen Quellen ableiten. AP08 bleibt getrennt.
+Rootjournal, ursprüngliche automatische Anforderung, feste Hosteinträge und
+öffentliche Faktenprojektion sind mit d9 bereitgestellt. Die beiden Rotationtimer
+sind tatsächlich aktiv; die Automatikerlaubnis ist eingeschaltet. Der echte
+manuelle Wechsel ist bestätigt, kontrollierter AP12-Boot noch offen. Eine
+erfolgreiche manuelle Erneuerung ist kein Nachweis einer später fälligen
+automatischen Erneuerung; siehe [Übergabe](AP12-UEBERGABE.md).
 
 ## Ein Tagesplatz, ein ursprünglicher Auftrag
 
@@ -95,8 +98,10 @@ Frischegrenze. AP08-status.json und dessen vier Jobs bleiben unverändert. Der
 Reiter unterscheidet Tageserfolg, Erneuerungsversuch, Erneuerung und den zusätzlichen
 AP07-Anmeldenachweis des aktuellen Zertifikats; unter24h zeigt er die Eskalationsfrist.
 
-Lokale Prüfungen verwenden tatsächliche Dateien, Kryptografie, SQLite und Berliner
+Historische lokale Prüfungen verwenden tatsächliche Dateien, Kryptografie, SQLite und Berliner
 Kalenderlogik. SDK/Graph, Linuxrechte/Sperren und Hostgrenzen sind ausdrücklich
-synthetisch. Native Timer-/Prozessverlust-/MariaDB-/Browsernachweise bleiben offen.
+synthetisch. Diese lokalen Prüfungen ersetzen keine nativen Nachweise. Den
+inzwischen bestätigten Timer-/Betriebs-/Browserumfang und offene Einzelgrenzen
+nennt die [Übergabe](AP12-UEBERGABE.md).
 Die Testimagevorlage enthält den neuen Hostpeer und genau die vier Timer-/
 Dienstbeispiele. Ein Imagebau oder eine systemd-Aktivierung wurde damit nicht ausgeführt.

@@ -1,6 +1,7 @@
 # AP12 – ausdrückliche Zuordnung eines bestehenden Zertifikats
 
-Dieser Rootbedienweg liegt als lokal geprüfter Quellstand vor. Er wird weder durch
+Dieser Rootbedienweg ist mit d9 bereitgestellt und für das aktive Originalmaterial
+vor dem echten Wechsel tatsächlich getrennt bestätigt; siehe [Übergabe](AP12-UEBERGABE.md). Er wird weder durch
 Bootstrap noch durch die Weboberfläche automatisch ausgeführt. Vorhandene Keys
 bleiben ohne ausdrückliche Zuordnung unverwaltet und werden nicht bereinigt.
 
@@ -53,7 +54,7 @@ Nachweis. Auch eine verlorene Antwort wird so lesend abgeglichen. Widersprüchli
 Key-/Fingerprintzuordnungen werden abgewiesen. Eine Zuordnung startet weder
 Erneuerung noch Bereinigung; dafür gelten die jeweiligen gebundenen Aufträge.
 
-Zwölf neue lokale Fälle und sechs unmittelbar betroffene bestehende Fälle sind
+Historischer lokaler Prüfstand: Zwölf neue und sechs unmittelbar betroffene Fälle sind
 bestanden. Sie verwenden reale Dateien, Kryptografie und SQLite sowie ausdrücklich
 synthetische Graph-, Docker-, POSIX-, Uhr- und Freigabegrenzen. Tatsächliche
 Linuxrechte, Sperren, Prozesse und Graphbestand sind gesondert nativ zu prüfen.

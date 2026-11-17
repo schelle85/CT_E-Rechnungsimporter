@@ -1,8 +1,9 @@
 # AP12 – geschützte API für Zertifikatsaufträge
 
 Der Adminbaustein liefert feste APIwege und den Reiter Graph-Zertifikat im
-Quellstand. Root-Statuspublisher und Hosttimervorlagen sind mit dem
-[Automatikbaustein](AP12-AUTOMATIK.md) verbunden; deren native Bereitstellung folgt. Die
+bereitgestellten d9-Stand. Root-Statuspublisher und aktivierte Hosttimer sind mit
+dem [Automatikbaustein](AP12-AUTOMATIK.md) verbunden; offene Bootgrenzen stehen in
+der [Übergabe](AP12-UEBERGABE.md). Die
 API hat weiterhin keinen Dockersocket, keine Rootfunktion und keine schreibbare
 Schlüsselablage. Bestehende AD-/Sitzungs-/Origin-/CSRFprüfungen werden verwendet.
 
@@ -101,5 +102,6 @@ unvollständige Quittungen, unbekannte Zustände und ungebundene/veraltete Hostd
 Lokale Nachweise: acht neue Absichts-/Protokollfälle sowie neun bestehende API-/
 Benachrichtigungsfälle bestehen; Typprüfung und Produktionsbuild bestehen. Ein
 anfänglicher TypeScript-Verengungsfehler ist mit Korrektur1/5 behoben. Die bestehende
-Buildwarnung zur Chunkgröße bleibt sichtbar. Isolierte HTTPS-Browserprüfung und
-unabhängiger Review des festen Lieferstands stehen noch aus.
+Buildwarnung zur Chunkgröße bleibt sichtbar. Die isolierte HTTPS-Browserprüfung
+und fachliche Sichtung sind inzwischen abgeschlossen; keine neue tatsächliche
+Kunden-/AD-Anmeldung daraus ableiten.

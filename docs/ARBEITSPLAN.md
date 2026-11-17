@@ -1,13 +1,13 @@
 # Arbeitspakete
 
-Stand: 16. November 2026. **AP00 ist im definierten Grundbereitstellungsumfang abgeschlossen;
+Stand: 17. November 2026. **AP00 ist im definierten Grundbereitstellungsumfang abgeschlossen;
 AP01 ist vollständig durch den Kunden abgenommen. AP02a–c ist technisch abgeschlossen;
 AP03 ist eingefroren, AP04 ist im Grundlagenumfang technisch abgeschlossen.
 AP05a–c ist im definierten manuellen Umfang technisch abgeschlossen und bereitgestellt.
 AP06a–d samt PDF-Vorschau ist technisch abgeschlossen und bereitgestellt;
 Kundenmigration auf006 und getrenntes Rücklesen bestanden. AP07a–c ist technisch
 abgeschlossen und bereitgestellt: A/B vollständig, C-Quellenreview, 21 native
-C-MariaDBfälle und acht isolierte HTTPS-Browsergruppen bestanden. Aktuell Schema 007,
+C-MariaDBfälle und acht isolierte HTTPS-Browsergruppen bestanden. Damals Schema 007,
 API/Web aus gleicher fester Quelle, Instanz/LDAP-Konfiguration und DBdienst erhalten.
 AP08 ist im vereinbarten Umfang technisch abgeschlossen und aus
 413095f823702d39b02bc8b3c989b526fdf808d0 bereitgestellt. Echte HTTPSübernahme/No-op
@@ -16,8 +16,9 @@ und Notificationvorlauf sind bestätigt; Startdienst/fünf Timer seit 16.11.2026
 Tages-/Wochenbericht sind bestätigt. Wiederanlauf nach kontrolliertem Reboot und
 TLS-Stundenlauf um 20:00 sind belegt. Drei automatische Statuszyklen nach dem
 separat gesetzten Phasenversatz sind bestanden.
-AP12 ist seit 16.11.2026 zur Umsetzung freigegeben; Quellstand bis C7 geliefert,
-native Gesamtprüfung und Bereitstellung noch offen.
+AP12 ist aus d9 mit Schema008 bereitgestellt. Echter Wechsel mit drei Verbrauchern
+und Abschlussproof unabhängig nativ bestätigt; Überlappung läuft, Rotationtimer aktiv.
+Kontrollierter AP12-Boot und spätere produktive Bereinigung bleiben offen.
 AP09/10/11 bleiben ohne Umsetzungs-Go.**
 AP10 ist für die spätere wöchentliche Wartung ergänzt.
 AP12 ist seit 16.11.2026 für Graph-Zertifikatsrotation und einen zusätzlichen
@@ -244,15 +245,22 @@ KI-Dokumentation bleiben eigene Lieferungen. Umfang und Ausgabe siehe
 ## AP12: Graph-Zertifikatsrotation und Administration - DEV / REVIEW / ORGA
 
 Am 16.11.2026 als eigenes Arbeitspaket angenommen und eingeplant.
-Status: Eigenes Umsetzungs-Go seit 16.11.2026. Entwurf samt K1 zur dauerhaften
-Graphgrenze akzeptiert. Quellstand umfasst Kern B/C1–C7: gebundene Aufträge,
-Graphfreigabe, Hostübernahme/Rückweg, Bereinigung, Adminreiter, feste Zeitplanung
-und ausdrückliche Rootzuordnung. C4–C6 sind im Quellen-/lokalen Nachweisumfang
-unabhängig geprüft; C7 ist lokal geprüft und gesondert zum Review übergeben.
-Bootstrap/Normalwechsel/expliziter Rückweg sind auf dem festen C3-Pin isoliert
-nativ bestätigt; weitere Fehler-/Boot- und C4–C7-Nachweise bleiben offen.
-Die [Übergabe](AP12-UEBERGABE.md) trennt diese Einzelumfänge. AP08 bleibt der
-tatsächlich bereitgestellte Betriebsstand, ohne produktive008/Rotation/AP12-Timer.
+Stand: 17. November 2026. AP12 ist aus `d9f32a5a9c9fb642f59a13ed2550f74532fc3ebe`
+bereitgestellt, Schema008. Der echte Zertifikatswechsel ist unabhängig nativ bestätigt:
+`committed/new`, SQL-Zustand `overlap`, alle drei Verbraucher und eigener
+Abschlussproof. Die Rotationtimer sind wieder aktiv; der kontrollierte AP12-Boot bleibt
+ausstehend. Die laufende Überlappungsfrist ist kein Nachweis bereits erfolgter
+produktiver Altkeybereinigung.
+
+Der erste echte Wechselversuch endete kontrolliert auf dem alten Zertifikat; seine
+ursprüngliche Fehlerursache bleibt unbelegt. Ein ausdrücklich getrennter zweiter Auftrag
+wurde nach lesendem Abgleich seiner unklaren Registrierung unter derselben
+ursprünglichen Auftragsidentität erfolgreich fortgesetzt. Der erste Fehlversuch und sein
+registrierter Kandidat bleiben getrennt erhalten; der Erfolg des zweiten belegt keine
+nachträgliche Erklärung oder Behebung der ersten Ursache.
+
+Offene historische Einzelprüfungen bleiben in der [Übergabe](AP12-UEBERGABE.md)
+abgegrenzt. Noch keine vollständige AP12-Bootabnahme.
 
 | Teil | Ergebnis und Prüfung |
 | --- | --- |
@@ -282,3 +290,9 @@ seit 13.11.2026 bestätigt; Details in den [Anforderungen](ANFORDERUNGEN.md#mail
 Das Ende einer Zertifikatswarnserie ist bestätigt: erst nach erfolgreicher frischer
 Anmeldung mit einem gültigen Nachfolger. Der vorhandene bestätigte Sicherungsweg
 wird in den Betriebsunterlagen mit seinen Zuständigkeiten festgehalten.
+
+## Geplanter Nachtrag zu AP07 nach AP12
+
+- **Tages-/Wochenberichtsmails ansprechender und übersichtlicher gestalten.**
+  Status: offen, nur geplant. Vorhandene Berichtsinhalte und Versandregeln bleiben
+  die Grundlage; Umsetzung erst im gesondert eingeplanten Nachtrag.

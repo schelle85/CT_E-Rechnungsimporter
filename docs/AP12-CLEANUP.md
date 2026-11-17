@@ -3,7 +3,9 @@
 Die C4-Bausteine verbinden das private Journal mit dem festen Rootworker und
 Hostcontroller. Timer-/APIeinrichtung und native Abnahme bleiben getrennte Arbeit.
 Bestehende Rootinventar-, Zertifikats-, PoP- und Graphadapter werden weiterverwendet;
-keine zusätzlichen Bibliotheken oder Rechte. Noch keine Bereitstellung im Betrieb.
+keine zusätzlichen Bibliotheken oder Rechte. d9 ist bereitgestellt; die tatsächliche
+Überlappung nach echtem Wechsel läuft. Produktive Bereinigung nach Fristablauf
+noch nicht nachgewiesen; siehe [Übergabe](AP12-UEBERGABE.md).
 
 `rotation_cleanup.py` plant ausschließlich nach einem vollständig bestätigten
 Wechsel auf neues Material. Die Überlappung beginnt beim ersten bestätigten

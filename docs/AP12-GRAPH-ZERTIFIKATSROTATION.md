@@ -1,21 +1,25 @@
 # AP12 – Graph-Zertifikatsrotation und Administration
 
-Aktueller Quellstand und [Übergabe an Betrieb/AP11/AP09](AP12-UEBERGABE.md):
-[Hostablauf/Rückweg](AP12-HOSTABLAUF.md), [Cleanup](AP12-CLEANUP.md),
-[Admin/API](AP12-ADMIN-API.md), [feste Automatik](AP12-AUTOMATIK.md) und
-[Rootzuordnung](AP12-OWNERSHIP.md). Noch keine vollständige native
-Host-/Produktionsabnahme; Kundenbetrieb bleibt AP08.
+Stand: 17. November 2026. AP12 ist aus `d9f32a5a9c9fb642f59a13ed2550f74532fc3ebe`
+bereitgestellt, Schema008. Der echte Zertifikatswechsel ist unabhängig nativ bestätigt:
+`committed/new`, SQL-Zustand `overlap`, alle drei Verbraucher und eigener
+Abschlussproof. Die Rotationtimer sind wieder aktiv; der kontrollierte AP12-Boot bleibt
+ausstehend. Die laufende Überlappungsfrist ist kein Nachweis bereits erfolgter
+produktiver Altkeybereinigung.
 
-Stand: 17. November 2026. **AP12 ist ausdrücklich zur Umsetzung freigegeben.**
-Kern B aus `ebb36879ccd3c25d03371b92c71b6cee7cc29eb0` ist im isolierten Umfang
-unabhängig abgenommen. C1 ist als Bibliothek einschließlich isoliertem nativem
-Komponententest unabhängig abgenommen. C2a bindet die Freigabe im Quellstand an
-Graphfabriken, API und Kinder. Bereitstellung bleibt ein getrennter Schritt. Im tatsächlich bereitgestellten
-AP08-Betrieb gibt es weiterhin keinen automatischen Graph-Zertifikatswechsel.
-Die folgenden B/C1/C2/C3a-Abschnitte dokumentieren ihre damaligen Einzelstände.
-Der aktuelle Quellstand umfasst darüber hinaus C3b–C7; aktuelle Nachweisgrenzen
-stehen in der verknüpften Übergabe. Kein damaliger offener Punkt wird allein
-durch einen späteren Quellenstand als nativ oder produktiv erledigt ausgegeben.
+Der erste echte Wechselversuch endete kontrolliert auf dem alten Zertifikat; seine
+ursprüngliche Fehlerursache bleibt unbelegt. Ein ausdrücklich getrennter zweiter Auftrag
+wurde nach lesendem Abgleich seiner unklaren Registrierung unter derselben
+ursprünglichen Auftragsidentität erfolgreich fortgesetzt. Der erste Fehlversuch und sein
+registrierter Kandidat bleiben getrennt erhalten; der Erfolg des zweiten belegt keine
+nachträgliche Erklärung oder Behebung der ersten Ursache.
+
+Die [Übergabe](AP12-UEBERGABE.md) trennt den aktuellen Betriebsnachweis von
+historischen Einzelprüfungen und den noch offenen Boot-/Restnachweisen.
+Teilabläufe: [Host](AP12-HOSTABLAUF.md), [Cleanup](AP12-CLEANUP.md),
+[Admin/API](AP12-ADMIN-API.md), [Automatik](AP12-AUTOMATIK.md),
+[Rootzuordnung](AP12-OWNERSHIP.md). Die folgenden B-/C-Abschnitte dokumentieren
+ihre damaligen Lieferstände; offene Einzelprüfungen werden nicht pauschal geschlossen.
 
 ## Gelieferter Kern B und seine Grenze
 
@@ -324,8 +328,9 @@ private Schlüssel. Abschluss und Wiederanlauf behalten die ursprüngliche
 Request-ID; nicht verwaltetes Altmaterial bleibt ausdrücklich erhalten.
 
 Einzelheiten, lokale Belege und offene native Grenzen stehen im
-[Cleanupvertrag](AP12-CLEANUP.md). Kein Timer-/Admin-/Produktivabschluss daraus;
-AP08 bleibt der bestätigte Betriebsstand bis zur getrennten Übernahme.
+[Cleanupvertrag](AP12-CLEANUP.md). Dieser historische Quellnachtrag war noch kein
+Produktivabschluss. Der aktuelle d9-Betriebsnachweis und seine offenen Grenzen
+stehen in der [Übergabe](AP12-UEBERGABE.md).
 
 Primärquellen:
 [Microsoft addKey](https://learn.microsoft.com/en-us/graph/api/application-addkey?view=graph-rest-1.0),

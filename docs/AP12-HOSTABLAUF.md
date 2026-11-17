@@ -1,8 +1,12 @@
 # AP12 – ausführbarer Hostablauf C3b
 
-Quellstand, noch nicht bereitgestellt oder vollständig nativ abgenommen.
-Kundenbetrieb bleibt AP08 auf Schema007. C2a-UID10001-Integration und C2B-R1-
-POSIXfrist sind separat unabhängig nativ abgeschlossen.
+Stand: 17. November 2026. AP12 ist aus `d9f32a5a9c9fb642f59a13ed2550f74532fc3ebe`
+bereitgestellt, Schema008. Der echte Zertifikatswechsel ist unabhängig nativ bestätigt:
+`committed/new`, SQL-Zustand `overlap`, alle drei Verbraucher und eigener
+Abschlussproof. Die Rotationtimer sind wieder aktiv; der kontrollierte AP12-Boot bleibt
+ausstehend. Die laufende Überlappungsfrist ist kein Nachweis bereits erfolgter
+produktiver Altkeybereinigung.
+Aktuelle Grenzen: [Übergabe](AP12-UEBERGABE.md). Historische Einzelprüfungen unten bleiben getrennt.
 
 `deploy/run-rotation.py` bietet bootstrap/run/resume/rollback sowie die festen
 [Tages-/Gelegenheitsläufe](AP12-AUTOMATIK.md) und die ausdrückliche
@@ -81,5 +85,5 @@ Ruhekriterien anhand synthetischer OSdaten. Das ist kein nativer Hostnachweis.
 Der isolierte native Einzelumfang Bootstrap/Normalwechsel/expliziter Rückweg auf
 Pin24bb ist separat unabhängig bestätigt. Weitere Abbruch-/Boot-/Pausefenster
 bleiben offen. Bereinigung, Reiter, feste Automatik/Frischeprojektion und
-Rootzuordnung liegen in den verknüpften Folgepaketen als Quellstand vor;
+Rootzuordnung sind inzwischen als d9 bereitgestellt;
 aktuelle Einzelgrenzen stehen in der [Übergabe](AP12-UEBERGABE.md).

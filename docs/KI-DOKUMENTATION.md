@@ -1,6 +1,6 @@
 # KI-Dokumentation
 
-Stand: 16. November 2026. Lebende Markdown-Dokumentation, noch kein Gesamtabschlussbericht.
+Stand: 17. November 2026. Lebende Markdown-Dokumentation, noch kein Gesamtabschlussbericht.
 
 ## Wiedereinstieg
 
@@ -10,6 +10,24 @@ Stand: 16. November 2026. Lebende Markdown-Dokumentation, noch kein Gesamtabschl
 4. Nur das zugewiesene Paket bearbeiten; Ergebnisse und Prüfungen dokumentieren.
 
 ## Aktueller Stand
+
+Stand: 17. November 2026. AP12 ist aus `d9f32a5a9c9fb642f59a13ed2550f74532fc3ebe`
+bereitgestellt, Schema008. Der echte Zertifikatswechsel ist unabhängig nativ bestätigt:
+`committed/new`, SQL-Zustand `overlap`, alle drei Verbraucher und eigener
+Abschlussproof. Die Rotationtimer sind wieder aktiv; der kontrollierte AP12-Boot bleibt
+ausstehend. Die laufende Überlappungsfrist ist kein Nachweis bereits erfolgter
+produktiver Altkeybereinigung.
+
+Der erste echte Wechselversuch endete kontrolliert auf dem alten Zertifikat; seine
+ursprüngliche Fehlerursache bleibt unbelegt. Ein ausdrücklich getrennter zweiter Auftrag
+wurde nach lesendem Abgleich seiner unklaren Registrierung unter derselben
+ursprünglichen Auftragsidentität erfolgreich fortgesetzt. Der erste Fehlversuch und sein
+registrierter Kandidat bleiben getrennt erhalten; der Erfolg des zweiten belegt keine
+nachträgliche Erklärung oder Behebung der ersten Ursache.
+
+Maßgeblich ist die [AP12-Übergabe](AP12-UEBERGABE.md).
+
+## Historischer AP08-Abschluss
 
 AP08-Go seit16.11.2026. A liefert Auswahl ohne Testmails, gemeinsame Sperre,
 Fälligkeiten, Budgets und Host-/Consumer-CIFSbindung. B ergänzt Start/Drain,
@@ -63,17 +81,9 @@ abgeschlossen. Der Versatz wurde nach dem belegten Reboot gesetzt; kein zweiter
 Reboot oder vollständiger VMrestore ist damit nachgewiesen.
 [Führender Betriebsvertrag](AP08-BETRIEB.md).
 
-Aktueller AP12-Lieferstand17.11.2026: Hostablauf/Rückweg, Cleanup, Admin/API,
-feste Tages-/Gelegenheitsläufe und Rootzuordnung liegen bis C7 im Quellstand vor.
-C4–C6 sind im Quellen-/lokalen Nachweisumfang unabhängig bestätigt; C7 hat zwölf
-neue und sechs betroffene bestehende lokale Fälle bestanden, Review gesondert.
-C2a-UID10001-Integration und C2B-R1-Frist sind nativ abgeschlossen. Auf Pin24bb7568
-sind Bootstrap/Normalwechsel/expliziter Rückweg isoliert nativ bestätigt, mit
-synthetischem Entra/SDK und tatsächlichen Linux-/Docker-/MariaDB-/HTTPSwegen.
-Weitere Fehler-/Boot-/Cleanup-/Browser-/Timer-/Zuordnungsnachweise bleiben offen.
-Kundenbetrieb bleibt AP08/Schema007. Führend sind [Übergabe](AP12-UEBERGABE.md)
-und die dort verknüpften Teilverträge. Die folgenden AP12-Absätze halten frühere
-Lieferstände fest; ihre damaligen offenen Punkte sind nicht der aktuelle Gesamtstand.
+Historischer AP12-Quellstand vor Bereitstellung: Die folgenden Absätze halten
+die damaligen Einzelstände fest. Aktuell gelten die d9-Bereitstellung und die
+Nachweisgrenzen am Anfang dieses Dokuments.
 
 Historischer AP12-Nachtrag vom 16.11.2026: [AP12](AP12-GRAPH-ZERTIFIKATSROTATION.md) für
 Graph-Zertifikatsrotation und Administration → Graph-Zertifikat ausdrücklich
@@ -125,8 +135,8 @@ lokale Nachprüfungen, ohne Hostwirkung oder Änderung des B-Registrierungsbeleg
 Nach AP08 und vor AP11/09 eingeplant. Bestehende AP07-Prüfung, Warnserie und
 Schlüsselgrenzen wiederverwenden; neuer Hostauftrag zuerst konkret prüfen.
 
-AP07a–c ist am 15.11.2026 technisch abgeschlossen und bereitgestellt aus
-`5ecfd59270b63947d3f92af98a1b9f8e5a267aeb`. Aktueller Kundenstand: Schema 007,
+Historischer AP07-Abschluss: AP07a–c ist am 15.11.2026 technisch abgeschlossen und bereitgestellt aus
+`5ecfd59270b63947d3f92af98a1b9f8e5a267aeb`. Damals bereitgestellt: Schema 007,
 API/Web aus derselben festen Quelle, bestehende Instanz/LDAP-Konfiguration und
 DBdienst erhalten, getrennt zurückgelesen. Eigener Notificationkey, getrennte
 minimale manuelle CLI und drei privat initialisierte Empfänger eingerichtet.

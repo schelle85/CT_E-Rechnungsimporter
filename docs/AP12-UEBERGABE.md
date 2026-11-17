@@ -1,9 +1,18 @@
 # AP12 – Lieferstand und Übergabe an Betrieb und Dokumentation
 
-Stand17.11.2026: AP12 ist zur Umsetzung freigegeben und als Quellstand bis zur
-ausdrücklichen Rootzuordnung geliefert. Kundenbetrieb bleibt AP08/Schema007.
-Diese Übersicht ist eine technische Übergabe, keine Meldung einer produktiven
-AP12-Aktivierung und kein vorgezogenes Nutzerhandbuch.
+Stand: 17. November 2026. AP12 ist aus `d9f32a5a9c9fb642f59a13ed2550f74532fc3ebe`
+bereitgestellt, Schema008. Der echte Zertifikatswechsel ist unabhängig nativ bestätigt:
+`committed/new`, SQL-Zustand `overlap`, alle drei Verbraucher und eigener
+Abschlussproof. Die Rotationtimer sind wieder aktiv; der kontrollierte AP12-Boot bleibt
+ausstehend. Die laufende Überlappungsfrist ist kein Nachweis bereits erfolgter
+produktiver Altkeybereinigung.
+
+Der erste echte Wechselversuch endete kontrolliert auf dem alten Zertifikat; seine
+ursprüngliche Fehlerursache bleibt unbelegt. Ein ausdrücklich getrennter zweiter Auftrag
+wurde nach lesendem Abgleich seiner unklaren Registrierung unter derselben
+ursprünglichen Auftragsidentität erfolgreich fortgesetzt. Der erste Fehlversuch und sein
+registrierter Kandidat bleiben getrennt erhalten; der Erfolg des zweiten belegt keine
+nachträgliche Erklärung oder Behebung der ersten Ursache.
 
 ## Führende Teilverträge
 
@@ -31,16 +40,23 @@ synthetisch. Genau ein addKey, kein removeKey; drei Verbraucher und jeweils
 getrennter Abschlussproof. Das ist keine vollständige C3-Fehler-/Bootabnahme.
 
 C4, C5 einschließlich Abwesenheitskorrektur der GETquittung und C6 haben einen
-unabhängigen Quellen-/lokalen Nachweisreview bestanden. C7 ist mit zwölf neuen
-und sechs betroffenen bestehenden lokalen Fällen geliefert; sein unabhängiger
-Review bleibt gesondert. Zähler und feste Belege werden intern geführt, ohne
+unabhängigen Quellen-/lokalen Nachweisreview bestanden. Der damalige C7-Lieferstand ist mit zwölf neuen
+und sechs betroffenen lokalen Fällen dokumentiert. Die inzwischen tatsächliche
+Rootzuordnung und der echte Wechsel sind davon getrennte Betriebsnachweise. Zähler und feste Belege werden intern geführt, ohne
 private Betriebsdaten oder Abrechnungsangaben in dieses Repository zu übernehmen.
 
-Offen bleiben weitere C3-Abbruch-/Boot-/Pausefenster sowie native Bereinigung,
-Admin/API-/Browserrollen, Timer/Persistenz/Writerkonkurrenz, öffentliche
-Dateirechte/Frische und Rootzuordnung. Reale Entra-/Kundenübernahme und
-Produktivaktivierung sind getrennte Schritte. Ein Quellen-PASS oder lokales
-Prüfergebnis ersetzt keinen dieser Nachweise.
+Die Bereitstellung aus d9 erhält die ursprüngliche Instanz, Konfiguration und
+Datenbank sowie die alten Datentabellen bei additivem Schema008. Geschützte
+Dateirechte, verschachtelte RO-Bindungen, HTTPS, ausdrückliche Rootzuordnung und
+die drei tatsächlichen Graphverbraucher sind getrennt nachgelesen. Die isolierten
+Browsergruppen einschließlich fachlicher Sichtung sind abgeschlossen; sie sind
+keine neue tatsächliche Kunden-/AD-Anmeldung.
+
+Offen bleiben der kontrollierte AP12-Boot mit erneuter Freigabe und privaten
+Wiederaufnahmebelegen, die spätere tatsächliche produktive Bereinigung nach
+Ablauf der Überlappung sowie nicht separat abgeschlossene historische
+Fehler-/Pausefenster. Weder ein Quellen-PASS noch der erfolgreiche Wechsel
+schließt diese Grenzen pauschal.
 
 ## Übergabefakten für AP11
 
@@ -60,8 +76,8 @@ getrennt. Ausschalten verhindert neue automatische Anforderungen, verwirft aber
 keinen bereits angenommenen Auftrag. Manuelle Aufträge werden auch bei
 ausgeschalteter automatischer Erneuerung bearbeitet. Ein alter oder unpassender
 Hoststatus wird unbestätigt; der nächste Prüftermin benötigt tatsächliche
-systemd-Daten. AP11 übernimmt diese Bedienfakten erst nach entsprechender
-Bereitstellung und Browserabnahme.
+systemd-Daten. AP11 übernimmt diese inzwischen bereitgestellten und isoliert
+geprüften Bedienfakten mit den genannten Grenzen.
 
 ## Betriebsgrenzen und Wiederherstellung für AP09
 
@@ -110,11 +126,11 @@ unabhängige Betriebsüberwachung muss einen Ausfall außerhalb dieses Kanals me
 
 ## Bereitstellungsgrenze
 
-Für die spätere Bereitstellung braucht der Betreiber einen gemeinsamen festen
+Die durchgeführte Bereitstellung verwendet einen gemeinsamen festen
 Quellstand für API/Web/Worker/Hostpeers, additive008 mit Bestanderhaltung,
 geschützte Profile/RO-Bindungen und einen bestätigten Bootstrap. Die neuen
-Unitdateien sind deaktivierte Vorlagen. Erst ihr tatsächlicher Rücklesebeleg
-bestätigt Aktivität und Termine. Runtimeprofile bleiben name/image; tatsächliche
+Unitdateien werden im Repository als deaktivierte Vorlagen geliefert. Im Betrieb
+sind die beiden Rotationtimer separat aktiviert und nach dem Wechsel bestätigt. Runtimeprofile bleiben name/image; tatsächliche
 Container-IDs gehören ausschließlich in private Hostbelege. AP08-Status und
 HTTPS-Zertifikatsbetrieb bleiben eigenständige Verträge.
 
@@ -123,6 +139,6 @@ genau den vorgesehenen Unterordner `graph-access`: Rootbesitz, Gruppe10001,
 Modus0750, geschützte Eltern und kein Symlink. Fremde Namen oder abweichende
 Metadaten werden weiterhin abgewiesen. Der Sammler liest oder verändert den
 AP12-Inhalt nicht; sein Statusschema mit vier Jobs bleibt unverändert. Die lokale
-Profilprüfung verwendet ausdrücklich simulierte POSIX-Metadaten. Reale
-Verzeichnisrechte, verschachtelte RO-Mounts und gemeinsamer Betrieb von
-Statussammler und Gate benötigen weiterhin den getrennten Linuxnachweis.
+Profilprüfung verwendet ausdrücklich simulierte POSIX-Metadaten. Die tatsächliche
+Bereitstellung hat Verzeichnisrechte, verschachtelte RO-Mounts und den gemeinsamen
+Betrieb von Statussammler und Gate zusätzlich auf Linux bestätigt.

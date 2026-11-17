@@ -26,7 +26,10 @@ mit Graphannahme 202 sind bestätigt. Kontrollierter Reboot und erster geplanter
 TLS-Stundenlauf um 20:00 sind belegt. Der danach um 20:15:08 separat gesetzte
 Statusphasenversatz auf Sekunde 20 ist in drei aufeinanderfolgenden automatischen
 Zyklen um 20:16:21, 20:17:21 und 20:18:21 mit Status active bestätigt.
-Anwendung, Hostskripte und Images bleiben auf der genannten C-Quelle.**
+Dies ist der historische AP08-Abschluss. Aktuell ist AP12 aus
+`d9f32a5a9c9fb642f59a13ed2550f74532fc3ebe` mit Schema008 bereitgestellt. Der echte
+Wechsel auf ein neues Graph-Zertifikat ist unabhängig nativ bestätigt; die Rotationtimer
+sind aktiv. Der zusätzliche kontrollierte AP12-Boot bleibt ausstehend.**
 
 | Paket | Stand |
 | --- | --- |
@@ -40,7 +43,7 @@ Anwendung, Hostskripte und Images bleiben auf der genannten C-Quelle.**
 | AP05 – gemeinsamer Verarbeitungspfad | Im definierten manuellen Umfang technisch abgeschlossen. 155 native Backendtests einschließlich 40 AP05-Gruppen, gezielte Ausgabegrenz-/Timeoutprüfung und echter synthetischer CIFS-Handoff bestanden. Schema 005 und sechstes Inboxziel Mahnung bereitgestellt; Scan/manueller Tick bestätigen 0 passende Mails/0 Quanten. Zum AP05-Abschluss blieben API/GUI unverändert. Keine Timer oder produktive Dateipublikation. Siehe [AP05-Vertrag](docs/AP05-PROCESSING.md) und [Runtime](docs/AP05-RUNTIME.md). |
 | AP06 – Webprotokoll, Korrektur und PDF-Vorschau | Technisch abgeschlossen und bereitgestellt: echte Journalansichten, generationgebundene Freigabe/Retry, Einstellungen, Archiv und großer PDFdialog. Native006-/Sicherheits-/Konkurrenzprüfungen sowie fünf isolierte Browsergruppen mit sichtbarer Original-PDF bestanden. Kundenmigration auf006, Dienstpins, HTTPS und leeres echtes Journal getrennt zurückgelesen. Siehe [AP06](docs/AP06-WEB.md). |
 | AP07 – Berichte und Benachrichtigungen | Technisch abgeschlossen und bereitgestellt aus `5ecfd59270b63947d3f92af98a1b9f8e5a267aeb`, Schema 007. A/B vollständig geprüft, C-Quellenreview, 21 C-Fälle auf MariaDB und acht isolierte HTTPS-Browsergruppen bestanden. Administration→Berichte, Benachrichtigungseinstellungen, feste Vorschau/Testaktion, Verlauf und Zertifikats-/Loginhinweise geliefert. Echte Graph-Zertifikatsanmeldung und genau eine feste Testmail mit HTTP 202/Reservierung 1/getrenntem Statusabgleich bestätigt; Empfang im eigenen Abnahmepostfach nachgewiesen. Zum AP07-Abschluss blieb die Automatik inaktiv. Siehe [AP07](docs/AP07-NOTIFICATIONS.md) und [Betreiberweg](docs/AP07-OPERATOR.md). |
-| AP12 – Graph-Zertifikatsrotation und Adminreiter | In Umsetzung. Quellstand bis C7: gebundene Graphfreigabe, Hostübernahme/Rückweg, Bereinigung, Adminreiter, feste Automatik und ausdrückliche Rootzuordnung. Kern B/C1 und C2a-/C2B-R1-Einzelumfänge nativ bestätigt; auf festem C3-Pin zusätzlich Bootstrap, Normalwechsel und expliziter Rückweg gegen synthetische Entra-Gegenstelle. C4–C6 Quellen-/lokaler Review bestanden; C7 lokal geprüft. Weitere native Fehler-/Boot-/Cleanup-/Browser-/Timer-/Zuordnungsnachweise offen. Kundenbetrieb bleibt AP08/Schema007. Siehe [AP12](docs/AP12-GRAPH-ZERTIFIKATSROTATION.md) und [Lieferstand/Übergabe](docs/AP12-UEBERGABE.md). |
+| AP12 – Graph-Zertifikatsrotation und Adminreiter | d9 bereitgestellt, Schema008. Echte neue Übernahme mit drei Verbrauchern und Abschlussproof unabhängig nativ bestätigt; SQL overlap und aktive Rotationtimer. Der erste Versuch kehrte kontrolliert zum Originalzertifikat zurück, seine Ursache bleibt offen. AP12-Boot und spätere produktive Bereinigung noch nicht nachgewiesen. Siehe [AP12](docs/AP12-GRAPH-ZERTIFIKATSROTATION.md) und [Lieferstand](docs/AP12-UEBERGABE.md). |
 | AP08 – Betriebsübergang | Im vereinbarten Umfang technisch abgeschlossen. C-Quelle `413095f823702d39b02bc8b3c989b526fdf808d0` bereitgestellt; Instanz, Schema 007, Konfiguration und DBzustand erhalten. Reale HTTPSübernahme mit folgendem No-op, Notificationvorlauf ohne neue Testmail, aktive Zeitpläne und normale Leerlaufläufe bestätigt. Tages-/Wochenbericht je einmal mit HTTP 202 angenommen. Kontrollierter Wiederanlauf, geplanter TLS-Stundenlauf um 20:00 und drei automatische Statuszyklen nach dem separaten Sekunde-20-Versatz bestanden. Siehe [AP08](docs/AP08-BETRIEB.md). |
 | Weitere Pakete | AP09/10/11 ohne Umsetzungs-Go. AP12 ist nach AP08 und vor dem Handbuch in Umsetzung. |
 
@@ -61,7 +64,7 @@ vollständig außerhalb des Auftrags und sind keine AP06-Abnahmebedingung.
 
 AP06 zeigt ausschließlich tatsächlich gespeicherte Journalvorgänge; eine leere
 Datenbank ergibt eine leere Ansicht. Die frühere Demo-API ist entfernt.
-Die Kundenoberfläche ist inzwischen auf AP07 umgeschaltet. Anmeldung und
+Die Kundenoberfläche ist inzwischen auf AP12 umgeschaltet. Anmeldung und
 Administration verwenden die bestehende AD-Anbindung; die echte AD-Abnahme aus
 AP01 bleibt der historische Nachweis. Eine neue tatsächliche Kundenanmeldung
 nach AP07 ist nicht nachgewiesen. Ein Empfangsnachweis der Testmail liegt ausschließlich
@@ -105,10 +108,14 @@ für das eigene Abnahmepostfach vor. Drei Empfänger sind privat konfiguriert.
   Zertifikatswarnungen erscheinen im Portal und zusätzlich nach Login für beide Rollen.
   Gespeicherte Zeiten aktivieren keine Jobs; die dauerhafte Aktivierung gehört zu AP08.
 
-### Ergänzter AP12-Quellstand
+### Bereitgestellter AP12-Stand
 
-Die folgenden Funktionen sind implementiert und zur getrennten Abnahme geliefert.
-Der Kundenbetrieb verwendet weiterhin den oben genannten AP08-Stand.
+Stand: 17. November 2026. AP12 ist aus `d9f32a5a9c9fb642f59a13ed2550f74532fc3ebe`
+bereitgestellt, Schema008. Der echte Zertifikatswechsel ist unabhängig nativ bestätigt:
+`committed/new`, SQL-Zustand `overlap`, alle drei Verbraucher und eigener
+Abschlussproof. Die Rotationtimer sind wieder aktiv; der kontrollierte AP12-Boot bleibt
+ausstehend. Die laufende Überlappungsfrist ist kein Nachweis bereits erfolgter
+produktiver Altkeybereinigung.
 
 - Administration → Graph-Zertifikat mit aktuellem Fingerprint/Ablauf, getrennten
   Prüf-/Versuchs-/Erneuerungszeiten, Überlappung, Bereinigung und Auftragsverlauf.
@@ -125,9 +132,14 @@ Der Kundenbetrieb verwendet weiterhin den oben genannten AP08-Stand.
   Bereinigung ausschließlich eigener Altkeys/-dateien und gebundener Rückweg.
   Vorhandenes Altmaterial bleibt bis zur ausdrücklichen Rootzuordnung unverwaltet.
 
-Quellen-/lokale Nachweise sind von nativer Host-/Browserabnahme und Bereitstellung
-getrennt. Der vorbereitete [Browserprüfumfang](docs/AP12-BROWSERPRUEFUNG.md) verwendet
-das gebaute Frontend und private APIfixtures; er behauptet keine echte ADanmeldung.
+Die isolierte [Browserabnahme](docs/AP12-BROWSERPRUEFUNG.md) verwendet das gebaute
+Frontend und private APIfixtures; sie behauptet keine neue echte ADanmeldung.
+Der erste echte Wechselversuch endete kontrolliert auf dem alten Zertifikat; seine
+ursprüngliche Fehlerursache bleibt unbelegt. Ein ausdrücklich getrennter zweiter Auftrag
+wurde nach lesendem Abgleich seiner unklaren Registrierung unter derselben
+ursprünglichen Auftragsidentität erfolgreich fortgesetzt. Der erste Fehlversuch und sein
+registrierter Kandidat bleiben getrennt erhalten; der Erfolg des zweiten belegt keine
+nachträgliche Erklärung oder Behebung der ersten Ursache.
 Führender [Lieferstand und Betriebsübergabe](docs/AP12-UEBERGABE.md).
 
 Der Zugang erfolgt ausschließlich im Kundennetz beziehungsweise über die

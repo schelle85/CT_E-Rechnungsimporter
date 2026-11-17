@@ -37,8 +37,12 @@ lassen den Gesamtfall scheitern. Screenshots und Ereignisse werden privat
 gespeichert und separat zurückgelesen. Mobile Screenshots benötigen zusätzlich
 Sichtprüfung; ein Layoutmaß allein bestätigt nicht die visuelle Darstellung.
 
-Vorbereitet sind diese Browserabläufe sowie lokale Fixture-/Antwortvertragsprüfungen.
-Die Browserfälle sind durch ihre Vorbereitung noch nicht ausgeführt oder bestanden.
+Die isolierten Browserabläufe und fachliche Sichtung sind inzwischen abgeschlossen.
+Der funktionale Abschluss und der native Laufstatus werden getrennt bewertet:
+Ein beim ausdrücklichen Reload abgebrochener GET wurde nur für den festen
+gesicherten Lauf nachträglich eingeordnet; der ursprüngliche negative Laufstatus
+bleibt erhalten. Daraus folgt keine allgemeine Ausnahme für Netzwerkfehler.
+Die folgenden Anforderungen beschreiben die notwendige Bindung solcher Nachweise.
 ORGA bindet vor Ausführung den tatsächlichen gebauten Webimage-Identifier und
 die geprüften Export-/Hostpfade an den festen Quellstand. Die ungebundene Vorlage
 ist nicht ausführbar. Der abschließende Nachweis benötigt echten Chromiumlauf,
