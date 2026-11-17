@@ -1,6 +1,31 @@
 # Betriebsstand
 
-Aktueller Stand: 16. November 2026. AP08 ist aus
+## Aktueller Stand: 17. November 2026, AP12
+
+Produktlaufzeit `d9f32a5a9c9fb642f59a13ed2550f74532fc3ebe`, Schema008.
+Echter zweiter Graphwechsel committed/new mit drei Verbrauchern, eigenem
+Abschlussproof und SQL overlap unabhängig nativ bestätigt. Erster Versuch
+kontrolliert zum Originalmaterial zurückgekehrt, Ursache weiterhin offen.
+Genau ein kontrollierter AP12-Kundenboot mit erhaltenen API-/DB-/Nginxdiensten
+und Images, neuem Graphmaterial sowie gesunden sieben Timern/CIFS/HTTPS bestätigt.
+Lesende Aufnahme am 17.11.2026 bestätigt diesen Betrieb und Gate allowed.
+Produktive Altkeybereinigung und zukünftiger automatischer Auslöser bleiben offen.
+Qualifizierte Wiederaufnahmegrenzen einschließlich des ursprünglichen fehlgeschlagenen
+Restorehelper-Aufrufs stehen in der [AP12-Übergabe](AP12-UEBERGABE.md). Kein
+vollständiger VM-/Offsite-Restore daraus.
+
+AP09 ist freigegeben; [Technikunterlage](TECHNISCHE-DOKUMENTATION.md), PDF und
+KI-Wiedereinstieg sind zur gemeinsamen Abschlussprüfung erstellt. [Übergabe](AP09-UEBERGABE.md).
+AP09a bleibt wegen des fehlenden AP11-Handbuchs offen; AP10/11 ohne Go. Ein
+vertrauliches Betriebsblatt wird separat übergeben. Mailgestaltung nur geplant.
+
+Die folgenden früheren Abschlüsse bleiben datierte historische Nachweise.
+Aussagen zu damaligen Quellen, fünf Timern, Schema007 oder späteren AP ohne Go
+sind keine aktuelle AP12-Betriebsbeschreibung.
+
+## Historischer AP08-Abschluss
+
+Historischer Stand: 16. November 2026. AP08 ist aus
 `413095f823702d39b02bc8b3c989b526fdf808d0` bereitgestellt. Neue API/Web und
 Processing-/Notificationquelle sind gebunden; getrennte Base-Readbacks bestätigen
 erhaltene DB-ID/Startzeit, DBzeilen und Konfiguration sowie Schema 007/Instanz.

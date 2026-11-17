@@ -1,331 +1,154 @@
 # KI-Dokumentation
 
-Stand: 17. November 2026. Lebende Markdown-Dokumentation, noch kein Gesamtabschlussbericht.
+Stand: 17. November 2026. AP09-Wiedereinstieg zum aktuellen Lieferstand.
+Historische Detailverläufe bleiben in den Paketverträgen und der Git-Historie.
+Keine privaten Chatprotokolle und kein pauschaler Gesamtabschlussbericht.
 
 ## Wiedereinstieg
 
-1. [Arbeitsregeln](../AGENTS.md) lesen.
+1. [Arbeitsregeln](../AGENTS.md), konkreten Auftrag, Git-Stand und Arbeitsbaum prüfen.
+   Dokument-HEAD und festen Produktpin unterscheiden.
 2. [Anforderungen](ANFORDERUNGEN.md) und [Arbeitsplan](ARBEITSPLAN.md) abgleichen.
-3. Tatsächlichen Git-Stand, Arbeitsbaum und den konkreten ORGA-Auftrag prüfen.
-4. Nur das zugewiesene Paket bearbeiten; Ergebnisse und Prüfungen dokumentieren.
+3. [Technische Dokumentation](TECHNISCHE-DOKUMENTATION.md) für den Betriebsüberblick,
+   [AP12-Übergabe](AP12-UEBERGABE.md) für aktuelle Nachweisgrenzen lesen.
+4. Den betroffenen Originalvertrag lesen. Alten Paketstatus nicht als aktuellen
+   Gesamtstand behandeln. Nur den konkret freigegebenen Umfang bearbeiten.
+5. Quellprüfung, tatsächlich ausgeführte Prüfung, Bereitstellung und Kundenabnahme
+   getrennt dokumentieren. Unbekannte Wirkung zuerst lesen und abgleichen.
 
-## Aktueller Stand
+## Aktueller fester Stand
 
-Stand: 17. November 2026. AP12 ist aus `d9f32a5a9c9fb642f59a13ed2550f74532fc3ebe`
-bereitgestellt, Schema008. Der echte Zertifikatswechsel ist unabhängig nativ bestätigt:
-`committed/new`, SQL-Zustand `overlap`, alle drei Verbraucher und eigener
-Abschlussproof. Genau ein kontrollierter AP12-Kundenboot ist erfolgt. Danach sind
-Kunden-API, Datenbank und Nginx unverändert erhalten; neues Graph-Zertifikat,
-sieben Timer, CIFS und HTTPS sind bestätigt. Die qualifizierten
-Wiederaufnahmebelege und ihre Grenzen stehen in der [Übergabe](AP12-UEBERGABE.md).
-Produktive Altkeybereinigung nach Ablauf der Überlappung bleibt gesondert offen.
+Produktlaufzeit: `d9f32a5a9c9fb642f59a13ed2550f74532fc3ebe`, Schema `008`.
+Reine Dokumentcommits ändern diese Laufzeit nicht. API/Web/Worker/Hostpeers sind
+bereitgestellt; Classifier bleibt separat eingefroren. Bestehende Instanz,
+Konfiguration und Datenbank wurden erhalten.
 
-Der erste echte Wechselversuch endete kontrolliert auf dem alten Zertifikat; seine
-ursprüngliche Fehlerursache bleibt unbelegt. Ein ausdrücklich getrennter zweiter Auftrag
-wurde nach lesendem Abgleich seiner unklaren Registrierung unter derselben
-ursprünglichen Auftragsidentität erfolgreich fortgesetzt. Der erste Fehlversuch und sein
-registrierter Kandidat bleiben getrennt erhalten; der Erfolg des zweiten belegt keine
-nachträgliche Erklärung oder Behebung der ersten Ursache.
+Der echte zweite Wechsel ist unabhängig nativ bestätigt: `committed/new`, SQL
+`overlap`, drei tatsächliche Verbraucher und eigener Abschlussproof. Eine unklare
+Registrierung wurde unter demselben ursprünglichen Auftrag rein lesend abgeglichen
+und fortgesetzt; keine zweite Registrierung dieses Kandidaten. Neues Graphmaterial
+aktiv, automatische Erneuerung erlaubt und Rotationtimer aktiviert. Ein zukünftiger
+automatischer Auslöser und produktive Altkeybereinigung bleiben unbewiesen.
 
-Maßgeblich ist die [AP12-Übergabe](AP12-UEBERGABE.md).
+Der erste Versuch kehrte kontrolliert zum Originalzertifikat zurück. Ursache
+unbelegt; terminaler Fehlauftrag und registrierter Kandidat bleiben erhalten.
+Der Erfolg des zweiten erklärt oder heilt den ersten nicht rückwirkend.
 
-## Historischer AP08-Abschluss
+Genau ein kontrollierter AP12-Kundenboot ist erfolgt. Kunden-API, DB und Nginx samt
+Images blieben erhalten; neues Graphmaterial, sieben Timer, CIFS und HTTPS gesund
+bestätigt. Die lesende Aufnahme vom 17.11.2026 bestätigt diesen Betrieb. Der frühere
+AP08-Boot bleibt ein eigener historischer Nachweis.
 
-AP08-Go seit16.11.2026. A liefert Auswahl ohne Testmails, gemeinsame Sperre,
-Fälligkeiten, Budgets und Host-/Consumer-CIFSbindung. B ergänzt Start/Drain,
-Berlin-Timer und externe HTTPSübernahme mit begrenzter lesender Bereitschafts-
-wiederholung. Frühere isolierte native A-/TLS-Nachweise sind erhalten.
-C liefert den begrenzten Hostcollector, atomare erlaubte Statusdaten, gebundene
-GETprojektion und GUI, bereitgestellt aus
-`413095f823702d39b02bc8b3c989b526fdf808d0`. Beide AD-Rollen lesen; keine Steuerroute.
-Fehlend, ungültig, falsche Quelle/Deployment/Instanz/Boot oder >180s alt/>30s
-zukünftig ergibt unbekannt, nie automatisch inaktiv oder aktiv.
-`automatic_schedule_active` ist boolean|null, zusätzlich Zustand
-active/paused/degraded/unknown. Die minimale externe Notification-CLI ohne
-Statusverzeichnis bleibt unbekannt. Sidebar/Footer/Übersicht/Notifications
-teilen eine Quelle; Login bleibt neutral. Monotone Browserablaufzeit verwirft
-alte Aktivität auch ohne neue Antwort. C-GUI mit drei Desktopgruppen und
-Mobile 390 × 844 sowie getrenntem Readback bestanden; synthetische API-/Rollenfixtures,
-kein neuer tatsächlicher Kunden-/AD-Anmeldenachweis daraus.
-Base-Apply getrennt bestätigt: neue API/Web, DB-ID/Startzeit, DBzeilen und
-Konfigurationshashes unverändert; Schema 007/Instanz erhalten. Bestehende
-PDF-Vorschau nutzt lesende Graphabrufe und privates Tmpfs mit 128 MiB; tatsächlicher
-Tmpfsmount getrennt bestätigt. API/Notification und separater Processingconsumer
-stammen aus derselben C-Backendquelle; Classifier und Paketlocks unverändert.
-Echte HTTPSübernahme changed=true, Folgeprüfung changed=false; vertrauenswürdiger
-Peer bis 12.02.2027 gültig, Instanz/Schema/Konfiguration erhalten. Notificationvorlauf
-mit Version 1/drei privat verwalteten Empfängern, Tages-/Wochenvorschauen mit 0 Zählern
-und ursprünglichem Testslot accepted/1/202 getrennt bestätigt; keine neue Testmail.
-Startdienst und fünf Timer sind seit 16.11.2026 19:44:23 Europe/Berlin enabled/active;
-frische gebundene Statusprojektion active, Statuspublikation minütlich.
-Normale geplante Korrekturen um 19:45 und Inbox um 19:50 je 0 Quanten / 0 remaining erfolgreich;
-Inbox um 19:45 wurde vorher wegen gemeinsamer Sperre zurückgestellt, folgende
-Gelegenheit belegt normale Queuefairness. Tages-/Wochenbericht um 19:45/19:46 je
-einmal HTTP 202 accepted, weitere Notificationläufe ohne zusätzliche Sendung;
-Testslot accepted/1/202 erhalten, keine unbekannten/offenen Postwirkungen.
-Graphannahme ist keine Zustellbestätigung. Preboot-Gate um 19:50:28 bestätigt inaktive
-Worker/keine Operationscontainer und drei eindeutig angenommene Slots.
-Kontrollierter Reboot mit neuer Boot-ID, gleichen Container-IDs/Images, gesundem
-HTTPS, beiden CIFSmounts und erhaltenen Schema-/Instanz-/Konfigurations-/
-Testslotbindungen erfolgt. Weitere Inboxläufe nach Boot 0 Quanten / 0 remaining,
-drei Mailbelege weiterhin accepted/ein Versuch/202. Erster geplanter TLS-
-Stundenlauf um 20:00 changed=false/gleicher Peer/status_recorded=true bestätigt.
-Nach dem Reboot wurde am 16.11.2026 um 20:15:08 Europe/Berlin separat ein persistenter
-Status-Timer-Drop-in `10-phase.conf` angewandt: genau ein effektiver Kalender
-`*-*-* *:*:20 Europe/Berlin`, Ziel invoice-status.service, Timer active/enabled.
-Anwendung, Hostskripte und Images bleiben unverändert auf 413095f. Drei
-aufeinanderfolgende automatische Kontrollzyklen am 16.11.2026 um 20:16:21,
-20:17:21 und 20:18:21 Europe/Berlin bestätigen jeweils active und running=false;
-der Notificationlauf war jeweils seit 15 Sekunden abgeschlossen. Kein manueller
-Collector wurde gestartet. Boot-/Quellbindung, Drop-in, Dienstziel und übrige
-Wiederanlaufprüfungen sind bestätigt. AP08 ist im vereinbarten Umfang technisch
-abgeschlossen. Der Versatz wurde nach dem belegten Reboot gesetzt; kein zweiter
-Reboot oder vollständiger VMrestore ist damit nachgewiesen.
-[Führender Betriebsvertrag](AP08-BETRIEB.md).
+Isolierte Altmaterialwiederaufnahme erfolgreich. Nach Verlust flüchtiger Sperren
+wurde vorbereitete neue Übernahme mit erhaltener Pause erreicht; dort API gezielt
+ersetzt, DB/Nginx erhalten. Kein vollständig abgeschlossener neuer Wechsel daraus.
+Erster Restorehelper-Aufruf mit AssertionError fehlgeschlagen, Ursache offen.
+Späterer lesender Zustandsnachweis qualifiziert das Ergebnis, ersetzt den Fehlversuch
+nicht. Kein vollständiger VM-/Offsite-Restore und keine pauschal bestandene native
+Fehlerfallserie. Führend: [AP12-Übergabe](AP12-UEBERGABE.md).
 
-Historischer AP12-Quellstand vor Bereitstellung: Die folgenden Absätze halten
-die damaligen Einzelstände fest. Aktuell gelten die d9-Bereitstellung und die
-Nachweisgrenzen am Anfang dieses Dokuments.
+## Auftragsstand
 
-Historischer AP12-Nachtrag vom 16.11.2026: [AP12](AP12-GRAPH-ZERTIFIKATSROTATION.md) für
-Graph-Zertifikatsrotation und Administration → Graph-Zertifikat ausdrücklich
-zur Umsetzung freigegeben. Kern B mit gebundenem Appadapter, festem 180-Tage-
-Kandidaten/PoP, additiven 008-Aufträgen, privatem Rootwirkungsjournal und Inventar
-ist aus ebb36879 im isolierten Umfang unabhängig abgenommen. Native MariaDB-
-Bestandserhaltung/identische konkurrierende Anforderungen und Linux-Rootjournal
-samt tatsächlichen Rechten/flock/Prozessende/Wiederaufnahme sind separat bestätigt.
-Keine produktive Migration oder Graphrotation daraus; Kundenbetrieb weiter AP08.
-Ein Sendestadium wird vor addKey dauerhaft geschrieben; Wiederaufnahme liest nur.
-Eine abgelehnte/unklare Generation erhält keinen automatischen Ersatzauftrag.
-Kandidatenprobe schreibt keinen produktiven AP07-Proof. Erst Host-/APIgrenze,
-Verbraucherübernahme und Reiter in Folgepaketen; daraus kein Deployment behaupten.
-C1-Graphfreigabe/Hostwriter ist als stdlib-Bibliothek unabhängig abgenommen:
-14 lokale Fälle sowie sieben tatsächliche isolierte Linux-Komponentenchecks mit
-separatem Rücklesen bestanden. Der native Lauf war UID0:GID10001, keine UID10001-
-API-/Verbraucherprüfung. C2a bindet beide Graphfabriken, untersten Transport,
-APIaktionen, serverseitige Kinderdeskriptoren und AP07-Proof im Quellstand ein.
-Neue APIgrapharbeit bleibt ohne gültige Rootbindung/Generation geschlossen;
-Eltern halten bis tatsächlichem Kindende/Reap beziehungsweise Versandreadback.
-46 gezielte lokale Fälle: 45 bestanden/1 POSIXskip; fünf ergänzende Lebenszeit-/
-Budget-/Replayfälle bestanden. Lokale POSIX-/Spawndoubles ausdrücklich getrennt.
-Noch kein Deployment: RO-Verbraucherbindungen, tatsächliche UID10001-API-/Kind-/
-Verbraucherprüfung und Hostübernahme/Rückweg/letztes Öffnen bleiben Folgepaket.
-Produktive Graphpfade und AP08-Kundenstand sind unverändert.
-C2b ergänzt die feste stdin-Hostprobe als UID10001 ohne Pfad-/HTTPoption und
-RO-Gatebindungen der bestehenden Compose-/Hostverbraucher. Leseprobe ohne DB/
-Proof; finalize-proof nur über eigenen Grant nach frischem GET. Separates
-Rootprofil binding_file/directory; Runtimeprofil bleibt name/image. Acht lokale
-gezielte Fälle bestanden. Kein nativer Probe-/Verbrauchernachweis und noch kein
-Controller für APIneuerstellung/Rückweg/dauerhaften Abschluss/Öffnen zuletzt.
-C3a ergänzt getrennte private Übernahmecheckpoints im vorhandenen Rootjournal,
-unveränderliche Altsicherung, tatsächliche Consumer-ID-/Image-/Materialbindung,
-beibehaltene unklare Proofabsicht und versiegelten Abschluss erst nach drei
-Consumerbelegen und passendem frischem Proof. Pause/Drain/Gültigkeit bleiben
-Voraussetzung; Rückweg braucht erneut alte Consumer/Proof. Sieben lokale Fälle
-mit echten Dateien/Kryptografie und expliziten POSIXdoubles bestanden. Noch keine
-tatsächlichen Hostaktionen oder Boot-/Unknown-Reconciliation daraus ableiten.
-Fristkorrektur C2B-R1: bestehendes bounded_operation um festen Probeablauf statt
-inkompatiblem äußerem ITIMER_REAL. Dieselbe ursprüngliche40s-Frist wird als
-absolute Arbeitsfrist an das Kind gegeben, zwei Sekunden für Reap reserviert;
-GraphClient behält seinen echten POSIX-Transporttimer. Sechs lokale Fälle PASS,
-drei neue echte POSIX-/Spawnfälle unter Windows ausdrücklich übersprungen;
-gezielter nativer Nachweis bleibt vor R1-Abschluss nötig.
-C3A-R1 begrenzt rollback_unknown auf unversiegelte aktive Rückwegphasen. Ein
-bereits versiegelter Rückweg bleibt bei abgelehntem Aufruf bytegleich lesbar;
-der zulässige offene Unknown-Checkpoint bleibt ebenfalls lesbar. Zwei gezielte
-lokale Nachprüfungen, ohne Hostwirkung oder Änderung des B-Registrierungsbelegs.
-Nach AP08 und vor AP11/09 eingeplant. Bestehende AP07-Prüfung, Warnserie und
-Schlüsselgrenzen wiederverwenden; neuer Hostauftrag zuerst konkret prüfen.
+AP09 ist seit 17.11.2026 zur Abschlussdokumentation freigegeben. Technikquelle/PDF,
+dieser Wiedereinstieg und konsistente Übergabedateien bilden das vollständige Paket
+für eine gemeinsame abschließende unabhängige Prüfung. Keine Kapitelreviews.
+Ein vertrauliches Betriebsblatt wird separat übergeben. Erstellung ist keine
+neue Betriebs- oder Kundenabnahme.
 
-Historischer AP07-Abschluss: AP07a–c ist am 15.11.2026 technisch abgeschlossen und bereitgestellt aus
-`5ecfd59270b63947d3f92af98a1b9f8e5a267aeb`. Damals bereitgestellt: Schema 007,
-API/Web aus derselben festen Quelle, bestehende Instanz/LDAP-Konfiguration und
-DBdienst erhalten, getrennt zurückgelesen. Eigener Notificationkey, getrennte
-minimale manuelle CLI und drei privat initialisierte Empfänger eingerichtet.
+AP09a bleibt offen: Das vollständige AP11-Nutzerhandbuch fehlt. AP11 hat kein Go;
+keine Ersatzbedienungsanleitung aus AP09 ableiten. AP10 zur wöchentlichen
+Linuxwartung bleibt ohne Go. Gestaltung der Tages-/Wochenberichtsmails ist nur
+als separater AP07-Nachtrag geplant. Kein Push oder Deployment aus einer lokalen
+Dokumentlieferung ableiten.
 
-A/B vollständig geprüft; C-Quellenreview, 21 C-Fälle auf MariaDB und acht isolierte
-HTTPS-Browsergruppen bestanden. Dazu gehören 80,006 s-Gesamtfrist, Antwortverlust,
-neue Sitzung und Konfigversion ohne Doppel-POST. Zusätzlicher synthetischer
-CLIplan geprüft. Administration→Berichte mit echten Tages-/Wochen-/freien
-Journalzeiträumen, Einstellungen, Vorschau/Test/Historie und exakte Graph-
-Zertifikatswarnung10d/1d/0/negativ samt Loginhinweis für beide Rollen geliefert.
+## Führende Quellen
 
-Echte Graph-Zertifikatsanmeldung und genau eine feste Testmail (HTTP 202) mit
-Reservierung 1 sowie getrenntem Statusabgleich bestätigt. Empfang im eigenen
-Abnahmepostfach belegt; kein Empfangsnachweis für die beiden weiteren Empfänger.
-Nach AP07 keine neue tatsächliche Kundenanmeldung behaupten. Die echte AD-
-Abnahme aus AP01 bleibt historisch, aktuelle Rollen-/Bedienprüfungen sind isoliert.
+| Thema | Quelle und Einordnung |
+| --- | --- |
+| Betriebsüberblick, Versionen, Restore | [Technische Dokumentation](TECHNISCHE-DOKUMENTATION.md); datierte installierte Versionen, keine Mindestvorgaben. |
+| Umfang und Freigaben | [Anforderungen](ANFORDERUNGEN.md), [Arbeitsplan](ARBEITSPLAN.md), [Dokumentationsplan](DOKUMENTATIONSPLAN.md). |
+| Betriebsabschlüsse | [Betriebsstand](BETRIEBSSTAND.md); aktueller AP12-Kopf vor historischen AP08-/AP07-Blöcken. |
+| AD und Sitzungen | [AP01](AP01-SECURITY.md); aktuelle Rechte serverseitig prüfen. |
+| Graph, Quellen und Aktionen | [AP02](AP02-GRAPH.md); enger Adapter, persistente Wirkungen. |
+| Eingefrorene Erkennung | [AP03](AP03-RECOGNITION.md); fachliche Restfälle offen. |
+| Dateiablage und Dubletten | [AP04](AP04-ABLAGE.md); Belege auch nach Entnahme erhalten. |
+| Verarbeitung | [AP05](AP05-PROCESSING.md), [Runtime](AP05-RUNTIME.md); aktuelle automatische Budgets aus AP08. |
+| Portal, Freigaben, Originale | [AP06](AP06-WEB.md); spätere Timeraktivierung getrennt. |
+| Meldungen, Slots und Proof | [AP07](AP07-NOTIFICATIONS.md), [Betreiberweg](AP07-OPERATOR.md). |
+| Start, Drain, Timer, TLS, Status | [AP08](AP08-BETRIEB.md); heute sieben Timer mit AP12-Ergänzung. |
+| Aktuelle Rotationsabnahme | [AP12-Übergabe](AP12-UEBERGABE.md); führend vor historischen C-Teilständen. |
+| Rotationsdetails | [Hostablauf](AP12-HOSTABLAUF.md), [Automatik](AP12-AUTOMATIK.md), [Admin-API](AP12-ADMIN-API.md), [Ownership](AP12-OWNERSHIP.md), [Cleanup](AP12-CLEANUP.md). |
+| Browsergrenzen | [AP12-Browserprüfung](AP12-BROWSERPRUEFUNG.md); isolierte Fixtures sind kein echter ADlogin. |
+| Dokumenterzeugung | [PDF-Buildhinweise](handbuecher/README.md); Quelle bleibt führend. |
 
-Wesentliche Verträge: additive eingefrorene007-Tabellen; Notificationcipher
-unabhängig vom LDAPcipher; ursprüngliche Actor-/Scope-/UUID-/Versionsbindung;
-eine dauerhafte Reservierung und höchstens eine POST-Freigabe. Ungewisse
-Versandversuche werden nicht zurückgesetzt. Zertifikatspläne bleiben an ihre
-ursprüngliche offene Serie gebunden, Ausfallpläne an ihre beobachtete Episode;
-Fehlerbündel an ursprüngliche Auswahl und tatsächliche Reservierungsabstände.
-Gleicher Request liefert nach aktuellen AD-/Origin-/CSRF-Prüfungen seine
-Quittung vor dem Vergleich mit der inzwischen aktiven Notificationversion.
-Das absolute 80-s-Webbudget beginnt vor AD/DB/Bodyvorprüfung. Status und Berichte
-lesen gespeicherte Daten, ohne einen neuen Versandauftrag zu erzeugen.
+## Architekturentscheidungen
 
-CLIplan verbindet tatsächliche neutrale Journalfehler mit begrenzten API-/
-Graphproben und den vorhandenen Kalender-/Snapshotplanern. Keine rekursive
-Meldung über Benachrichtigungsfehler. Bei Ausfall der eigenen VM/DB keine
-zuverlässige Selbstalarmierung. APIkind teilt die API-Dateisystemgrenze;
-Envstrip ist keine physische Isolation. Externe CLI bleibt minimal gebunden.
+Vorhandene FastAPI-/SQLAlchemy-/MariaDB-, Azure-Identity-/HTTPX-, React-/Mantine-,
+Docker-/systemd- und Standardbibliotheksbausteine weiterverwenden. Keine zusätzliche
+Queue, IAM- oder Orchestrierungsplattform. Eigene Logik beschränkt sich auf den
+vereinbarten Postfach-, Wirkungs-, Ablage-, Portal- und Betriebsvertrag. Neue Vorhaben
+zunächst gegen bestehende Lösungen prüfen. KoSIT/Mustang sind wegen des auf
+Erkennung begrenzten Umfangs keine zwingende Vollvalidierung; invoice2data ist
+nicht integriert. Kein automatisches Lernen aus Benutzerentscheidungen.
 
-Zum AP07-Abschluss war die Automatik inaktiv. Die tatsächliche Aktivierung der
-Hostzeitpläne erfolgte in AP08 am 16.11.2026; erste normale Läufe bestätigt,
-Wiederanlauf und erster geplanter TLS-Stundenlauf bestätigt. Drei automatische
-Kontrollzyklen des nach Reboot separat gesetzten Statusphasenversatzes sind
-bestanden; AP08 ist im vereinbarten Umfang technisch abgeschlossen.
-AP09/10/11 sind nicht freigegeben; AP11-Planung, Dezemberstichtag, AP03 und
-DMS-Abgrenzung erhalten.
-Siehe [AP07-Vertrag](AP07-NOTIFICATIONS.md), [Operatorvertrag](AP07-OPERATOR.md)
-und [Betriebsstand](BETRIEBSSTAND.md).
-
-Historischer AP06-Stand: echte Journalansichten, generationgebundene Korrektur/
-Retry und PDF-Vorschau mit nativen006-/HTTP-/Konkurrenznachweisen und fünf
-isolierten Browsergruppen einschließlich sichtbarer PDF bestanden. Damaliger
-Produktcode `3fd5fef`, Kundenschema006 und leeres Journal wurden separat bestätigt.
-AP07 ersetzt diesen Laufzeitstand; die AP06-Fachfunktionen bleiben erhalten.
-[AP06-Vertrag](AP06-WEB.md).
-
-- AP00/AP02 technisch abgeschlossen, AP01 durch den Kunden abgenommen.
-- AD-Kennwortanmeldung bleibt; SSO verworfen. Bei AP06 wurde Schema 006 bereitgestellt, aktuell gilt007; die sechs Inboxziele einschließlich Mahnung stammen aus AP05.
-- AP03-Revision4 samt Titelvariantennachtrag: Quellreview auf `e49ccdb` bestanden,
-  B-F1 bleibt nach Versuch3 geschlossen. Separates Runtimeimage gebaut und isolierter
-  abschließender Dateinachtest durchgeführt; weitere fachliche Restfälle bleiben offen.
-- `unknown` für lesbare unklare Zuordnung; Mahnung umfasst Zahlungserinnerung.
-  Titel-/Label-/Avisregeln und Übergabeverträge geprüft. Fachliche Restfälle bleiben offen.
-- Beim historischen AP03-Dateinachtest blieben API/Web/DB und Produktivprofile unverändert; keine automatische Verarbeitung,
-  echte Mailmutation oder Frontend-/Jobaktivierung aus dem Dateinachtest ableiten.
-- Historische Ergebnisse und Originale erhalten. Details und technische Pins werden in
-  den getrennten internen Lauf-/Abnahmebelegen geführt, nicht als Kundendaten im Repo.
-- AP04a–c technisch im isolierten Grundlagenumfang abgeschlossen, Quellreview
-  bestanden; AP03 eingefroren. Native Gesamtnachprüfung aus c781896: 115 Backendtests
-  ohne Fehler/Skips einschließlich aller 28 AP04-Tests bestanden. Bashprüfung,
-  isolierte echte MariaDB-Migration/Persistenz und API-Kompatibilität bestanden.
-- Getrennte echte CIFS-Probe durch ORGA: fünf synthetische Fälle bestanden,
-  Exit0 und vollständiges Erfolgsresultat; unveränderte Ablage, Dublette,
-  Größenkollision, No-replace und Wiederaufnahme nach simulierter DMS-Entfernung.
-  Unabhängiger Readback und Cleanup bestätigt, Kundencontainer unverändert gesund.
-  AP04-N1 sowie SMOKE-F1/SMOKE-F2 jeweils nach Korrektur1 geschlossen;
-  interne Belege und technische Pins bleiben außerhalb öffentlichen Gits.
-- AP04-Abschlussstand: Schema004 war nur isoliert geprüft, API und Jobs blieben
-  unverändert. Spätere AP05-Bereitstellungswerte werden separat nachgewiesen.
-- AP05a–c seit13.11. freigegeben. Gemeinsamer Dienst mit Identitäts-/Routingvertrag,
-  Gesamtjournal/Migration005 und engen Graph-Erweiterungen:155 native Backendgruppen
-  einschließlich40AP05 ohneFehler/Skips. Frische isolierteMariaDB-Migration/Persistenz,
-  API-Kompatibilität und getrennter Handoff mit echter eingefrorener XML-/OCR-Erkennung
-  bestanden. Tatsächliches altes Kundenimage zusätzlich auf frischem005 kompatibel.
-  Dienst-/Runtime-Quellreview S1/S2/R1 bestanden; gezielte native Ausgabegrenz- und
-  Timeoutprüfung nach dem Gesamtlauf bestanden. Einmaliger ORGA-Handoff auf echtem
-  CIFS im exklusiven Testverzeichnis bestanden: zwei Publikationen mit je einem
-  Versuch, bytegleiche Quellen, Fake-Graph-Ziel/Fahne und idle nach simulierter DMS-Entnahme.
-  Eigener Readback und unabhängiger Belegabgleich bestätigen Cleanup und unveränderte
-  Kundencontainer. Der separate Kundenabschluss bestätigt nach Backup 003→005,
-  gleiche Instanz/Konfiguration, HTTPSready und sechs Ordner. Echter Scan ab dem
-  unveränderten Stichtag findet 0 Mails/0 Anhänge; manueller Tick mit max-quanta 1
-  liefert 0 Quanten/keinen Rest. Vier neue Tabellen leer, eine zusätzliche Graphaktion
-  für Mahnung. Host-/Timerreadback bestanden, API/GUI unverändert. AP05 ist im
-  definierten manuellen Umfang technisch abgeschlossen. Keine echte Kundenmail
-  wurde verarbeitet; produktives _staging blieb unangetastet. Historische Angaben zur
-  exklusiven Stagingnutzung sind keine eigene DMS-Konfigurationsprüfung und kein
-  aktuelles Freigabegate. AP03-Regeln bleiben unverändert. Zum AP05-Nachweis keine
-  API-/GUI-Umschaltung, Live-Mailmutation oder aktive Jobs aus dieser Sonde.
-  AP06 ist seit14.11. einschließlich PDF-Vorschau freigegeben; Produktivautomatik bleibt AP08.
-- AP06 auf Basis `818cc76` technisch abgeschlossen und bereitgestellt: Journal-API und echte Oberfläche,
-  kontrollierte Schreibwege, PDFdialog/Originaldownload und schreibgeschütztes Archiv.
-  Additives Schema 006 erhält bestehende Daten/Instanzkennung; tatsächlicher alter 005-Pfad
-  und Rückweg der alten API auf 006 separat geprüft. Antwortverlust/Neuanmeldung,
-  Teilvorgänge und langsame Originalantworten über Nginx im Browser bestanden.
-  Kundenmigration/Bereitstellung und separates Betreiber-Rücklesen bestanden.
-  DMS ist vollständig außerhalb Auftrag/Prüfung/Abnahme. AP07-Go inzwischen erteilt;
-  AP08 ist inzwischen in Umsetzung; spätere Pakete bleiben ohne Umsetzungs-Go.
-- Signaturzählung ohne manuelle Hashlisten: nur file+inline+normalisierter
-  image-MIME und vollständiges hashgebundenes AP03-ignored/unsupported_attachment
-  werden nach Findingannahme ausgenommen. Alle anderen Fälle bleiben gezählt/offen.
-  J1-MIME-Gegenfall weiterhin geprüft, AP03 unverändert.
-- Verträge: [AP02](AP02-GRAPH.md), [AP03](AP03-RECOGNITION.md), [AP04](AP04-ABLAGE.md), [AP05](AP05-PROCESSING.md), [AP06](AP06-WEB.md).
-  [Testquelle](AP03-TEST-SOURCE.md) nur manuell mit fester Ordner-/Parentbindung.
-
-## Rollen
-
-ORGA koordiniert und verwaltet Lieferstände. DEV implementiert. REVIEW prüft und
-übernimmt ungelöste Fehler nach maximal fünf DEV-Korrekturversuchen. Fehlversuche
-werden nicht durch Modellwechsel oder Aufteilung desselben Fehlers zurückgesetzt.
-Modellfreigaben und interne Chatzuordnung werden außerhalb dieses öffentlichen
-Repositorys durch ORGA gesteuert. Keine eigenständigen Zusatzagenten starten.
-
-## Geplante Architektur
-
-Python-Importdienst/API, TypeScript-Web, lokale persistente MariaDB, Linux/Docker
-Compose. Vorhandene AD-Konten über LDAP, Graph-Postfachzugriff und Host-SMB-Mounts.
-Geheimnisse/Kundenwerte separat; öffentliche Beispiele ausschließlich mit Platzhaltern.
+API und Nginx ohne Root. API: ein Worker, privates Vorschau-Tmpfs, kein CIFS oder
+Docker-Socket. Classifier ohne Netzwerk/Secrets. Root schützt Profile, Mounts,
+Sperren und Wirkungsjournal. Verbraucher lesen die Gatebindung nur. Eine Kandidatenprobe
+ersetzt keinen Produktionsproof. Freigabe erst nach drei Verbrauchern und Abschlussproof.
 
 ## Fachliche Invarianten
 
-- Nur das vorgesehene Postfach und Mails ab dem Stichtag verarbeiten.
-- Altmails unangetastet lassen.
-- Formaterkennung genügt; keine zusätzliche Vollvalidierung einführen.
-- ZUGFeRD als Original-PDF ablegen; DMS-Import erfolgt kundenseitig.
-- Jede relevante Anlage kategorisiert ablegen, andere ignorieren.
-- Name/Bytegröße bestimmen Dubletten nur innerhalb der aktuellen KW.
-- Namenskonflikte ohne Dublette mit Zusatz lösen; nicht überschreiben.
-- Erfolg erst nach vollständiger erforderlicher Ablage verbuchen.
-- Mehrere Anhänge markieren, Signaturbilder nicht mitzählen.
-- Leserrechte serverseitig erzwingen; Verwaltungsänderungen protokollieren.
-- Zwei Jahre aktive Protokolle, danach Webarchiv; keine zusätzliche Mailpflege automatisieren.
-- Warnungen nur über Graph, solange möglich; kein Ersatzversand.
-- Ein Neustart oder Rollback darf keine unbemerkte Doppelverarbeitung auslösen.
+- Nur vorgesehenes Postfach und direkte Inbox ab 01.12.2026, 00:00 Europe/Berlin.
+  Altmails unangetastet; AP03 und Stichtag eingefroren.
+- Formaterkennung genügt; ZUGFeRD als Original-PDF. DMS-Anbindung, Konfiguration
+  und Prüfung vollständig außerhalb Auftrag und Abnahme.
+- Relevante Anhänge unabhängig ablegen. Technische/strukturelle Sperren nicht
+  durch manuelle Zuordnung umgehen. Keine automatische Verallgemeinerung von Klicks.
+- Dubletten nach Name/Bytegröße nur innerhalb aktueller KW. Andere Konflikte mit
+  Zusatz lösen, nie überschreiben. Entnahme hebt Ablagebelege nicht auf.
+- Mailpriorität: Failed, unzugeordnet (Unbekannt/Dublette), Mahnung, Nachfragen,
+  Zahlungsavis, Success. Erst bestätigte Ablage-/Mailwirkung ergibt Erfolg.
+- Mehrfachanhänge markieren; enge hashgebundene Inlinebild-Zählausnahme aus AP05
+  erhalten. Keine manuelle Signaturhashliste.
+- Webfreigaben erzeugen dauerhafte gebundene Absichten. Antwortverlust,
+  Neuanmeldung und Reload erhalten ursprünglichen Body und UUID.
+- Zwei Kalenderjahre aktive Protokollansicht, danach Webarchiv; keine Löschung
+  oder zusätzliche Mailpflege. Graphannahme 202 ist keine Zustellbestätigung.
+- Neustart/Rückweg darf keine unbemerkte Doppelwirkung erzeugen. Unklaren
+  POST, addKey/removeKey oder Versand nie blind wiederholen.
 
-## Bestehende Bausteine
+## Betriebs- und Nachweisinvarianten
 
-Zu prüfende Kandidaten: Microsoft Graph SDK/Azure Identity, Python `factur-x`,
-`pdfplumber`, bei Scanbedarf Tesseract/OCRmyPDF, LDAP-Bibliothek und FastAPI.
-Versionen, Lizenzketten und tatsächliche Formatabdeckung im jeweiligen DEV-Paket
-prüfen und festhalten. KoSIT/Mustang wurden recherchiert, sind wegen des auf
-Erkennung begrenzten Umfangs keine zwingenden zusätzlichen Komponenten.
+Sieben Timer in Europe/Berlin. Gemeinsame Processinghostsperre, Pause/Drain,
+Budgets und frische CIFSbindung auch bei manuellen Läufen. Ein Timerstopp beweist
+keinen stillen Service. Flüchtige Sperren nicht bei laufender Arbeit entfernen.
+Start macht keinen Build/Pull/Migration. Status älter als180s oder mehr als30s
+zukünftig ist unbekannt. Vier AP08-Statusjobs und eigene AP12-Rotationsanzeige
+nicht zu einem neuen Statusschema umdeuten. HTTPS und Graph bleiben getrennt.
 
-Primärquellen: [Graph SDKs](https://learn.microsoft.com/en-us/graph/sdks/sdks-overview),
-[factur-x](https://github.com/akretion/factur-x),
-[pdfplumber](https://github.com/jsvine/pdfplumber),
-[OCRmyPDF](https://github.com/ocrmypdf/OCRmyPDF),
-[LDAP-Bind](https://ldap3.readthedocs.io/en/latest/bind.html).
+Historische AP08-Abnahme: Quelle413095f, fünf Timer, Leerlaufläufe, je ein Tages-/
+Wochenbericht mit202, TLSübernahme/No-op und Boot. Statusphasenversatz auf Sekunde20
+danach separat gesetzt und in drei automatischen Zyklen geprüft. AP12-Lieferung
+und ihr Boot sind davon getrennt.
 
-## Offene Punkte
+AP12-Browser: sieben isolierte Funktionsgruppen und Sichtprüfung abgeschlossen.
+Ursprünglicher nativer Lauf false durch Reload-GETabbruch bleibt erhalten.
+Nur der konkret abgegrenzte endliche Offlinefall ist akzeptiert; kein allgemeiner
+Networkerrorverzicht und kein neuer echter Kunden-/ADlogin daraus. Historische
+AP01-Kundenabnahme bleibt der tatsächliche ADnachweis.
 
-- Dauerhafte Import-/Korrektur-/Benachrichtigungsaktivierung erst nach AP08-Go.
-- Tatsächliche Anschlussinformationen, SMB-Sicherungsumfang und Betriebszuständigkeiten.
+## Offene Punkte und nächster Schritt
 
-## Nächster Schritt
+Vollständiges festes AP09-MD-/PDF-Paket nach Eigenprüfung einmal unabhängig prüfen
+lassen. Erst konkretes Ergebnis übernehmen. AP09a-Handbuchlücke erhalten.
+Veröffentlichung, AP10, AP11 und zusätzliche Liveeingriffe nur auf konkreten Auftrag.
 
-ORGA gleicht Quellen-, Runtime- und Dateitestbelege ab und bespricht die fachlichen
-Restfälle vor einem Gesamtabschluss. Auf main erst nach ORGA-Abgleich übernehmen.
-Keine weitere Erkennungsänderung oder neue Testserie aus offenen Fällen automatisch
-starten. Kein Test schaltet Produktivverarbeitung frei. Pro Ursache höchstens fünf
-gezielte DEV-Korrekturversuche; bestätigte Zähler werden nicht zurückgesetzt.
+Weitere Grenzen: spätere produktive Altkeybereinigung, zukünftiger automatischer
+Erneuerungsauslöser, vollständiger VM-/Offsite-Restore, fachliche Erkennungsrestfälle,
+neue echte Kundenanmeldung nach späteren Deployments und ursprüngliche Ursachen
+des ersten Rotations-/Restorefehlversuchs. Keine neuen Serien daraus starten.
 
-## AP03-Quellrevision ap03-4
-
-Unknown für lesbare unklare Zuordnung, Failed für technische/strukturelle Fehler;
-Mahnung umfasst Zahlungserinnerung. Gezielte Titel-/Label-/Avisregeln in vorhandener
-Pipeline, CLI-/Testoperator-Allowlisten ergänzt. Quellreview bestanden, separates
-Runtimeimage gebaut und isolierter Dateinachtest durchgeführt; historische Daten
-unverändert. Fachliche Restfälle offen. Erkannte PDF-/E-Rechnungen laufen künftig
-automatisch; Benutzerklärung nur bei Unbekannt. Die Mailzielpriorität ist seit
-13.11.2026 bestätigt: Failed → unzugeordnet (Unbekannt/Dublette) → Mahnung →
-Nachfragen → Zahlungsavis → Success. Jeder erkannte Anhang wird unabhängig davon
-passend abgelegt. Der gemeinsame Verarbeitungspfad einschließlich Mailpriorität
-und bereits freigegebener Korrekturen ist inzwischen in AP05 implementiert;
-Frontend und Freigabeschreibwege sind inzwischen in AP06 implementiert und isoliert geprüft.
-
-Der vereinbarte GUI-/Erkennungsnachtrag für AP05/AP06 ist in den
-[Anforderungen](ANFORDERUNGEN.md#webkorrektur-und-erkennungsverbesserung) und im
-Arbeitsplan ausdrücklich verankert: Kachel Unbekannt, Zuordnung je Anhang,
-Freigabe und gemeinsame Wiederaufnahme alle 15 Minuten sowie nachvollziehbare
-Korrekturbeispiele für später geprüfte Regeln/Vorlagen. Keine automatische
-Verallgemeinerung einzelner Klicks; invoice2data derzeit nicht integriert.
-Die entsprechende Oberfläche und Freigabeerzeugung sind in AP06 implementiert und isoliert geprüft.
-Die manuelle Wiederaufnahme ist implementiert und geprüft; 5-/15-Minuten-Timer
-sind nicht aktiviert. Diese Dokumentationspräzisierung erteilt kein neues AP-Go.
+ORGA koordiniert, DEV liefert, REVIEW prüft. Keine Zusatzchats oder Agenten ohne
+Auftrag. Pro Ursache höchstens fünf gezielte DEV-Korrekturversuche; Modellwechsel
+oder Umbenennung setzt Zähler nicht zurück. Interne Zeit-, Token-, Kosten-,
+Zugangs- und Prüfzuordnungen bleiben außerhalb des öffentlichen Git.

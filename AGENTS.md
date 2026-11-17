@@ -61,8 +61,9 @@
   manueller Collector. AP08 ist im vereinbarten Umfang technisch abgeschlossen.
   Der Phasenversatz wurde nach dem belegten Reboot gesetzt; kein zweiter Reboot
   oder vollständiger VMrestore ist damit nachgewiesen.
-  Führender Vertrag: docs/AP08-BETRIEB.md. AP09/10/11 bleiben ohne Go;
-  AP11-Planung erhalten.
+  Führender Vertrag: docs/AP08-BETRIEB.md. AP09 ist seit 17.11.2026 zur
+  Abschlussdokumentation freigegeben. AP10/11 bleiben ohne Go; AP09a bleibt
+  wegen des fehlenden AP11-Handbuchs offen. AP11-Planung erhalten.
   AP12 ist aus d9f32a5a9c9fb642f59a13ed2550f74532fc3ebe mit Schema008
   bereitgestellt. Echter Wechsel auf neues Graph-Zertifikat, drei Verbraucher,
   Abschlussproof und SQL overlap unabhängig nativ bestätigt; Rotationtimer aktiv.

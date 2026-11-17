@@ -20,7 +20,9 @@ AP12 ist aus d9 mit Schema008 bereitgestellt. Echter Wechsel mit drei Verbrauche
 und Abschlussproof unabhängig nativ bestätigt; Überlappung läuft, Rotationtimer aktiv.
 Kontrollierter AP12-Boot mit erhaltenem Kundenbetrieb bestätigt; Wiederaufnahme
 mit qualifizierten Grenzen dokumentiert. Spätere produktive Bereinigung bleibt offen.
-AP09/10/11 bleiben ohne Umsetzungs-Go.**
+AP09 ist seit 17.11.2026 zur Abschlussdokumentation freigegeben; vollständiges
+Dokumentpaket zur gemeinsamen Abschlussprüfung erstellt. AP09a bleibt wegen des
+fehlenden AP11-Handbuchs offen. AP10/11 bleiben ohne Umsetzungs-Go.**
 AP10 ist für die spätere wöchentliche Wartung ergänzt.
 AP12 ist seit 16.11.2026 für Graph-Zertifikatsrotation und einen zusätzlichen
 Adminreiter freigegeben; aktuelle Lieferung und Grenzen unten.
@@ -196,10 +198,10 @@ Führender Vertrag:
 
 | Teil | Ergebnis |
 | --- | --- |
-| AP09a | Kundenunterlagen zusammenführen; das vollständige Nutzerhandbuch aus AP11 als führende Kundenanleitung übernehmen |
-| AP09b | Technische Dokumentation für Betreiber/Kunde, als Markdown-Quelle und PDF |
-| AP09c | KI-Dokumentation als Markdown mit festem Stand, Invarianten und Wiedereinstieg |
-| AP09d | Inhalt gegen Liefercommit prüfen, PDFs rendern/sichten, finale Unterlagen hochladen |
+| AP09a | Offen: AP11-Handbuch fehlt und hat kein Go. Vertrauliches Betriebsblatt separat; kein Ersatzhandbuch aus AP09. |
+| AP09b | Vollständige [Technikquelle](TECHNISCHE-DOKUMENTATION.md) und [PDF](handbuecher/Technische-Dokumentation.pdf) für d9/008 zur Abschlussprüfung erstellt. |
+| AP09c | [KI-Dokumentation](KI-DOKUMENTATION.md) als aktueller Wiedereinstieg finalisiert; historische Fakten in Originalverträgen erhalten. |
+| AP09d | Dokumentpaket gegen Quellen abgleichen, PDF vollständig rendern/sichten und einmal gemeinsam unabhängig prüfen. Veröffentlichung folgt dem gesonderten Auftrag; kein Push aus dieser DEV-Lieferung. |
 
 DEV liefert technische Fakten und Prüfbelege. ORGA führt die Dokumentation zusammen;
 REVIEW prüft Widersprüche und nicht belegte Behauptungen. PDFs erst aus dem
@@ -217,7 +219,8 @@ tatsächlich implementierten Stand erstellen, keine fertige Installation vortäu
 
 Kein Wartungsskript oder Timer ist bereits installiert. Keine ungeprüften
 Anwendungs-/Datenbankschemaupgrades aus der Linux-Wartungsfreigabe ableiten.
-AP10-Einrichtung und Prüfung vor der Finalisierung der Abschlussunterlagen berücksichtigen.
+AP10 ist nicht freigegeben. Die AP09-Dokumentation hält diesen geplanten Umfang
+als offene Grenze fest; sie wartet nicht auf eine unbeauftragte AP10-Umsetzung.
 Nach Lieferung von AP12 Wartung und Zertifikatswechsel koordinieren, damit ein
 Neustart nicht unkontrolliert in einen laufenden Wechsel eingreift.
 

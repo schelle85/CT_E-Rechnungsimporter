@@ -1,20 +1,26 @@
 # Dokumentationslieferungen
 
-Stand: 17. November 2026. Die folgenden Abschlussunterlagen sind beauftragt.
+Stand: 17. November 2026. AP09 ist zur Abschlussdokumentation freigegeben.
+Vollständige Technikquelle/PDF und KI-Wiedereinstieg sind zur gemeinsamen
+Abschlussprüfung erstellt; siehe [AP09-Übergabe](AP09-UEBERGABE.md). AP10/11
+bleiben ohne Umsetzungs-Go. AP09a ist wegen des fehlenden AP11-Handbuchs offen.
 AP12 ist aus d9 bereitgestellt; der echte Zertifikatswechsel ist unabhängig
 nativ bestätigt. Genau ein AP12-Kundenboot mit erhaltenem Betrieb und qualifizierten
 Wiederaufnahmebelegen ist dokumentiert; spätere produktive Bereinigung bleibt offen. [Lieferstand und Übergabefakten](AP12-UEBERGABE.md) trennen
 diese Grenzen von historischen Einzelprüfungen.
 Das vollständige Nutzerhandbuch ist
-seit14.11.2026 ein eigenes geplantes AP11. Die finalen Unterlagen entstehen aus
-dem geprüften Lieferstand in AP11 beziehungsweise AP09 zum Projektabschluss.
+seit14.11.2026 ein eigenes geplantes AP11. Die technische AP09-Lieferung beschreibt den geprüften Produktpin d9/008.
+Das vollständige Nutzerhandbuch entsteht erst mit einem gesonderten AP11-Go;
+sein Fehlen wird nicht durch eine technische Ersatzbedienungsanleitung verdeckt.
 
 ## AP09a: Kundenunterlagen und führende Nutzeranleitung
 
 AP09a übernimmt das vollständige Handbuch aus AP11 als Kundenanleitung. Es wird
 eine führende Anleitung gepflegt; die technische Dokumentation ergänzt sie für
 den Betrieb. Die frühere geplante separate Kundenanleitung wird damit in AP11
-zusammengeführt. AP09 prüft Version, Vollständigkeit und Übergabe des Gesamtpakets.
+zusammengeführt. AP09 prüft Version, Vollständigkeit und Übergabe des Gesamtpakets. Derzeit
+ist AP09a ausdrücklich offen, weil das AP11-Handbuch fehlt. Ein vertrauliches
+Betriebsblatt wird separat übergeben; es ersetzt die fehlende Nutzeranleitung nicht.
 
 ## AP11: Handbuch zum Produkt
 
@@ -62,8 +68,10 @@ Prüfgrenzen; Kundenrückmeldungen fließen vor der abschließenden Übergabe ei
 - Start/Stop, Update, Rollback, Fehlersuche und bekannte Grenzen.
 - Abnahmefälle mit tatsächlich erbrachten Ergebnissen und offenen Restpunkten.
 
-Geplante Quellen/Ausgaben: `docs/TECHNISCHE-DOKUMENTATION.md` und
-`docs/handbuecher/Technische-Dokumentation.pdf`.
+Erstellte Quelle/Ausgabe: [Technische Dokumentation](TECHNISCHE-DOKUMENTATION.md)
+und [PDF](handbuecher/Technische-Dokumentation.pdf). Reproduzierbarer dokumentbezogener
+Build und Eigenprüfung gemäß [PDF-Hinweisen](handbuecher/README.md). Die unabhängige
+Prüfung erfolgt einmal am vollständigen festen Paket, nicht kapitelweise.
 Echte Kundenzugänge, Schlüssel und private Konfiguration nicht in die öffentliche
 Version aufnehmen. Nötige vertrauliche Betriebsangaben separat übergeben.
 
@@ -80,5 +88,8 @@ Keine privaten Chatprotokolle oder Geheimnisse übernehmen.
 - Dokumentation gegen tatsächliches Verhalten und Konfiguration prüfen.
 - Jede PDF rendern; vollständige Seiten auf abgeschnittenen Text, Tabellen,
   Lesbarkeit, Seitenwechsel und Schriftzeichen sichten.
-- Quellen und erzeugte Ausgaben konsistent halten, Dateien auf GitHub hochladen.
+- Quellen und Ausgaben konsistent halten. Ein vollständiges festes MD-/PDF-Paket
+  nach Eigenprüfung einmal unabhängig prüfen; keine Entwurfs- oder Kapitelreviews.
+- Veröffentlichung auf GitHub erst im beauftragten Veröffentlichungsablauf; die
+  aktuelle DEV-Dokumentlieferung enthält einen lokalen Commit ohne Push.
 - Finale Dokumentation nicht allein aufgrund ihrer Erstellung als Betriebsabnahme melden.
