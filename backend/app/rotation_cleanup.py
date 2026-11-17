@@ -2,12 +2,14 @@
 from app.graph import GraphError
 from app.notification_model import graph_scope
 from app.rotation_model import records_hash,sha,uuid
+from app.rotation_material import filename,material_metadata,retirement_receipt,retired_metadata
+from app.notification_certificate import CertificateMaterial
 
 OVERLAP_SECONDS=7*86400
-PHASES={"planned","removal_started","removal_unknown","remote_absent","unmanaged_retained","completed"}
+PHASES={"planned","removal_started","removal_unknown","remote_absent","unmanaged_retained","local_pending","completed"}
 FIELDS={"version","operation_id","scope_key","source_commit","deployment_id","instance_id","old","new",
     "adoption_seal","overlap_started_at","not_before","owned","successor_key_id","phase","revision","baseline",
-    "proof","error_code"}
+    "proof","error_code","files"}
 
 
 class CleanupJournal:
@@ -34,9 +36,20 @@ class CleanupJournal:
                 if set(owned)!={"key_id","fingerprint","operation_id","origin","evidence"} or owned["origin"] not in {"created","adopted"}:raise ValueError()
                 uuid(owned["key_id"]);uuid(owned["operation_id"]);sha(owned["evidence"])
                 if owned["fingerprint"]!=value["old"]["fingerprint"] or owned["key_id"]==value["successor_key_id"]:raise ValueError()
-            if value["phase"] in {"removal_started","removal_unknown","remote_absent"}:
+            if value["phase"] in {"removal_started","removal_unknown","remote_absent","local_pending"} or value["phase"]=="completed" and owned is not None:
                 if owned is None or value["baseline"] is None or value["proof"] is None:raise ValueError()
                 records_hash(value["baseline"])
+                proof=value["proof"];config=self.root.binding.config
+                if (set(proof)!={"fingerprint","scope_key","at"} or proof["fingerprint"]!=value["new"]["fingerprint"]
+                        or proof["scope_key"]!=graph_scope(config.tenant_id,config.client_id,config.mailbox)
+                        or type(proof["at"]) is not int or proof["at"]<value["not_before"]-60):raise ValueError()
+            if not isinstance(value["files"],list) or len(value["files"])>192:raise ValueError()
+            if value["files"] and (owned is None or value["phase"] not in {"local_pending","completed"}):raise ValueError()
+            names=[]
+            for item in value["files"]:
+                if set(item)!={"name","receipt_hash"}:raise ValueError()
+                filename(item["name"]);sha(item["receipt_hash"]);names.append(item["name"])
+            if len(names)!=len(set(names)):raise ValueError()
             return value
         except (KeyError,TypeError,ValueError,GraphError):raise GraphError("rotation_cleanup_invalid") from None
 
@@ -58,7 +71,7 @@ class CleanupJournal:
         value=dict(version=1,operation_id=operation,**self.adoption.binding.fields(),old=host["old"],new=host["new"],
             adoption_seal=host["seal"],overlap_started_at=started,not_before=min(started+OVERLAP_SECONDS,host["old"]["expires_at"]),
             owned=matches[0] if matches else None,successor_key_id=core["registered_key_id"],phase="planned",revision=0,
-            baseline=None,proof=None,error_code=None)
+            baseline=None,proof=None,error_code=None,files=[])
         self.root._write(operation+".cleanup.json",value)
         return self.state(operation)
 
@@ -91,7 +104,7 @@ class CleanupJournal:
     def remove(self,operation,graph,material,proof,now):
         """Caller proves the current normal gate and fresh successor GET; no mail."""
         value=self.current(operation,graph,material,proof,now)
-        if value["phase"] in {"remote_absent","unmanaged_retained","completed"}:return value
+        if value["phase"] in {"remote_absent","unmanaged_retained","local_pending","completed"}:return value
         if now<value["not_before"]:return value
         if value["owned"] is None:return self.save(value,phase="unmanaged_retained",error_code="rotation_old_key_unmanaged")
         records=graph.read()
@@ -111,3 +124,55 @@ class CleanupJournal:
         value=self.save(value,phase="removal_unknown",error_code="rotation_cleanup_unknown")
         try:return self.reconcile(value,graph.read())
         except GraphError:return value
+
+    def finish_local(self,operation,material):
+        """Caller holds the Root journal lock; remove only enumerated inactive own PEM copies."""
+        import os
+        from app.rotation_journal import protected_bytes,sync_directory
+        from app.notification_model import identity
+        value=self.state(operation);host=self.adoption.state(operation)
+        if (value is None or host is None or host["phase"]!="committed" or host["target"]!="new"
+                or any(value[name]!=host[name] for name in ("old","new")) or material_metadata(material)!=value["new"]):
+            raise GraphError("rotation_cleanup_successor_changed")
+        if value["phase"]=="completed":return value
+        if value["phase"]=="unmanaged_retained":return self.save(value,phase="completed")
+        if value["phase"] not in {"remote_absent","local_pending"}:raise GraphError("rotation_cleanup_remote_unconfirmed")
+        owned=value["owned"]
+        if self.root.inventory()["keys"].get(owned["key_id"])!={key:item for key,item in owned.items() if key!="key_id"}:
+            raise GraphError("rotation_cleanup_ownership_changed")
+        if value["phase"]=="remote_absent":
+            paths=list(self.root.directory.glob("*.pem"))
+            if len(paths)>192:raise GraphError("rotation_cleanup_material_limit")
+            files=[]
+            for path in sorted(paths):
+                try:filename(path.name)
+                except GraphError:continue
+                original=CertificateMaterial.parse(protected_bytes(path))
+                if material_metadata(original)!=value["old"]:continue
+                parent=path.name[:36];core=self.root.state(parent)
+                if core is None:raise GraphError("rotation_cleanup_material_unbound")
+                if path.name.endswith(".old.pem"):
+                    host=self.adoption.state(parent)
+                    if host is None or host["old"]!=value["old"]:raise GraphError("rotation_cleanup_material_unbound")
+                elif (owned["origin"]!="created" or owned["operation_id"]!=parent
+                        or core["candidate_fingerprint"]!=owned["fingerprint"] or core["candidate_pem_hash"]!=value["old"]["pem_hash"]):
+                    raise GraphError("rotation_cleanup_material_unbound")
+                receipt=retirement_receipt(self.root,path.name,original,value)
+                files.append(dict(name=path.name,receipt_hash=identity(receipt)))
+            value=self.save(value,phase="local_pending",files=files)
+        for item in value["files"]:
+            path=self.root.directory/item["name"]
+            if path.exists() or path.is_symlink():
+                before=path.lstat();original=CertificateMaterial.parse(protected_bytes(path))
+                if material_metadata(original)!=value["old"]:raise GraphError("rotation_cleanup_material_changed")
+                receipt=retirement_receipt(self.root,item["name"],original,value)
+                if identity(receipt)!=item["receipt_hash"]:raise GraphError("rotation_cleanup_material_changed")
+                previous=self.root._read(item["name"]+".retired.json")
+                if previous is not None and previous!=receipt:raise GraphError("rotation_cleanup_material_changed")
+                if previous is None:self.root._write(item["name"]+".retired.json",receipt)
+                after=path.lstat()
+                if (before.st_dev,before.st_ino,before.st_size,before.st_mtime_ns)!=(after.st_dev,after.st_ino,after.st_size,after.st_mtime_ns):
+                    raise GraphError("rotation_cleanup_material_changed")
+                os.unlink(path);sync_directory(self.root.directory)
+            retired_metadata(self.root,item["name"],value["old"])
+        return self.save(value,phase="completed",error_code=None)

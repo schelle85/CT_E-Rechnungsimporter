@@ -9,6 +9,7 @@ from app.notification_certificate import CertificateMaterial
 from app.notification_model import graph_scope,identity
 from app.rotation_journal import sync_directory
 from app.rotation_model import sha,uuid
+from app.rotation_material import check_material
 
 ROLES={"api","processing","notifications"}
 PHASES={"prepared","activation_started","activated","consumers_verified","proof_started",
@@ -56,10 +57,11 @@ class AdoptionJournal:
             if value["drain_identity"] is not None:sha(value["drain_identity"])
             if not isinstance(value["consumers"],dict) or not set(value["consumers"])<=ROLES:raise ValueError()
             core=self.root.state(operation)
-            if core is None or value["old"]["fingerprint"]!=core["old_fingerprint"] or value["new"]!=metadata(self.root.material(operation)):
+            if (core is None or value["old"]["fingerprint"]!=core["old_fingerprint"]
+                    or value["new"]["fingerprint"]!=core["candidate_fingerprint"] or value["new"]["pem_hash"]!=core["candidate_pem_hash"]):
                 raise ValueError()
-            original=CertificateMaterial.parse(protected_bytes(self.root.directory/(operation+".old.pem")))
-            if value["old"]!=metadata(original):raise ValueError()
+            check_material(self.root,operation+".pem",value["new"])
+            check_material(self.root,operation+".old.pem",value["old"])
             if value["phase"] in {"consumers_verified","proof_started","proof_unknown","proof_verified","committed"}:
                 if set(value["consumers"])!=ROLES:raise ValueError()
                 for role,item in value["consumers"].items():
