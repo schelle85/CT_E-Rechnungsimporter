@@ -1,6 +1,6 @@
 """Fixed Linux AP12 host controller. Root-only; no API socket or general commands."""
 import argparse
-from contextlib import ExitStack
+from contextlib import ExitStack,contextmanager
 import hashlib
 import importlib.util
 import json
@@ -241,7 +241,23 @@ class Controller:
         try:return input_command(self.host,["start","-a","-i",item["Id"]],dict(command=command,operation_id=operation,**values),min(self.until,time.monotonic()+85))
         finally:self.cleanup(item);self.finish_job(item["Name"].lstrip("/"))
 
-    def recover_job(self):
+    @contextmanager
+    def lifecycle_locks(self):
+        with ExitStack() as locks:
+            for path in (self.runtime.LIFECYCLE_LOCK,self.host.PROCESSING_LOCK,"/run/invoice-importer/notification.lock"):
+                if not locks.enter_context(self.host.host_lock(path,wait=seconds(self.until,45))):raise ValueError("rotation_host_busy")
+            yield
+
+    def recover_exec(self,value):
+        ids=self.command(["container","ls","-aq","--filter","id="+value["container_id"]])
+        if ids:
+            item=self.inspect(value["container_id"],value["image"],"10001:10001")
+            self.stop(item)  # Unknown exec: whole known API cgroup, never only Docker client.
+        else:
+            if not re.fullmatch("[0-9a-f]{64}",value["container_id"]):raise ValueError("rotation_job_changed")
+            self.wait_quiet(Path("/sys/fs/cgroup/system.slice")/("docker-"+value["container_id"]+".scope"))
+
+    def recover_job(self,*,locked=False):
         paths=list(self.journal.glob("invoice-rotation-*.job.json"))
         if len(paths)>16:raise ValueError("rotation_jobs_unreconciled")
         for path in paths:
@@ -250,10 +266,17 @@ class Controller:
             if value["kind"]=="exec":
                 current=self.writer.gate.read()
                 self.writer.block(value["operation_id"],expected_epoch=current["epoch"])
-                ids=self.command(["container","ls","-aq","--filter","id="+value["container_id"]])
-                if ids:
-                    item=self.inspect(value["container_id"],value["image"],"10001:10001")
-                    self.stop(item)  # Unknown exec: whole known API cgroup, never only Docker client.
+                if locked:
+                    self.writer._require(exclusive=True)
+                    self.recover_exec(value)
+                else:
+                    self.drain(value["operation_id"])
+                    with self.lifecycle_locks():
+                        self.recover_exec(value)
+                        current=self.writer.gate.read()
+                        with self.writer.exclusive(value["operation_id"],expected_epoch=current["epoch"],until=min(self.until,time.monotonic()+90)):
+                            self.finish_job(value["name"])
+                    continue
             elif value["kind"]=="container":
                 names=self.command(["container","ls","-a","--filter","name=^/"+value["name"]+"$","--format","{{.Names}}"])
                 if names:
@@ -389,23 +412,98 @@ class Controller:
         self.write(self.gate_directory/"graph-access.json",value,mode=0o440,gid=10001)
         self.writer.binding=self.access;self.writer.gate.binding=self.access
 
+    def archive(self,path,value):
+        if path.exists():
+            if json.loads(self.host.protected(path).read_text(),object_pairs_hook=unique)!=value:
+                raise ValueError("rotation_archive_changed")
+        else:self.write(path,value)
+
+    def exchange(self,operation):
+        path=self.journal/(operation+".api-exchange.json")
+        if not path.exists():return None
+        value=json.loads(self.host.protected(path).read_text(),object_pairs_hook=unique)
+        if (value.get("version")!=1 or value.get("operation_id")!=operation
+                or any(value.get(name)!=expected for name,expected in self.access.fields().items())
+                or value.get("name")!=self.binding["containers"]["api"]["name"] or value.get("image")!=self.images["api"]
+                or not re.fullmatch("[0-9a-f]{32}",value.get("nonce",""))
+                or not re.fullmatch("[0-9a-f]{64}",value.get("pem_hash",""))
+                or value.get("phase") not in {"planned","created","confirmed"}
+                or set(value.get("preserved",{}))!={"db","nginx"}):raise ValueError("rotation_exchange_changed")
+        if value["new_id"] is not None and not re.fullmatch("[0-9a-f]{64}",value["new_id"]):raise ValueError("rotation_exchange_changed")
+        old=value["old"]
+        if old is not None and (set(old)!={"id","image"} or not re.fullmatch("[0-9a-f]{64}",old["id"])
+                or not re.fullmatch("sha256:[0-9a-f]{64}",old["image"])):raise ValueError("rotation_exchange_changed")
+        return value
+
+    def bound_api(self,operation,*,legacy=False):
+        """Absent/replaced API is allowed only by the durable, private exchange intent."""
+        value=self.exchange(operation);name=self.binding["containers"]["api"]["name"]
+        names=self.command(["container","ls","-a","--filter","name=^/"+name+"$","--format","{{.Names}}"])
+        if not names:
+            if value is None:raise ValueError("rotation_api_absence_unbound")
+            for identifier in (value["old"]["id"] if value["old"] else None,value["new_id"]):
+                if identifier:self.wait_quiet(Path("/sys/fs/cgroup/system.slice")/("docker-"+identifier+".scope"))
+            return None
+        if names!=name:raise ValueError("rotation_api_changed")
+        if value is not None:
+            try:
+                item=self.api(image=value["image"]);labels=item["Config"].get("Labels",{})
+                if (labels.get("invoice.rotation.operation")!=operation or labels.get("invoice.rotation.exchange")!=value["nonce"]
+                        or value["new_id"] not in (None,item["Id"])):raise ValueError("rotation_exchange_changed")
+                return item
+            except ValueError:
+                if value["old"] is None or value["phase"]!="planned":raise
+                old=value["old"];item=self.inspect(name,old["image"],"10001:10001") if legacy else self.api(image=old["image"])
+                if item["Id"]!=old["id"]:raise ValueError("rotation_exchange_changed")
+        else:item=self.inspect(name,self.binding["containers"]["api"]["image"],"10001:10001") if legacy else self.api()
+        if item["Config"].get("Cmd")!=API_COMMAND:raise ValueError("rotation_api_changed")
+        return item
+
     def recreate_api(self,operation):
+        self.writer._require(exclusive=True);self.image(self.images["api"])
+        path=self.journal/(operation+".api-exchange.json");previous=self.exchange(operation)
+        api=self.bound_api(operation,legacy=(self.journal/".bootstrap.json").exists() and not (self.journal/(operation+".host.json")).exists())
+        pem_hash=hashlib.sha256(self.host.protected(self.processing["graph_credential"]).read_bytes()).hexdigest()
+        before={kind:self.runtime.inspect_container(self.binding,kind,self.host,self.until) for kind in ("db","nginx")}
+        if previous is not None:self.preserved(previous["preserved"])
+        if previous is None or previous["pem_hash"]!=pem_hash:
+            if previous is not None:self.archive(self.journal/(operation+".api-exchange-"+previous["nonce"]+".json"),previous)
+            value=dict(version=1,**self.access.fields(),operation_id=operation,name=self.binding["containers"]["api"]["name"],
+                old=dict(id=api["Id"],image=api["Image"]) if api else None,image=self.images["api"],nonce=uuid4().hex,
+                pem_hash=pem_hash,preserved={kind:dict(id=item["id"]) for kind,item in before.items()},new_id=None,phase="planned")
+            self.write(path,value)
+        else:value=previous
         override=self.journal/(operation+".api.json")
-        self.write(override,dict(services=dict(api=dict(image=self.images["api"]))))
+        labels={"invoice.rotation.operation":operation,"invoice.rotation.exchange":value["nonce"]}
+        self.write(override,dict(services=dict(api=dict(image=self.images["api"],container_name=value["name"],labels=labels))))
         args=["compose","--project-directory",str(self.compose_directory),"--env-file",self.profile["compose_env"]]
-        for path in [*self.profile["compose_files"],str(override)]:args.extend(["-f",path])
+        for compose_file in [*self.profile["compose_files"],str(override)]:args.extend(["-f",compose_file])
         status,definition=self.command([*args,"config","--format","json"],10,json_output=True)
         candidate=definition.get("services",{}).get("api",{})
         if (status or candidate.get("image")!=self.images["api"] or candidate.get("user")!="10001:10001"
-                or candidate.get("read_only") is not True or "ALL" not in candidate.get("cap_drop",[]) or candidate.get("privileged") is True):
+                or candidate.get("read_only") is not True or "ALL" not in candidate.get("cap_drop",[]) or candidate.get("privileged") is True
+                or candidate.get("container_name")!=value["name"] or any(candidate.get("labels",{}).get(key)!=item for key,item in labels.items())):
             raise ValueError("rotation_compose_changed")
-        self.command([*args,"up","-d","--no-deps","--no-build","--pull","never","--force-recreate","api"],60)
+        if api is not None and api["Config"].get("Labels",{}).get("invoice.rotation.exchange")==value["nonce"]:
+            if not api["State"].get("Running"):self.command(["start",api["Id"]],15)
+        else:self.command([*args,"up","-d","--no-deps","--no-build","--pull","never","--force-recreate","api"],60)
+        item=self.bound_api(operation)
+        if item is None:raise ValueError("rotation_api_unready")
+        value=dict(value,new_id=item["Id"],phase="created");self.write(path,value)
         self.binding["containers"]["api"]["image"]=self.images["api"]
         self.runtime.wait_readiness(lambda:self.api(),min(self.until,time.monotonic()+45))
+        # Keep nginx's identity and TLS files; refresh its existing static API DNS.
+        nginx=self.runtime.inspect_container(self.binding,"nginx",self.host,self.until)
+        if nginx["id"]!=value["preserved"]["nginx"]["id"]:raise ValueError("rotation_non_api_container_changed")
+        if nginx["state"].get("Running"):
+            self.command(["exec",nginx["id"],"nginx","-t"],10)
+            self.command(["exec",nginx["id"],"nginx","-s","reload"],10)
+        else:self.command(["start",nginx["id"]],10)
         self.runtime.wait_readiness(lambda:self.runtime.ready(self.binding,self.auto["public_origin"],self.host,self.until),min(self.until,time.monotonic()+45))
         self.write(Path(self.auto["runtime_profile"]),self.binding)
         item=self.api()
         if not item["State"].get("Running") or item["State"].get("Health",{}).get("Status")!="healthy":raise ValueError("rotation_api_unready")
+        self.preserved(value["preserved"]);self.write(path,dict(value,phase="confirmed"))
         return item
 
     def preserved(self,before):
@@ -447,18 +545,15 @@ class Controller:
         except (OSError,ValueError):return dict(ok=False,operation_id=operation,material_confirmed=True,code="rotation_completion_pending")
         return dict(ok=True,operation_id=operation,target=state["target"],phase="committed",paused=state["paused"],seal=state["seal"])
 
-    def stop_current_api(self):
-        name=self.binding["containers"]["api"]["name"]
-        names=self.command(["container","ls","-a","--filter","name=^/"+name+"$","--format","{{.Names}}"])
-        if not names:return dict(absent=True)
-        if names!=name:raise ValueError("rotation_api_changed")
-        return self.stop(self.api())
+    def stop_current_api(self,operation):
+        item=self.bound_api(operation)
+        return self.stop(item) if item is not None else dict(absent=True)
 
     def switch(self,operation,state,mode,before,quiet):
         current_hash=hashlib.sha256(self.host.protected(self.processing["graph_credential"]).read_bytes()).hexdigest()
-        if mode=="rollback":state=self.worker("rollback",operation)["host"]
-        elif state["phase"]!="prepared":
+        if mode=="rollback" or state["phase"]!="prepared" or state["boot_id"]!=self.model.boot_id():
             state=self.worker("recover",operation,pem_hash=current_hash,quiet_evidence=digest(quiet),paused=state["paused"],drain_identity=self.external_drain())["host"]
+        if mode=="rollback" and state["target"]=="new":state=self.worker("rollback",operation)["host"]
         if state["phase"]=="prepared":
             self.candidate_gate(operation,state["new"])
             pem=self.material(operation,state["new"],readable=True)
@@ -473,17 +568,17 @@ class Controller:
         return self.finish(operation,self.recreate_api(operation),before)
 
     def return_old(self,operation,before):
-        self.recover_job();quiet=self.stop_current_api()
+        self.recover_job(locked=True);quiet=self.stop_current_api(operation)
         state=self.worker("read",operation)["host"]
         if state["target"]=="old":
             if state["phase"]!="committed":self.worker("rollback-unknown",operation)
             raise ValueError("rotation_rollback_unconfirmed")
-        if state["phase"] in {"proof_started","proof_unknown","committed"}:
-            current_hash=hashlib.sha256(self.host.protected(self.processing["graph_credential"]).read_bytes()).hexdigest()
-            state=self.worker("recover",operation,pem_hash=current_hash,quiet_evidence=digest(quiet),paused=state["paused"],drain_identity=self.external_drain())["host"]
-        state=self.worker("rollback",operation)["host"]
+        current_hash=hashlib.sha256(self.host.protected(self.processing["graph_credential"]).read_bytes()).hexdigest()
+        state=self.worker("recover",operation,pem_hash=current_hash,quiet_evidence=digest(quiet),paused=state["paused"],drain_identity=self.external_drain())["host"]
+        if state["target"]=="new":state=self.worker("rollback",operation)["host"]
         raw=self.material(operation,state["old"],old=True);self.activate(raw,state["old"]["pem_hash"])
-        self.worker("activated",operation);self.candidate_gate(operation,state["old"])
+        if state["phase"]=="activation_started":self.worker("activated",operation)
+        self.candidate_gate(operation,state["old"])
         try:return self.finish(operation,self.recreate_api(operation),before)
         except BaseException:
             state=self.worker("read",operation)["host"]
@@ -514,22 +609,10 @@ class Controller:
             self.writer.initialize(operation,status["current"]["pem_hash"],status["current"]["fingerprint"])
         self.drain(operation)
         current=self.writer.gate.read();self.writer.block(operation,expected_epoch=current["epoch"])
-        with ExitStack() as locks:
-            for path in (self.runtime.LIFECYCLE_LOCK,self.host.PROCESSING_LOCK,"/run/invoice-importer/notification.lock"):
-                if not locks.enter_context(self.host.host_lock(path,wait=seconds(self.until,45))):raise ValueError("rotation_host_busy")
+        with self.lifecycle_locks():
             before={kind:self.runtime.inspect_container(self.binding,kind,self.host,self.until) for kind in ("db","nginx")}
-            name=self.binding["containers"]["api"]["name"]
-            ids=self.command(["container","ls","-a","--filter","name=^/"+name+"$","--format","{{.Names}}"])
-            if ids:
-                if ids!=name:raise ValueError("rotation_api_changed")
-                # Initial AP08 consumer may lack gate mounts; exact old image/name/UID/command remain required.
-                try:api=self.inspect(name,self.binding["containers"]["api"]["image"],"10001:10001")
-                except ValueError:
-                    old=record["old_api"]
-                    if old is None:raise
-                    api=self.inspect(old["id"],old["image"],"10001:10001")
-                    if api["Name"].lstrip("/")!=name:raise ValueError("rotation_api_changed")
-                if api["Config"].get("Cmd")!=API_COMMAND:raise ValueError("rotation_api_changed")
+            api=self.bound_api(operation,legacy=True)
+            if api is not None:
                 if record["old_api"] is None:
                     record["old_api"]=dict(id=api["Id"],image=api["Image"]);self.write(pointer,record)
                 self.stop(api);api_id=api["Id"]
@@ -543,7 +626,7 @@ class Controller:
                             and isinstance(proof,dict) and proof.get("fingerprint")==status["current"]["fingerprint"]
                             and proof.get("scope_key")==status["notification_scope"] and type(proof.get("at")) is int and proof["at"]>=intent["at"]):
                         raise ValueError("rotation_bootstrap_proof_unreconciled")
-                self.write(self.journal/(operation+".bootstrap-checkpoint-"+str(record["revision"])+".json"),record)
+                self.archive(self.journal/(operation+".bootstrap-checkpoint-"+str(record["revision"])+".json"),record)
                 record=dict(record,revision=record["revision"]+1,proof_intent=None,seal=None,paused=desired_pause)
                 self.write(pointer,record);self.rebind(operation,status["current"])
                 api=self.recreate_api(operation)
@@ -568,7 +651,7 @@ class Controller:
                 self.clear_drain()
                 return dict(ok=True,code="rotation_guarded_consumers_ready",operation_id=operation,seal=record["seal"],paused=record["paused"])
 
-    def operate(self,mode):
+    def operate(self,mode,*,startup=False):
         with self.writer.session():
             self.recover_job()
             status=self.worker("status")
@@ -581,12 +664,16 @@ class Controller:
                 current=self.writer.gate.read()
                 if current["mode"]=="blocked" or current["boot_id"]!=self.model.boot_id():
                     pointer=self.journal/".bootstrap.json"
-                    if not pointer.exists():return dict(ok=False,code="rotation_blocked_unreconciled")
-                    record=json.loads(self.host.protected(pointer).read_text(),object_pairs_hook=unique)
-                    if current["operation_id"]!=record["operation_id"] or (current["mode"]!="blocked" and current["release_hash"]!=record.get("seal")):
-                        return dict(ok=False,code="rotation_blocked_unreconciled")
-                    return self.bootstrap(status)
-                return dict(ok=True,code="rotation_no_active_request")
+                    record=json.loads(self.host.protected(pointer).read_text(),object_pairs_hook=unique) if pointer.exists() else None
+                    if record and current["operation_id"]==record["operation_id"]:
+                        if current["mode"]!="blocked" and current["release_hash"]!=record.get("seal"):
+                            return dict(ok=False,code="rotation_blocked_unreconciled")
+                        return self.bootstrap(status)
+                    # A published old-key return has no active SQL request. Claim only
+                    # the exact closed gate/SQL/journal binding, never an arbitrary ID.
+                    self.worker("resume-closed",current["operation_id"],seal=current["release_hash"])
+                    status=self.worker("status");operation=status["head"]["active_operation"]
+                else:return dict(ok=True,code="rotation_no_active_request")
             if self.writer.binding!=self.access:raise ValueError("rotation_bootstrap_required")
             initial_gate=self.writer.gate.read()
             if (mode!="rollback" and status["host"] and status["host"]["phase"]=="committed"
@@ -598,7 +685,8 @@ class Controller:
                 return dict(ok=True,operation_id=operation,phase="committed",target=status["host"]["target"],unchanged=True)
             if mode in {"run","resume"}:
                 if status["host"] is None and (status["core"] is None or status["core"]["phase"]=="prepared"):
-                    self.runtime.ready(self.binding,self.auto["public_origin"],self.host,self.until)
+                    if startup:self.runtime.start(self.binding,self.auto["public_origin"],self.host,self.until,preserve_drain=True)
+                    else:self.runtime.ready(self.binding,self.auto["public_origin"],self.host,self.until)
                     with self.host.CifsBinding(self.processing) as cifs:cifs.check()
                 result=self.worker("register",operation)
                 if result["core"]["phase"] not in {"registered","candidate_verified"}:return dict(ok=False,operation_id=operation,code=result["core"]["phase"])
@@ -607,14 +695,13 @@ class Controller:
             if state is None:
                 state=self.worker("prepare",operation,images=self.images,paused=current["mode"]=="paused" or current["mode"]=="blocked" and current["admission_epoch"]==0,
                     drain_identity=self.external_drain())["host"]
+            elif current["mode"]=="paused":state=dict(state,paused=True)
             self.drain(operation)
             current=self.writer.gate.read();self.writer.block(operation,expected_epoch=current["epoch"])
-            with ExitStack() as locks:
-                for path in (self.runtime.LIFECYCLE_LOCK,self.host.PROCESSING_LOCK,"/run/invoice-importer/notification.lock"):
-                    if not locks.enter_context(self.host.host_lock(path,wait=seconds(self.until,45))):raise ValueError("rotation_host_busy")
+            with self.lifecycle_locks():
                 before={kind:self.runtime.inspect_container(self.binding,kind,self.host,self.until) for kind in ("db","nginx")}
-                api=self.api();quiet=self.stop(api)
-                self.runtime.wait_readiness(lambda:self.no_other_graph_consumers(api["Id"]),min(self.until,time.monotonic()+90))
+                api=self.bound_api(operation);quiet=self.stop(api) if api is not None else dict(absent=True)
+                self.runtime.wait_readiness(lambda:self.no_other_graph_consumers(api["Id"] if api is not None else None),min(self.until,time.monotonic()+90))
                 current=self.writer.gate.read()
                 with self.writer.exclusive(operation,expected_epoch=current["epoch"],until=min(self.until,time.monotonic()+90)):
                     try:return self.switch(operation,state,mode,before,quiet)

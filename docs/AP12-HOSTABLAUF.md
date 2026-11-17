@@ -25,6 +25,15 @@ die vorhandene CIFSbindung. Danach eigener Abschlussgrant, passender AP07-Proof,
 versiegeltes Rootjournal und Freigabe; EX bleibt bis zum Nachlauf gehalten.
 Die neue API-ID steht ausschließlich im privaten Beleg; Runtimeprofil bleibt name/image.
 
+Vor Compose wird eine dauerhafte Austauschabsicht mit ursprünglicher API-ID,
+Zielimage, Quell-/Instanzbindung, API-Name, Materialhash, eigener Austauschkennung
+und DB-/nginx-IDs geschrieben. Neue Container müssen diese Kennung und sämtliche
+Verbraucherbindungen erfüllen. Eine fehlende API ist ausschließlich über diesen
+Beleg und bestätigte Ruhe ihrer bekannten Cgroups zulässig. Eine bereits passend
+erzeugte API wird nach Antwortverlust übernommen; das Runtimeprofil wird danach
+vervollständigt. Ein Rückweg mit anderem Material erhält eine neue Austauschabsicht,
+während der bisherige Beleg unverändert archiviert wird.
+
 bootstrap stattet bestehende Verbraucher bei unverändertem aktuellen Key aus und
 registriert keinen Schlüssel. resume öffnet keine unerklärte Sperre. Unklarer
 Proof wird zuerst sperrend aus der DB gegen ursprüngliche Revision/Fingerprint/
@@ -33,9 +42,25 @@ Checkpoint einschließlich Seal/Absicht archiviert. Bei Fehlern nur über gülti
 gesichertes Altmaterial, erneut erstellte API und bestätigte alte Verbraucher/Proofs
 zurückkehren; unbestätigter Rückweg bleibt geschlossen.
 
+Dies gilt auch für den ausdrücklichen Root-Rückweg. Unbekannte Proofwirkung muss
+zur ursprünglichen Absicht passen; bestätigte Proofs bleiben mit vollständigem Seal
+archiviert. Ein nach Archivierung verlorener Fortschritt verwendet dasselbe Archiv
+erneut. Vorbereitete Aufträge wechseln erst nach Material-/Ruhebeleg in den aktuellen
+Boot. Ein veröffentlichter Rückweg ohne aktiven SQLauftrag wird anhand des exakten
+Gate-/SQL-/Journalabschlusses übernommen und mit neuen Verbraucher-/Proofbelegen
+bestätigt. Dabei bleibt dieselbe ursprüngliche Anforderung erhalten.
+
 Alte/neue bewusste Pause bleibt erhalten. Nur eigener Drain wird per Identität
-gelöst. Start bewahrt vorhandene Drainmarker und führt anschließend den begrenzten
-Wiederabgleich aus. Der Rotationscontroller aktiviert keine Timer/Hauptdienste.
+gelöst. Start bewahrt vorhandene Drainmarker, startet zunächst die vorhandene
+Datenbank und führt dann den begrenzten Wiederabgleich aus. Erst danach verlangt
+er die vollständig bereite API. Beim API-Austausch wird der vorhandene nginx nach
+Bestätigung seiner Identität gestartet oder neu geladen, damit seine bestehende
+API-Namensauflösung aktuell ist; TLSdateien werden nicht ersetzt. Die abschließende
+HTTPSprüfung bleibt verbindlich. Auch die Wiederaufnahme eines unklaren API-Execjobs
+stoppt erst innerhalb Lifecycle → Processing → Notification; sein Abschlussbeleg
+wird nach bestätigter Cgroupruhe unter Graph-EX entfernt. Bereits vollständig
+gesperrte Rückwegaufrufer erwerben dieselben Sperren nicht erneut.
+Der Rotationscontroller aktiviert keine Timer/Hauptdienste.
 
 Betreiberinstallation aus festem Quellarchiv: bestehende geschützte AP08-Hostpeers
 plus run-rotation.py/graph-access-host.py und eine geschützte Kopie von

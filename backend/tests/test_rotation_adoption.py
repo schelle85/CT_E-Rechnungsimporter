@@ -144,3 +144,45 @@ class AdoptionTests(unittest.TestCase):
             observed=dict(revision=9,proof=None),now=NOW+1,paused=False,drain_identity=None)
         self.assertEqual(self.journal.state(self.operation),original)
         self.assertEqual(list(self.root.directory.glob("*.host-checkpoint-*.json")),[])
+
+    def test_recovery_reuses_original_archive_after_loss_before_progress_save(self):
+        self.activate();self.verified();self.proof();self.journal.proof_unknown(self.operation)
+        original=self.journal.state(self.operation)
+        options=dict(pem_hash=original["new"]["pem_hash"],quiet_evidence="d"*64,observed=dict(revision=7,proof=None),
+            now=NOW+1,paused=False,drain_identity=None)
+        with patch.object(self.journal,"_save",side_effect=OSError("synthetic loss after archive fsync")):
+            with self.assertRaises(OSError):self.journal.recover(self.operation,**options)
+        path=self.root.directory/(self.operation+".host-checkpoint-"+str(original["revision"])+".json")
+        saved=path.read_bytes();self.assertEqual(self.journal.state(self.operation),original)
+        result=self.journal.recover(self.operation,**dict(options,now=NOW+5,quiet_evidence="e"*64))
+        self.assertEqual(result["phase"],"activated");self.assertEqual(path.read_bytes(),saved)
+
+    def test_recovery_archive_rejects_changed_original_material_and_scope(self):
+        self.activate();original=self.journal.state(self.operation)
+        options=dict(pem_hash=original["new"]["pem_hash"],quiet_evidence="d"*64,observed=dict(revision=0,proof=None),
+            now=NOW+1,paused=False,drain_identity=None)
+        with patch.object(self.journal,"_save",side_effect=OSError("synthetic archive-only crash")):
+            with self.assertRaises(OSError):self.journal.recover(self.operation,**options)
+        filename=self.operation+".host-checkpoint-"+str(original["revision"])+".json"
+        saved=self.root._read(filename)
+        for field,value in (("revision",99),("scope_key","f"*64)):
+            changed=dict(saved,checkpoint=dict(original,**{field:value}));self.root._write(filename,changed)
+            with self.assertRaises(GraphError):self.journal.recover(self.operation,**options)
+            self.assertEqual(self.journal.state(self.operation),original)
+        self.root._write(filename,dict(saved,pem_hash="f"*64))
+        with self.assertRaises(GraphError):self.journal.recover(self.operation,**options)
+        self.assertEqual(self.journal.state(self.operation),original)
+
+    def test_rollback_cannot_bypass_unknown_or_sealed_proof_reconciliation(self):
+        self.activate();self.verified();receipt=self.proof();self.journal.proof_unknown(self.operation)
+        original=self.journal.state(self.operation)
+        with self.assertRaises(GraphError):self.journal.rollback(self.operation,NOW)
+        self.assertEqual(self.journal.state(self.operation),original)
+        self.journal.proof_verified(self.operation,receipt,NOW)
+        original=self.journal.commit(self.operation,now=NOW,paused=True,drain_identity="e"*64)
+        with self.assertRaises(GraphError):self.journal.rollback(self.operation,NOW)
+        config=BINDING.config
+        with self.assertRaises(GraphError):self.journal.recover(self.operation,pem_hash=original["new"]["pem_hash"],quiet_evidence="d"*64,
+            observed=dict(revision=8,proof=dict(fingerprint="f"*64,scope_key=graph_scope(config.tenant_id,config.client_id,config.mailbox),at=NOW)),
+            now=NOW,paused=True,drain_identity="e"*64)
+        self.assertEqual(self.journal.state(self.operation),original)

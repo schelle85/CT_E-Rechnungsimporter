@@ -100,8 +100,11 @@ def operate(mode,value,host,*,started=None):
     if mode=="drain":return runtime.drain(host,started+45)
     binding=runtime.profile(value["runtime_profile"],host)
     if mode=="start":
-        result=runtime.start(binding,value["public_origin"],host,started+240,preserve_drain=True)
-        graph=load_processing("run-rotation.py").Controller(until=started+240).operate("resume")
+        result=runtime.start(binding,value["public_origin"],host,started+240,preserve_drain=True,infrastructure_only=True)
+        graph=load_processing("run-rotation.py").Controller(until=started+240).operate("resume",startup=True)
+        if graph.get("ok") is True:
+            binding=runtime.profile(value["runtime_profile"],host)
+            result=runtime.start(binding,value["public_origin"],host,started+240,preserve_drain=True)
         return dict(result,ok=result.get("ok") is True and graph.get("ok") is True,graph_access=graph)
     if mode=="tls":return runtime.tls(binding,value["public_origin"],value["tls_profile"],host,started+180)
     until=started+(95 if mode=="notifications" else host.TICK_SECONDS)

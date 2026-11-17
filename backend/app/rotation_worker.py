@@ -29,6 +29,7 @@ FIELDS={"status":set(),"register":set(),"candidate-verified":{"receipt"},
     "proof-verified":{"receipt"},"commit":{"paused","drain_identity"},"rollback":set(),"rollback-unknown":set(),
     "recover":{"pem_hash","quiet_evidence","paused","drain_identity"},"monitor":set(),"read":set()}
 FIELDS["publish"]=set()
+FIELDS["resume-closed"]={"seal"}
 
 
 def request(raw):
@@ -106,7 +107,7 @@ def execute(value,deadline):
         store=RotationStore(engine,bound);head=store.status();operation=value["operation_id"]
         if operation is not None:
             store.read(operation)
-            if head["active_operation"]!=operation and value["command"] not in {"read","monitor","publish"}:raise GraphError("rotation_operation_changed")
+            if head["active_operation"]!=operation and value["command"] not in {"read","monitor","publish","resume-closed"}:raise GraphError("rotation_operation_changed")
         journal=RootJournal(DIRECTORY,bound)
         with journal.session():
             host=AdoptionJournal(journal,access);now=int(time.time());command=value["command"]
@@ -118,6 +119,20 @@ def execute(value,deadline):
                     core=journal.state(active) if active else None,host=host.state(active) if active else None)
             if command=="monitor":return dict(ok=True,observed=monitor_state(engine,config))
             if command=="read":return dict(ok=True,core=journal.state(operation),host=host.state(operation))
+            if command=="resume-closed":
+                from app.graph_access import AccessGate
+                state=host.state(operation);release=AccessGate(access).read()
+                if (head["active_operation"] is not None or state is None or state["phase"]!="committed" or state["target"]!="old"
+                        or metadata(current)!=state["old"] or state["seal"]!=value["seal"]
+                        or any(release.get(name)!=expected for name,expected in access.fields().items())
+                        or release["operation_id"]!=operation or release["release_hash"]!=state["seal"]
+                        or release["boot_id"]!=state["boot_id"] or release["mode"] not in {"allowed","paused","blocked"}
+                        or any(release[name]!=state["old"][name] for name in ("pem_hash","fingerprint"))):
+                    raise GraphError("rotation_release_invalid")
+                host.reconcile_proof(state,monitor_state(engine,config),now)
+                row=store.read(operation)
+                row=store.resume_closed(operation,row["revision"],current.fingerprint)
+                return dict(ok=True,request=row)
             if command=="publish":
                 from app.graph_access import AccessGate
                 state=host.state(operation);gate=AccessGate(access);release=gate.read();gate._bound(release)

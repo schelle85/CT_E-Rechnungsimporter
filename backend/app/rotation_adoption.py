@@ -136,6 +136,8 @@ class AdoptionJournal:
 
     def rollback(self,operation,now):
         value=self._current(operation,PHASES)
+        if value["proof_intent"] is not None or value["seal"] is not None:
+            raise GraphError("rotation_proof_unreconciled")
         if value["target"]!="new" or self.old_material(operation).expires_at<=now:
             raise GraphError("rotation_rollback_unavailable")
         return self._save(value,target="old",phase="activation_started",consumers={},proof_intent=None,proof=None,seal=None)
@@ -145,6 +147,24 @@ class AdoptionJournal:
         if value["target"]!="old":raise GraphError("rotation_transition_invalid")
         return self._save(value,phase="rollback_unknown")
 
+    def reconcile_proof(self,value,observed,now):
+        if value["proof_intent"] is None:return
+        intent=value["proof_intent"];config=self.root.binding.config
+        scope=graph_scope(config.tenant_id,config.client_id,config.mailbox)
+        if not isinstance(observed,dict) or set(observed)!={"revision","proof"} or type(observed["revision"]) is not int:
+            raise GraphError("rotation_proof_unreconciled")
+        confirmed=value["proof"]["probe"] if value["proof"] is not None else None
+        if confirmed is None and observed["revision"]==intent["base_revision"]:return
+        proof=observed["proof"]
+        if (not isinstance(proof,dict) or set(proof)!={"fingerprint","scope_key","at"}
+                or proof["fingerprint"]!=value[value["target"]]["fingerprint"] or proof["scope_key"]!=scope
+                or type(proof["at"]) is not int or not intent["at"]<=proof["at"]<=now):
+            raise GraphError("rotation_proof_unreconciled")
+        if confirmed is None:
+            if observed["revision"]!=intent["base_revision"]+1:raise GraphError("rotation_proof_unreconciled")
+        elif observed["revision"]<confirmed["proof_revision"] or proof["at"]<confirmed["proof_at"]:
+            raise GraphError("rotation_proof_unreconciled")
+
     def recover(self,operation,*,pem_hash,quiet_evidence,observed,now,paused,drain_identity):
         """Only after host confirms stopped old consumers and locked current DB read."""
         value=self.state(operation);sha(pem_hash);sha(quiet_evidence)
@@ -152,25 +172,20 @@ class AdoptionJournal:
         targets=[name for name in ("old","new") if value[name]["pem_hash"]==pem_hash]
         if len(targets)!=1 or value[targets[0]]["expires_at"]<=now:raise GraphError("rotation_recovery_invalid")
         if drain_identity is not None:sha(drain_identity)
-        if value["phase"] in {"proof_started","proof_unknown"}:
-            intent=value["proof_intent"]
-            if not isinstance(observed,dict) or set(observed)!={"revision","proof"}:raise GraphError("rotation_proof_unreconciled")
-            if observed["revision"]!=intent["base_revision"]:
-                proof=observed["proof"];config=self.root.binding.config
-                scope=graph_scope(config.tenant_id,config.client_id,config.mailbox)
-                if (observed["revision"]!=intent["base_revision"]+1 or not isinstance(proof,dict)
-                        or set(proof)!={"fingerprint","scope_key","at"}
-                        or proof["fingerprint"]!=value[value["target"]]["fingerprint"] or proof["scope_key"]!=scope
-                        or type(proof["at"]) is not int or not intent["at"]<=proof["at"]<=now):
-                    raise GraphError("rotation_proof_unreconciled")
+        self.reconcile_proof(value,observed,now)
+        prepared=value["phase"]=="prepared"
+        if prepared and targets[0]!="old":raise GraphError("rotation_recovery_invalid")
         # Preserve every previous intent/seal before fresh consumer/proof work.
         filename=operation+".host-checkpoint-"+str(value["revision"])+".json"
         checkpoint=dict(checkpoint=value,quiet_evidence=quiet_evidence,observed_proof=observed,
             pem_hash=pem_hash,recovered_at=now)
         prior=self.root._read(filename)
-        if prior is not None and prior!=checkpoint:raise GraphError("rotation_recovery_changed")
+        if prior is not None and (not isinstance(prior,dict) or set(prior)!=set(checkpoint)
+                or any(prior[name]!=checkpoint[name] for name in ("checkpoint","pem_hash","observed_proof"))):
+            raise GraphError("rotation_recovery_changed")
         if prior is None:self.root._write(filename,checkpoint)
-        return self._save(value,boot_id=boot_id(),target=targets[0],phase="activated",paused=value["paused"] or paused,
+        return self._save(value,boot_id=boot_id(),target="new" if prepared else targets[0],
+            phase="prepared" if prepared else "activated",paused=value["paused"] or paused,
             drain_identity=drain_identity,consumers={},proof_intent=None,proof=None,seal=None)
 
     def _consumer(self,value,role,item):

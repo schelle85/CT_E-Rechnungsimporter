@@ -126,6 +126,21 @@ class RotationStore:
                 c.execute(head.update().where(head.c.singleton == 1).values(blocked_fingerprint=row["old_fingerprint"]))
             return self._row(c, operation)
 
+    def resume_closed(self,operation,expected_revision,fingerprint):
+        """Root has verified the matching closed gate/journal; retain original request."""
+        with self.transaction() as c:
+            current=self._head(c);row=self._row(c,operation)
+            if (current["active_operation"] is not None or row["revision"]!=expected_revision
+                    or row["state"]!="failed" or row["error_code"]!="rotation_rolled_back"
+                    or row["old_fingerprint"]!=fingerprint or current["blocked_fingerprint"]!=fingerprint):
+                raise GraphError("rotation_operation_changed")
+            now=int(self.clock())
+            c.execute(requests.update().where(requests.c.operation_id==operation).values(state="adopting",
+                error_code="rotation_rollback_pending",revision=row["revision"]+1,updated_at=now))
+            c.execute(head.update().where(head.c.singleton==1).values(active_operation=operation,
+                revision=current["revision"]+1,updated_at=now))
+            return self._row(c,operation)
+
     def project_host(self,operation,expected_revision,state,*,code=None):
         """Root worker only; final publication follows the persisted gate release."""
         transitions={"registered":{"adoption_prepared"},"candidate_verified":{"adoption_prepared"},

@@ -154,11 +154,12 @@ def drain(host,until):
     return dict(ok=True,drained=True)
 
 
-def start(binding,origin,host,until,*,preserve_drain=False):
+def start(binding,origin,host,until,*,preserve_drain=False,infrastructure_only=False):
     with host.host_lock(LIFECYCLE_LOCK) as acquired:
         if not acquired:raise ValueError("host_lifecycle_busy")
         previous_gate=gate(host)
-        for kind in ("db","api","nginx"):
+        # nginx resolves the API name at load time; it must follow API recovery.
+        for kind in (("db",) if infrastructure_only else ("db","api","nginx")):
             item=inspect_container(binding,kind,host,until)
             if not item["state"].get("Running"):host.command(["start",item["id"]],seconds(until,10))
             while True:
@@ -166,6 +167,7 @@ def start(binding,origin,host,until,*,preserve_drain=False):
                 if current["id"]!=item["id"]:raise ValueError("host_container_changed")
                 if current["state"].get("Running") and (kind=="nginx" or current["state"].get("Health",{}).get("Status")=="healthy"):break
                 time.sleep(seconds(until,1))
+        if infrastructure_only:return dict(ok=True,infrastructure_ready=True,draining=host.draining())
         wait_readiness(lambda:ready(binding,origin,host,until),until)
         with host.host_lock(GATE_LOCK,wait=seconds(until,5)) as acquired:
             if not acquired:raise ValueError("host_gate_busy")

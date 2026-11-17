@@ -4,6 +4,7 @@ import importlib.util
 import json
 from pathlib import Path
 import tempfile
+import threading
 import time
 from types import SimpleNamespace
 import unittest
@@ -36,7 +37,7 @@ class HostOrderTests(unittest.TestCase):
         result.host=SimpleNamespace(host_lock=lock,PROCESSING_LOCK="processing")
         result.runtime=SimpleNamespace(LIFECYCLE_LOCK="lifecycle",inspect_container=lambda *a:dict(id=a[1]),wait_readiness=lambda fn,until:fn())
         result.model=SimpleNamespace(boot_id=lambda:"boot")
-        result.recover_job=lambda:result.events.append("recover-jobs")
+        result.recover_job=lambda **kw:result.events.append("recover-jobs")
         state=dict(phase="prepared",paused=False)
         def worker(command,operation=None,**values):
             result.events.append("worker:"+command)
@@ -45,6 +46,7 @@ class HostOrderTests(unittest.TestCase):
             raise AssertionError(command)
         result.worker=worker;result.drain=lambda op:result.events.append("drain")
         result.api=lambda:dict(Id="api")
+        result.bound_api=lambda operation:result.api()
         def stop(api):result.events.append("stopped");return dict(stopped=True)
         result.stop=stop;result.no_other_graph_consumers=lambda api:result.events.append("quiet")
         return result
@@ -111,3 +113,63 @@ class CgroupAndDrainTests(unittest.TestCase):
         self.controller.clear_drain();self.assertTrue(path.exists())
         self.controller.marker=lambda:dict(inode=1)
         self.controller.clear_drain();self.assertFalse(path.exists())
+
+
+class ExecRecoveryTests(unittest.TestCase):
+    def test_exec_recovery_blocks_early_but_waits_for_lifecycle_and_archives_no_early_completion(self):
+        with tempfile.TemporaryDirectory() as directory:
+            c=host.Controller.__new__(host.Controller);c.journal=Path(directory);c.until=time.monotonic()+10
+            c.access=SimpleNamespace(fields=lambda:{});operation=str(uuid4());name="invoice-rotation-"+uuid4().hex
+            path=c.job_path(name);path.write_text(json.dumps(dict(kind="exec",name=name,operation_id=operation,
+                container_id="c"*64,image="sha256:"+"b"*64)))
+            lifecycle=threading.Lock();lifecycle.acquire();attempted=threading.Event();blocked=threading.Event()
+            held=[];events=[];errors=[];record=dict(epoch=1)
+            @contextmanager
+            def lock(filename,**kwargs):
+                self.assertNotIn(filename,held)
+                if filename=="lifecycle":
+                    attempted.set()
+                    if not lifecycle.acquire(timeout=3):raise ValueError("fixture lifecycle timeout")
+                held.append(filename);events.append("lock:"+filename)
+                try:yield True
+                finally:
+                    held.remove(filename)
+                    if filename=="lifecycle":lifecycle.release()
+            @contextmanager
+            def exclusive(*args,**kwargs):
+                self.assertEqual(held,["lifecycle","processing","/run/invoice-importer/notification.lock"])
+                self.assertIn("stopped-and-quiet",events);events.append("exclusive");yield
+            def block(*args,**kwargs):record["epoch"]+=1;blocked.set();events.append("blocked")
+            c.writer=SimpleNamespace(gate=SimpleNamespace(read=lambda:dict(record)),block=block,exclusive=exclusive)
+            c.host=SimpleNamespace(protected=lambda value:Path(value),host_lock=lock,PROCESSING_LOCK="processing")
+            c.runtime=SimpleNamespace(LIFECYCLE_LOCK="lifecycle",sync_directory=lambda _:None)
+            c.drain=lambda op:events.append("drain");c.command=lambda *a,**k:"c"*64
+            c.inspect=lambda *a:dict(Id="c"*64)
+            def stop(item):
+                self.assertEqual(held,["lifecycle","processing","/run/invoice-importer/notification.lock"])
+                self.assertTrue(path.exists());events.append("stopped-and-quiet")
+            c.stop=stop
+            def run():
+                try:c.recover_job()
+                except BaseException as error:errors.append(error)
+            thread=threading.Thread(target=run);thread.start()
+            try:
+                self.assertTrue(blocked.wait(2));self.assertTrue(attempted.wait(2))
+                self.assertNotIn("stopped-and-quiet",events);self.assertTrue(path.exists())
+            finally:lifecycle.release();thread.join(4)
+            self.assertFalse(thread.is_alive());self.assertEqual(errors,[]);self.assertFalse(path.exists())
+            self.assertLess(events.index("blocked"),events.index("lock:lifecycle"))
+            self.assertLess(events.index("stopped-and-quiet"),events.index("exclusive"))
+
+    def test_already_locked_recovery_never_reenters_host_or_graph_locks(self):
+        with tempfile.TemporaryDirectory() as directory:
+            c=host.Controller.__new__(host.Controller);c.journal=Path(directory);c.access=SimpleNamespace(fields=lambda:{})
+            operation=str(uuid4());name="invoice-rotation-"+uuid4().hex;path=c.job_path(name)
+            path.write_text(json.dumps(dict(kind="exec",name=name,operation_id=operation,container_id="c"*64,image="sha256:"+"b"*64)))
+            checked=[]
+            c.writer=SimpleNamespace(gate=SimpleNamespace(read=lambda:dict(epoch=1)),block=lambda *a,**k:None,
+                _require=lambda **kw:checked.append(kw),exclusive=lambda *a,**k:self.fail("reentered graph lock"))
+            c.host=SimpleNamespace(protected=lambda value:Path(value),host_lock=lambda *a,**k:self.fail("reentered host lock"))
+            c.runtime=SimpleNamespace(sync_directory=lambda _:None);c.recover_exec=lambda value:checked.append("quiet")
+            c.recover_job(locked=True)
+            self.assertEqual(checked,[dict(exclusive=True),"quiet"]);self.assertFalse(path.exists())

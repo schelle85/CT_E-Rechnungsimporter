@@ -1,5 +1,6 @@
 """C3b integrated host/worker flow: real files/SQLite/crypto; explicit Docker/OS/probe doubles."""
 from contextlib import contextmanager
+import copy
 import hashlib
 import json
 from pathlib import Path
@@ -10,6 +11,7 @@ from unittest.mock import patch
 
 import sqlalchemy as sa
 from app import rotation_worker as worker
+from app.graph import GraphError
 from app.notification_certificate import CertificateMaterial
 from app.notification_model import CERTIFICATE_TOKEN,canonical,graph_scope,identity
 from app.notification_schema007 import monitor
@@ -17,12 +19,14 @@ from app.rotation_schema008 import head,requests
 from rotation_test_support import CONFIG,NOW
 from test_rotation_host import host
 import test_rotation_worker as worker_fixture
+import test_automation_runtime as automation_fixture
 
 
 class IntegratedHostTests(unittest.TestCase):
     def setUp(self):
         worker_fixture.WorkerTests.setUp(self)
         self.events=[];self.counter=0;self.failure=None;self.crash=False;self.crash_proof=False;self.new_pause=False
+        self.api_present=True;self.compose_loss=None;self.infrastructure_ids=dict(db="d"*64,nginx="e"*64);self.nginx_running=True
         root=Path(self.temp.name);self.active=root/"active.pem";self.active.write_bytes(self.current.pem)
         self.old_bytes=self.current.pem
         c=host.Controller.__new__(host.Controller);self.controller=c;c.until=time.monotonic()+600
@@ -47,14 +51,16 @@ class IntegratedHostTests(unittest.TestCase):
             PROCESSING_LOCK="processing",DRAIN_FILE=str(root/"draining"),CifsBinding=cifs)
         c.runtime=SimpleNamespace(LIFECYCLE_LOCK="lifecycle",GATE_LOCK="gate",sync_directory=lambda path:None,
             wait_readiness=lambda fn,until:fn(),ready=lambda *a:self.events.append("ready"),
-            inspect_container=lambda binding,kind,*a:dict(id=kind))
-        c.model=SimpleNamespace(boot_id=lambda:self.gate["boot_id"],validate=lambda value:value)
+            inspect_container=lambda binding,kind,*a:dict(id=self.infrastructure_ids[kind],state=dict(Running=self.nginx_running if kind=="nginx" else True)))
+        self.current_boot=self.gate["boot_id"]
+        self.stack.enter_context(patch("app.rotation_adoption.boot_id",side_effect=lambda:self.current_boot))
+        c.model=SimpleNamespace(boot_id=lambda:self.current_boot,validate=lambda value:value)
         def block(operation,**kwargs):self.gate.update(mode="blocked",operation_id=operation,epoch=self.gate["epoch"]+1);self.events.append("blocked")
         @contextmanager
         def exclusive(*a,**k):
-            self.assertFalse(self.api_data["State"]["Running"]);self.events.append("exclusive");yield
+            self.assertTrue(not self.api_present or not self.api_data["State"]["Running"]);self.events.append("exclusive");yield
         def candidate(operation,*,pem_hash,fingerprint,**kwargs):
-            self.gate.update(pem_hash=pem_hash,fingerprint=fingerprint,epoch=self.gate["epoch"]+1,admission_epoch=0)
+            self.gate.update(pem_hash=pem_hash,fingerprint=fingerprint,epoch=self.gate["epoch"]+1,admission_epoch=0,boot_id=self.current_boot)
         def release(operation,*,release_hash,pause,**kwargs):
             state=self.root._read(operation+".host.json")
             if state is not None:
@@ -70,18 +76,37 @@ class IntegratedHostTests(unittest.TestCase):
                 "/run/importer/graph.json":c.processing["graph_config"],"/run/secrets/graph_credential":str(self.active),
                 "/run/importer/graph-access-binding.json":str(c.binding_file),"/run/importer/operations/graph-access":str(c.gate_directory),
                 "/run/secrets/notification_key":c.auto["notification_key"]}.items()],material=self.current)
-        c.inspect=lambda *a:self.api_data
+        def inspect(name,image,uid):
+            if not self.api_present or name not in {"api",self.api_data["Id"]} or image!=self.api_data["Image"]:raise ValueError("synthetic missing/changed container")
+            return self.api_data
+        c.inspect=inspect;c.image=lambda value:None  # Explicit image-inspect boundary double.
         def stop(item):self.events.append("stop");self.api_data["State"]["Running"]=False;return dict(container_id=item["Id"],stopped=True)
-        c.stop=stop;c.recover_job=lambda:self.events.append("recover-jobs");c.no_other_graph_consumers=lambda *a:self.events.append("quiet")
+        c.stop=stop;c.recover_job=lambda **kw:self.events.append("recover-jobs");c.no_other_graph_consumers=lambda *a:self.events.append("quiet")
         c.cgroup=lambda item:root/"synthetic-cgroup";c.quiet=lambda *a,**k:self.events.append("quiet")
         def command(args,*a,**kwargs):
-            if args[0]=="container":return "api"
+            if args[0]=="container":return "api" if self.api_present else ""
+            if args[0]=="start":
+                if args[1]==self.infrastructure_ids["nginx"]:
+                    self.assertTrue(self.api_present);self.nginx_running=True;self.events.append("nginx-start");return ""
+                self.assertEqual(args[1],self.api_data["Id"]);self.api_data["State"]["Running"]=True;return ""
+            if args[0]=="exec" and args[1]==self.infrastructure_ids["nginx"]:
+                self.assertTrue(self.api_present);self.events.append("nginx:"+" ".join(args[2:]));return ""
             if args[0]=="compose" and "config" in args:
-                return 0,dict(services=dict(api=dict(image=self.images["api"],user="10001:10001",read_only=True,cap_drop=["ALL"])))
+                override=json.loads(Path(args[args.index("config")-1]).read_text())["services"]["api"]
+                return 0,dict(services=dict(api=dict(override,user="10001:10001",read_only=True,cap_drop=["ALL"])))
             if args[0]=="compose" and "up" in args:
+                override=json.loads(Path(args[args.index("up")-1]).read_text())["services"]["api"]
+                self.api_present=False
+                if self.compose_loss=="removed":
+                    self.compose_loss=None;raise SystemExit("synthetic host loss after removing old API")
                 self.counter+=1;self.api_data["Id"]=hashlib.sha256(str(self.counter).encode()).hexdigest()
+                self.api_present=True;self.api_data["Config"]["Labels"]=override["labels"]
+                self.api_data["Image"]=self.images["api"]
                 self.api_data["State"]["Running"]=True;self.api_data["material"]=CertificateMaterial.parse(self.active.read_bytes())
-                self.events.append("recreate-api");return ""
+                self.events.append("recreate-api")
+                if self.compose_loss=="response":
+                    self.compose_loss=None;raise SystemExit("synthetic lost Compose response after new API creation")
+                return ""
             raise AssertionError(args)
         c.command=command
         def execute(command,operation=None,**values):
@@ -123,6 +148,152 @@ class IntegratedHostTests(unittest.TestCase):
             if self.crash:self.crash=False;raise SystemExit("synthetic host loss after file activation")
             return original_recreate(operation)
         c.recreate_api=recreate
+
+    def fresh_controller(self):
+        # A new Python object, reloading durable state; OS/Docker boundaries stay explicit doubles.
+        result=copy.copy(self.controller);result.control=None
+        profile=Path(result.auto["runtime_profile"])
+        if profile.exists():result.binding=json.loads(profile.read_text())
+        result.recreate_api=host.Controller.recreate_api.__get__(result)
+        self.controller=result
+        return result
+
+    def archive_for(self,state):
+        return self.root._read(self.operation+".host-checkpoint-"+str(state["revision"])+".json")
+
+    def start_through_automation(self):
+        c=self.fresh_controller();runtime=automation_fixture.host_module("rotation_start_runtime","host-runtime.py")
+        automatic=automation_fixture.automatic;c.host.draining=lambda:Path(c.host.DRAIN_FILE).exists()
+        def inspect(binding,kind,*args):
+            self.events.append("start-inspect:"+kind)
+            if kind=="api":
+                item=c.inspect("api",binding["containers"]["api"]["image"],"10001:10001")
+                return dict(id=item["Id"],state=item["State"])
+            return dict(id=self.infrastructure_ids[kind],state=dict(Running=True,Health=dict(Status="healthy")))
+        peers={"host-runtime.py":runtime,"run-rotation.py":SimpleNamespace(Controller=lambda **kw:c)}
+        with patch.object(automatic,"load_processing",side_effect=lambda name:peers[name]),\
+                patch.object(automatic,"os",SimpleNamespace(name="posix",geteuid=lambda:0)),patch.object(runtime,"inspect_container",side_effect=inspect),\
+                patch.object(runtime,"profile",side_effect=lambda path,host:json.loads(Path(path).read_text())),\
+                patch.object(runtime,"ready",side_effect=lambda *args:self.events.append("start-ready")),patch.object(runtime,"sync_directory"):
+            return automatic.operate("start",c.auto,c.host)
+
+    def exchange_interruption(self,window,*,bootstrap=False):
+        c=self.controller
+        if bootstrap:
+            with self.engine.begin() as connection:
+                connection.execute(requests.delete());connection.execute(head.update().values(active_operation=None))
+        c.images["api"]="sha256:"+"d"*64;Path(c.auto["runtime_profile"]).write_text(json.dumps(c.binding))
+        if window=="profile":
+            def lose_host(*args):
+                if self.counter:raise SystemExit("synthetic new API before profile save")
+            c.runtime.ready=lose_host
+        else:self.compose_loss=window
+        with self.assertRaises(SystemExit):c.operate("bootstrap" if bootstrap else "run")
+        c.runtime.ready=lambda *args:None
+        operation=json.loads((c.journal/".bootstrap.json").read_text())["operation_id"] if bootstrap else self.operation
+        intent=c.exchange(operation);original_nonce=intent["nonce"]
+        self.assertEqual(intent["old"]["image"],"sha256:"+"b"*64)
+        self.assertEqual(json.loads(Path(c.auto["runtime_profile"]).read_text())["containers"]["api"]["image"],"sha256:"+"b"*64)
+        self.events.clear();result=self.start_through_automation()
+        self.assertTrue(result["ok"]);self.assertEqual(result["graph_access"]["operation_id"],operation)
+        self.assertEqual(self.controller.exchange(operation)["nonce"],original_nonce)
+        self.assertEqual(self.counter,1);self.assertEqual(self.remote.adds,0 if bootstrap else 1)
+        self.assertEqual(self.controller.exchange(operation)["preserved"],{kind:dict(id=value) for kind,value in self.infrastructure_ids.items()})
+        self.assertLess(self.events.index("release-last"),self.events.index("start-inspect:api"))
+
+    def test_exchange_removed_api_resumes_through_actual_start(self):self.exchange_interruption("removed")
+
+    def test_exchange_created_api_before_profile_resumes_through_actual_start(self):self.exchange_interruption("profile")
+
+    def test_exchange_lost_compose_response_resumes_through_actual_start(self):self.exchange_interruption("response")
+
+    def test_bootstrap_exchange_created_api_resumes_through_actual_start(self):self.exchange_interruption("profile",bootstrap=True)
+
+    def test_exchange_rejects_foreign_api_and_changed_bind_after_response_loss(self):
+        self.compose_loss="response"
+        with self.assertRaises(SystemExit):self.controller.operate("run")
+        c=self.fresh_controller();saved=copy.deepcopy(self.api_data)
+        for changed in ("label","bind","image"):
+            self.api_data=copy.deepcopy(saved)
+            if changed=="label":self.api_data["Config"]["Labels"]["invoice.rotation.exchange"]="f"*32
+            elif changed=="bind":self.api_data["Mounts"][0]["RW"]=True
+            else:self.api_data["Image"]="sha256:"+"f"*64
+            with self.subTest(changed=changed),self.assertRaises(ValueError):c.operate("resume")
+            self.assertEqual(self.gate["mode"],"blocked");self.assertEqual(self.remote.adds,1)
+
+    def test_closed_old_return_survives_boot_and_general_start_without_new_request(self):
+        # Separate bootstrap identity is deliberately present.
+        (self.controller.journal/".bootstrap.json").write_text(json.dumps(dict(operation_id="99999999-9999-9999-9999-999999999999")))
+        self.failure="api";self.controller.operate("run")
+        original=self.root._read(self.operation+".host.json");request_hash=self.store.read(self.operation)["request_hash"]
+        self.assertIsNone(self.store.status()["active_operation"])
+        # A later ordinary certificate observation increments revision but retains the proof.
+        with self.engine.begin() as connection:connection.execute(monitor.update().values(revision=monitor.c.revision+1))
+        self.gate["mode"]="paused"
+        self.current_boot="88888888-8888-8888-8888-888888888888"
+        result=self.start_through_automation()
+        self.assertTrue(result["ok"]);self.assertEqual(result["graph_access"]["target"],"old");self.assertTrue(result["graph_access"]["paused"])
+        self.assertEqual(self.archive_for(original)["checkpoint"],original)
+        self.assertIsNone(self.store.status()["active_operation"]);self.assertEqual(self.remote.adds,1)
+        self.assertEqual(self.store.read(self.operation)["request_hash"],request_hash)
+        self.assertEqual(self.gate["boot_id"],self.current_boot);self.assertEqual(self.active.read_bytes(),self.old_bytes)
+
+    def test_closed_return_rejects_unbound_gate_or_changed_sql_completion(self):
+        self.failure="api";self.controller.operate("run")
+        c=self.fresh_controller();original=self.root._read(self.operation+".host.json");saved_gate=dict(self.gate)
+        self.current_boot="88888888-8888-8888-8888-888888888888"
+        for field,value in (("release_hash","f"*64),("scope_key","f"*64),("operation_id","99999999-9999-9999-9999-999999999999")):
+            self.gate.update(saved_gate);self.gate[field]=value
+            with self.subTest(field=field),self.assertRaises(GraphError):c.operate("resume")
+            self.assertIsNone(self.store.status()["active_operation"]);self.assertEqual(self.root._read(self.operation+".host.json"),original)
+        self.gate.update(saved_gate)
+        with self.engine.begin() as connection:connection.execute(requests.update().values(error_code="rotation_rollback_unknown"))
+        with self.assertRaises(GraphError):c.operate("resume")
+        self.assertIsNone(self.store.status()["active_operation"]);self.assertEqual(self.remote.adds,1)
+
+    def test_removed_api_start_defers_nginx_until_api_exists(self):
+        self.nginx_running=False;self.exchange_interruption("removed")
+        self.assertLess(self.events.index("recreate-api"),self.events.index("nginx-start"))
+
+    def test_explicit_rollback_reconciles_written_unknown_proof_before_reset(self):
+        self.crash_proof=True
+        with self.assertRaises(SystemExit):self.controller.operate("run")
+        original=self.root._read(self.operation+".host.json")
+        result=self.fresh_controller().operate("rollback")
+        archived=self.archive_for(original)
+        self.assertEqual(archived["checkpoint"],original)
+        self.assertEqual(archived["observed_proof"]["revision"],original["proof_intent"]["base_revision"]+1)
+        self.assertTrue(result["ok"]);self.assertEqual(result["target"],"old")
+        self.assertEqual(self.active.read_bytes(),self.old_bytes);self.assertEqual(self.remote.adds,1)
+
+    def test_explicit_rollback_archives_complete_committed_seal_before_old_proof(self):
+        self.controller.operate("run");original=self.root._read(self.operation+".host.json")
+        result=self.fresh_controller().operate("rollback")
+        self.assertEqual(self.archive_for(original)["checkpoint"],original)
+        self.assertIsNotNone(original["seal"]);self.assertTrue(result["ok"])
+        self.assertEqual(result["target"],"old");self.assertEqual(self.remote.adds,1)
+
+    def test_explicit_rollback_with_unmatched_proof_keeps_original_intent(self):
+        self.crash_proof=True
+        with self.assertRaises(SystemExit):self.controller.operate("run")
+        original=self.root._read(self.operation+".host.json");active=self.active.read_bytes()
+        with self.engine.begin() as connection:connection.execute(monitor.update().values(revision=9))
+        with self.assertRaises(GraphError):self.fresh_controller().operate("rollback")
+        self.assertEqual(self.root._read(self.operation+".host.json"),original)
+        self.assertEqual(self.active.read_bytes(),active);self.assertIsNone(self.archive_for(original))
+        self.assertEqual(self.gate["mode"],"blocked");self.assertEqual(self.remote.adds,1)
+
+    def test_prepared_journal_resumes_after_boot_with_same_candidate_and_pause(self):
+        c=self.controller;c.worker("register",self.operation)
+        original=c.worker("prepare",self.operation,images=self.images,paused=True,drain_identity=None)["host"]
+        candidate=self.root.material(self.operation).pem
+        self.current_boot="88888888-8888-8888-8888-888888888888"
+        result=self.fresh_controller().operate("resume")
+        self.assertTrue(result["ok"]);self.assertTrue(result["paused"])
+        self.assertEqual(self.archive_for(original)["checkpoint"],original)
+        self.assertEqual(self.active.read_bytes(),candidate);self.assertEqual(self.remote.adds,1)
+        self.assertEqual(self.gate["boot_id"],self.current_boot)
+        self.assertEqual(self.root._read(self.operation+".host.json")["boot_id"],self.current_boot)
 
     def test_complete_switch_recreates_file_bind_then_commits_before_open(self):
         result=self.controller.operate("run")
@@ -173,3 +344,19 @@ class IntegratedHostTests(unittest.TestCase):
         self.new_pause=True;result=self.controller.operate("run")
         self.assertTrue(result["ok"]);self.assertEqual(result["target"],"new");self.assertEqual(self.remote.adds,1)
         self.assertEqual(Path(self.controller.host.DRAIN_FILE).read_text(),"new-operator-pause")
+
+    def test_bootstrap_resume_accepts_verified_new_named_api_after_old_id_was_removed(self):
+        with self.engine.begin() as connection:
+            connection.execute(requests.delete());connection.execute(head.update().values(active_operation=None))
+        c=self.controller;old_id=self.api_data["Id"]
+        c.images["api"]="sha256:"+"d"*64
+        Path(c.auto["runtime_profile"]).write_text(json.dumps(c.binding))
+        def lose_host(*args):raise SystemExit("synthetic loss after compose up before runtime profile save")
+        c.runtime.ready=lose_host
+        with self.assertRaises(SystemExit):c.operate("bootstrap")
+        self.assertNotEqual(self.api_data["Id"],old_id)
+        # A fresh controller reads the still-old durable runtime profile.
+        c.binding=json.loads(Path(c.auto["runtime_profile"]).read_text());c.control=None
+        c.runtime.ready=lambda *args:None
+        result=c.operate("resume")
+        self.assertTrue(result["ok"]);self.assertEqual(self.remote.adds,0)
