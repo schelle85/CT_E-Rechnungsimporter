@@ -3,9 +3,11 @@
 Stand: 17. November 2026. AP12 ist aus `d9f32a5a9c9fb642f59a13ed2550f74532fc3ebe`
 bereitgestellt, Schema008. Der echte Zertifikatswechsel ist unabhängig nativ bestätigt:
 `committed/new`, SQL-Zustand `overlap`, alle drei Verbraucher und eigener
-Abschlussproof. Die Rotationtimer sind wieder aktiv; der kontrollierte AP12-Boot bleibt
-ausstehend. Die laufende Überlappungsfrist ist kein Nachweis bereits erfolgter
-produktiver Altkeybereinigung.
+Abschlussproof. Genau ein kontrollierter AP12-Kundenboot ist erfolgt. Danach sind
+Kunden-API, Datenbank und Nginx unverändert erhalten; neues Graph-Zertifikat,
+sieben Timer, CIFS und HTTPS sind bestätigt. Die qualifizierten
+Wiederaufnahmebelege und ihre Grenzen stehen weiter unten.
+Produktive Altkeybereinigung nach Ablauf der Überlappung bleibt gesondert offen.
 
 Der erste echte Wechselversuch endete kontrolliert auf dem alten Zertifikat; seine
 ursprüngliche Fehlerursache bleibt unbelegt. Ein ausdrücklich getrennter zweiter Auftrag
@@ -52,11 +54,28 @@ die drei tatsächlichen Graphverbraucher sind getrennt nachgelesen. Die isoliert
 Browsergruppen einschließlich fachlicher Sichtung sind abgeschlossen; sie sind
 keine neue tatsächliche Kunden-/AD-Anmeldung.
 
-Offen bleiben der kontrollierte AP12-Boot mit erneuter Freigabe und privaten
-Wiederaufnahmebelegen, die spätere tatsächliche produktive Bereinigung nach
-Ablauf der Überlappung sowie nicht separat abgeschlossene historische
-Fehler-/Pausefenster. Weder ein Quellen-PASS noch der erfolgreiche Wechsel
-schließt diese Grenzen pauschal.
+### Kontrollierter Boot und qualifizierte Wiederaufnahme
+
+Es erfolgte genau ein AP12-Kundenboot. Danach sind dieselben Kunden-API-,
+Datenbank- und Nginxcontainer mit unveränderten Images erhalten; das neue
+Graph-Zertifikat ist aktiv, alle sieben Timer sowie CIFS und HTTPS sind gesund.
+Siegel und sämtliche Verbraucher-/Abschlussquittungen wurden getrennt gelesen.
+
+In der isolierten Rückwegprüfung bestand der Generalstart mit dem ursprünglichen,
+bereits zurückgerollten alten Material. In der isolierten Pauseprüfung ging die
+temporäre Lockablage durch den echten Boot verloren; der Generalstart bei
+vorbereiteter neuer Übernahme und erhaltener Pause bestand. Deren Datenbank und
+Nginx blieben erhalten, die API wurde dabei wie vorgesehen neu erstellt.
+Beide Prüfaufträge behalten jeweils genau eine Registrierung und keine Entfernung.
+
+Der erste Restore-Aufruf bleibt als fehlgeschlagen mit `AssertionError` erhalten;
+seine Ursache ist nicht belegt. Der anschließend ausschließlich lesend
+bestätigte Restorezustand qualifiziert den Zustandsnachweis, macht aber den
+ersten Aufruf nicht erfolgreich. Weder Start noch Boot wurden dafür wiederholt.
+Daraus folgt keine pauschale Abnahme sämtlicher historischer Fehler-/Pausefenster.
+
+Die spätere tatsächliche produktive Bereinigung nach Ablauf der Überlappung
+sowie nicht separat abgeschlossene historische Einzelprüfungen bleiben offen.
 
 ## Übergabefakten für AP11
 

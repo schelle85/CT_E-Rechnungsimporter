@@ -2,8 +2,8 @@
 
 Stand: 17. November 2026. Die folgenden Abschlussunterlagen sind beauftragt.
 AP12 ist aus d9 bereitgestellt; der echte Zertifikatswechsel ist unabhängig
-nativ bestätigt. Kontrollierter AP12-Boot und spätere produktive Bereinigung
-bleiben offen. [Lieferstand und Übergabefakten](AP12-UEBERGABE.md) trennen
+nativ bestätigt. Genau ein AP12-Kundenboot mit erhaltenem Betrieb und qualifizierten
+Wiederaufnahmebelegen ist dokumentiert; spätere produktive Bereinigung bleibt offen. [Lieferstand und Übergabefakten](AP12-UEBERGABE.md) trennen
 diese Grenzen von historischen Einzelprüfungen.
 Das vollständige Nutzerhandbuch ist
 seit14.11.2026 ein eigenes geplantes AP11. Die finalen Unterlagen entstehen aus

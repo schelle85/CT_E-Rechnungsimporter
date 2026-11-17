@@ -67,8 +67,11 @@
   bereitgestellt. Echter Wechsel auf neues Graph-Zertifikat, drei Verbraucher,
   Abschlussproof und SQL overlap unabhängig nativ bestätigt; Rotationtimer aktiv.
   Der erste Versuch kehrte kontrolliert zum Originalzertifikat zurück; seine
-  Ursache bleibt unbelegt. Kontrollierter AP12-Boot und spätere produktive
-  Bereinigung sind noch nicht bestätigt. Historische Einzelprüfungen getrennt
+  Ursache bleibt unbelegt. Genau ein AP12-Kundenboot mit erhaltenen Kundencontainern,
+  neuem Graphmaterial und gesunden sieben Timern/CIFS/HTTPS bestätigt. Isolierte
+  Wiederaufnahmezustände qualifiziert belegt; erster Restore-Aufruf blieb
+  fehlgeschlagen mit unbelegter Ursache. Spätere produktive Bereinigung offen.
+  Historische Einzelprüfungen getrennt
   erhalten; führend docs/AP12-UEBERGABE.md. Gestaltung der Tages-/Wochenmails
   als Nachtrag zu AP07 nach AP12 nur geplant, noch nicht umgesetzt.
   DMS-Anbindung, -Konfiguration und -Prüfung liegen außerhalb unseres Auftrags

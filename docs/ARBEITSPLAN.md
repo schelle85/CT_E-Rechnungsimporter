@@ -18,7 +18,8 @@ TLS-Stundenlauf um 20:00 sind belegt. Drei automatische Statuszyklen nach dem
 separat gesetzten Phasenversatz sind bestanden.
 AP12 ist aus d9 mit Schema008 bereitgestellt. Echter Wechsel mit drei Verbrauchern
 und Abschlussproof unabhängig nativ bestätigt; Überlappung läuft, Rotationtimer aktiv.
-Kontrollierter AP12-Boot und spätere produktive Bereinigung bleiben offen.
+Kontrollierter AP12-Boot mit erhaltenem Kundenbetrieb bestätigt; Wiederaufnahme
+mit qualifizierten Grenzen dokumentiert. Spätere produktive Bereinigung bleibt offen.
 AP09/10/11 bleiben ohne Umsetzungs-Go.**
 AP10 ist für die spätere wöchentliche Wartung ergänzt.
 AP12 ist seit 16.11.2026 für Graph-Zertifikatsrotation und einen zusätzlichen
@@ -248,9 +249,11 @@ Am 16.11.2026 als eigenes Arbeitspaket angenommen und eingeplant.
 Stand: 17. November 2026. AP12 ist aus `d9f32a5a9c9fb642f59a13ed2550f74532fc3ebe`
 bereitgestellt, Schema008. Der echte Zertifikatswechsel ist unabhängig nativ bestätigt:
 `committed/new`, SQL-Zustand `overlap`, alle drei Verbraucher und eigener
-Abschlussproof. Die Rotationtimer sind wieder aktiv; der kontrollierte AP12-Boot bleibt
-ausstehend. Die laufende Überlappungsfrist ist kein Nachweis bereits erfolgter
-produktiver Altkeybereinigung.
+Abschlussproof. Genau ein kontrollierter AP12-Kundenboot ist erfolgt. Danach sind
+Kunden-API, Datenbank und Nginx unverändert erhalten; neues Graph-Zertifikat,
+sieben Timer, CIFS und HTTPS sind bestätigt. Die qualifizierten
+Wiederaufnahmebelege und ihre Grenzen stehen in der [Übergabe](AP12-UEBERGABE.md).
+Produktive Altkeybereinigung nach Ablauf der Überlappung bleibt gesondert offen.
 
 Der erste echte Wechselversuch endete kontrolliert auf dem alten Zertifikat; seine
 ursprüngliche Fehlerursache bleibt unbelegt. Ein ausdrücklich getrennter zweiter Auftrag
@@ -260,7 +263,7 @@ registrierter Kandidat bleiben getrennt erhalten; der Erfolg des zweiten belegt 
 nachträgliche Erklärung oder Behebung der ersten Ursache.
 
 Offene historische Einzelprüfungen bleiben in der [Übergabe](AP12-UEBERGABE.md)
-abgegrenzt. Noch keine vollständige AP12-Bootabnahme.
+abgegrenzt. Der Bootnachweis schließt nicht sämtliche historischen Fehlerfälle.
 
 | Teil | Ergebnis und Prüfung |
 | --- | --- |

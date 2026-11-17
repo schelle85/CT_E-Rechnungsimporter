@@ -3,7 +3,8 @@
 Rootjournal, ursprüngliche automatische Anforderung, feste Hosteinträge und
 öffentliche Faktenprojektion sind mit d9 bereitgestellt. Die beiden Rotationtimer
 sind tatsächlich aktiv; die Automatikerlaubnis ist eingeschaltet. Der echte
-manuelle Wechsel ist bestätigt, kontrollierter AP12-Boot noch offen. Eine
+manuelle Wechsel und ein kontrollierter AP12-Boot sind bestätigt; danach sind
+alle sieben Timer aktiv. Die Grenzen der Wiederaufnahme nennt die Übergabe. Eine
 erfolgreiche manuelle Erneuerung ist kein Nachweis einer später fälligen
 automatischen Erneuerung; siehe [Übergabe](AP12-UEBERGABE.md).
 

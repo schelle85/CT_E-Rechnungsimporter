@@ -2,7 +2,7 @@
 
 Der Adminbaustein liefert feste APIwege und den Reiter Graph-Zertifikat im
 bereitgestellten d9-Stand. Root-Statuspublisher und aktivierte Hosttimer sind mit
-dem [Automatikbaustein](AP12-AUTOMATIK.md) verbunden; offene Bootgrenzen stehen in
+dem [Automatikbaustein](AP12-AUTOMATIK.md) verbunden; qualifizierte Bootnachweise stehen in
 der [Übergabe](AP12-UEBERGABE.md). Die
 API hat weiterhin keinen Dockersocket, keine Rootfunktion und keine schreibbare
 Schlüsselablage. Bestehende AD-/Sitzungs-/Origin-/CSRFprüfungen werden verwendet.

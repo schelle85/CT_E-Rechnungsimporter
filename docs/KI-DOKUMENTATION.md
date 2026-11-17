@@ -14,9 +14,11 @@ Stand: 17. November 2026. Lebende Markdown-Dokumentation, noch kein Gesamtabschl
 Stand: 17. November 2026. AP12 ist aus `d9f32a5a9c9fb642f59a13ed2550f74532fc3ebe`
 bereitgestellt, Schema008. Der echte Zertifikatswechsel ist unabhängig nativ bestätigt:
 `committed/new`, SQL-Zustand `overlap`, alle drei Verbraucher und eigener
-Abschlussproof. Die Rotationtimer sind wieder aktiv; der kontrollierte AP12-Boot bleibt
-ausstehend. Die laufende Überlappungsfrist ist kein Nachweis bereits erfolgter
-produktiver Altkeybereinigung.
+Abschlussproof. Genau ein kontrollierter AP12-Kundenboot ist erfolgt. Danach sind
+Kunden-API, Datenbank und Nginx unverändert erhalten; neues Graph-Zertifikat,
+sieben Timer, CIFS und HTTPS sind bestätigt. Die qualifizierten
+Wiederaufnahmebelege und ihre Grenzen stehen in der [Übergabe](AP12-UEBERGABE.md).
+Produktive Altkeybereinigung nach Ablauf der Überlappung bleibt gesondert offen.
 
 Der erste echte Wechselversuch endete kontrolliert auf dem alten Zertifikat; seine
 ursprüngliche Fehlerursache bleibt unbelegt. Ein ausdrücklich getrennter zweiter Auftrag
