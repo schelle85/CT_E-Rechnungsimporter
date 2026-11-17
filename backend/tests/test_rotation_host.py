@@ -34,7 +34,8 @@ class HostOrderTests(unittest.TestCase):
             result.events.append("exclusive");yield
         def block(*args,**kwargs):result.events.append("blocked");record.update(mode="blocked",epoch=2)
         result.writer=SimpleNamespace(session=session,binding=result.access,gate=SimpleNamespace(read=lambda:dict(record)),block=block,exclusive=exclusive)
-        result.host=SimpleNamespace(host_lock=lock,PROCESSING_LOCK="processing")
+        result.host=SimpleNamespace(host_lock=lock,PROCESSING_LOCK="processing",protected=lambda path:Path(path))
+        result.write=lambda path,value:path.write_text(json.dumps(value))  # Explicit POSIX write-policy double.
         result.runtime=SimpleNamespace(LIFECYCLE_LOCK="lifecycle",inspect_container=lambda *a:dict(id=a[1]),wait_readiness=lambda fn,until:fn())
         result.model=SimpleNamespace(boot_id=lambda:"boot")
         result.recover_job=lambda **kw:result.events.append("recover-jobs")
@@ -123,7 +124,8 @@ class ExecRecoveryTests(unittest.TestCase):
             path=c.job_path(name);path.write_text(json.dumps(dict(kind="exec",name=name,operation_id=operation,
                 container_id="c"*64,image="sha256:"+"b"*64)))
             lifecycle=threading.Lock();lifecycle.acquire();attempted=threading.Event();blocked=threading.Event()
-            held=[];events=[];errors=[];record=dict(epoch=1)
+            held=[];events=[];errors=[];record=dict(epoch=1,mode="allowed")
+            c.write=lambda path,value:path.write_text(json.dumps(value))  # Real controller record, POSIX write-policy double.
             @contextmanager
             def lock(filename,**kwargs):
                 self.assertNotIn(filename,held)
@@ -167,8 +169,9 @@ class ExecRecoveryTests(unittest.TestCase):
             operation=str(uuid4());name="invoice-rotation-"+uuid4().hex;path=c.job_path(name)
             path.write_text(json.dumps(dict(kind="exec",name=name,operation_id=operation,container_id="c"*64,image="sha256:"+"b"*64)))
             checked=[]
-            c.writer=SimpleNamespace(gate=SimpleNamespace(read=lambda:dict(epoch=1)),block=lambda *a,**k:None,
+            c.writer=SimpleNamespace(gate=SimpleNamespace(read=lambda:dict(epoch=1,mode="blocked")),block=lambda *a,**k:None,
                 _require=lambda **kw:checked.append(kw),exclusive=lambda *a,**k:self.fail("reentered graph lock"))
+            c.write=lambda path,value:path.write_text(json.dumps(value))
             c.host=SimpleNamespace(protected=lambda value:Path(value),host_lock=lambda *a,**k:self.fail("reentered host lock"))
             c.runtime=SimpleNamespace(sync_directory=lambda _:None);c.recover_exec=lambda value:checked.append("quiet")
             c.recover_job(locked=True)

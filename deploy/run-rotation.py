@@ -264,8 +264,7 @@ class Controller:
             value=json.loads(self.host.protected(path).read_text(),object_pairs_hook=unique)
             if self.job_path(value["name"])!=path or any(value.get(name)!=expected for name,expected in self.access.fields().items()):raise ValueError("rotation_job_changed")
             if value["kind"]=="exec":
-                current=self.writer.gate.read()
-                self.writer.block(value["operation_id"],expected_epoch=current["epoch"])
+                self.block(value["operation_id"])
                 if locked:
                     self.writer._require(exclusive=True)
                     self.recover_exec(value)
@@ -357,14 +356,29 @@ class Controller:
         if self.control and current==self.control.get("owned_drain"):return None
         return digest(current)
 
-    def drain(self,operation):
+    def control_record(self,operation,*,paused=False):
         path=self.journal/(operation+".controller.json")
         if path.exists():
             self.control=json.loads(self.host.protected(path).read_text(),object_pairs_hook=unique)
-            if any(self.control.get(name)!=expected for name,expected in self.access.fields().items()) or self.control.get("operation_id")!=operation:
+            if (any(self.control.get(name)!=expected for name,expected in self.access.fields().items()) or self.control.get("operation_id")!=operation
+                    or type(self.control.get("graph_paused",False)) is not bool):
                 raise ValueError("rotation_controller_changed")
         else:
             self.control=dict(operation_id=operation,**self.access.fields(),owned_drain=None,owned_value=None)
+        desired=self.control.get("graph_paused",False) or paused
+        if self.control.get("graph_paused") is not desired:
+            self.control["graph_paused"]=desired;self.write(path,self.control)
+        return path
+
+    def block(self,operation):
+        current=self.writer.gate.read()
+        # Preserve the observed operator pause before its gate representation is
+        # overwritten, including loss before any lifecycle lock or worker call.
+        self.control_record(operation,paused=current["mode"]=="paused")
+        return self.writer.block(operation,expected_epoch=current["epoch"])
+
+    def drain(self,operation):
+        path=self.control_record(operation)
         with self.host.host_lock(self.runtime.GATE_LOCK,wait=seconds(self.until,5)) as acquired:
             if not acquired:raise ValueError("rotation_gate_busy")
             current=self.marker()
@@ -574,7 +588,8 @@ class Controller:
             if state["phase"]!="committed":self.worker("rollback-unknown",operation)
             raise ValueError("rotation_rollback_unconfirmed")
         current_hash=hashlib.sha256(self.host.protected(self.processing["graph_credential"]).read_bytes()).hexdigest()
-        state=self.worker("recover",operation,pem_hash=current_hash,quiet_evidence=digest(quiet),paused=state["paused"],drain_identity=self.external_drain())["host"]
+        state=self.worker("recover",operation,pem_hash=current_hash,quiet_evidence=digest(quiet),
+            paused=state["paused"] or bool(self.control and self.control["graph_paused"]),drain_identity=self.external_drain())["host"]
         if state["target"]=="new":state=self.worker("rollback",operation)["host"]
         raw=self.material(operation,state["old"],old=True);self.activate(raw,state["old"]["pem_hash"])
         if state["phase"]=="activation_started":self.worker("activated",operation)
@@ -608,7 +623,7 @@ class Controller:
         if not (self.gate_directory/"graph-access.json").exists():
             self.writer.initialize(operation,status["current"]["pem_hash"],status["current"]["fingerprint"])
         self.drain(operation)
-        current=self.writer.gate.read();self.writer.block(operation,expected_epoch=current["epoch"])
+        self.block(operation);desired_pause=desired_pause or self.control["graph_paused"]
         with self.lifecycle_locks():
             before={kind:self.runtime.inspect_container(self.binding,kind,self.host,self.until) for kind in ("db","nginx")}
             api=self.bound_api(operation,legacy=True)
@@ -697,7 +712,7 @@ class Controller:
                     drain_identity=self.external_drain())["host"]
             elif current["mode"]=="paused":state=dict(state,paused=True)
             self.drain(operation)
-            current=self.writer.gate.read();self.writer.block(operation,expected_epoch=current["epoch"])
+            self.block(operation);state=dict(state,paused=state["paused"] or self.control["graph_paused"])
             with self.lifecycle_locks():
                 before={kind:self.runtime.inspect_container(self.binding,kind,self.host,self.until) for kind in ("db","nginx")}
                 api=self.bound_api(operation);quiet=self.stop(api) if api is not None else dict(absent=True)

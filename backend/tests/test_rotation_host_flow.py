@@ -316,6 +316,33 @@ class IntegratedHostTests(unittest.TestCase):
         self.assertFalse(worker.AdoptionJournal(self.root,self.access).state(self.operation)["paused"])
         self.assertEqual(self.remote.adds,1);self.assertEqual(result["operation_id"],self.operation)
 
+    def test_prepared_pause_survives_block_then_lifecycle_busy_and_new_controller(self):
+        c=self.controller;c.worker("register",self.operation)
+        original=c.worker("prepare",self.operation,images=self.images,paused=False,drain_identity=None)["host"]
+        candidate=self.root.material(self.operation).pem;self.gate.update(mode="paused")
+        original_block=c.writer.block;original_lock=c.host.host_lock
+        path=c.journal/(self.operation+".controller.json")
+        def block(*args,**kwargs):
+            saved=json.loads(path.read_text())
+            self.assertTrue(saved["graph_paused"]);self.assertEqual(saved["operation_id"],self.operation)
+            for name,value in self.access.fields().items():self.assertEqual(saved[name],value)
+            return original_block(*args,**kwargs)
+        @contextmanager
+        def busy(path,**kwargs):
+            if path==c.runtime.LIFECYCLE_LOCK:
+                self.assertEqual(self.gate["mode"],"blocked");yield False
+            else:
+                with original_lock(path,**kwargs) as acquired:yield acquired
+        with patch.object(c.writer,"block",side_effect=block),patch.object(c.host,"host_lock",side_effect=busy):
+            with self.assertRaisesRegex(ValueError,"rotation_host_busy"):c.operate("resume")
+        self.assertEqual(self.root._read(self.operation+".host.json"),original)
+        result=self.fresh_controller().operate("resume")
+        saved=worker.AdoptionJournal(self.root,self.access).state(self.operation)
+        self.assertTrue(result["ok"]);self.assertTrue(result["paused"]);self.assertTrue(saved["paused"])
+        self.assertEqual(self.gate["mode"],"paused");self.assertEqual(self.gate["release_hash"],saved["seal"])
+        self.assertEqual(self.active.read_bytes(),candidate);self.assertEqual(self.remote.adds,1)
+        self.assertEqual(result["operation_id"],self.operation);self.assertEqual(saved["boot_id"],original["boot_id"])
+
     def test_complete_switch_recreates_file_bind_then_commits_before_open(self):
         result=self.controller.operate("run")
         self.assertTrue(result["ok"]);self.assertEqual(result["target"],"new")
