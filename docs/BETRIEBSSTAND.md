@@ -1,6 +1,6 @@
 # Betriebsstand
 
-## Aktueller Stand: 17. November 2026, AP12
+## Aktueller Stand: 18. November 2026, AP12 / AP10-Quelllieferung
 
 Produktlaufzeit `d9f32a5a9c9fb642f59a13ed2550f74532fc3ebe`, Schema008.
 Echter zweiter Graphwechsel committed/new mit drei Verbrauchern, eigenem
@@ -18,8 +18,15 @@ AP09 ist freigegeben; [Technikunterlage](TECHNISCHE-DOKUMENTATION.md), PDF und
 KI-Wiedereinstieg sind abschließend geprüft. [Übergabe](AP09-UEBERGABE.md).
 AP11 seit17.11.2026 freigegeben: Nutzerhandbuch mit Bildern und PDF eigengeprüft
 vorhanden und am festen Stand b565465 genau einmal unabhängig mit PASS geprüft.
-AP09a übernimmt diese eine Anleitung; Kundenrückmeldung bleibt offen. AP10 bleibt ohne Go. Ein
+AP09a übernimmt diese eine Anleitung; Kundenrückmeldung bleibt offen. Ein
 vertrauliches Betriebsblatt wird separat übergeben. Mailgestaltung nur geplant.
+
+AP10 ist seit 18.11.2026 freigegeben. [Wartungshülle](AP10-WARTUNG.md) und
+[Einrichtungs-/Rückwegplan](AP10-EINRICHTUNG.md) sind lokal geliefert; 14 gezielte
+Tests bestanden. Quellenreview, native Linuxprüfung, heutiger frischer Hostbestand,
+Installation und erster echter Sonntagslauf bleiben offen. Kein APT-/Rebootlauf
+aus dieser Lieferung. API-/Workerimages bleiben d9/008; die geplante Änderung der
+Host-Stopfunktion ist separat ausgewiesen. AP09-/AP11-Abgaben unverändert.
 
 Die folgenden früheren Abschlüsse bleiben datierte historische Nachweise.
 Aussagen zu damaligen Quellen, fünf Timern, Schema007 oder späteren AP ohne Go

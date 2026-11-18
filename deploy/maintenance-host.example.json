@@ -1,0 +1,8 @@
+{
+  "machine_id": "REPLACE_WITH_LOCAL_MACHINE_ID_32_HEX",
+  "ubuntu_release": "26.04",
+  "product_source": "d9f32a5a9c9fb642f59a13ed2550f74532fc3ebe",
+  "rotation_profile": "/etc/invoice-importer/rotation-host.json",
+  "status_profile": "/etc/invoice-importer/status-host.json",
+  "apt_policy_digest": "REPLACE_WITH_REVIEWED_LOCAL_APT_POLICY_SHA256"
+}

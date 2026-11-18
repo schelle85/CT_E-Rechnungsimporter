@@ -62,7 +62,12 @@
   Der Phasenversatz wurde nach dem belegten Reboot gesetzt; kein zweiter Reboot
   oder vollständiger VMrestore ist damit nachgewiesen.
   Führender Vertrag: docs/AP08-BETRIEB.md. AP09 ist seit 17.11.2026 zur
-  Abschlussdokumentation freigegeben. AP10 bleibt ohne Go. AP11 ist seit
+  Abschlussdokumentation freigegeben. AP10 ist seit 18.11.2026 freigegeben;
+  Quelle und konkreter Installations-/Rückwegplan in docs/AP10-WARTUNG.md und
+  docs/AP10-EINRICHTUNG.md lokal geliefert. Review, frischer Instanzabgleich,
+  native Linuxprüfung, Installation und echter Sonntagslauf stehen noch aus.
+  Die Hosthülle erhält eine gesonderte markererhaltende Stopfunktion; API-/Workerimages
+  bleiben d9/008. Kein Deployment oder Push aus der DEV-Lieferung ableiten. AP11 ist seit
   17.11.2026 zur Handbucherstellung freigegeben. Eine führende Nutzeranleitung
   mit zwölf synthetischen Bildern, Markdown und PDF ist erstellt und am festen
   Stand b565465 genau einmal unabhängig mit PASS geprüft. AP09a übernimmt diese

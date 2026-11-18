@@ -134,17 +134,19 @@ def sync_directory(path):
     finally:os.close(fd)
 
 
-def drain(host,until):
+def drain(host,until,*,preserve_existing=False):
     with host.host_lock(GATE_LOCK,wait=seconds(until,5)) as acquired:
         if not acquired:raise ValueError("host_gate_busy")
-        parent=Path(host.DRAIN_FILE).parent;host.controlled_directory(parent)
-        fd,name=tempfile.mkstemp(prefix=".drain-",dir=parent)
-        try:
-            with os.fdopen(fd,"wb") as output:
-                output.write(uuid.uuid4().hex.encode("ascii"));output.flush();os.fsync(output.fileno())
-            os.replace(name,host.DRAIN_FILE);sync_directory(parent)
-        finally:
-            if os.path.exists(name):os.unlink(name)
+        # An explicit drain creates a new epoch. Only a service stop preserves its owner.
+        if not preserve_existing or gate(host) is None:
+            parent=Path(host.DRAIN_FILE).parent;host.controlled_directory(parent)
+            fd,name=tempfile.mkstemp(prefix=".drain-",dir=parent)
+            try:
+                with os.fdopen(fd,"wb") as output:
+                    output.write(uuid.uuid4().hex.encode("ascii"));output.flush();os.fsync(output.fileno())
+                os.replace(name,host.DRAIN_FILE);sync_directory(parent)
+            finally:
+                if os.path.exists(name):os.unlink(name)
     with ExitStack() as stack:
         for path in (LIFECYCLE_LOCK,host.PROCESSING_LOCK,"/run/invoice-importer/notification.lock"):
             if not stack.enter_context(host.host_lock(path,wait=seconds(until,40))):raise ValueError("host_drain_busy")

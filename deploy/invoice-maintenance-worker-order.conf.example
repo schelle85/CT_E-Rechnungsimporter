@@ -1,0 +1,4 @@
+# Same drop-in for the six worker unit names listed in AP10-WARTUNG.md.
+[Unit]
+Requires=invoice-maintenance-recover.service
+After=invoice-maintenance-recover.service

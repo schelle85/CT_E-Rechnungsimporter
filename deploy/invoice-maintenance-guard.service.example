@@ -1,0 +1,14 @@
+[Unit]
+Description=Restore persistent maintenance pause before importer startup
+Wants=docker.service
+After=docker.service local-fs.target
+Before=invoice-importer.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+User=root
+UMask=0077
+ExecStartPre=/usr/bin/systemd-tmpfiles --create /etc/tmpfiles.d/invoice-importer.conf /etc/tmpfiles.d/invoice-maintenance.conf
+ExecStart=/usr/bin/python3 -I -B /etc/invoice-importer/run-maintenance.py boot-guard
+TimeoutStartSec=60s

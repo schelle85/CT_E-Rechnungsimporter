@@ -24,8 +24,8 @@ AP09 ist seit 17.11.2026 zur Abschlussdokumentation freigegeben; vollständiges
 Dokumentpaket erstellt und einmalig unabhängig mit PASS geprüft. AP11 ist seit 17.11.2026 freigegeben; vollständiges Nutzerhandbuch mit Bildern und
 PDF erstellt und am festen Stand b565465 genau einmal unabhängig mit PASS geprüft.
 AP09a übernimmt dieses eine Handbuch; Kundenrückmeldung bleibt offen.
-AP10 bleibt ohne Umsetzungs-Go.**
-AP10 ist für die spätere wöchentliche Wartung ergänzt.
+AP10 ist seit 18.11.2026 freigegeben; lokal eigengeprüfte Quelle und Einrichtungsplan
+liegen vor. Review, Instanzabgleich und tatsächliche Einrichtung bleiben offen.**
 AP12 ist seit 16.11.2026 für Graph-Zertifikatsrotation und einen zusätzlichen
 Adminreiter freigegeben; aktuelle Lieferung und Grenzen unten.
 ORGA koordiniert, DEV implementiert, REVIEW prüft.
@@ -214,17 +214,17 @@ tatsächlich implementierten Stand erstellen, keine fertige Installation vortäu
 | Teil | Ergebnis und Prüfung |
 | --- | --- |
 | AP10a | Umfang: sonntags 03:00 Europe/Berlin Linux-Updates und Neustart bei Bedarf |
-| AP10b | DEV erstellt Wartungsskript mit Sperre, Fehlerbehandlung und Vor-/Nachprotokoll |
-| AP10c | Serverzeitplan und Wiederanlauf mit echten Mounts und gesunden Diensten |
-| AP10d | ORGA-Nachkontrolle nach dem Wartungsfenster; fehlender Zugang als nicht prüfbar melden |
-| AP10e | Kontrollierter Probelauf, Dokumentation und anschließender regelmäßiger Betrieb |
+| AP10b | [Wartungshülle](AP10-WARTUNG.md), Sperren, Besitzerpause, Vor-/Nachjournal und bedingter Reboot lokal geliefert. 14 gezielte DEV-Tests bestanden; native Abnahme offen. |
+| AP10c | Timer, Guard-/Recoverreihenfolge und eng begrenzte Host-Stopkorrektur als Vorlagen. [Einrichtungs-/Rückwegplan](AP10-EINRICHTUNG.md) vor jeder Installation gegen frischen Hostbestand prüfen. |
+| AP10d | ORGA koordiniert Einrichtung und Übergabe an den beauftragten Wartungschat. Lesende Nachkontrolle nach dem Wartungsfenster; fehlender Zugang als nicht prüfbar melden. |
+| AP10e | Mittwochs nur synthetische Prüfung/Check/Offslotprobe. Review, native Linuxprüfung und tatsächliche Einrichtung offen; erster echter Sonntaglauf einschließlich bedingtem Reboot erst danach. |
 
-Kein Wartungsskript oder Timer ist bereits installiert. Keine ungeprüften
-Anwendungs-/Datenbankschemaupgrades aus der Linux-Wartungsfreigabe ableiten.
-AP10 ist nicht freigegeben. Die AP09-Dokumentation hält diesen geplanten Umfang
-als offene Grenze fest; sie wartet nicht auf eine unbeauftragte AP10-Umsetzung.
-Nach Lieferung von AP12 Wartung und Zertifikatswechsel koordinieren, damit ein
-Neustart nicht unkontrolliert in einen laufenden Wechsel eingreift.
+Go vom 18.11.2026. Kein Wartungsskript oder Timer ist durch diese lokale Lieferung
+installiert. API-/Workerimages und Schema bleiben d9/008; neue Hosthülle und
+geänderte Stopfunktion separat hashen, sichern und rücknehmbar einrichten.
+Normales bestätigtes committed/new mit SQL overlap ist zulässig; ungeklärte
+aktuelle Rotation bleibt gesperrt. AP09-/AP11-Abgaben bleiben datiert unverändert;
+nach tatsächlicher Einrichtung neue nötige PDFausgaben ausdrücklich planen.
 
 ## AP11: Handbuch zum Produkt - ORGA / DEV / REVIEW
 

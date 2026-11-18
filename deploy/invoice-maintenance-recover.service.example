@@ -1,0 +1,14 @@
+[Unit]
+Description=Verify importer after maintenance boot without replaying packages
+Requires=invoice-importer.service
+After=invoice-importer.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+User=root
+UMask=0077
+ExecStart=/usr/bin/python3 -I -B /etc/invoice-importer/run-maintenance.py recover
+TimeoutStartSec=900s
+KillMode=process
+SendSIGKILL=no

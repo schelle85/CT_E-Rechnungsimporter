@@ -1,0 +1,8 @@
+# Install only as invoice-importer.service.d/30-maintenance.conf.
+[Unit]
+Requires=invoice-maintenance-guard.service
+After=invoice-maintenance-guard.service
+
+[Service]
+ExecStop=
+ExecStop=/usr/bin/python3 -I -B /etc/invoice-importer/run-maintenance.py service-drain
