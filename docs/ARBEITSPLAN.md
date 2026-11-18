@@ -306,8 +306,11 @@ Das Ende einer Zertifikatswarnserie ist bestätigt: erst nach erfolgreicher fris
 Anmeldung mit einem gültigen Nachfolger. Der vorhandene bestätigte Sicherungsweg
 wird in den Betriebsunterlagen mit seinen Zuständigkeiten festgehalten.
 
-## Geplanter Nachtrag zu AP07 nach AP12
+## Nachtrag zu AP07 nach AP12
 
-- **Tages-/Wochenberichtsmails ansprechender und übersichtlicher gestalten.**
-  Status: offen, nur geplant. Vorhandene Berichtsinhalte und Versandregeln bleiben
-  die Grundlage; Umsetzung erst im gesondert eingeplanten Nachtrag.
+Freigabe am 18.11.2026. Der lokale Kandidat gliedert Tages- und Wochenbericht
+im Portalstil in Zeitraum, Überblick, Verarbeitungsstatus und Zuordnungen.
+Berichtsfakten, Zeitgrenzen der Berichte und Versandregeln bleiben erhalten.
+Testnachrichten sowie Fehler-, Ausfall- und Zertifikatsmeldungen verwenden die
+bisherige Vorlage. Synthetische Vorschauen werden lokal aus dem Versandrenderer
+erzeugt. Produktive Bereitstellung und Abnahme liegen bei ORGA.

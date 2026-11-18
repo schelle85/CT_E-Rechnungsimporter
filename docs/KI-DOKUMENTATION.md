@@ -72,9 +72,9 @@ Berlin/02:00 UTC. Alter Upgrade-Timer disabled/inactive; kein heutiger Paket-/Bo
 Lesende Nachkontrolle Sonntag 03:30 Europe/Berlin übernommen und bestätigt aktiv;
 erster echter Sonntag-/Bedarfsbootlauf offen.
 API-/Workerimages bleiben d9/008; installierte Host-Stopkorrektur separat ausgewiesen.
-Gestaltung der Tages-/Wochenberichtsmails ist nur
-als separater AP07-Nachtrag geplant. Kein Push oder Deployment aus einer lokalen
-Dokumentlieferung ableiten.
+Der am 18.11.2026 freigegebene AP07-Nachtrag liegt lokal vor. Der gemeinsame
+Versandrenderer erzeugt Tages- und Wochenberichte als HTML im Portalstil.
+Berichtsdaten und Slotregeln bleiben erhalten. Bereitstellung durch ORGA steht aus.
 
 ## Führende Quellen
 

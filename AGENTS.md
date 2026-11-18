@@ -86,8 +86,8 @@
   Wiederaufnahmezustände qualifiziert belegt; erster Restore-Aufruf blieb
   fehlgeschlagen mit unbelegter Ursache. Spätere produktive Bereinigung offen.
   Historische Einzelprüfungen getrennt
-  erhalten; führend docs/AP12-UEBERGABE.md. Gestaltung der Tages-/Wochenmails
-  als Nachtrag zu AP07 nach AP12 nur geplant, noch nicht umgesetzt.
+  erhalten; führend docs/AP12-UEBERGABE.md. Der am 18.11.2026 freigegebene
+  AP07-Nachtrag zur Gestaltung der Tages-/Wochenmails liegt als lokaler Kandidat vor.
   DMS-Anbindung, -Konfiguration und -Prüfung liegen außerhalb unseres Auftrags
   und sind keine Abnahmebedingung. AP03 und Stichtag bleiben unverändert.
 - Keine zusätzlichen Agenten oder Chats ohne entsprechenden Auftrag.

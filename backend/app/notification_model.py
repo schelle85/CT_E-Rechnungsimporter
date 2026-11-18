@@ -1,6 +1,7 @@
 """Pure AP07 identities, validated settings, calendar slots and fixed templates."""
 from dataclasses import dataclass
 from datetime import datetime, time, timedelta, timezone
+from html import escape
 import hashlib
 import json
 import re
@@ -197,6 +198,67 @@ SUBJECTS = dict(test="Test der Benachrichtigungen", certificate="Graph-Zertifika
 REPORT_FIELDS = {"messages", "attachments", "unknown_open", "stored_receipts", "duplicates",
     "attachment_errors", "blocked_messages", "E-Rechnung", "PDF", "Zahlungsavis", "Mahnung"}
 
+REPORT_SECTIONS = (
+    ("Überblick", (("messages", "Vorgänge"), ("attachments", "Anhänge"))),
+    ("Verarbeitungsstatus", (
+        ("stored_receipts", "Anhänge mit Ablagebeleg"), ("duplicates", "Dubletten"),
+        ("unknown_open", "Offene unbekannte Anhänge"), ("blocked_messages", "Gesperrte Vorgänge"),
+        ("attachment_errors", "Anhänge mit technischem Fehler"),
+    )),
+    ("Zuordnungen", tuple((name, "Zuordnung " + name)
+        for name in ("E-Rechnung", "PDF", "Zahlungsavis", "Mahnung"))),
+)
+
+def report_html(title, slot, data, as_of, key, origin):
+    """Render the validated report facts in the portal palette, with inline email styling."""
+    def timestamp(value):
+        return escape(datetime.fromtimestamp(value, BERLIN).isoformat(sep=" "))
+
+    sections = []
+    for heading, fields in REPORT_SECTIONS:
+        rows = []
+        for name, label in fields:
+            rows.append(
+                '<tr><th scope="row" align="left" style="padding:8px 10px;border-bottom:1px solid #e1e8ee;'
+                f'font-weight:normal">{escape(label)}</th>'
+                '<td align="right" style="padding:8px 10px;border-bottom:1px solid #e1e8ee;'
+                f'color:#183347;font-size:18px;font-weight:bold">{escape(str(data[name]))}</td></tr>'
+            )
+        sections.append(
+            '<h2 style="margin:20px 0 6px;font-size:18px;color:#073b50">'
+            f'{escape(heading)}</h2><table width="100%" cellpadding="0" cellspacing="0" '
+            'style="border-collapse:collapse;background-color:#f4f7fa;font-size:15px">'
+            + "".join(rows) + "</table>"
+        )
+
+    application = f'<br>Anwendung: {escape(origin.rstrip("/"))}' if origin is not None else ""
+    return f"""<!doctype html>
+<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{escape(title)}</title></head>
+<body style="margin:0;background-color:#f4f7fa">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" bgcolor="#f4f7fa">
+<tr><td align="center" style="padding:12px 8px">
+<!--[if mso]><table role="presentation" width="600" cellpadding="0" cellspacing="0"><tr><td><![endif]-->
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" bgcolor="#ffffff"
+ style="max-width:600px;font-family:Arial,sans-serif;color:#183347;line-height:1.45">
+<tr><td bgcolor="#073b50" style="padding:16px 18px;border-top:4px solid #1677bb;color:#ffffff">
+<div style="font-size:14px;font-weight:bold;color:#ffffff">E-Rechnungsimporter</div>
+<h1 style="margin:3px 0 0;font-size:27px;color:#ffffff">{escape(title)}</h1>
+</td></tr>
+<tr><td style="padding:16px 18px">
+<p style="margin:0;padding:10px 12px;background-color:#e8f2fa;font-size:15px">
+<strong>Zeitraum Berlin</strong><br>{timestamp(slot.start)}<br>bis ausschließlich {timestamp(slot.end)}</p>
+<p style="margin:10px 0 0;font-size:14px">
+Im Zeitraum erstmals protokollierte Vorgänge; Zustände bei Berichtserstellung.</p>
+{''.join(sections)}
+</td></tr>
+<tr><td bgcolor="#e8f2fa" style="padding:12px 18px;font-size:13px;overflow-wrap:anywhere;word-wrap:break-word">
+Automatische Meldung des E-Rechnungsimporters.<br>Stand: {timestamp(as_of)}<br>
+Auftrag: {escape(key[:32])}<wbr>{escape(key[32:])}{application}
+</td></tr></table>
+<!--[if mso]></td></tr></table><![endif]-->
+</td></tr></table></body></html>"""
+
 def make_payload(slot, key, config, data, as_of, *, origin=None):
     # Text comes from fixed vocabulary and typed, bounded server-side facts only.
     if type(as_of) is not int or not isinstance(data, dict):
@@ -211,13 +273,6 @@ def make_payload(slot, key, config, data, as_of, *, origin=None):
     elif slot.kind in {"daily", "weekly"}:
         if set(data) != REPORT_FIELDS or any(type(v) is not int or v < 0 for v in data.values()):
             raise NotificationError("notification_facts_invalid", 422)
-        lines += ["Im Zeitraum erstmals protokollierte Vorgänge; Zustände bei Berichtserstellung.",
-            "Zeitraum Berlin: " + datetime.fromtimestamp(slot.start, BERLIN).isoformat()
-            + " bis ausschließlich " + datetime.fromtimestamp(slot.end, BERLIN).isoformat()]
-        labels = {"messages":"Vorgänge", "attachments":"Anhänge", "unknown_open":"Offene unbekannte Anhänge",
-            "stored_receipts":"Anhänge mit Ablagebeleg", "duplicates":"Dubletten",
-            "attachment_errors":"Anhänge mit technischem Fehler", "blocked_messages":"Gesperrte Vorgänge"}
-        lines += [labels.get(name, "Zuordnung " + name) + ": " + str(data[name]) for name in sorted(data)]
     elif slot.kind == "certificate":
         if (set(data) != {"fingerprint", "expires_at", "remaining_seconds"} or
                 any(type(data[name]) is not int for name in ("expires_at", "remaining_seconds"))):
@@ -243,11 +298,18 @@ def make_payload(slot, key, config, data, as_of, *, origin=None):
                 or parsed.query or parsed.fragment or parsed.path not in {"", "/"}):
             raise NotificationError("notification_origin_invalid", 422)
         lines.append("Anwendung: " + origin.rstrip("/"))
-    payload = dict(message=dict(subject="E-Rechnungsimporter – " + SUBJECTS[slot.kind],
-        body=dict(contentType="Text", content="\n".join(lines)),
+    title = SUBJECTS[slot.kind]
+    if slot.kind in {"daily", "weekly"}:
+        body = dict(contentType="HTML", content=report_html(title, slot, data, as_of, key, origin))
+        template_version = "ap07-2"
+    else:
+        body = dict(contentType="Text", content="\n".join(lines))
+        template_version = "ap07-1"
+    payload = dict(message=dict(subject="E-Rechnungsimporter – " + title,
+        body=body,
         toRecipients=[dict(emailAddress=dict(address=a)) for a in config["recipients"]],
         internetMessageHeaders=[dict(name="x-importer-notification-key", value=key),
-            dict(name="x-importer-template-version", value="ap07-1")]), saveToSentItems=True)
+            dict(name="x-importer-template-version", value=template_version)]), saveToSentItems=True)
     if len(canonical(payload)) > 16384:
         raise NotificationError("notification_payload_limit", 422)
     return payload

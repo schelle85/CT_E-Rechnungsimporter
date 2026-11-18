@@ -19,7 +19,8 @@ KI-Wiedereinstieg sind abschließend geprüft. [Übergabe](AP09-UEBERGABE.md).
 AP11 seit17.11.2026 freigegeben: Nutzerhandbuch mit Bildern und PDF eigengeprüft
 vorhanden und am festen Stand b565465 genau einmal unabhängig mit PASS geprüft.
 AP09a übernimmt diese eine Anleitung; Kundenrückmeldung bleibt offen. Ein
-vertrauliches Betriebsblatt wird separat übergeben. Mailgestaltung nur geplant.
+vertrauliches Betriebsblatt wird separat übergeben. Das neue HTML-Layout für
+Tages- und Wochenmails liegt seit 18.11.2026 als lokaler AP07-Kandidat vor.
 
 AP10 ist seit 18.11.2026 freigegeben. [Wartungshülle](AP10-WARTUNG.md) und
 [Einrichtungs-/Rückwegplan](AP10-EINRICHTUNG.md) sind umgesetzt: 16 Ziele aus

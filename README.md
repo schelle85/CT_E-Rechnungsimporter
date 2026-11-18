@@ -49,7 +49,7 @@ Wiederaufnahmezustände sind inzwischen bestätigt; siehe AP12-Übergabe.**
 | AP09 – Dokumentation | Technische Markdown-/PDF-Unterlage, KI-Wiedereinstieg und unabhängige Abschlussprüfung bestanden. Das ebenfalls abschließend geprüfte AP11-Handbuch ist in AP09a übernommen. Vertrauliches Betriebsblatt separat; siehe [Dokumentübergabe](docs/AP09-UEBERGABE.md). Keine neue Betriebs- oder Gesamtabnahme. |
 | AP11 – Nutzerhandbuch | Vollständige [Nutzer-/Administrationsanleitung](docs/HANDBUCH-ZUM-PRODUKT.md) und [PDF](docs/handbuecher/Handbuch-zum-Produkt.pdf): 24 Kapitel, zwölf synthetische Bildschirmbilder, 26 Seiten. Genau eine unabhängige Abschlussprüfung am festen Stand `b565465` mit PASS ohne notwendige Korrekturbefunde. Kundenrückmeldung zum Handbuch bleibt offen. |
 | AP10 – Wöchentliche Wartung | Aus `10cea808` installiert, nativ und unabhängig geprüft; Bereitstellung PASS. Sonntagstimer seit 18.11.2026, 11:24:12 Europe/Berlin enabled/active/waiting; erster Termin 22.11.2026 um 03:00 Berlin. Alter Upgrade-Timer disabled/inactive. Lesende Nachkontrolle Sonntag 03:30 Berlin übernommen und aktiv. Erster echter Sonntags-/Bedarfsbootlauf offen. [Wartung](docs/AP10-WARTUNG.md), [Nachtrag](docs/WARTUNGSNACHTRAG.md), [PDF](docs/handbuecher/Wartungsnachtrag.pdf). |
-| Weitere Pakete | Mailgestaltung als gesonderter AP07-Nachtrag nur geplant. |
+| AP07-Nachtrag – Berichtsmails | Seit 18.11.2026 freigegeben. Lokaler Kandidat mit HTML-Layout im Portalstil für Tages-/Wochenberichte. Produktiv läuft weiterhin d9/008. [Umfang](docs/ARBEITSPLAN.md#nachtrag-zu-ap07-nach-ap12). |
 
 Der begrenzte Titelvariantennachtrag wurde unabhängig geprüft und aus `e49ccdb`
 als separates Runtimeimage gebaut. Die zusätzlichen Pre-Notifikations- und datierten

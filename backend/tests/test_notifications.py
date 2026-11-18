@@ -13,7 +13,8 @@ import sqlalchemy as sa
 from alembic.migration import MigrationContext
 from alembic.operations import Operations
 from app.notification_model import (DEFAULTS, NotificationError, OperationBudget, Slot,
-    calendar_slot, certificate_level, checked_settings, graph_scope, identity, wall_instant)
+    REPORT_FIELDS, calendar_slot, certificate_level, checked_settings, graph_scope, identity,
+    make_payload, wall_instant)
 from app.notification_schema007 import metadata, settings, outbox
 from app.notification_state import NotificationStore
 from app.notification_queries import report_cohort
@@ -62,6 +63,29 @@ class NotificationTests(unittest.TestCase):
 
     def budget(self):
         return OperationBudget(clock=lambda:self.now[0])
+
+    def test_report_mail_keeps_facts_and_escapes_application_origin(self):
+        counts = dict.fromkeys(REPORT_FIELDS, 0)
+        counts.update(messages=2, attachments=3, unknown_open=1)
+        origin = 'https://example.invalid"><img src=x onerror=alert(1)>'
+        for kind, title, start in (("daily", "Tagesbericht", "2026-11-30"),
+                                   ("weekly", "Wochenbericht", "2026-11-23")):
+            with self.subTest(kind=kind):
+                slot = calendar_slot(kind, self.now[0], self.config)
+                payload = make_payload(slot, SCOPE, self.config, counts, self.now[0], origin=origin)
+                message = payload["message"]
+                self.assertEqual(message["subject"], "E-Rechnungsimporter – " + title)
+                self.assertEqual(message["body"]["contentType"], "HTML")
+                content = message["body"]["content"]
+                self.assertIn(start + " 00:00:00+01:00", content)
+                self.assertIn("bis ausschließlich", content)
+                for label, value in (("Vorgänge", 2), ("Anhänge", 3),
+                                     ("Offene unbekannte Anhänge", 1), ("Zuordnung Mahnung", 0)):
+                    self.assertRegex(content, rf"{label}</th><td[^>]*>{value}</td>")
+                self.assertEqual(content.count('scope="row"'), len(REPORT_FIELDS))
+                self.assertIn("&lt;img", content)
+                self.assertNotIn("<img", content)
+                self.assertEqual(message["toRecipients"], [{"emailAddress": {"address": "first@example.invalid"}}])
 
     def warning(self):
         from app.notification_model import CERTIFICATE_TOKEN,certificate_slot
