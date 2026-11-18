@@ -214,7 +214,7 @@ tatsächlich implementierten Stand erstellen, keine fertige Installation vortäu
 | Teil | Ergebnis und Prüfung |
 | --- | --- |
 | AP10a | Umfang: sonntags 03:00 Europe/Berlin Linux-Updates und Neustart bei Bedarf |
-| AP10b | [Wartungshülle](AP10-WARTUNG.md), Sperren, Besitzerpause, Vor-/Nachjournal und bedingter Reboot lokal geliefert. 14 gezielte DEV-Tests bestanden; native Abnahme offen. |
+| AP10b | [Wartungshülle](AP10-WARTUNG.md), Sperren, Besitzerpause, Vor-/Nachjournal und bedingter Reboot lokal geliefert. 22 gezielte DEV-Tests bestanden; native Abnahme offen. |
 | AP10c | Timer, Guard-/Recoverreihenfolge und eng begrenzte Host-Stopkorrektur als Vorlagen. [Einrichtungs-/Rückwegplan](AP10-EINRICHTUNG.md) vor jeder Installation gegen frischen Hostbestand prüfen. |
 | AP10d | ORGA koordiniert Einrichtung und Übergabe an den beauftragten Wartungschat. Lesende Nachkontrolle nach dem Wartungsfenster; fehlender Zugang als nicht prüfbar melden. |
 | AP10e | Mittwochs nur synthetische Prüfung/Check/Offslotprobe. Review, native Linuxprüfung und tatsächliche Einrichtung offen; erster echter Sonntaglauf einschließlich bedingtem Reboot erst danach. |

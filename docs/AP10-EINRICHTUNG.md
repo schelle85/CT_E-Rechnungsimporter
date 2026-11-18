@@ -65,7 +65,7 @@ müssen im isolierten Prüfpfad auflösbar sein. Geplante Drop-ins zusammen mit 
 tatsächlichen vorhandenen Units prüfen, nicht nur Textmuster vergleichen.
 Kein `systemctl start` des Paketservices als Syntaxprüfung.
 
-Lokaler DEVrechner ist Windows ohne installiertes WSL. 14 gezielte Tests einschließlich
+Lokaler DEVrechner ist Windows ohne installiertes WSL. 22 gezielte Tests einschließlich
 echter ZoneInfo-Kalenderberechnung und synthetischer Marker-/Startkonkurrenz sind
 bestanden. Vier ausführbare native Tests prüfen unter Linux/root ausschließlich
 temporäre eigene Dateien in /run: echte Prozess-flock-Konkurrenz, Dateirechte und
@@ -90,6 +90,7 @@ Quelle stoppen und Diff neu prüfen. Nur diesen belegten Patch ersetzen.
 | Quelle in deploy | Ziel | Modus |
 | --- | --- | --- |
 | run-maintenance.py | /etc/invoice-importer/run-maintenance.py | 0700 root:root |
+| maintenance-effects.py | /etc/invoice-importer/maintenance-effects.py | 0700 root:root |
 | host-runtime.py (einziger vorhandener Peerpatch) | /etc/invoice-importer/host-runtime.py | gesicherten rootgeschützten Modus beibehalten |
 | privates ausgefülltes Profil | /etc/invoice-importer/maintenance-host.json | 0600 root:root |
 | invoice-maintenance.tmpfiles.example | /etc/tmpfiles.d/invoice-maintenance.conf | 0644 root:root |
@@ -104,8 +105,8 @@ Die sechs Worker-Verzeichnisse gehören zu `invoice-processing@.service`,
 `invoice-notifications.service`, `invoice-tls.service`, `invoice-status.service`,
 `invoice-rotation-daily.service` und `invoice-rotation-opportunity.service`.
 Der Template-Drop-in gilt für beide Processinginstanzen. Die vorhandenen sieben
-Timerdateien und ihre Phasen bleiben unverändert. 14 neue Zieldateien plus genau
-ein gesicherter Peerpatch ergeben 15 Installationstargets. Der Importer-Drop-in
+Timerdateien und ihre Phasen bleiben unverändert. 15 neue Zieldateien plus genau
+ein gesicherter Peerpatch ergeben 16 Installationstargets. Der Importer-Drop-in
 setzt zusätzlich ExecStop auf `service-drain`; die ursprüngliche explizite
 Drain-CLI bleibt unverändert. Die neue Scheduledunit verwendet
 Wants/After statt Requires auf die Importerdienste, damit ein nativer Dockerrestart
@@ -118,6 +119,7 @@ Mit festem Quellverzeichnis `/root/ap10-reviewed` als Beispiel:
 
 ```sh
 install -o root -g root -m 0700 /root/ap10-reviewed/deploy/run-maintenance.py /etc/invoice-importer/run-maintenance.py
+install -o root -g root -m 0700 /root/ap10-reviewed/deploy/maintenance-effects.py /etc/invoice-importer/maintenance-effects.py
 install -o root -g root -m 0644 /root/ap10-reviewed/deploy/invoice-maintenance.tmpfiles.example /etc/tmpfiles.d/invoice-maintenance.conf
 for unit in invoice-maintenance.service invoice-maintenance.timer invoice-maintenance-guard.service invoice-maintenance-recover.service; do
   install -o root -g root -m 0644 "/root/ap10-reviewed/deploy/$unit.example" "/etc/systemd/system/$unit"
@@ -162,7 +164,7 @@ python3 -I -B /etc/invoice-importer/run-maintenance.py policy-digest
 
 Ausgegebenen Hash **erst nach inhaltlichem Quellen-/Hookreview** ins private Profil
 übernehmen, atomar0600 speichern und privat hashen. Bei offenem Wartungszustand
-Profil nicht zur Umgehung austauschen. Alle 15 Zieldateien und tatsächlichen
+Profil nicht zur Umgehung austauschen. Alle 16 Zieldateien und tatsächlichen
 zusammengeführten Units/Drop-ins nochmals gegen Manifest/Plan abgleichen.
 
 ## 4. Konflikte, Startreihenfolge und heutige Probe
@@ -182,6 +184,13 @@ systemctl start invoice-maintenance-recover.service
 python3 -I -B /etc/invoice-importer/run-maintenance.py check
 ```
 
+Die Recoverunit verwendet ausschließlich `verify-boot`; `recover` mit exakter
+Laufquittierung bleibt dem ausdrücklich abgestimmten manuellen Weg vorbehalten.
+Der neue SQLleser ist ausschließlich eine Hostquelle, kein neues Image. Vor
+Aktivierung auf dem isolierten nativen Prüfstand die echte d9-Image-/MariaDB-
+Einbindung, READ-ONLY-Sitzung, Scope-/Instanzabwehr, Zeitgrenzen und tatsächliche
+Containerbereinigung qualifiziert nachweisen. Die lokalen SQLitefälle prüfen
+Zustandsauswahl, ersetzen diesen nativen Nachweis aber nicht.
 Guard und Recover dürfen bei leerem Wartungsjournal weder Pakete noch Reboot
 ausführen. Der vorhandene Importer muss vorher aktiv/gesund sein; dadurch startet
 die leere Recoverprüfung ihn nicht neu. Bei Fehler Aktivierung abbrechen, keine
@@ -214,6 +223,44 @@ Erster Sonntagslauf bleibt offen. Root führt dafür vorab den tatsächlichen
 Backup-/Zugang-/Wiederanlaufabgleich durch. Ob überhaupt Pakete/Rebootbedarf
 vorliegen, ist erst dann feststellbar. Keine unnötige echte Mittwochsprobe.
 
+Die bestehende KI-Nachkontrolle bleibt **Sonntag 03:30 Europe/Berlin**. Keine zweite
+Automation und keine Terminverschiebung. Aktivierung erst nach qualifizierter
+Einrichtung, Review und gesondertem Rücklesen; der bisherige Eintrag bleibt bis
+dahin pausiert. Der technische Betreiber verantwortet den Hostlauf; der bestehende
+Wartungschat führt ausschließlich die lesende Nachkontrolle und meldet dem Betreiber.
+
+Um 03:30 den aktuellen profil-/instanzgebundenen Laufbeleg und tatsächlichen
+Scheduledprozess zusammen lesen. Eine passende aktive Oneshot-Ausführung mit
+laufender nativer Paketarbeit ist **laufend**, kein Erfolg und kein bewiesener
+Fehler. Fehlende Abschlussbelege bei unklarem Prozessausgang sind **offen**;
+ein belegter Fehler bleibt **Fehler**. `apt_in_progress=true` bei fehlendem
+passendem Prozess ist unbestätigter Ausgang und wird nicht automatisch quittiert.
+
+Bei regulär laufender gebundener Arbeit im selben Wartungschat höchstens alle
+fünf Minuten lesend weiter beobachten, längstens bis **05:30 Europe/Berlin**.
+Toolfreie Warteabschnitte zählen nicht zur Supportzeit. Tatsächliches Ende löst
+die abschließende Rücklese im bestehenden aktiven Chat aus; Abschlussbelege gegen
+denselben Originalvorzustand prüfen. Ein Fehler wird sofort gemeldet. APT wird
+auch nach 04:30 regulär abgewartet; ab 04:30 kein neuer Rebootauftrag. Ein laufender
+Paketprozess wird niemals wegen Ende der Beobachtung gestoppt.
+
+Ist um 05:30 noch kein bestätigter Abschluss vorhanden, als **offen, weiterhin
+laufend** beziehungsweise **Ausgang unbestätigt** mit Laufkennung, letzter
+bestätigter Phase und nächster Zuständigkeit an den technischen Betreiber
+übergeben. Dieser veranlasst das endgültige lesende Rücklesen nach tatsächlichem
+Ende im selben Wartungschat. Spätestens am nächsten Arbeitstag um 08:00 erfolgt
+ein manueller Statusauftrag durch den Betreiber; läuft die Arbeit dann noch,
+bleibt der Abschluss weiter offen und nach tatsächlichem Ende nachzulesen.
+Kein neuer Scheduler. Fehlendes VPN wird bei 03:30
+als nicht prüfbar erfasst; höchstens zwei weitere lesende Zugangsversuche um
+03:35/03:40, dann offene Übergabe an den Betreiber und Fortsetzung nach bestätigtem
+Zugang. Keine verdeckte Dauerwartezeit und kein Erfolg aus einer SSHunterbrechung.
+
+Bei jeder Kontrolle den tatsächlichen Historybestand zählen. Ab 40 abgeschlossenen
+Einträgen Vorwarnung an den technischen Betreiber und Archivierung nach Abschnitt7
+vor dem nächsten Sonntagslauf beauftragen. Bei52 blockiert weitere Paketarbeit;
+keine Umgehung durch Löschen von Journal oder aktuellem Lauf.
+
 Für den Wartungschat:
 
 ```sh
@@ -232,6 +279,10 @@ allowed mit passendem Material, siebenBestandstimer plus neuerSonntagstimer akti
 eigenerDrain entfernt beziehungsweise fremdePause unverändert und frischer passender
 Status. Ein gerade laufender normaler Job kann den Status einschränken; Befund
 präzise wiedergeben statt dauerhaft gesund zu behaupten. KeinProbeversand.
+`terminal_uncertain` bedeutet einen erhaltenen, verbrauchten besitzerfreien
+Einmalversuch unter bestätigter Ruhe; dies allein ist kein Wartungsfehler und
+kein Zustellnachweis. Offene Besitzer-/Sending-/Publishing-/TLSzustände bleiben
+Handlungsbedarf. GUI-Abschluss ist nur Browserzustand und keine globale Freigabe.
 
 LaufendeAPTarbeit nicht beenden. `failed`, `awaiting_reboot`, unbekannteWirkung,
 fehlendeNachbelege, fremdePause oder nichtprüfbarerZugang als Handlungsbedarf melden.
@@ -269,11 +320,74 @@ auch den Hostpatch zusammen mit Guard/Drop-ins bis zur Klärung erhalten.
 Wenn `state.json` offen oder nativeAPTarbeit gestartet/unklar ist: **nur neue
 Sonntagsauslösung anhalten**, Guard/Ordnungsdateien und Journale erhalten. Kein
 Stop-/Killauftrag für APT, kein Löschen der Pause oder Rohdaten. Nach known failure
-ist `recover` ausschließlich als explizit abgestimmte Wiederanlaufprüfung erlaubt,
+ist `recover --acknowledge-run <exakte-Laufkennung>` ausschließlich als explizit
+abgestimmte manuelle Wiederanlaufprüfung erlaubt,
 mit vorheriger leerer Audit-/Lock-/Prozessprüfung und aktivem Guard. Bei
 `apt_in_progress=true` verweigert das Werkzeug; dafür konkreten administrativen
 Abgleich anhand nativer APT-/dpkg-Belege planen. Keine unbewiesene Zustandsquittung.
 
+Nur nach ausdrücklicher Abstimmung, bekannten Paketresultaten, vollständigen
+Originalvorbelegen und Prüfung der konkreten unveränderten Laufkennung:
+
+```sh
+python3 -I -B /etc/invoice-importer/run-maintenance.py recover --acknowledge-run '<exakte-Laufkennung-aus-state.json>'
+```
+
+Diese manuelle Quittierung ersetzt keinen fehlenden Paket-/Rebootnachweis und
+wird niemals in eine automatisch angeforderte Unit eingetragen. Gespeicherte
+Rebootabsicht verlangt auch im Fehlerstatus einen tatsächlich neuen Boot.
+
 Bereits installierte Pakete werden durch Entfernen der AP10dateien nicht rückgängig
 gemacht. Paketdowngrade oder VMrestore braucht einen gesondert geprüften Plan.
 Weder tägliche Sicherung noch dieses Quellpaket beweisen einen Vollrestore.
+
+## 7. Journalarchivierung
+
+Verantwortlich ist der technische Betreiber. Ab 40 Historyeinträgen wird der
+Archivauftrag vor dem nächsten Sonntag erledigt; die Kapazitätsgrenze52 bleibt
+unverändert. Der Wartungschat meldet ausschließlich, führt keine Archivierung aus.
+Keine zusätzliche E-Mailfunktion und kein automatischer Löschdienst.
+
+Kontrollierter Weg in einem ausdrücklich abgestimmten ruhigen Betreiberabschnitt:
+
+1. Neuen Sonntagstimer vorübergehend deaktivieren und ursprünglichen Zustand
+   festhalten. Laufende Wartung regulär enden lassen. Dieselbe Wartungssperre
+   `/run/invoice-importer/maintenance.lock` exklusiv und nicht blockierend halten.
+   Kein offener aktueller Lauf, keine native Paketarbeit und keine unbekannten
+   Jobs. `state.json` einschließlich Hash nur lesen, niemals bearbeiten.
+2. Exakt 20 älteste vollständig abgeschlossene Historybelege mit Phase `completed`
+   oder `recovered` und passender belegter Instanz-/Profilzuordnung auswählen.
+   Aktuelle `state.json`-Laufkennung auch bei zufälligem Historyduplikat ausschließen.
+   Originale Fehler-/Wiederaufnahmeangaben im JSON unverändert erhalten.
+3. Neues rootgeschütztes0700-Verzeichnis
+   `/var/lib/invoice-importer/maintenance-archive/<UTC-Zeitstempel>` anlegen.
+   Für jede ausgewählte UUID den bisherigen `history/<UUID>.json` und alle
+   zugehörigen tatsächlich vorhandenen `<UUID>.*.packages` mit Modus/Owner0600
+   in einer konkreten Dateiliste erfassen. Keine Symlinks, fremden Dateien oder
+   zusätzlichen offenen Laufdateien aufnehmen. Fehlende historische Teilbelege
+   als fehlend dokumentieren und nicht neu erzeugen.
+4. SHA256manifest über genau diese Originalbytes erstellen; privaten Betreiberauftrag,
+   Auswahl, Originalpfade, Originalmetadaten und Zeitpunkt ergänzen. Dateien zuerst
+   metadatentreu ins neue Archiv kopieren, dort `sha256sum --check` vollständig
+   erfolgreich ausführen und Kopie getrennt rücklesen. Bei Abweichung abbrechen,
+   Originale erhalten. Belege und Paketbestände gehören gemeinsam ins Archiv.
+5. Ausschließlich die exakt ausgewählten und nochmals hashgleichen Originaldateien
+   durch einzeln benannte Moves in das verifizierte Archiv überführen; keine Inhaltsänderung, kein pauschales
+   Aufräumen und kein Löschen von Belegen. Den unveränderten Hash von `state.json`
+   und allen nicht ausgewählten Dateien bestätigen. Historybestand muss um20
+   zurückgegangen sein; sämtliche archivierten JSON-/Paketbytes bleiben per Manifest
+   nachweisbar vorhanden. Archiv in die bestehende Sicherungsrücklese aufnehmen;
+   daraus keinen vollständig geprüften VMrestore ableiten.
+6. Sperre freigeben, ursprünglichen neuen Timerzustand geordnet wiederherstellen
+   und Kalender/NextTermin außerhalb des Eintrittsfensters rücklesen. Archivmanifest
+   und Ergebnis an den Betreiber übergeben. Erst danach Kapazität als erledigt melden.
+
+Bei einem teilweise fehlgeschlagenen Move Auswahl/Manifest erhalten und anhand
+der unveränderten Hashes jedes bereits überführte und jedes verbliebene Original
+einzeln abgleichen. Timer bis zur geklärten vollständigen Überführung deaktiviert
+lassen. Kein weiterer Lauf und kein pauschales Wiederholen einer Dateiliste.
+
+Wenn ein aktueller Lauf offen oder eine Fremdänderung vorhanden ist, keinen Teil
+dieses Archivwegs durchführen. Nur den Kapazitätsbefund und das weitere
+Betreiberhandeln festhalten. Aktueller Zustand und aktuelle Paket-/Fehlerbelege
+werden weder gelöscht noch verändert.

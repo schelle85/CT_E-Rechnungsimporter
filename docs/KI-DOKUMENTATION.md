@@ -63,7 +63,7 @@ ist mit PASS ohne notwendige Korrekturbefunde bestanden. AP09a übernimmt dieses
 eine Handbuch; Kundenrückmeldung bleibt offen, keine konkurrierende Anleitung.
 AP09-Technikquelle/PDF bleibt als geprüfte datierte Ausgabe unverändert. AP10 zur wöchentlichen
 Linuxwartung ist seit 18.11.2026 freigegeben. Lokale Quelle und Einrichtungs-/Rückwegplan
-sind eigengeprüft; 14 gezielte Tests bestanden. Quellenreview, native Linuxprüfung,
+sind eigengeprüft; 22 gezielte Tests bestanden. Quellenreview, native Linuxprüfung,
 frischer Instanzabgleich, Installation und echter Sonntagslauf noch offen.
 API-/Workerimages bleiben d9/008; geplante Host-Stopkorrektur separat abgleichen.
 Gestaltung der Tages-/Wochenberichtsmails ist nur

@@ -22,7 +22,7 @@ AP09a übernimmt diese eine Anleitung; Kundenrückmeldung bleibt offen. Ein
 vertrauliches Betriebsblatt wird separat übergeben. Mailgestaltung nur geplant.
 
 AP10 ist seit 18.11.2026 freigegeben. [Wartungshülle](AP10-WARTUNG.md) und
-[Einrichtungs-/Rückwegplan](AP10-EINRICHTUNG.md) sind lokal geliefert; 14 gezielte
+[Einrichtungs-/Rückwegplan](AP10-EINRICHTUNG.md) sind lokal geliefert; 22 gezielte
 Tests bestanden. Quellenreview, native Linuxprüfung, heutiger frischer Hostbestand,
 Installation und erster echter Sonntagslauf bleiben offen. Kein APT-/Rebootlauf
 aus dieser Lieferung. API-/Workerimages bleiben d9/008; die geplante Änderung der

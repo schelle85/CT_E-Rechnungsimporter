@@ -94,6 +94,24 @@ SIGQUIT und bis zu 330s Schonfrist beendet, anschließend API bis zu 60s und DB 
 Exitcode0, identische Container und tatsächliche Cgroupruhe sind verbindlich. Nach
 APIstopp wird SQL-/Rotationsstatus nochmals über den vorhandenen lokalen Statusworker
 geprüft, bevor die DB gestoppt wird. Keine äußere Graphoperation aus diesem Statusabruf.
+Zusätzlich liest die feste Hostquelle `maintenance-effects.py` im unveränderten,
+gepinnten Backendimage vorhandene Wirkungsbelege. Bestehender DBadapter, geschützte
+Graph-/Processingkonfiguration, SQL-Instanz und Scope werden abgeglichen. Nur
+SELECT in einer READ-ONLY-Sitzung mit begrenzter Abfragezeit; keine Payloads,
+Empfänger, Schlüssel oder Ziele werden zurückgegeben. Der Probe fehlen Graphcredential,
+Notificationkey und SMBziel. Die vorhandene Rootjob-/Container-/Cgroupverwaltung
+begrenzt und räumt ausschließlich diesen eigenen Leser auf.
+
+Offenes Sending/Publishing, aktuelle ungeklärte Besitzer oder widersprüchliche
+Reservierungen, fehlende relevante Dateibelege und TLS-Pending sperren. Abgelaufene
+Leases sind kein Prozessabschluss. Dagegen bleiben besitzerfreie terminale
+`unknown`-Versandslots mit verbrauchter Einmalreservierung und Lease0 zulässig,
+ebenso entsprechend abgeschlossene reservierte Graph-/Ablagefehler. Ihr ungewisser
+Ausgang wird unverändert als `terminal_uncertain` im Wartungsbeleg sichtbar und
+nicht zu Annahme, Zustellung oder fehlerfreier Ablage umgedeutet. Kein neuer
+Quittierungs-/Reparaturweg. Normales fachliches Unknown und vorbereitete Arbeit
+ohne Besitzer/verbrauchte Wirkung bleiben zulässig. Die bereits geordnete native
+Prozessruhe ist Voraussetzung für diese Einordnung.
 Ein harter oder unbestätigter Stopp erlaubt keine Paketarbeit.
 
 Die zeitweise Portalunterbrechung ist Teil des geplanten Wartungsfensters. So kann
@@ -161,7 +179,19 @@ eines angeforderten Reboots ist eine neue Boot-ID notwendig. Bei jedem Wiederanl
 sind ein leeres Audit, derselbe bestätigte Paketbestand sowie echte Mounts, HTTPS,
 Graphbindung und die sieben aktivierten Bestandstimer Voraussetzungen.
 DB-/Nginxidentität muss erhalten sein. Ein von AP12 ordnungsgemäß neu erzeugter
-APIcontainer ist nur innerhalb dessen vorhandener geprüfter Bindungen zulässig.
+APIcontainer ist nur mit passendem aktuellem versiegeltem AP12-Verbraucherbeleg
+für exakt seine ID, sein Image und den aktuellen Boot zulässig. Ursprüngliche
+DB-/Nginxidentität, PEM-/Zertifikatmaterial und Bindung sowie bestätigter Paketnachbestand
+werden bereits vor dem zweiten Stopp und der Rebootentscheidung verglichen und
+nach dem Boot nochmals geprüft. Der Nachzustand wird niemals zur neuen Basis.
+
+Die automatisch angeforderte Recoverunit führt ausschließlich `verify-boot` aus.
+Dieser Weg verlangt vollständige ursprüngliche Vorbelege, erfolgreiche belegte
+APTschritte, bestätigten Paketnachbestand, geprüften Vorrebootzustand, gespeicherte
+und bestätigte Rebootabsicht, Phase `awaiting_reboot` und tatsächlich neuen Boot.
+Ein fehlgeschlagener oder unterbrochener Lauf wird nicht automatisch gestartet
+oder freigegeben. Eine gespeicherte Rebootabsicht verlangt auch nach Umschreibung
+zu `failed` weiterhin einen neuen Boot. Fehlende Belege werden nicht rekonstruiert.
 
 Rootgeschützte Ablage: `/var/lib/invoice-importer/maintenance`,0700. `state.json`
 und Paketbestände0600. Sie enthalten Vor-/Nachboot, konkrete Zeiten, Phase,
@@ -175,6 +205,9 @@ Ein JSONzustand ist höchstens 64KiB, jede Paketbestandsdatei höchstens 1MiB.
 Nach 52 archivierten Läufen wird weitere Arbeit bis zur kontrollierten Archivierung
 verweigert. Es gibt keinen automatischen Löschdienst. Unter `history` bleiben
 vorige abgeschlossene JSONbelege, Paketdateien tragen die ursprüngliche Laufkennung.
+Ab 40 Einträgen steht `journal_capacity_warning=true` mit dem beobachteten Zähler
+im aktuellen Laufbeleg. Der Betreiber erhält bei der Nachkontrolle eine Vorwarnung
+und archiviert kontrolliert vor dem nächsten Termin; [konkreter Archivweg](AP10-EINRICHTUNG.md#7-journalarchivierung).
 Systemjournal und `state.json` sind gemeinsam auszuwerten; fehlende Nachdaten sind
 nicht geprüft, kein stiller Erfolg.
 
@@ -187,8 +220,11 @@ nicht geprüft, kein stiller Erfolg.
 | recovered | Kontrollierter Wiederanlauf nach einem Fehler; keine Behauptung eines erfolgreichen Paketupgrades und kein Paketrollback. |
 | skipped / outside_start_window | Keine Updates/Reboot und kein Nachholen. Nächste normale Gelegenheit abwarten. |
 
-`recover` ist nach einem bekannten Fehler ein ausdrücklicher Betreiberweg für
-Wiederanlauf/Nachprüfung, kein Reparaturbefehl für dpkg und keine Aktualisierung.
+`recover --acknowledge-run <exakte-Laufkennung>` ist nach einem bekannten Fehler
+ausschließlich der ausdrücklich abgestimmte manuelle Betreiberweg. Er startet
+keine Paketarbeit und wiederholt keinen Reboot. Die automatische Unit ruft diesen
+Weg niemals auf. Originalvorbelege bleiben erforderlich; fehlen sie oder ist der
+APTausgang unklar, ist ein individueller administrativer Plan erforderlich.
 Ein unbekannter APTausgang, fremder Marker oder ungeklärte Graphbindung wird weiterhin
 abgewiesen. Solche Fälle benötigen einen konkreten administrativen Wiederherstellungsplan,
 nicht manuelles Entfernen der Sperren oder ein pauschales Zurücksetzen von JSONfeldern.
@@ -196,7 +232,14 @@ nicht manuelles Entfernen der Sperren oder ein pauschales Zurücksetzen von JSON
 ## Quellen, Einrichten und Nachkontrolle
 
 Die [Bereitstellungs-/Rückweganleitung](AP10-EINRICHTUNG.md) ist vor jeder Wirkung
-gegen den frischen tatsächlichen Hostbestand zu prüfen. Vorlagen in `deploy` sind
+gegen den frischen tatsächlichen Hostbestand zu prüfen. Die vorhandene KI-Kontrolle
+bleibt Sonntag um 03:30 Europe/Berlin. Bei noch laufender gebundener Arbeit folgt
+im selben Wartungschat höchstens alle fünf Minuten lesende Beobachtung bis 05:30;
+Wartezeit wird nicht als Supportzeit erfasst. Paketarbeit darf auch nach 04:30
+regulär enden, ein später Reboot bleibt verboten. Fehlender Abschluss wird offen
+übergeben; die [Nachkontrollregel](AP10-EINRICHTUNG.md#5-erster-echter-lauf-und-lesende-nachkontrolle)
+benennt Abschlusszuständigkeit und Zugangsausfall. Keine zweite Automation.
+Vorlagen in `deploy` sind
 deaktiviert. `check` startet keinen Paket-/Rebootlauf, nimmt aber kurz vorhandene
 Sperren und einen lokalen SQL-/Materialstatusworker in Anspruch; daher ebenfalls
 nur koordiniert verwenden. `policy-digest` liefert ausschließlich den Konfigurationshash.
@@ -211,5 +254,7 @@ Primärgrundlagen: [Ubuntu automatische Updates](https://ubuntu.com/server/docs/
 [needrestart-Hook](https://github.com/liske/needrestart/blob/master/ex/apt/apt-pinvoke),
 [needrestart-Modi](https://github.com/liske/needrestart/blob/master/needrestart),
 [systemd.timer](https://www.freedesktop.org/software/systemd/man/latest/systemd.timer.html).
+Lesende SQLgrundlage: [MariaDB Transaktionsmodus](https://mariadb.com/docs/server/reference/sql-statements/administrative-sql-statements/set-commands/set-transaction)
+und [Abfragegrenzen](https://mariadb.com/docs/server/ha-and-performance/optimization-and-tuning/query-optimizations/query-limits-and-timeouts).
 Die tatsächliche installierte systemd-/APTversion und konkrete Einheitenprüfung
 bleiben Teil der Hostabnahme; neueste Onlinedokumentation ersetzt sie nicht.

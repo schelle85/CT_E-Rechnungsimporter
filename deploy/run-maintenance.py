@@ -55,7 +55,8 @@ def window(epoch, *, reboot=False):
 def stable_rotation(status, gate, binding, boot):
     if (status.get('ok') is not True or status.get('binding') != binding
             or gate.get('mode') != 'allowed' or gate.get('boot_id') != boot
-            or any(gate.get(k) != v for k, v in binding.items()) or gate.get('grants')):
+            or any(gate.get(k) != v for k, v in binding.items()) or gate.get('grants')
+            or not status.get('current') or any(gate.get(k)!=status['current'].get(k) for k in ('fingerprint','pem_hash'))):
         raise Refused('graph_not_confirmed')
     operation = status['head']['active_operation']
     if operation is None:
@@ -67,8 +68,11 @@ def stable_rotation(status, gate, binding, boot):
                 or current != host[host['target']]
                 or cleanup is not None and cleanup['phase'] not in {'planned', 'completed'}):
             raise Refused('rotation_not_committed')
-    return dict(operation_id=operation, mode=gate['mode'], fingerprint=gate['fingerprint'],
-                release_hash=gate['release_hash'])
+    record=status.get('host') if operation else status.get('closed_host')
+    api=record.get('consumers',{}).get('api') if record else None
+    return dict(operation_id=operation,mode=gate['mode'],fingerprint=gate['fingerprint'],pem_hash=gate['pem_hash'],
+                binding=binding,release_hash=gate['release_hash'],api_attestation=None if not api else
+                dict(id=api['container_id'],image=api['image'],boot_id=record['boot_id']))
 
 
 class Native:
@@ -113,6 +117,8 @@ class Native:
         history = ROOT/'history'; self.host.controlled_directory(history)
         if len(list(history.iterdir())) >= 52: raise Refused('journal_capacity')
         self.c.archive(history/(value['token']+'.json'), value)
+
+    def history_count(self): return len(list((ROOT/'history').iterdir()))
 
     def boot(self): return self.c.model.boot_id()
     def marker(self): return self.runtime.gate(self.host)
@@ -172,6 +178,7 @@ class Native:
                 saved=self.c.worker('read',gate['operation_id'])['host']
                 status['closed_confirmed']=bool(saved and saved['phase']=='committed' and not saved['paused']
                     and saved['seal']==gate['release_hash'] and saved[saved['target']]==status['current'])
+                if status['closed_confirmed']: status['closed_host']=saved
         return stable_rotation(status, gate, self.c.access.fields(), self.boot())
 
     def command(self, args, timeout=15, *, apt=False):
@@ -255,6 +262,50 @@ class Native:
             if row.get('ActiveState') not in {'inactive','failed'}: raise Refused('apt_job_active')
             if unit.endswith('.timer') and row.get('UnitFileState') not in {'disabled','masked'}: raise Refused('apt_updater_enabled')
 
+    def effects(self):
+        pending=self.runtime.tls_pending(self.c.binding['tls_root'])
+        if pending.exists() or pending.is_symlink():
+            self.host.protected(pending);raise Refused('tls_pending')
+        rotation=rotation_peer()
+        image=self.c.images['notifications'];self.c.image(image)
+        probe=self.host.protected(Path(__file__).with_name('maintenance-effects.py')).read_text()
+        name='invoice-rotation-'+uuid4().hex;operation=str(uuid4());item=None
+        args=['create','--interactive','--init','--cgroup-parent','system.slice','--name',name,
+              '--label','invoice.rotation.operation='+operation,'--network',self.c.processing['networks'][0],
+              '--user','0:10001','--read-only','--cap-drop','ALL','--security-opt','no-new-privileges:true',
+              '--memory','512m','--memory-swap','512m','--cpus','1','--pids-limit','96','--workdir','/app',
+              '--tmpfs','/tmp:rw,noexec,nosuid,size=64m']
+        for key,value in dict(DB_HOST=self.c.processing['db_host'],DB_NAME=self.c.processing['db_name'],
+                              DB_USER=self.c.processing['db_user'],DB_PASSWORD_FILE='/run/secrets/db_password').items():
+            args.extend(['--env',key+'='+value])
+        # No Graph credential, gate grants, SMB destination or notification key mounted.
+        for source,target in ((self.c.processing['graph_config'],'/run/importer/graph.json'),
+                              (self.c.binding_file,'/run/importer/graph-access-binding.json'),
+                              (self.c.processing['processing_config'],'/run/importer/processing.json'),
+                              (self.c.processing['db_password'],'/run/secrets/db_password')):
+            args.extend(['--mount','type=bind,source='+str(source)+',target='+target+',readonly'])
+        command=['python','-B','-c',probe]
+        args.extend([image,*command])
+        self.c.write(self.c.job_path(name),dict(kind='container',name=name,image=image,uid='0:10001',
+                     operation_id=operation,command='maintenance-effects',**self.c.access.fields()))
+        self.c.command(args,15)
+        # An unconfirmed create deliberately leaves its known job record for reconciliation.
+        item=self.c.inspect(name,image,'0:10001')
+        try:
+            if item['Config'].get('Cmd')!=command: raise Refused('effects_probe_changed')
+            for network in self.c.processing['networks'][1:]: self.c.command(['network','connect',network,name])
+            result=rotation.input_command(self.host,['start','-a','-i',item['Id']],
+                        dict(binding=self.c.access.fields()),min(self.c.until,time.monotonic()+45))
+            if (result.get('binding')!=self.c.access.fields() or set(result.get('blocked',{}))!=
+                    {'notifications','graph','storage','file_receipts','processing_owner'}
+                    or set(result.get('terminal_uncertain',{}))!={'notifications','graph','storage'}
+                    or any(type(v) is not bool for v in [*result['blocked'].values(),*result['terminal_uncertain'].values()])):
+                raise Refused('effects_unconfirmed')
+            if any(result['blocked'].values()): raise Refused('external_effect_unconfirmed')
+            return dict(confirmed=True,blocked=result['blocked'],terminal_uncertain=result['terminal_uncertain'],tls_pending=False)
+        finally:
+            self.c.cleanup(item);self.c.finish_job(name)
+
     def facts(self):
         self.c.until=time.monotonic()+180
         self.runtime.ready(self.c.binding,self.c.auto['public_origin'],self.host,self.c.until)
@@ -265,7 +316,7 @@ class Native:
         containers={kind:self.runtime.inspect_container(self.c.binding,kind,self.host,self.c.until) for kind in ('db','api','nginx')}
         return dict(boot_id=self.boot(), at=int(time.time()), https_ready=True, mounts=dict(importer=True,tls_source=True),
                     containers={kind:dict(id=item['id'],image=item['image']) for kind,item in containers.items()},
-                    graph=self.rotation(), timers=self.timers())
+                    graph=self.rotation(),effects=self.effects(),timers=self.timers())
 
     def stop(self):
         self.c.until=time.monotonic()+600
@@ -281,7 +332,9 @@ class Native:
             if (stopped['id']!=item['id'] or stopped['state'].get('Running') or stopped['state'].get('Pid')!=0
                     or stopped['state'].get('ExitCode')!=0): raise Refused('stop_not_graceful')
             self.c.quiet(group)
-            if kind=='api': self.rotation()  # Recheck SQL only after admission has closed.
+            if kind=='api':
+                self.c.until=time.monotonic()+180
+                self.rotation();self.effects()  # Recheck durable effects after API admission has closed.
 
     def start(self):
         self.c.until=time.monotonic()+240
@@ -311,23 +364,78 @@ class Native:
                     jobs={k:dict(last_result=v['last_result'],running=v['running']) for k,v in status['jobs'].items()})
 
 
-def finish(native, value, *, recovered=False):
+def inventory_confirmed(value):
+    return (isinstance(value,dict) and value.get('audit_empty') is True
+            and isinstance(value.get('inventory_sha256'),str)
+            and re.fullmatch('[0-9a-f]{64}',value['inventory_sha256']) is not None)
+
+
+def baseline_confirmed(value):
+    before=value.get('before')
+    if (not isinstance(before,dict) or before.get('boot_id')!=value.get('boot_before')
+            or not all(k in before.get('containers',{}) for k in ('db','api','nginx'))
+            or not all(k in before.get('graph',{}) for k in ('fingerprint','pem_hash','binding'))
+            or not inventory_confirmed(value.get('packages_before'))):
+        raise Refused('recovery_baseline_missing')
+
+
+def compare_after(value,after,inventory,*,require_packages=True):
+    baseline_confirmed(value)
+    expected=value.get('packages_after')
+    if require_packages and not inventory_confirmed(expected): raise Refused('package_evidence_missing')
+    if not inventory_confirmed(inventory) or expected is not None and inventory!=expected:
+        raise Refused('package_inventory_changed')
+    for kind in ('db','nginx'):
+        if after['containers'][kind]!=value['before']['containers'][kind]: raise Refused('preserved_container_changed')
+    for field in ('fingerprint','pem_hash','binding'):
+        if after['graph'][field]!=value['before']['graph'][field]: raise Refused('graph_material_changed')
+    if after['containers']['api']!=value['before']['containers']['api']:
+        proof=after['graph'].get('api_attestation')
+        if proof!=dict(after['containers']['api'],boot_id=after['boot_id']):
+            raise Refused('api_recovery_unconfirmed')
+
+
+def recovery_gate(value,boot,*,automatic,acknowledge_run):
+    # A saved reboot intent survives a later phase='failed' and an unclear reply.
+    if value.get('reboot_requested_at') is not None and boot==value.get('boot_before'):
+        raise Refused('reboot_not_observed')
+    if value.get('apt_in_progress'): raise Refused('apt_outcome_unconfirmed')
+    baseline_confirmed(value)
+    if not automatic:
+        if acknowledge_run!=value['token']: raise Refused('manual_recovery_ack_required')
+        return
+    if (value.get('phase')!='awaiting_reboot' or 'failed_at' in value or 'failed_phase' in value
+            or value.get('reboot_required') is not True
+            or type(value.get('reboot_requested_at')) is not int
+            or value.get('reboot_request_accepted') is not True
+            or value.get('apt_in_progress') is not False
+            or not inventory_confirmed(value.get('packages_after'))
+            or not isinstance(value.get('pre_reboot'),dict)
+            or value['pre_reboot'].get('boot_id')!=value.get('boot_before')):
+        raise Refused('automatic_recovery_unconfirmed')
+    for step in ('update','upgrade'):
+        row=value.get(step,{})
+        if (row.get('exit')!=0 or type(row.get('started_at')) is not int
+                or type(row.get('finished_at')) is not int or row['finished_at']<row['started_at']
+                or not re.fullmatch('[0-9a-f]{64}',row.get('output_sha256',''))):
+            raise Refused('automatic_recovery_unconfirmed')
+    compare_after(value,value['pre_reboot'],value['packages_after'])
+
+
+def finish(native,value,*,recovered=False):
     native.parent_start()  # No recursive lifecycle/writer lock acquisition.
     with native.guards():
         after=native.facts()
         inventory=native.packages(value,'verified')
-        if value.get('packages_after') and inventory!=value['packages_after']: raise Refused('package_inventory_changed')
-        for kind in ('db','nginx'):
-            if after['containers'][kind]!=value['before']['containers'][kind]: raise Refused('preserved_container_changed')
-        if after['graph']['fingerprint']!=value['before']['graph']['fingerprint']: raise Refused('graph_material_changed')
+        compare_after(value,after,inventory,require_packages=not recovered)
         if native.cancelled: raise Refused('cancelled_before_resume')
-        value['after']=after; native.unpause(value)
+        value['after']=after;native.unpause(value)
     value['status']=native.refresh_status()
     value.update(phase='recovered' if recovered else 'completed',finished_at=int(time.time()))
     native.save(value)
 
 
-def execute(native, mode, *, clock=time.time):
+def execute(native,mode,*,clock=time.time,acknowledge_run=None):
     if mode=='policy-digest': return dict(ok=True,apt_policy_digest=native.policy_digest())
     value=native.read()
     if mode=='boot-guard':
@@ -337,17 +445,13 @@ def execute(native, mode, *, clock=time.time):
         native.preflight()
         with native.guards(): facts=native.facts()
         return dict(ok=True,check_only=True,facts=facts,pending=value is not None and value['phase'] not in DONE)
-    if mode=='recover':
+    if mode in {'verify-boot','recover'}:
         if not value or value['phase'] in DONE: return dict(ok=True,nothing_pending=True)
-        if value['phase']=='awaiting_reboot' and native.boot()==value['boot_before']: raise Refused('reboot_not_observed')
         native.pause(value)
-        # Never repeat APT or a reboot from an interrupted/failed transaction.
-        if value.get('apt_in_progress'): raise Refused('apt_outcome_unconfirmed')
+        recovery_gate(value,native.boot(),automatic=mode=='verify-boot',acknowledge_run=acknowledge_run)
         with native.guards():
             native.start()
-            if 'before' not in value:
-                value['before']=native.facts();value['before_reconstructed_on_recovery']=True;native.save(value)
-        finish(native,value,recovered=value['phase']!='awaiting_reboot')
+        finish(native,value,recovered=mode=='recover')
         return dict(ok=True,phase=value['phase'])
     if not window(clock()): return dict(ok=True,skipped=True,code='outside_start_window')
     if value and value['phase'] not in DONE: raise Refused('previous_run_unresolved')
@@ -355,6 +459,8 @@ def execute(native, mode, *, clock=time.time):
     if native.marker() is not None: raise Refused('operator_pause_preserved')
     if value: native.archive(value)
     value=dict(schema=1,token=uuid4().hex,profile_hash=native.profile_hash,phase='preflight',started_at=int(clock()),boot_before=native.boot())
+    value['history_entries']=native.history_count()
+    value['journal_capacity_warning']=value['history_entries']>=40
     native.save(value)
     try:
         with native.guards():
@@ -378,12 +484,14 @@ def execute(native, mode, *, clock=time.time):
             native.confirm_pause(value)
             value['packages_after']=native.packages(value,'after')
             native.start();value['post_update']=native.facts()
+            compare_after(value,value['post_update'],native.packages(value,'verified'))
             value['reboot_required']=native.reboot_required()
             if value['reboot_required']:
                 if not window(clock(),reboot=True) or native.cancelled: raise Refused('reboot_window_closed')
                 native.stop()
                 if not window(clock(),reboot=True) or native.cancelled: raise Refused('reboot_window_closed')
                 native.confirm_pause(value)
+                value['pre_reboot']=value['post_update']
                 value.update(phase='awaiting_reboot',reboot_requested_at=int(clock()),reboot_request_accepted=False);native.save(value)
                 native.command(['/usr/bin/systemctl','--no-block','reboot'],15)
                 value['reboot_request_accepted']=True;native.save(value)
@@ -400,8 +508,9 @@ def execute(native, mode, *, clock=time.time):
 
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('mode',choices=('check','scheduled','recover','boot-guard','policy-digest','service-drain'))
+    parser.add_argument('mode',choices=('check','scheduled','verify-boot','recover','boot-guard','policy-digest','service-drain'))
     parser.add_argument('--profile',default=PROFILE)
+    parser.add_argument('--acknowledge-run',help='Explicit operator recovery of this exact run token')
     args=parser.parse_args()
     try:
         if os.name!='posix' or os.geteuid()!=0 or not sys.flags.isolated or not sys.dont_write_bytecode: raise Refused('root_isolated_required')
@@ -419,7 +528,7 @@ def main():
         signal.signal(signal.SIGINT,lambda *_:setattr(native,'cancelled',True))
         with native.host.host_lock('/run/invoice-importer/maintenance.lock') as acquired:
             if not acquired: raise Refused('maintenance_busy')
-            result=execute(native,args.mode)
+            result=execute(native,args.mode,acknowledge_run=args.acknowledge_run)
     except BaseException as error:
         result=dict(ok=False,code=str(error) if isinstance(error,Refused) else 'maintenance_unconfirmed')
     print(json.dumps(result,separators=(',',':')))
