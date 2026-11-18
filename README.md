@@ -32,6 +32,11 @@ Wechsel auf ein neues Graph-Zertifikat ist unabhängig nativ bestätigt; die Rot
 sind aktiv. Der kontrollierte AP12-Boot und die qualifiziert abgegrenzten
 Wiederaufnahmezustände sind inzwischen bestätigt; siehe AP12-Übergabe.**
 
+Der am 18.11.2026 bestätigte reguläre Eingangsstichtag ist **Montag,
+23.11.2026, 00:00 Uhr Europe/Berlin (22.11.2026, 23:00 UTC)**. Der lokale
+Kandidat enthält die neue inklusive Grenze für die direkte Inbox. Bis zur
+Bereitstellung gilt auf d9/008 der bisherige Eingangsstichtag.
+
 | Paket | Stand |
 | --- | --- |
 | AP00 – technische Grundlage | Abgeschlossen: SSH/SMB, Zertifikate und begrenzter Graph-Zugriff einschließlich Testversand geprüft. |

@@ -9,8 +9,8 @@ from zoneinfo import ZoneInfo
 from app.graph import GraphError
 from app.graph_deadline import request_deadline
 
-CUTOFF = datetime(2026, 12, 1, tzinfo=ZoneInfo("Europe/Berlin")).astimezone(timezone.utc)
-CUTOFF_GRAPH = "2026-11-30T23:00:00Z"
+CUTOFF = datetime(2026, 11, 23, tzinfo=ZoneInfo("Europe/Berlin")).astimezone(timezone.utc)
+CUTOFF_GRAPH = CUTOFF.isoformat(timespec="seconds").replace("+00:00", "Z")
 MESSAGE_SELECT = "id,receivedDateTime,parentFolderId,hasAttachments,flag"
 ATTACHMENT_SELECT = "id,name,contentType,size,isInline"
 

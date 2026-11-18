@@ -60,7 +60,8 @@ Manifest. Neue Anhänge oder geänderte Metadaten werden abgewiesen; fehlende sc
 abgelegte Geschwister invalidieren deren Receipt nicht. Der bisherige Mailbox-
 Standard bleibt Inbox-only, der gebundene Reader darf keine neuen Ordner scannen.
 
-Neue Quellen ausschließlich direkte Inbox ab bestehendem Stichtag. Paging vor
+Neue Quellen ausschließlich direkte Inbox ab der gemeinsamen
+[inklusiven Produktivgrenze](AP02-GRAPH.md#ap02b-inbox-und-anhänge). Paging vor
 äußeren Wirkungen abschließen. Rohbytegröße/SHA stammen aus dem vollständigen
 Download, nicht aus Graph-size. Ablagequellenkey bleibt über Mailverschiebung,
 Wiederaufnahme und Korrekturrevision unverändert. Eine neue explizite Mailabsicht

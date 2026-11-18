@@ -8,7 +8,9 @@ Kundenmigration und Umschaltung sind abgeschlossen und getrennt zurückgelesen.
 Quellprüfung, isolierter Runtime-/Browsernachweis,
 Kundenbereitstellung und Kundenabnahme werden getrennt geführt.
 
-AP03-Erkennung und Eingangsstichtag 1. Dezember 2026, Berlin, bleiben unverändert.
+Zum AP06-Abschluss galten die eingefrorene AP03-Erkennung und der damalige
+Eingangsstichtag 1. Dezember 2026, Berlin. Der spätere Kandidatenstand steht in den
+[Anforderungen](ANFORDERUNGEN.md#betrieb-und-eingang).
 AP06 hat keine Timer oder Benachrichtigungen aktiviert; AP08 bleibt ohne Go. DMS-Anbindung,
 -Konfiguration und -Prüfung liegen vollständig außerhalb des Auftrags und
 sind keine Abnahmebedingung.

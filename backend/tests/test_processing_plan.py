@@ -8,7 +8,7 @@ from app.processing_plan import (AttachmentOutcome as Outcome, ProcessingError, 
 
 
 def mail(**changes):
-    value = Message("immutable-message", datetime.fromisoformat("2026-12-01T00:00:00+01:00"), "inbox", "notFlagged")
+    value = Message("immutable-message", datetime.fromisoformat("2026-11-23T00:00:00+01:00"), "inbox", "notFlagged")
     return replace(value, **changes)
 
 
@@ -61,8 +61,17 @@ class ProcessingPlanTests(unittest.TestCase):
         self.assertEqual(two["manifest_key"], source_manifest("invoice@example.invalid", mail(), [first, second, signature])["manifest_key"])
         with self.assertRaises(ProcessingError):
             source_manifest("invoice@example.invalid", mail(), [first, replace(first, size=1000)])
-        with self.assertRaises(ProcessingError):
-            source_manifest("invoice@example.invalid", mail(received_at=datetime.fromisoformat("2026-11-30T22:59:59+00:00")), [first])
+
+    def test_manifest_enforces_inclusive_import_cutoff(self):
+        before = mail(received_at=datetime.fromisoformat("2026-11-22T22:59:59.999999Z"))
+        with self.assertRaises(ProcessingError) as error:
+            source_manifest("invoice@example.invalid", before, [])
+        self.assertEqual(error.exception.code, "processing_before_cutoff")
+        for stamp in ("2026-11-22T23:00:00+00:00", "2026-11-22T23:00:00.000001+00:00"):
+            with self.subTest(stamp=stamp):
+                item = mail(received_at=datetime.fromisoformat(stamp))
+                manifest = source_manifest("invoice@example.invalid", item, [attachment()])
+                self.assertEqual(manifest["received_at"], stamp)
 
     def test_only_frozen_classifier_status_category_version_and_hash_combinations(self):
         good = {"status": "recognized", "category": "PDF", "reason": "invoice_fields", "format": "PDF",

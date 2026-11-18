@@ -89,8 +89,9 @@ Linux/Python3.13-Build aufgelöst; bestehende AP01-Versionen bleiben erhalten.
 ## AP02b: Inbox und Anhänge
 
 `python -m app.graph_cli scan` liest die Inbox mit festem serverseitigem Filter
-`receivedDateTime ge 2026-11-30T23:00:00Z` und aufsteigendem Eingangsdatum. Das ist
-01.12.2026 00:00 Europe/Berlin. Datum und Offset werden zusätzlich lokal geprüft;
+`receivedDateTime ge 2026-11-22T23:00:00Z` und aufsteigendem Eingangsdatum. Das ist
+der am 18.11.2026 bestätigte Kandidat für den regulären Start ab 23.11.2026,
+00:00 Uhr Europe/Berlin. Datum und Offset werden zusätzlich lokal geprüft;
 fehlende, ungültige, naive oder frühere Zeiten verhindern jede direkte
 Anhangabfrage. Es gibt keinen konfigurierbaren früheren Produktivstichtag.
 
@@ -138,7 +139,7 @@ und geänderte-finaler-Guard-Tests verhindern stille Teilresultate.
 
 Zusätzliche explizite Betreiberbefehle: `ensure-folders`, `flag --message-id <ID>`
 und `move --message-id <ID> --destination <Name>`. Kein Aufruf aus `scan`, kein
-automatisches Success-Ziel und keine Verarbeitung beim01.12.2026. Die Befehle
+automatisches Success-Ziel und kein durch die Datumsgrenze ausgelöster Lauf. Die Befehle
 geben nur Zähler/Status und neutrale Fehler aus. Konkrete Liveobjekte und Aktionen
 gehören in den geprüften Betreiberplan, keine beliebigen produktiven Versuche.
 

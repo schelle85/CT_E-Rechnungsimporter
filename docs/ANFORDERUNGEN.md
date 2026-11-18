@@ -1,6 +1,6 @@
 # Anforderungen
 
-Stand: 15. November 2026. Vereinbarter Sollumfang; den tatsächlichen
+Stand: 18. November 2026. Vereinbarter Sollumfang; den tatsächlichen
 Umsetzungsstand zeigt die [README](../README.md).
 Echte Postfach-, Gruppen-, Empfänger- und Verbindungswerte werden separat konfiguriert.
 
@@ -14,7 +14,9 @@ Echte Postfach-, Gruppen-, Empfänger- und Verbindungswerte werden separat konfi
   optional; falls verwendet, gerade und ohne Verzerrung darstellen.
 - Ein konfiguriertes Microsoft-365-Postfach über Microsoft Graph verarbeiten.
 - Alle fünf Minuten den Posteingang abarbeiten, ohne parallele Doppelverarbeitung.
-- Nur E-Mails mit Maileingang ab **1. Dezember 2026** berücksichtigen.
+- Regulär nur E-Mails aus der direkten Inbox mit Eingang ab **23. November 2026,
+  00:00 Uhr Europe/Berlin** berücksichtigen (einschließlich der Grenze,
+  **22. November 2026, 23:00 UTC**). Der Start wurde am 18.11.2026 vorgezogen.
 - Ältere E-Mails vollständig ignorieren und unverändert lassen.
 - Fehlende benötigte Postfachunterordner unter dem Posteingang selbst anlegen.
 

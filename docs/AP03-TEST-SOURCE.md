@@ -32,8 +32,9 @@ keine Verarbeitung aus einem bereits gelesenen Teil bei späterem Fehler. Graph
 bietet dabei keine atomare Sperre gegen eine parallel unmittelbar nach der Prüfung
 verschobene Nachricht; die erneuten Parentprüfungen begrenzen dieses Zeitfenster.
 
-Der Eingangsstichtag ist nur Metadatum dieser separaten Testquelle. Unverändert
-bleiben AP02-Inbox-/Download-/Move-/Flag-Guards und `2026-11-30T23:00:00Z`. Tests
+Der Eingangsstichtag ist nur Metadatum dieser separaten Testquelle. Für die
+AP02-Inbox-/Download-/Move-/Flag-Guards gilt die gemeinsame
+[Produktivgrenze](AP02-GRAPH.md#ap02b-inbox-und-anhänge). Tests
 lesen dieselbe Vorstichtagsnachricht im gebundenen Testpfad und weisen sie über
 die vorhandene produktive Mailboxfunktion weiterhin ab.
 

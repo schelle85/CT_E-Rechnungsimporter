@@ -89,7 +89,9 @@
   erhalten; führend docs/AP12-UEBERGABE.md. Der am 18.11.2026 freigegebene
   AP07-Nachtrag zur Gestaltung der Tages-/Wochenmails liegt als lokaler Kandidat vor.
   DMS-Anbindung, -Konfiguration und -Prüfung liegen außerhalb unseres Auftrags
-  und sind keine Abnahmebedingung. AP03 und Stichtag bleiben unverändert.
+  und sind keine Abnahmebedingung. AP03 bleibt eingefroren. Für den lokalen
+  Kandidaten gilt der am 18.11.2026 bestätigte reguläre Eingangsstichtag
+  23.11.2026, 00:00 Uhr Europe/Berlin. Produktiv läuft bis zur Freigabe d9/008.
 - Keine zusätzlichen Agenten oder Chats ohne entsprechenden Auftrag.
 
 ## Auftrag und vorhandene Lösungen

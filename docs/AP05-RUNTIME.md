@@ -83,7 +83,8 @@ kein Klassifikations-HTTPdienst. Host-Dockerziel ist ausschließlich der lokale 
 ## Ein Tick und Wiederaufnahme
 
 select inbox materialisiert zuerst den vollständigen bestehenden Graph-Inboxscan;
-nur direkte Inboxquellen mit echtem Empfang ab unverändertem Stichtag werden
+nur direkte Inboxquellen mit echtem Empfang ab der gemeinsamen
+[inklusiven Produktivgrenze](AP02-GRAPH.md#ap02b-inbox-und-anhänge) werden
 registriert. select corrections übernimmt ausschließlich bereits intern freigegebene
 Entscheidungen und startet zulässige neue Revisionen. Laufende Korrekturrevisionen
 bleiben der Korrekturfälligkeit zugeordnet. Kein Freigabe-CLI und kein Lernschreibweg.

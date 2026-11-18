@@ -20,8 +20,10 @@ Ein zweiter Reboot oder vollständiger VMrestore ist damit nicht nachgewiesen.
 Die vorhandenen Docker-Operatoren, Notification-CLI, MariaDB-Journale und
 systemd werden weiterverwendet. Keine neue Bibliothek, Jobplattform oder
 Migration. Der zusätzliche Code begrenzt die bestehenden Abläufe und schließt
-die belegten Auswahl-/Fairnesslücken. Classifier, OCR, Paketlocks und Stichtag
-01.12.2026 00:00 Europe/Berlin bleiben unverändert. DMS, Linuxupdates und
+die belegten Auswahl-/Fairnesslücken. Classifier, OCR und Paketlocks blieben
+wie beim damaligen Stand. Für AP08 galt der Eingang ab 01.12.2026, 00:00 Uhr
+Europe/Berlin. Den später bestätigten Start führen die
+[Anforderungen](ANFORDERUNGEN.md#betrieb-und-eingang). DMS, Linuxupdates und
 AP12-Graphrotation gehören nicht zu diesem Paket.
 
 ## Fester Hosteinstieg
@@ -289,7 +291,8 @@ Projektion. Der Login behauptet keinen Betriebszustand. Poll alle30s, begrenzte
 Anfrage und monotone Ablaufzeit einschließlich Anfragezeit; Fetchfehler,
 Ablauf oder Rückkehr zu einer abgelaufenen Ansicht entfernen alte Aktivität.
 Die Oberfläche bietet keinen Jobsteuerknopf. Zeitpläne bleiben ausdrücklich
-Startgelegenheiten; Stichtag01.12.2026 00:00 Europe/Berlin unverändert.
+Startgelegenheiten. Die Statusansicht nennt den Eingangsstichtag des jeweiligen
+Produktstands.
 
 ## Tatsächlicher Bereitstellungs- und Aktivierungsstand
 

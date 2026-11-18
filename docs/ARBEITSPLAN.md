@@ -314,3 +314,8 @@ Berichtsfakten, Zeitgrenzen der Berichte und Versandregeln bleiben erhalten.
 Testnachrichten sowie Fehler-, Ausfall- und Zertifikatsmeldungen verwenden die
 bisherige Vorlage. Synthetische Vorschauen werden lokal aus dem Versandrenderer
 erzeugt. Produktive Bereitstellung und Abnahme liegen bei ORGA.
+
+Separater Auftrag vom 18.11.2026: regulären Import auf den 23.11.2026,
+00:00 Uhr Europe/Berlin (22.11.2026, 23:00 UTC), vorziehen. Der Kandidat verwendet
+die inklusive Grenze für die direkte Inbox, nachgelagerte Graph-Aktionen und die
+Verarbeitung. Die Portalansicht zeigt das neue Datum nach Bereitstellung.

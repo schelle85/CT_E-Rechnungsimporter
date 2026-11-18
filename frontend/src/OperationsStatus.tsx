@@ -56,7 +56,7 @@ export function OperationsCard() {
         <Table.Td><Text size="sm">{job?.next_run_at == null ? "Nicht belegt" : dateTime(job.next_run_at)}</Text></Table.Td>
       </Table.Tr>; })}
     </Table.Tbody></Table></Table.ScrollContainer>
-    <Text size="xs" c="dimmed" mt="md">Zeitpläne bieten Startgelegenheiten. Größere Vorgänge können mehrere Läufe benötigen. Der Eingangsstichtag bleibt 01.12.2026, 00:00 Uhr Europe/Berlin.</Text>
+    <Text size="xs" c="dimmed" mt="md">Zeitpläne bieten Startgelegenheiten. Größere Vorgänge können mehrere Läufe benötigen. Der Eingangsstichtag ist der 23.11.2026, 00:00 Uhr Europe/Berlin.</Text>
     <Text size="xs" c="dimmed" mt={4}>Startdienst zuletzt: {resultLabel[status?.startup.last_result ?? "unknown"]}{status?.startup.last_run_at == null ? "" : " · " + dateTime(status.startup.last_run_at)}</Text>
   </Paper>;
 }

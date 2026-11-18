@@ -79,7 +79,7 @@ class TestSourceTests(unittest.TestCase):
         with self.assertRaises(GraphError) as error:
             productive.message("m1")
         self.assertEqual(error.exception.code, "graph_before_cutoff")
-        self.assertEqual(CUTOFF_GRAPH, "2026-11-30T23:00:00Z")
+        self.assertEqual(CUTOFF_GRAPH, "2026-11-22T23:00:00Z")
         for request in remote.calls:
             self.assertNotIn("ignore_cutoff", str(request.url))
 

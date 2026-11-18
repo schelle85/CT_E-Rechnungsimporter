@@ -81,7 +81,7 @@ class ProcessingGraphTests(unittest.TestCase):
         self.remote.attachments["m1"] = [source]
         key = message_key(CONFIG.mailbox, "m1")
         receipt = {"message_key": key, "graph_id": "m1", "source_parent": "inbox", "current_parent": "folder-unzugeordnet",
-                   "received_at": "2026-11-30T23:00:00+00:00"}
+                   "received_at": "2026-11-22T23:00:00+00:00"}
         rows = [{"message_key": key, "graph_id": "a1", "source": json.dumps(["a1", source["name"], 7, source["contentType"], False, "file"])}]
         return JournalMailbox(self.client, receipt, rows), receipt
 

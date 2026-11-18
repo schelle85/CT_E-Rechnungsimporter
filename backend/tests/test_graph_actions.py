@@ -142,7 +142,7 @@ class GraphActionTests(unittest.TestCase):
 
     def test_every_direct_mutation_blocks_old_or_missing_time(self):
         self.ready_folders()
-        for stamp in ("2026-11-30T22:59:59.999999Z", None):
+        for stamp in ("2026-11-22T22:59:59.999999Z", None):
             for operation in (self.api.flag, lambda mid: self.api.move(mid, "Success")):
                 self.remote.messages["m1"] = message(timestamp=stamp)
                 with self.subTest(stamp=stamp), self.assertRaises(GraphError):

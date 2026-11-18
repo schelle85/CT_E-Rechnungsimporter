@@ -8,7 +8,7 @@ from app.graph_mail import Mailbox, CUTOFF, CUTOFF_GRAPH, received
 from test_graph import CONFIG, Credential
 
 
-def message(mid="m1", timestamp="2026-12-01T00:00:00+01:00", parent="inbox", flag="notFlagged"):
+def message(mid="m1", timestamp="2026-11-23T00:00:00+01:00", parent="inbox", flag="notFlagged"):
     return {"id": mid, "receivedDateTime": timestamp, "parentFolderId": parent,
             "hasAttachments": False, "flag": {"flagStatus": flag}}
 
@@ -60,18 +60,27 @@ class GraphMailTests(unittest.TestCase):
         return Mailbox(GraphClient(CONFIG, Credential(), http, sleep=lambda _: None,**transport_access())), remote
 
     def test_cutoff_inclusive_and_offsets(self):
-        self.assertEqual(CUTOFF.isoformat(), "2026-11-30T23:00:00+00:00")
-        for stamp in (CUTOFF_GRAPH, "2026-12-01T00:00:00+01:00", "2026-11-30T18:00:00-05:00"):
+        self.assertEqual(CUTOFF.isoformat(), "2026-11-22T23:00:00+00:00")
+        for stamp in (CUTOFF_GRAPH, "2026-11-23T00:00:00+01:00", "2026-11-22T18:00:00-05:00",
+                      "2026-11-22T23:00:00.000001Z"):
             box, remote = self.mailbox()
             remote.messages["m1"] = message(timestamp=stamp)
             self.assertEqual(len(box.scan()), 1)
             query = next(r for r in remote.calls if r.url.path.endswith("/inbox/messages")).url.params
-            self.assertEqual(query["$filter"], "receivedDateTime ge 2026-11-30T23:00:00Z")
+            self.assertEqual(query["$filter"], "receivedDateTime ge 2026-11-22T23:00:00Z")
             self.assertNotIn("body", query["$select"].lower())
-        self.assertGreater(received("2026-11-30T23:00:00.000001Z"), CUTOFF)
+        self.assertGreater(received("2026-11-22T23:00:00.000001Z"), CUTOFF)
+
+    def test_inbox_locally_rejects_result_just_before_cutoff(self):
+        box, remote = self.mailbox()
+        remote.messages["m1"] = message(timestamp="2026-11-22T22:59:59.999999Z")
+        with self.assertRaises(GraphError) as error:
+            box.scan()
+        self.assertEqual(error.exception.code, "graph_before_cutoff")
+        self.assertTrue(all("/attachments" not in request.url.path for request in remote.calls))
 
     def test_old_missing_or_invalid_time_blocks_direct_content(self):
-        for stamp in ("2026-11-30T22:59:59.999999Z", "2026-12-01T00:00:00", None, "broken"):
+        for stamp in ("2026-11-22T22:59:59.999999Z", "2026-11-23T00:00:00", None, "broken"):
             box, remote = self.mailbox()
             remote.messages["m1"] = message(timestamp=stamp)
             with self.subTest(stamp=stamp), self.assertRaises(GraphError):
@@ -284,7 +293,7 @@ class GraphMailTests(unittest.TestCase):
                 if request.url.path.endswith("/messages/m1"):
                     calls.append(request)
                     if len(calls) == 2:
-                        return httpx.Response(200, json=message(timestamp="2026-11-30T22:59:59Z") if changed == "old" else message(parent="elsewhere"))
+                        return httpx.Response(200, json=message(timestamp="2026-11-22T22:59:59Z") if changed == "old" else message(parent="elsewhere"))
             remote.override = change
             with self.subTest(changed=changed), self.assertRaises(GraphError):
                 with box.attachment_content("m1", "a1"):

@@ -115,8 +115,10 @@ ersetzt keinen Produktionsproof. Freigabe erst nach drei Verbrauchern und Abschl
 
 ## Fachliche Invarianten
 
-- Nur vorgesehenes Postfach und direkte Inbox ab 01.12.2026, 00:00 Europe/Berlin.
-  Altmails unangetastet; AP03 und Stichtag eingefroren.
+- Nur vorgesehenes Postfach und direkte Inbox. Der Kandidat setzt den bestätigten
+  regulären Eingang ab 23.11.2026, 00:00 Uhr Europe/Berlin (22.11.2026, 23:00 UTC).
+  Auf d9/008 gilt bis zur Bereitstellung der bisherige Termin. Altmails bleiben
+  unangetastet und AP03 bleibt eingefroren.
 - Formaterkennung genügt; ZUGFeRD als Original-PDF. DMS-Anbindung, Konfiguration
   und Prüfung vollständig außerhalb Auftrag und Abnahme.
 - Relevante Anhänge unabhängig ablegen. Technische/strukturelle Sperren nicht
