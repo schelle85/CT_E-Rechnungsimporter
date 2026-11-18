@@ -1,6 +1,6 @@
 # Betriebsstand
 
-## Aktueller Stand: 18. November 2026, AP12 / AP10-Quelllieferung
+## Aktueller Stand: 18. November 2026, AP12 / AP10 installiert und eingeplant
 
 Produktlaufzeit `d9f32a5a9c9fb642f59a13ed2550f74532fc3ebe`, Schema008.
 Echter zweiter Graphwechsel committed/new mit drei Verbrauchern, eigenem
@@ -22,11 +22,17 @@ AP09a übernimmt diese eine Anleitung; Kundenrückmeldung bleibt offen. Ein
 vertrauliches Betriebsblatt wird separat übergeben. Mailgestaltung nur geplant.
 
 AP10 ist seit 18.11.2026 freigegeben. [Wartungshülle](AP10-WARTUNG.md) und
-[Einrichtungs-/Rückwegplan](AP10-EINRICHTUNG.md) sind lokal geliefert; 22 gezielte
-Tests bestanden. Quellenreview, native Linuxprüfung, heutiger frischer Hostbestand,
-Installation und erster echter Sonntagslauf bleiben offen. Kein APT-/Rebootlauf
-aus dieser Lieferung. API-/Workerimages bleiben d9/008; die geplante Änderung der
-Host-Stopfunktion ist separat ausgewiesen. AP09-/AP11-Abgaben unverändert.
+[Einrichtungs-/Rückwegplan](AP10-EINRICHTUNG.md) sind umgesetzt: 16 Ziele aus
+10cea808 am 18.11.2026 installiert. Quellen-/Planreview, 22+4 und isolierte native
+Prüfungen bestanden; Guard/Bootprüfung active/exited, Check und Offslot bestanden.
+Getrennte Rücklese um 11:20 Europe/Berlin bestätigt Hashes, systemd verify Exit0
+und stabile bisherige Bindungen. Kein APT-/Rebootlauf bei der Einrichtung.
+Bereitstellung unabhängig PASS. Sonntagstimer seit 11:24:12 Europe/Berlin
+enabled/active/waiting, nächster Termin 22.11.2026 um 03:00 Berlin/02:00 UTC,
+ohne Persistenznachholung oder Zufallsverzögerung. Alter Upgrade-Timer disabled/inactive.
+Lesende Nachkontrolle für Sonntag 03:30 Europe/Berlin übernommen und bestätigt aktiv.
+Erster echter Sonntag-/Bootlauf bleibt offen. API-/Workerimages bleiben d9/008;
+Host-Stopkorrektur separat ausgewiesen. AP09-/AP11-Abgaben unverändert.
 
 Die folgenden früheren Abschlüsse bleiben datierte historische Nachweise.
 Aussagen zu damaligen Quellen, fünf Timern, Schema007 oder späteren AP ohne Go

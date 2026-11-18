@@ -2,7 +2,7 @@
 
 Stand: 18. November 2026. AP09 ist zur Abschlussdokumentation freigegeben.
 Vollständige Technikquelle/PDF und KI-Wiedereinstieg sind erstellt und gemeinsam
-einmalig abschließend mit PASS geprüft; siehe [AP09-Übergabe](AP09-UEBERGABE.md). AP10 ist seit 18.11.2026 freigegeben und als lokale Quelle mit Einrichtungsplan geliefert; noch keine Installation. AP11 ist seit 17.11.2026 freigegeben; vollständige Nutzeranleitung
+einmalig abschließend mit PASS geprüft; siehe [AP09-Übergabe](AP09-UEBERGABE.md). AP10 ist am 18.11.2026 qualifiziert bereitgestellt; Sonntagstimer seit 11:24:12 Europe/Berlin aktiv. Erster echter Sonntags-/Bedarfsbootlauf offen. AP11 ist seit 17.11.2026 freigegeben; vollständige Nutzeranleitung
 mit Bildern und PDF vorhanden. Genau eine unabhängige AP11-Abschlussprüfung am
 festen Stand b565465 ist mit PASS bestanden; AP09a übernimmt diese eine Anleitung.
 Kundenrückmeldung zum Handbuch bleibt offen, keine neue Betriebs-/Gesamtabnahme.
@@ -15,11 +15,14 @@ Die bereits geprüfte AP09-Technikquelle/PDF bleibt unverändert auf Dokumentsta
 17.11.2026; damalige Plan- und Handbuchlücken sind datierte historische Angaben.
 
 Für AP10 führen zunächst der [Wartungsvertrag](AP10-WARTUNG.md) und der
-[Einrichtungs-/Rückweg-/Abnahmeplan](AP10-EINRICHTUNG.md). Nach geprüftem und
-tatsächlich eingerichtetem Betrieb die betroffenen Technik-/Handbuchkapitel auf
-ihre nötigen Ergänzungen prüfen und neue datierte PDFausgaben ausdrücklich planen,
-erzeugen und vollständig sichten. Die bereits gelieferten AP09-/AP11-Dateien bleiben
-in dieser Quelllieferung unverändert. Keine Betriebsabnahme aus Dokumenterstellung.
+[Einrichtungs-/Rückweg-/Abnahmeplan](AP10-EINRICHTUNG.md). Der gesonderte
+[Wartungsnachtrag für Nutzer/Betreiber](WARTUNGSNACHTRAG.md) ergänzt die
+datierte AP09-/AP11-Lieferung. Die neue [kleine PDF](handbuecher/Wartungsnachtrag.pdf)
+ist erstellt, vollständig gerendert und visuell geprüft; das feste Gesamtpaket erhält
+genau einen finalen Dokumentreview. Die bereits
+gelieferten AP09-/AP11-Quellen/PDFs/Bilder bleiben unverändert. Erster Sonntags-/
+Bootnachweis bleibt bis zur wirklichen Ausführung offen. Die vorhandene rein
+lesende Nachkontrolle für Sonntag 03:30 Europe/Berlin ist übernommen und bestätigt aktiv.
 
 ## AP09a: Kundenunterlagen und führende Nutzeranleitung
 

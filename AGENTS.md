@@ -64,9 +64,14 @@
   Führender Vertrag: docs/AP08-BETRIEB.md. AP09 ist seit 17.11.2026 zur
   Abschlussdokumentation freigegeben. AP10 ist seit 18.11.2026 freigegeben;
   Quelle und konkreter Installations-/Rückwegplan in docs/AP10-WARTUNG.md und
-  docs/AP10-EINRICHTUNG.md lokal geliefert. Review, frischer Instanzabgleich,
-  native Linuxprüfung, Installation und echter Sonntagslauf stehen noch aus.
-  Die Hosthülle erhält eine gesonderte markererhaltende Stopfunktion; API-/Workerimages
+  docs/AP10-EINRICHTUNG.md führen den Betrieb. Aus 10cea808 am 18.11.2026
+  installiert; Quellen-/Planreview, native Prüfungen und technische Einrichtung
+  einschließlich Check/Offslot und getrennter Rücklese bestanden. Bereitstellung PASS;
+  Sonntagstimer seit 18.11.2026, 11:24:12 Europe/Berlin enabled/active/waiting,
+  nächster Termin 22.11.2026 um 03:00 Berlin. Kein heutiger Paket-/Bootlauf;
+  erster echter Sonntags-/Bedarfsbootlauf offen. Lesende Nachkontrolle übernommen
+  und für Sonntag 03:30 Europe/Berlin bestätigt aktiv.
+  Die Hosthülle hat eine gesonderte markererhaltende Stopfunktion; API-/Workerimages
   bleiben d9/008. Kein Deployment oder Push aus der DEV-Lieferung ableiten. AP11 ist seit
   17.11.2026 zur Handbucherstellung freigegeben. Eine führende Nutzeranleitung
   mit zwölf synthetischen Bildern, Markdown und PDF ist erstellt und am festen

@@ -1,10 +1,22 @@
 # AP10: Einrichtungs-, Rückweg- und Abnahmeplan
 
-Stand: 18.11.2026. Vor Quellenreview und frischem Instanzabgleich **nicht ausführen**.
-Dies ist der konkret vorgesehene Betreiberablauf, keine erfolgte Installation.
-Der tatsächliche aktuelle Host-/APTbestand ist bei dieser lokalen DEV-Lieferung
-noch nicht frisch bestätigt. VPN/SSH war bei ORGAs erster Aufnahme nicht erreichbar.
-Beispiele enthalten ausschließlich generische Linuxpfade.
+Stand: 18.11.2026, Installationsrücklese um 11:20 Europe/Berlin. Quellen-/Planreview,
+frischer Instanz-/APT-/Sicherungsabgleich und native Prüfungen sind erfolgt.
+Alle 16 Ziele aus `10cea808` sind installiert; Guard/Bootprüfung active/exited,
+Check, Offslot und getrennte Hash-/Betriebsrücklese bestanden, systemd verify Exit0.
+Bestehende Boot-/Paket-/Container-/Material-/Mount-/HTTPS-/Timerbindungen erhalten;
+kein echtes Upgrade oder Reboot durchgeführt. Unabhängige Bereitstellungsprüfung PASS.
+Sonntagstimer seit 18.11.2026, 11:24:12 Europe/Berlin enabled/active/waiting:
+Sonntag 03:00 Europe/Berlin, nächster Termin 22.11.2026 um 03:00 Berlin/02:00 UTC,
+Persistent=no, Accuracy1s, RandomizedDelay0, Ziel invoice-maintenance.service.
+Alter apt-daily-upgrade.timer disabled/inactive; kein state.json oder heutiger
+Paket-/Bootlauf. Lesende Nachkontrolle für Sonntag 03:30 Europe/Berlin übernommen
+und als ACTIVE zurückgelesen; erster tatsächlicher
+Sonntags-/Bedarfsbootlauf offen.
+
+Die folgenden Schritte bleiben die Referenz für Einrichtung und Rückweg; bereits
+bestätigte Schritte nicht erneut ausführen. Neue Eingriffe benötigen den konkreten
+Betreiberauftrag und frischen Abgleich. Beispiele enthalten nur generische Linuxpfade.
 
 ## 1. Feste Quellen und Voraussetzungen
 
@@ -65,15 +77,16 @@ müssen im isolierten Prüfpfad auflösbar sein. Geplante Drop-ins zusammen mit 
 tatsächlichen vorhandenen Units prüfen, nicht nur Textmuster vergleichen.
 Kein `systemctl start` des Paketservices als Syntaxprüfung.
 
-Lokaler DEVrechner ist Windows ohne installiertes WSL. 22 gezielte Tests einschließlich
-echter ZoneInfo-Kalenderberechnung und synthetischer Marker-/Startkonkurrenz sind
-bestanden. Vier ausführbare native Tests prüfen unter Linux/root ausschließlich
+22 gezielte Tests einschließlich echter ZoneInfo-Kalenderberechnung und synthetischer
+Marker-/Startkonkurrenz sowie die vier nativen Linuxgruppen wurden auf dem festen
+Stage ohne Skips bestanden. Diese nativen Gruppen prüfen ausschließlich
 temporäre eigene Dateien in /run: echte Prozess-flock-Konkurrenz, Dateirechte und
 Symlink-/Hardlinkabwehr, Markerbesitz, atomare große Paketbestände und konkurrierende
 Drainabsichten. Sie führen weder Docker, APT noch reale Importerprofile aus.
-Diese vier Tests und die systemd-Verifikation sind noch nicht ausgeführt.
-Vor Kundenaktivierung verbindlich nachholen. Nach erfolgreicher unveränderter Prüfung keine
-unbegründeten Serienwiederholungen.
+Kalender-/systemd-Verifikation sowie die isolierte Leser-/MariaDB- und systemd-
+Rollenqualifikation sind ebenfalls bestanden. Die tatsächlich installierten Units
+wurden getrennt mit verify Exit0 bestätigt. Daraus keinen echten Sonntags- oder
+Bootlauf ableiten und keine unbegründeten Serienwiederholungen starten.
 
 ## 3. Ziele sichern und konkret bereitstellen
 
@@ -224,9 +237,10 @@ Backup-/Zugang-/Wiederanlaufabgleich durch. Ob überhaupt Pakete/Rebootbedarf
 vorliegen, ist erst dann feststellbar. Keine unnötige echte Mittwochsprobe.
 
 Die bestehende KI-Nachkontrolle bleibt **Sonntag 03:30 Europe/Berlin**. Keine zweite
-Automation und keine Terminverschiebung. Aktivierung erst nach qualifizierter
-Einrichtung, Review und gesondertem Rücklesen; der bisherige Eintrag bleibt bis
-dahin pausiert. Der technische Betreiber verantwortet den Hostlauf; der bestehende
+Automation und keine Terminverschiebung. Nach qualifizierter Einrichtung und
+Review ist der vorhandene Eintrag am 18.11.2026 als ACTIVE zurückgelesen;
+Termin und Ziel sind erhalten, die Übergabe ist angenommen.
+Der technische Betreiber verantwortet den Hostlauf; der bestehende
 Wartungschat führt ausschließlich die lesende Nachkontrolle und meldet dem Betreiber.
 
 Um 03:30 den aktuellen profil-/instanzgebundenen Laufbeleg und tatsächlichen

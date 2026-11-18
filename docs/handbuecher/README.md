@@ -10,6 +10,11 @@ mit PASS geprüft. Kundenrückmeldung zum Handbuch bleibt offen.
   24 Kapitel, zwölf synthetische Bildschirmbilder, 26 Seiten. AP11-Go seit17.11.2026;
   AP09a hat diese Anleitung nach deren bestandener Abschlussprüfung übernommen.
 - Ein vertrauliches Betriebsblatt wird separat übergeben und gehört nicht ins Repository.
+- Gesonderter [Wartungsnachtrag als Markdown](../WARTUNGSNACHTRAG.md) und
+  [dreiseitige PDF](Wartungsnachtrag.pdf), Stand 18.11.2026: qualifiziert
+  bereitgestellte Wartung und bestätigter Sonntagstimer mit aktiver lesender
+  Nachkontrolle um 03:30 Europe/Berlin, erster realer Lauf offen.
+  Ergänzt die unveränderten datierten AP09-/AP11-Abgaben; finaler Dokumentreview offen.
 
 ## Reproduzierbarer Build
 
@@ -61,6 +66,17 @@ AP09-Quelle erzeugt im bisherigen Standardmodus weiterhin bytegleich dieselbe Te
 [Bildherkunft und Grenzen](../bilder/ap11/README.md).
 
 ## Freigabeprüfung
+
+Der kleine [AP10-Builder](../../tools/build_maintenance_pdf.py) verwendet
+Schriften, Stile, Markdownparser und Linkauflösung des vorhandenen Renderers.
+Er ergänzt nur AP10-Metadaten/Fußzeile und drei kurze Themenblätter:
+
+```text
+python -I -B tools/build_maintenance_pdf.py
+```
+
+Ausgabe ausschließlich `Wartungsnachtrag.pdf`; AP09-/AP11-Ausgaben werden dabei
+nicht neu erzeugt. Alle drei Seiten wurden gerendert und visuell geprüft.
 
 Nach jeder Quellenänderung neu bauen, Text extrahieren und gegen Quelle abgleichen,
 alle Seiten mit Poppler rendern und visuell auf Vollständigkeit, Tabellenumbrüche,

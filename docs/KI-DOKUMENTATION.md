@@ -1,6 +1,6 @@
 # KI-Dokumentation
 
-Stand: 18. November 2026. Wiedereinstieg nach AP09/AP11 und zur AP10-Quelllieferung.
+Stand: 18. November 2026. AP10 installiert, qualifiziert geprüft und eingeplant.
 Historische Detailverläufe bleiben in den Paketverträgen und der Git-Historie.
 Keine privaten Chatprotokolle und kein pauschaler Gesamtabschlussbericht.
 
@@ -62,10 +62,16 @@ eigengeprüft vor. Genau eine unabhängige Prüfung am fertigen festen Paket b56
 ist mit PASS ohne notwendige Korrekturbefunde bestanden. AP09a übernimmt dieses
 eine Handbuch; Kundenrückmeldung bleibt offen, keine konkurrierende Anleitung.
 AP09-Technikquelle/PDF bleibt als geprüfte datierte Ausgabe unverändert. AP10 zur wöchentlichen
-Linuxwartung ist seit 18.11.2026 freigegeben. Lokale Quelle und Einrichtungs-/Rückwegplan
-sind eigengeprüft; 22 gezielte Tests bestanden. Quellenreview, native Linuxprüfung,
-frischer Instanzabgleich, Installation und echter Sonntagslauf noch offen.
-API-/Workerimages bleiben d9/008; geplante Host-Stopkorrektur separat abgleichen.
+Linuxwartung ist seit 18.11.2026 freigegeben und aus 10cea808 installiert. Quellen-/
+Planreview, 22+4, Kalender und isolierte native Leser-/MariaDB-/systemd-Prüfungen
+bestanden. Guard/Bootprüfung active/exited; Check, Offslot und getrennte Rücklese
+der 16 Ziele um 11:20 Europe/Berlin bestanden, systemd verify Exit0. Bisherige
+Betriebsbindungen erhalten. Bereitstellungsprüfung PASS. Sonntagstimer seit
+11:24:12 Europe/Berlin enabled/active/waiting, erster Termin 22.11.2026 um 03:00
+Berlin/02:00 UTC. Alter Upgrade-Timer disabled/inactive; kein heutiger Paket-/Bootlauf.
+Lesende Nachkontrolle Sonntag 03:30 Europe/Berlin übernommen und bestätigt aktiv;
+erster echter Sonntag-/Bedarfsbootlauf offen.
+API-/Workerimages bleiben d9/008; installierte Host-Stopkorrektur separat ausgewiesen.
 Gestaltung der Tages-/Wochenberichtsmails ist nur
 als separater AP07-Nachtrag geplant. Kein Push oder Deployment aus einer lokalen
 Dokumentlieferung ableiten.
@@ -85,7 +91,7 @@ Dokumentlieferung ableiten.
 | Portal, Freigaben, Originale | [AP06](AP06-WEB.md); spätere Timeraktivierung getrennt. |
 | Meldungen, Slots und Proof | [AP07](AP07-NOTIFICATIONS.md), [Betreiberweg](AP07-OPERATOR.md). |
 | Start, Drain, Timer, TLS, Status | [AP08](AP08-BETRIEB.md); heute sieben Timer mit AP12-Ergänzung. |
-| Geplante OS-Wartung | [AP10-Vertrag](AP10-WARTUNG.md), [Einrichtung/Rückweg/Abnahme](AP10-EINRICHTUNG.md); freigegebene lokale Quelllieferung, noch kein installierter Betrieb. |
+| OS-Wartung | [AP10-Vertrag](AP10-WARTUNG.md), [Einrichtung/Rückweg/Abnahme](AP10-EINRICHTUNG.md), [Nachtrag](WARTUNGSNACHTRAG.md) mit [PDF](handbuecher/Wartungsnachtrag.pdf); installiert, qualifiziert geprüft und eingeplant. |
 | Aktuelle Rotationsabnahme | [AP12-Übergabe](AP12-UEBERGABE.md); führend vor historischen C-Teilständen. |
 | Rotationsdetails | [Hostablauf](AP12-HOSTABLAUF.md), [Automatik](AP12-AUTOMATIK.md), [Admin-API](AP12-ADMIN-API.md), [Ownership](AP12-OWNERSHIP.md), [Cleanup](AP12-CLEANUP.md). |
 | Browsergrenzen | [AP12-Browserprüfung](AP12-BROWSERPRUEFUNG.md); isolierte Fixtures sind kein echter ADlogin. |
@@ -155,10 +161,12 @@ vertrauliches Betriebsblatt bleiben bei der anschließenden Statusfortschreibung
 AP11-Gesamtpaket genau einmal unabhängig mit PASS geprüft und in AP09a übernommen.
 Handbuchquelle, PDF und Bilder bleiben bei der anschließenden Statuspflege unverändert.
 Kundenrückmeldung zum Handbuch ist offen; Dokumentvollständigkeit ist keine neue Betriebsabnahme.
-AP10 hat Go; vor Installation festen Quellstand und konkreten Plan prüfen sowie den
-frischen Hostbestand nachholen. Heute nur Check/Simulation/Offslotprobe, kein echter
-Mittwochsupdate oder Reboot. Nach tatsächlicher Einrichtung nötige neue PDFausgaben
-ausdrücklich planen; datierte gelieferte Unterlagen erhalten.
+AP10 ist qualifiziert bereitgestellt und der Sonntagstimer bestätigt aktiviert.
+Die Betriebsübergabe ist angenommen; die vorhandene lesende Nachkontrolle für
+Sonntag 03:30 Europe/Berlin ist bestätigt aktiv. Gesonderter MD-/PDFnachtrag
+liegt eigengeprüft für genau einen finalen Dokumentreview vor; noch kein Commit
+dieses Dokumentabschlusses. Datierte AP09-/AP11-Abgaben bleiben erhalten.
+Erster tatsächlicher Sonntaglauf und bedingter Boot bleiben gesondert offen.
 Öffentliche Dokumente und vertrauliche Zuordnungen
 werden getrennt übergeben; keine neue Produktbereitstellung daraus ableiten.
 

@@ -24,8 +24,9 @@ AP09 ist seit 17.11.2026 zur Abschlussdokumentation freigegeben; vollständiges
 Dokumentpaket erstellt und einmalig unabhängig mit PASS geprüft. AP11 ist seit 17.11.2026 freigegeben; vollständiges Nutzerhandbuch mit Bildern und
 PDF erstellt und am festen Stand b565465 genau einmal unabhängig mit PASS geprüft.
 AP09a übernimmt dieses eine Handbuch; Kundenrückmeldung bleibt offen.
-AP10 ist seit 18.11.2026 freigegeben; lokal eigengeprüfte Quelle und Einrichtungsplan
-liegen vor. Review, Instanzabgleich und tatsächliche Einrichtung bleiben offen.**
+AP10 ist seit 18.11.2026 freigegeben und aus 10cea808 installiert. Quellen-/Planreview,
+native Prüfungen, technische Einrichtung und Bereitstellungsreview PASS.
+Sonntagstimer seit 11:24:12 Europe/Berlin aktiv; erster echter Sonntaglauf offen.**
 AP12 ist seit 16.11.2026 für Graph-Zertifikatsrotation und einen zusätzlichen
 Adminreiter freigegeben; aktuelle Lieferung und Grenzen unten.
 ORGA koordiniert, DEV implementiert, REVIEW prüft.
@@ -214,17 +215,18 @@ tatsächlich implementierten Stand erstellen, keine fertige Installation vortäu
 | Teil | Ergebnis und Prüfung |
 | --- | --- |
 | AP10a | Umfang: sonntags 03:00 Europe/Berlin Linux-Updates und Neustart bei Bedarf |
-| AP10b | [Wartungshülle](AP10-WARTUNG.md), Sperren, Besitzerpause, Vor-/Nachjournal und bedingter Reboot lokal geliefert. 22 gezielte DEV-Tests bestanden; native Abnahme offen. |
-| AP10c | Timer, Guard-/Recoverreihenfolge und eng begrenzte Host-Stopkorrektur als Vorlagen. [Einrichtungs-/Rückwegplan](AP10-EINRICHTUNG.md) vor jeder Installation gegen frischen Hostbestand prüfen. |
-| AP10d | ORGA koordiniert Einrichtung und Übergabe an den beauftragten Wartungschat. Lesende Nachkontrolle nach dem Wartungsfenster; fehlender Zugang als nicht prüfbar melden. |
-| AP10e | Mittwochs nur synthetische Prüfung/Check/Offslotprobe. Review, native Linuxprüfung und tatsächliche Einrichtung offen; erster echter Sonntaglauf einschließlich bedingtem Reboot erst danach. |
+| AP10b | [Wartungshülle](AP10-WARTUNG.md) aus 10cea808 installiert. Quellen-/Planreview, 22+4 sowie isolierte native Leser-/MariaDB-/systemd-Prüfungen bestanden. |
+| AP10c | 16 Ziele am 18.11.2026 installiert; Guard/Bootprüfung, Check, Offslot, systemd verify und getrennte Rücklese bestanden. Sonntagstimer seit 11:24:12 Europe/Berlin aktiv, nächster Termin 22.11.2026 um 03:00 Berlin. [Einrichtung/Rückweg](AP10-EINRICHTUNG.md). |
+| AP10d | Übergabe an den beauftragten Wartungschat angenommen; vorhandene rein lesende Nachkontrolle Sonntag 03:30 Europe/Berlin bestätigt aktiv. Fehlender Zugang wird als nicht prüfbar gemeldet. |
+| AP10e | Mittwochsinstallation/Check/Offslot ohne echtes Upgrade/Reboot bestanden; Bereitstellungsreview PASS und Timerauslösung aktiviert. Erster echter Sonntagslauf einschließlich bedingtem Reboot offen. |
 
-Go vom 18.11.2026. Kein Wartungsskript oder Timer ist durch diese lokale Lieferung
-installiert. API-/Workerimages und Schema bleiben d9/008; neue Hosthülle und
-geänderte Stopfunktion separat hashen, sichern und rücknehmbar einrichten.
+Go und technische Einrichtung vom 18.11.2026. Rücklese um 11:20 Europe/Berlin
+bestätigt die installierte Hosthülle und erhaltene bisherige Betriebsbindungen.
+API-/Workerimages und Schema bleiben d9/008; die Stopkorrektur ist separat gesichert.
 Normales bestätigtes committed/new mit SQL overlap ist zulässig; ungeklärte
 aktuelle Rotation bleibt gesperrt. AP09-/AP11-Abgaben bleiben datiert unverändert;
-nach tatsächlicher Einrichtung neue nötige PDFausgaben ausdrücklich planen.
+Ein [gesonderter Wartungsnachtrag](WARTUNGSNACHTRAG.md) mit kleiner zusätzlicher
+[PDF](handbuecher/Wartungsnachtrag.pdf) liegt für den finalen Dokumentreview vor.
 
 ## AP11: Handbuch zum Produkt - ORGA / DEV / REVIEW
 

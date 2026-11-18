@@ -1,8 +1,20 @@
 # AP10: Wöchentliche Hostwartung
 
-Stand: 18. November 2026. AP10 ist freigegeben. Dieser Quellstand ist eine
-**lokale Lieferung zur Quellen- und Einrichtungsprüfung**, noch keine Installation
-oder Betriebsabnahme. Produkt/API/Web/Worker bleiben auf
+Stand: 18. November 2026, Installationsrücklese um 11:20 Europe/Berlin.
+AP10 ist aus `10cea8086e68cce49fb803419637b2aff576f021` installiert und technisch
+geprüft. Quellen-/Planreview, 22+4 Prüfungen, Kalender, isolierter d9-/MariaDBleser
+und systemd-Rollenprüfung bestanden. Alle 16 Ziele sind installiert; Guard und
+automatische Bootprüfung active/exited, Check und Offslotprüfung bestanden.
+Getrennte Rücklese und systemd-Verifikation bestätigen die stabilen bisherigen
+Bindungen, Mounts, HTTPS, Wirkungsruhe und sieben Bestandstimer. Kein Paketlauf
+oder Reboot bei dieser Einrichtung. **Bereitstellung unabhängig mit PASS geprüft.
+Sonntagstimer seit 18.11.2026, 11:24:12 Europe/Berlin enabled/active/waiting;
+nächster Termin 22.11.2026 um 03:00 Berlin (02:00 UTC).** Persistent=no,
+Genauigkeit 1s, Zufallsverzögerung 0, Ziel invoice-maintenance.service bestätigt.
+Alter apt-daily-upgrade.timer disabled/inactive. Lesende Nachkontrolle übernommen
+und für Sonntag 03:30 Europe/Berlin bestätigt aktiv.
+Erster echter
+Sonntagslauf und dessen bedarfsabhängiger Boot bleiben offen. Produkt/API/Web/Worker bleiben auf
 `d9f32a5a9c9fb642f59a13ed2550f74532fc3ebe`, Schema008. Neue Wartungsdateien haben
 einen getrennten Liefercommit. Echte Anschlusswerte und Einrichtungsbelege bleiben privat.
 
@@ -233,7 +245,8 @@ nicht manuelles Entfernen der Sperren oder ein pauschales Zurücksetzen von JSON
 
 Die [Bereitstellungs-/Rückweganleitung](AP10-EINRICHTUNG.md) ist vor jeder Wirkung
 gegen den frischen tatsächlichen Hostbestand zu prüfen. Die vorhandene KI-Kontrolle
-bleibt Sonntag um 03:30 Europe/Berlin. Bei noch laufender gebundener Arbeit folgt
+ist übernommen und bestätigt aktiv für Sonntag um 03:30 Europe/Berlin.
+Bei noch laufender gebundener Arbeit folgt
 im selben Wartungschat höchstens alle fünf Minuten lesende Beobachtung bis 05:30;
 Wartezeit wird nicht als Supportzeit erfasst. Paketarbeit darf auch nach 04:30
 regulär enden, ein später Reboot bleibt verboten. Fehlender Abschluss wird offen
@@ -244,10 +257,11 @@ deaktiviert. `check` startet keinen Paket-/Rebootlauf, nimmt aber kurz vorhanden
 Sperren und einen lokalen SQL-/Materialstatusworker in Anspruch; daher ebenfalls
 nur koordiniert verwenden. `policy-digest` liefert ausschließlich den Konfigurationshash.
 
-Die technische AP09-PDF und das AP11-Handbuch sind unveränderte datierte Abgaben.
-Dieser Nachtrag ist bis zur Betriebsabnahme führend für AP10. Erst nach tatsächlicher
-Einrichtung/Prüfung werden nötige neue PDFausgaben ausdrücklich geplant, erzeugt
-und vollständig geprüft. Neue Kundenrückmeldung zum Handbuch bleibt davon getrennt.
+Die technische AP09-PDF und das AP11-Handbuch bleiben unveränderte datierte Abgaben.
+Der [kurze Wartungsnachtrag](WARTUNGSNACHTRAG.md) ergänzt sie für Nutzer und
+Betreiber. Eine kleine gesonderte [PDF](handbuecher/Wartungsnachtrag.pdf) liegt
+für den einmaligen finalen Dokumentreview vor. Der vorliegende
+Vertrag führt die technischen AP10-Abläufe. Kundenrückmeldung zum Handbuch bleibt getrennt.
 
 Primärgrundlagen: [Ubuntu automatische Updates](https://ubuntu.com/server/docs/how-to/software/automatic-updates/),
 [APT26.04](https://manpages.ubuntu.com/manpages/resolute/man8/apt-get.8.html),
