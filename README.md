@@ -9,6 +9,14 @@ internen Webportal für Protokolle, Fehler und Dubletten.
 
 ## Projektstatus
 
+**Aktueller Betriebsstand vom 24. November 2026:** Anwendung aus
+2ee04d0bb4ef72d64fcf94cb9e0f8d283acc5e41 mit Schema008 bereitgestellt.
+Datenbank und Einstellungen sind erhalten, acht Timer sowie Graph-Zugriff für
+API, Verarbeitung und Benachrichtigungen sind bestätigt. Das neue Berichtslayout
+ist installiert; die ersten regulären Berichte und der fachliche RC03-Abgleich
+bleiben noch abzunehmen. Der folgende AP-Überblick dokumentiert historische
+Abschlussstände und ersetzt diese aktuelle Laufzeitbindung nicht.
+
 **Stand: 18. November 2026. AP01 ist durch den Kunden vollständig abgenommen.
 AP02a–c ist im vereinbarten Grundlagenumfang technisch abgeschlossen und
 bereitgestellt. AP04 ist technisch im isolierten Grundlagenumfang abgeschlossen.
@@ -26,7 +34,7 @@ mit Graphannahme 202 sind bestätigt. Kontrollierter Reboot und erster geplanter
 TLS-Stundenlauf um 20:00 sind belegt. Der danach um 20:15:08 separat gesetzte
 Statusphasenversatz auf Sekunde 20 ist in drei aufeinanderfolgenden automatischen
 Zyklen um 20:16:21, 20:17:21 und 20:18:21 mit Status active bestätigt.
-Dies ist der historische AP08-Abschluss. Aktuell ist AP12 aus
+Dies ist der historische AP08-Abschluss. Zum Stand vom 18.11. war AP12 aus
 `d9f32a5a9c9fb642f59a13ed2550f74532fc3ebe` mit Schema008 bereitgestellt. Der echte
 Wechsel auf ein neues Graph-Zertifikat ist unabhängig nativ bestätigt; die Rotationtimer
 sind aktiv. Der kontrollierte AP12-Boot und die qualifiziert abgegrenzten
@@ -34,8 +42,8 @@ Wiederaufnahmezustände sind inzwischen bestätigt; siehe AP12-Übergabe.**
 
 Der am 18.11.2026 bestätigte reguläre Eingangsstichtag ist **Montag,
 23.11.2026, 00:00 Uhr Europe/Berlin (22.11.2026, 23:00 UTC)**. Der lokale
-Kandidat enthält die neue inklusive Grenze für die direkte Inbox. Bis zur
-Bereitstellung gilt auf d9/008 der bisherige Eingangsstichtag.
+Kandidat enthielt die neue inklusive Grenze für die direkte Inbox. Seit der
+Bereitstellung am 24.11. gilt dieser Stichtag im regulären Betrieb.
 
 | Paket | Stand |
 | --- | --- |
@@ -49,12 +57,12 @@ Bereitstellung gilt auf d9/008 der bisherige Eingangsstichtag.
 | AP05 – gemeinsamer Verarbeitungspfad | Im definierten manuellen Umfang technisch abgeschlossen. 155 native Backendtests einschließlich 40 AP05-Gruppen, gezielte Ausgabegrenz-/Timeoutprüfung und echter synthetischer CIFS-Handoff bestanden. Schema 005 und sechstes Inboxziel Mahnung bereitgestellt; Scan/manueller Tick bestätigen 0 passende Mails/0 Quanten. Zum AP05-Abschluss blieben API/GUI unverändert. Keine Timer oder produktive Dateipublikation. Siehe [AP05-Vertrag](docs/AP05-PROCESSING.md) und [Runtime](docs/AP05-RUNTIME.md). |
 | AP06 – Webprotokoll, Korrektur und PDF-Vorschau | Technisch abgeschlossen und bereitgestellt: echte Journalansichten, generationgebundene Freigabe/Retry, Einstellungen, Archiv und großer PDFdialog. Native006-/Sicherheits-/Konkurrenzprüfungen sowie fünf isolierte Browsergruppen mit sichtbarer Original-PDF bestanden. Kundenmigration auf006, Dienstpins, HTTPS und leeres echtes Journal getrennt zurückgelesen. Siehe [AP06](docs/AP06-WEB.md). |
 | AP07 – Berichte und Benachrichtigungen | Technisch abgeschlossen und bereitgestellt aus `5ecfd59270b63947d3f92af98a1b9f8e5a267aeb`, Schema 007. A/B vollständig geprüft, C-Quellenreview, 21 C-Fälle auf MariaDB und acht isolierte HTTPS-Browsergruppen bestanden. Administration→Berichte, Benachrichtigungseinstellungen, feste Vorschau/Testaktion, Verlauf und Zertifikats-/Loginhinweise geliefert. Echte Graph-Zertifikatsanmeldung und genau eine feste Testmail mit HTTP 202/Reservierung 1/getrenntem Statusabgleich bestätigt; Empfang im eigenen Abnahmepostfach nachgewiesen. Zum AP07-Abschluss blieb die Automatik inaktiv. Siehe [AP07](docs/AP07-NOTIFICATIONS.md) und [Betreiberweg](docs/AP07-OPERATOR.md). |
-| AP12 – Graph-Zertifikatsrotation und Adminreiter | d9 bereitgestellt, Schema008. Echte neue Übernahme mit drei Verbrauchern und Abschlussproof unabhängig nativ bestätigt; SQL overlap und aktive Rotationtimer. Der erste Versuch kehrte kontrolliert zum Originalzertifikat zurück, seine Ursache bleibt offen. Genau ein AP12-Boot mit erhaltenem Kundenbetrieb bestätigt; qualifizierte Wiederaufnahmegrenzen siehe Übergabe. Spätere produktive Bereinigung bleibt offen. Siehe [AP12](docs/AP12-GRAPH-ZERTIFIKATSROTATION.md) und [Lieferstand](docs/AP12-UEBERGABE.md). |
+| AP12 – Graph-Zertifikatsrotation und Adminreiter | d9 bereitgestellt, Schema008. Echte neue Übernahme mit drei Verbrauchern und Abschlussproof unabhängig nativ bestätigt; SQL overlap und aktive Rotationtimer. Der erste Versuch kehrte kontrolliert zum Originalzertifikat zurück, seine Ursache bleibt offen. Genau ein AP12-Boot mit erhaltenem Kundenbetrieb bestätigt; qualifizierte Wiederaufnahmegrenzen siehe Übergabe. Die Altmaterialbereinigung wurde am 24.11. in RC01 bestätigt. Siehe [AP12](docs/AP12-GRAPH-ZERTIFIKATSROTATION.md) und [Lieferstand](docs/AP12-UEBERGABE.md). |
 | AP08 – Betriebsübergang | Im vereinbarten Umfang technisch abgeschlossen. C-Quelle `413095f823702d39b02bc8b3c989b526fdf808d0` bereitgestellt; Instanz, Schema 007, Konfiguration und DBzustand erhalten. Reale HTTPSübernahme mit folgendem No-op, Notificationvorlauf ohne neue Testmail, aktive Zeitpläne und normale Leerlaufläufe bestätigt. Tages-/Wochenbericht je einmal mit HTTP 202 angenommen. Kontrollierter Wiederanlauf, geplanter TLS-Stundenlauf um 20:00 und drei automatische Statuszyklen nach dem separaten Sekunde-20-Versatz bestanden. Siehe [AP08](docs/AP08-BETRIEB.md). |
 | AP09 – Dokumentation | Technische Markdown-/PDF-Unterlage, KI-Wiedereinstieg und unabhängige Abschlussprüfung bestanden. Das ebenfalls abschließend geprüfte AP11-Handbuch ist in AP09a übernommen. Vertrauliches Betriebsblatt separat; siehe [Dokumentübergabe](docs/AP09-UEBERGABE.md). Keine neue Betriebs- oder Gesamtabnahme. |
 | AP11 – Nutzerhandbuch | Vollständige [Nutzer-/Administrationsanleitung](docs/HANDBUCH-ZUM-PRODUKT.md) und [PDF](docs/handbuecher/Handbuch-zum-Produkt.pdf): 24 Kapitel, zwölf synthetische Bildschirmbilder, 26 Seiten. Genau eine unabhängige Abschlussprüfung am festen Stand `b565465` mit PASS ohne notwendige Korrekturbefunde. Kundenrückmeldung zum Handbuch bleibt offen. |
 | AP10 – Wöchentliche Wartung | Aus `10cea808` installiert, nativ und unabhängig geprüft; Bereitstellung PASS. Sonntagstimer seit 18.11.2026, 11:24:12 Europe/Berlin enabled/active/waiting; erster Termin 22.11.2026 um 03:00 Berlin. Alter Upgrade-Timer disabled/inactive. Lesende Nachkontrolle Sonntag 03:30 Berlin übernommen und aktiv. Erster echter Sonntags-/Bedarfsbootlauf offen. [Wartung](docs/AP10-WARTUNG.md), [Nachtrag](docs/WARTUNGSNACHTRAG.md), [PDF](docs/handbuecher/Wartungsnachtrag.pdf). |
-| AP07-Nachtrag – Berichtsmails | Seit 18.11.2026 freigegeben. Lokaler Kandidat mit HTML-Layout im Portalstil für Tages-/Wochenberichte. Produktiv läuft weiterhin d9/008. [Umfang](docs/ARBEITSPLAN.md#nachtrag-zu-ap07-nach-ap12). |
+| AP07-Nachtrag – Berichtsmails | Seit 18.11.2026 freigegeben. HTML-Layout im Portalstil für Tages-/Wochenberichte seit 24.11. bereitgestellt. Die Abnahme der ersten regulär neu erzeugten Berichte in Outlook bleibt offen. [Umfang](docs/ARBEITSPLAN.md#nachtrag-zu-ap07-nach-ap12). |
 
 Der begrenzte Titelvariantennachtrag wurde unabhängig geprüft und aus `e49ccdb`
 als separates Runtimeimage gebaut. Die zusätzlichen Pre-Notifikations- und datierten
@@ -73,11 +81,29 @@ vollständig außerhalb des Auftrags und sind keine AP06-Abnahmebedingung.
 
 AP06 zeigt ausschließlich tatsächlich gespeicherte Journalvorgänge; eine leere
 Datenbank ergibt eine leere Ansicht. Die frühere Demo-API ist entfernt.
-Die Kundenoberfläche ist inzwischen auf AP12 umgeschaltet. Anmeldung und
+Die Kundenoberfläche läuft seit 24.11. auf dem oben genannten RC03-Stand. Anmeldung und
 Administration verwenden die bestehende AD-Anbindung; die echte AD-Abnahme aus
 AP01 bleibt der historische Nachweis. Eine neue tatsächliche Kundenanmeldung
 nach AP07 ist nicht nachgewiesen. Ein Empfangsnachweis der Testmail liegt ausschließlich
 für das eigene Abnahmepostfach vor. Drei Empfänger sind privat konfiguriert.
+
+## RC03-Nachtrag vom 24. November 2026
+
+- Die XRechnung-3.0-Extension wird für UBL-Invoice mit exakt dieser Profilkennung
+  erkannt: `urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_3.0#conformant#urn:xeinkauf.de:kosit:extension:xrechnung_3.0`.
+- Bestellreferenzfelder in Rechnungs-PDFs werden nur bei belegtem Rechnungs- und
+  Referenzkontext berücksichtigt. Eigenständige Bestellungen und widersprüchliche
+  Dokumentarten bleiben von dieser Ausnahme getrennt.
+- Die Oberfläche trennt den gespeicherten Anhangsbefund vom Mailabschluss und
+  nennt den passenden nächsten Schritt. Eine bei der letzten Prüfung nicht
+  unterstützte Profilkennung belegt keinen Lieferantenfehler. Eine bereits
+  erledigte Outlook-Fahne erfordert eine ausdrückliche Entscheidung und wird
+  nicht automatisch zurückgesetzt.
+
+Dies ist Formaterkennung, keine vollständige Norm- oder Geschäftsregelvalidierung.
+Originaldateien bleiben unverändert. Erstbefunde und nachfolgende Entscheidungen
+bleiben im Journal nachvollziehbar. Originalanzeige, Zuordnung und technische
+Wiederholung verwenden weiterhin die bestehenden Rollen und Freigaben.
 
 ## Technische Unterlagen
 
