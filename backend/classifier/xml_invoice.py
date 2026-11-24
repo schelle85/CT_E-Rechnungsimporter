@@ -16,6 +16,9 @@ UDT = "urn:un:unece:uncefact:data:standard:UnqualifiedDataType:100"
 CBC = "urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2"
 CAC = "urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2"
 XR = "urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_3.0"
+# KoSIT XRechnung 3.0.2, p. 1: https://xeinkauf.de/app/uploads/2024/07/XRechnung-v3.0.2.pdf
+# The extension is fully mapped only to UBL Invoice; do not broaden CII/CreditNote profiles.
+XR_EXTENSION = XR + "#conformant#urn:xeinkauf.de:kosit:extension:xrechnung_3.0"
 XR_PROFILES = frozenset({XR,
     "urn:cen.eu:en16931:2017#compliant#urn:xoev-de:kosit:standard:xrechnung_2.2",
     "urn:cen.eu:en16931:2017#compliant#urn:xoev-de:kosit:standard:xrechnung_2.3"})
@@ -128,9 +131,9 @@ def identity(data):
     if root.tag in ("{urn:oasis:names:specification:ubl:schema:xsd:Invoice-2}Invoice",
                     "{urn:oasis:names:specification:ubl:schema:xsd:CreditNote-2}CreditNote"):
         customization = (one(root, f"{{{CBC}}}CustomizationID", text=True).text or "").strip()
-        if customization not in XR_PROFILES:
-            raise RecognitionError("unsupported_invoice_profile")
         credit = root.tag.endswith("CreditNote")
+        if customization not in XR_PROFILES and not (not credit and customization == XR_EXTENSION):
+            raise RecognitionError("unsupported_invoice_profile")
         for name in ("ID", "IssueDate", "DocumentCurrencyCode", "CreditNoteTypeCode" if credit else "InvoiceTypeCode"):
             one(root, f"{{{CBC}}}{name}", text=True)
         type_code = one(root, f"{{{CBC}}}" + ("CreditNoteTypeCode" if credit else "InvoiceTypeCode"), text=True).text.strip()

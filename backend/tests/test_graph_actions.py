@@ -160,6 +160,18 @@ class GraphActionTests(unittest.TestCase):
         self.assertFalse(self.remote.writes)
         self.assertEqual(self.remote.messages["m1"]["flag"]["flagStatus"], "complete")
 
+    def test_reserved_completed_flag_only_reconciles_after_explicit_flagged_choice(self):
+        self.ready_folders()
+        self.remote.messages["m1"]=message(flag="complete")
+        intent="e"*64
+        with self.assertRaises(GraphError):self.api.flag("m1",intent_key=intent,guard=lambda:None)
+        self.remote.messages["m1"]["flag"]["flagStatus"]="notFlagged"
+        with self.assertRaises(GraphError):self.api.flag("m1",intent_key=intent,guard=lambda:None)
+        self.assertFalse(self.remote.writes)
+        self.remote.messages["m1"]["flag"]["flagStatus"]="flagged"
+        self.assertEqual(self.api.flag("m1",intent_key=intent,guard=lambda:None),"m1")
+        self.assertFalse(self.remote.writes)
+
     def test_lost_response_after_move_then_new_process_state_reconciles(self):
         self.ready_folders()
         self.remote.write_failure = "after"

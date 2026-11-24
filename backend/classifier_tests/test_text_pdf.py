@@ -31,6 +31,11 @@ class TextPdfTests(unittest.TestCase):
     def test_german_invoice_and_umlauts(self):
         self.check_pdf([INVOICE + ["Vielen Dank für Ihre Aufträge"]], "recognized", "PDF")
 
+    def test_order_reference_before_invoice_transaction_is_not_a_second_document(self):
+        self.check_pdf([["Synthetic Supplier", "Rechnung Nr. TEST-INV-101", "Bestellung:", "PO-TEST-101",
+                         "Rechnungsdatum: 12.11.2026", "Artikel und Leistungen", "Gesamtbetrag: 119,00 EUR"]],
+                       "recognized", "PDF")
+
     def test_english_invoice(self):
         self.check_pdf([ENGLISH], "recognized", "PDF")
 

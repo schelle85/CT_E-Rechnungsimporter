@@ -1,4 +1,5 @@
 import { Badge } from "@mantine/core";
+import { recognitionText } from "./processGuidance";
 export type Finding = { status: string; category: string | null; reason: string; method?: string; format?: string; rule_version?: string };
 export type Attachment = {
   id: string; message_id: string; name: string; byte_size: number | null; sha256: string | null;
@@ -39,10 +40,5 @@ export function dateTime(value: string | number) {
   return new Date(typeof value === "number" ? value * 1000 : value).toLocaleString("de-DE", { timeZone: "Europe/Berlin", dateStyle: "medium", timeStyle: "short" });
 }
 export function reasonText(value: Finding | null) {
-  if (!value) return "Ein aktueller Befund steht noch aus.";
-  if (value.status === "failed") return "Der technische Abruf oder die Prüfung ist fehlgeschlagen.";
-  if (value.status === "unknown") return ["ambiguous_pdf", "ambiguous_invoice", "ambiguous_payment_advice", "ambiguous_reminder", "ambiguous_mixed_document"].includes(value.reason)
-    ? "Die Dokumentart ist nicht eindeutig. Bitte den Anhang prüfen."
-    : "Der Befund enthält einen Struktur- oder Formatkonflikt. Eine manuelle Zuordnung ist gesperrt.";
-  return value.status === "recognized" ? "Die Dokumentart wurde erkannt." : "Der Anhang wurde gemäß dem protokollierten Befund ausgenommen.";
+  return recognitionText(value);
 }

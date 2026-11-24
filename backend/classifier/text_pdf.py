@@ -63,6 +63,20 @@ def line_kind(line):
     return None
 
 
+def order_reference(block, invoice_lines):
+    if len(block) < 2 or re.search(r"\b(?:hiermit\s+bestellen|wir\s+bestellen|bestellen\s+wir)\b", "\n".join(block)):
+        return False
+    following = block[1]
+    metadata = "\n".join(invoice_lines)
+    table = (re.match(r"^(?:pos\.?|position)\s+artikel\b", following)
+             and all(re.search(r"\b"+column+r"\b", following) for column in ("bezeichnung", "menge", "einheit", "einzelpreis"))
+             and all(re.search(field, metadata) for field in (
+                 r"\bkdn[.-]*nr\.?\s*:", r"\bauftrag\s*:", r"\bust[.-]*id\s*:", r"\blieferung\s*:")))
+    numbered = (re.fullmatch(r"[a-z0-9][a-z0-9./_-]{0,127}", following) and any(c.isdigit() for c in following)
+                and len(block) > 2 and re.match(r"rechnungs[- ]?datum\b", block[2]))
+    return bool(table or numbered)
+
+
 def sections(text):
     lines = [re.sub(r"\s+", " ", normalized(line)).strip() for line in text.splitlines() if line.strip()]
     headings = [(index, line_kind(line)) for index, line in enumerate(lines) if line_kind(line)]
@@ -70,6 +84,13 @@ def sections(text):
     for offset, (index, kind) in enumerate(headings):
         end = headings[offset + 1][0] if offset + 1 < len(headings) else len(lines)
         block = lines[index:end]
+        # Require positive invoice/reference context, never just an incomplete
+        # invoice followed by an order title. Complete/standalone orders stay separate.
+        if (kind == "other" and lines[index] == "bestellung:" and result[-1][0] == "invoice"
+                and INVOICE_ID.search("\n".join(result[-1][1])) and invoice_evidence(result[-1][1]) is None
+                and order_reference(block, result[-1][1])):
+            result[-1][1].extend(block)
+            continue
         # Numbered references are not automatically separate invoices. Use the
         # same invoice evidence as the final decision, not just its date subset.
         if (kind == "invoice" and result[-1][0] in ("avis", "reminder", "other", "terms")

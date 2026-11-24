@@ -93,6 +93,63 @@ class DecisionTests(unittest.TestCase):
         with self.engine.connect() as c:
             self.assertEqual(c.execute(sa.select(sa.func.count()).select_from(corrections)).scalar_one(),0)
 
+    def test_completed_flag_resume_then_pdf_approval_then_xml_retry_are_sequential(self):
+        key=self.mail(specs=[('a1','synthetic.pdf','unknown',None,'ambiguous_mixed_document'),
+                             ('a2','synthetic.xml','failed',None,'unsupported_invoice_profile')],close=False)
+        originals={row['attachment_key']:row['original_finding'] for row in self.store.get_attachments(key)}
+        pdf_source=next(row for row in self.store.get_attachments(key) if row['graph_id']=='a1')
+        def approve_pdf():
+            return self.decisions.approve(pdf_source['attachment_key'],request_id='approve-pdf',expected_revision=0,
+                finding_revision=pdf_source['finding_revision'],finding_key=digest(json.loads(pdf_source['effective_finding'])),
+                source_sha256=pdf_source['raw_sha256'],decision='PDF',actor='synthetic-admin')
+        owned=self.store.claim(key)
+        intent=self.store.prepare_close(key,owned['owner'],0,fixture.FOLDERS)
+        self.assertEqual(intent['destination'],'Failed')
+        self.store.release(key,owned['owner'],0,blocked=True,error='graph_existing_completed_flag')
+        with self.assertRaises(AccessError):approve_pdf()
+        self.retry(key,request_id='resume-close')
+        self.assertEqual(self.decisions.consume_retry(key),0)
+        self.assertTrue(all(row['original_finding']==originals[row['attachment_key']] for row in self.store.get_attachments(key)))
+        owned=self.store.claim(key)
+        self.close(key,owned['owner'],0)  # SQL confirmation after the separately reconciled external flag.
+        self.assertEqual(self.store.get_message(key)['completed_revision'],0)
+        approve_pdf()
+        with self.assertRaises(AccessError):self.retry(key,request_id='cannot-overtake-pdf')
+        self.assertEqual(self.store.start_corrections(key),1)
+
+        def publish(aid,owner,revision):
+            row=next(row for row in self.store.get_attachments(key) if row['graph_id']==aid)
+            request=self.store.begin_storage(key,row['attachment_key'],owner,revision,'query-tests','d'*64)
+            receipt=self.storage.claim(request)
+            self.assertEqual(receipt['mode'],'stage')
+            self.storage.begin_publication(request.key,receipt['owner'])
+            self.storage.finish(request.key,receipt['owner'],'stored')
+            self.store.stored(key,row['attachment_key'],owner,revision,fixture.StorageResult(request.key,'stored',receipt['target']))
+            return request.key
+
+        owned=self.store.claim(key)
+        pdf_effect=publish('a1',owned['owner'],1)
+        self.close(key,owned['owner'],1)
+        self.assertEqual(self.store.get_message(key)['completed_revision'],1)
+        self.assertEqual(self.queries.detail(key)['destination'],'Failed')
+        self.retry(key,request_id='retry-xml')
+        self.assertEqual(self.decisions.consume_retry(key),2)
+        owned=self.store.claim(key)
+        xml=next(row for row in self.store.get_attachments(key) if row['graph_id']=='a2')
+        self.store.content(key,xml['attachment_key'],owned['owner'],2,byte_size=xml['byte_size'],sha256=xml['raw_sha256'])
+        self.store.finding(key,xml['attachment_key'],owned['owner'],2,
+            dict(status='recognized',category='E-Rechnung',reason='invoice_xml_structure',method='structure',
+                 format='XRechnung-UBL-Invoice',original_sha256=xml['raw_sha256'],rule_version='ap03-4'))
+        publish('a2',owned['owner'],2)
+        self.close(key,owned['owner'],2)
+        self.assertEqual(self.queries.detail(key)['destination'],'Nachfragen')
+        self.assertEqual(self.store.get_message(key)['completed_revision'],2)
+        pdf=next(row for row in self.store.get_attachments(key) if row['graph_id']=='a1')
+        self.assertEqual((pdf['effect_key'],pdf['storage_state']),(pdf_effect,'stored'))
+        self.assertTrue(all(row['original_finding']==originals[row['attachment_key']] for row in self.store.get_attachments(key)))
+        with self.assertRaises(AccessError):
+            self.decisions.retry(key,request_id='stale-generation',expected_revision=1,actor='synthetic-admin')
+
     def test_stale_generation_blocks_consumer_and_rolls_back_revision(self):
         key=self.mail()
         self.approve(key)

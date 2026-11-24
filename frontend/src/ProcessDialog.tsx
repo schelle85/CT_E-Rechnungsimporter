@@ -3,6 +3,7 @@ import { Alert, Badge, Button, Group, Modal, Paper, Select, Stack, Text, Title }
 import { api, ApiError } from "./api";
 import { type PendingIntent, readPending, queuePending, beginPendingSend, closeRejectedPending, rejectPending, resolvePending, intentPath, receiptMatches } from "./pending-intents";
 import { type ProcessDetail, type ProcessingSettings, StatusBadge, dateTime, labels, reasonText } from "./processTypes";
+import { attachmentNextStep, mailCompletionHint } from "./processGuidance";
 
 export default function ProcessDialog({ detail, initialAttachment, settings, canEdit, identity, csrfToken, onClose, onChanged }: {
   detail: ProcessDetail | null; initialAttachment: string | null; settings: ProcessingSettings | null; canEdit: boolean;
@@ -66,11 +67,13 @@ export default function ProcessDialog({ detail, initialAttachment, settings, can
   }
   const url = row ? "/api/attachments/" + row.id + "/original" : "";
   const pdf = row?.current_finding?.format === "PDF" || row?.original_finding?.format === "PDF";
+  const completionHint = detail ? mailCompletionHint(detail.error_code, canEdit) : null;
   return <Modal opened={!!detail} onClose={busy ? () => undefined : onClose} title="Vorgang und Original" size="95vw" centered closeButtonProps={{ "aria-label": "Vorgang schließen", disabled: busy }} closeOnClickOutside={!busy} closeOnEscape={!busy}>
     {detail && <Stack gap="md">
       <Group justify="space-between"><div><Title order={2} size="h3">{row?.name || "Vorgang"}</Title><Text size="sm" c="dimmed">Eingang {dateTime(detail.received_at)} · {detail.attachment_count} Anhänge</Text></div>
         <Group><StatusBadge value={detail.state} />{detail.archived && <Badge color="gray">Archiv · nur lesen</Badge>}</Group></Group>
       {notice && <Alert role="status" color="blue">{notice}</Alert>}
+      {completionHint && <Alert color="yellow" title="Mailabschluss getrennt klären">{completionHint}</Alert>}
       <div className="original-layout">
         <div className="original-pane">
           {row?.can_read_original && settings?.preview_enabled ? <>
@@ -94,7 +97,8 @@ export default function ProcessDialog({ detail, initialAttachment, settings, can
               <Text size="sm" fw={600}>{a.name}</Text><StatusBadge value={a.status} />
             </button>)}</Stack></div>
           {row && <>
-            <Paper withBorder p="md"><Text fw={600}>Befund</Text><Text size="sm" mt={6}>{reasonText(row.current_finding)}</Text>
+            <Paper withBorder p="md"><Text fw={600}>Anhangserkennung</Text><Text size="sm" mt={6}>{reasonText(row.current_finding)}</Text>
+              <Text size="sm" mt="xs">{attachmentNextStep(row.current_finding, canEdit, row.can_correct && !detail.archived && !pending && loadedKey === currentKey)}</Text>
               <Text size="sm" mt="xs">Zuordnung: {row.category || (row.approval ? labels[row.approval.decision] || row.approval.decision : "Offen")}</Text>
               <Text size="sm">Ablage: {row.storage_state ? labels[row.storage_state] || row.storage_state : "Noch kein bestätigter Ablagebeleg"}</Text>
               {row.storage_target && <Text size="xs" className="break-text" mt="xs">{row.storage_target}</Text>}
