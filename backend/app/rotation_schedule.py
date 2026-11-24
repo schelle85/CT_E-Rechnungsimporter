@@ -1,5 +1,6 @@
 """Root-private daily evidence and original automatic intent; no timer installation."""
 from datetime import datetime,timedelta
+from dataclasses import replace
 import re
 import time
 from uuid import uuid4
@@ -152,6 +153,21 @@ class ScheduleJournal:
             return dict(ok=True,due=True,check_failed=True)
 
 
+def _renewal_projection(host,operation):
+    """Read completed history under its original source, preserving every other binding."""
+    value=host.root._read(uuid(operation)+".cleanup.json")
+    binding=host.binding
+    if isinstance(value,dict) and value.get("source_commit")!=binding.source_commit:
+        source=value.get("source_commit")
+        if (value.get("phase")!="completed" or not isinstance(source,str)
+                or not re.fullmatch("[0-9a-f]{40}",source)):
+            raise GraphError("rotation_cleanup_invalid")
+        from app.rotation_adoption import AdoptionJournal
+        host=AdoptionJournal(host.root,replace(binding,source_commit=source))
+    proven=CleanupJournal(host).state(operation)
+    return None if proven is None else dict(at=proven["overlap_started_at"],fingerprint=proven["new"]["fingerprint"])
+
+
 def overview(store,host,access,current):
     """Project whitelisted public facts without giving the API any Root journal access."""
     from app.graph_access import AccessGate
@@ -174,8 +190,8 @@ def overview(store,host,access,current):
         row=store.read(attempt["operation_id"]);attempt=dict(attempt,state=row["state"],code=row["error_code"])
     renewal=schedule["last_renewal"]
     if renewal:
-        proven=CleanupJournal(host).state(renewal["operation_id"])
-        if proven is None or proven["overlap_started_at"]!=renewal["at"] or proven["new"]["fingerprint"]!=renewal["fingerprint"]:
+        proven=_renewal_projection(host,renewal["operation_id"])
+        if proven is None or proven!=dict(at=renewal["at"],fingerprint=renewal["fingerprint"]):
             raise GraphError("rotation_schedule_renewal_changed")
     check=schedule["last_check"]
     return dict(ok=True,binding=access.fields(),last_check={key:check[key] for key in ("at","ok","code")} if check else None,
