@@ -1,5 +1,22 @@
 # AP09: Dokumentübergabe
 
+## Aktuelle Fortschreibung vom 26.11.2026
+
+RC05 aktualisiert die vorhandenen Quellen und PDFs für den bereitgestellten
+Programmstand 2ee04d0/008. Handbuch, Technikunterlage, Wartungsnachtrag, KI-MD
+und README bilden ein gemeinsames vorbereitetes Übergabepaket. ORGA prüft Inhalte,
+Verweise und gerenderte PDFs; REVIEW prüft ausschließlich die kleine Änderung
+am Dokumentrenderer. Kein neuer unabhängiger Dokumentreview wird behauptet.
+
+Die [Releasevorbereitung](RELEASE-VORBEREITUNG.md) benennt aktuelle Nachweise
+und offene Freigabepunkte. Die tatsächliche Kundenübergabe, abschließende Abnahme,
+Versionsfreigabe und Veröffentlichung stehen noch aus. Private Betriebszuordnungen
+bleiben getrennt vom Repository. Die nachfolgenden Abschnitte beschreiben die
+historischen AP09-/AP11-Abschlüsse vor dieser Fortschreibung; ihre alten
+Offen-/Unverändert-Aussagen sind keine aktuelle Laufzeitbindung.
+
+## Historischer Dokumentabschluss
+
 Stand: 18. November 2026. AP11-Ergänzung; historische AP09-Prüfung bleibt erhalten. Die einmalige unabhängige Abschlussprüfung des festen
 Dokumentpakets `330c749` ist mit PASS ohne notwendige Korrekturbefunde abgeschlossen.
 Produktlaufzeit unverändert `d9f32a5a9c9fb642f59a13ed2550f74532fc3ebe`,

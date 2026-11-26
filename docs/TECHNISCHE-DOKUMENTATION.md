@@ -2,8 +2,8 @@
 
 CT E-Rechnungsimporter
 
-Dokumentversion: AP09, 17. November 2026. Technische Betriebs- und Übergabeunterlage.
-Programmstand: `d9f32a5a9c9fb642f59a13ed2550f74532fc3ebe`, Datenbankschema `008`.
+Dokumentversion: RC05-Vorbereitung, 26. November 2026. Technische Betriebs- und Übergabeunterlage.
+Programmstand: `2ee04d0bb4ef72d64fcf94cb9e0f8d283acc5e41`, Datenbankschema `008`.
 Die Dokumentversion bezeichnet diese Unterlage; sie ist keine neue Programmversion.
 
 ## 1. Geltung und Übergabestatus
@@ -14,12 +14,12 @@ Schutzgrenzen und nachgewiesenen Ergebnisse. Sie enthält ausschließlich generi
 Pfade und Rollen. Tatsächliche Anschlussdaten, Dienstkonten, Instanzkennungen,
 Schlüssel, Empfänger und Sicherungsorte werden getrennt vertraulich verwaltet.
 
-AP09 ist zur Dokumentation freigegeben. Dieses vollständige Markdown-/PDF-Paket
-wird einer gemeinsamen Abschlussprüfung vorgelegt. Erstellung und Eigenprüfung
-ersetzen weder diese Prüfung noch eine zusätzliche Kundenabnahme. AP09a bleibt
-offen: Das vollständige Nutzerhandbuch aus AP11 ist noch nicht erstellt und AP11
-hat kein Umsetzungs-Go. Diese technische Unterlage ersetzt das Nutzerhandbuch nicht.
-AP10 zur wöchentlichen Betriebssystemwartung ist ebenfalls nicht freigegeben.
+Diese RC05-Fortschreibung ergänzt die zuvor geprüfte AP09-Ausgabe. Das vollständige
+[Nutzerhandbuch](HANDBUCH-ZUM-PRODUKT.md) und die wöchentliche Linuxwartung sind
+vorhanden. Der Betrieb wurde am 26.11.2026 lesend bestätigt; eine endgültige
+Releasefreigabe oder neue Kundenabnahme folgt daraus nicht. ORGA übernimmt die
+Dokumentprüfung; REVIEW prüft ausschließlich Code. Aktuelle Freigabepunkte stehen
+in der [Releasevorbereitung](RELEASE-VORBEREITUNG.md).
 
 Führend für den aktuellen AP12-Nachweis ist die [AP12-Übergabe](AP12-UEBERGABE.md).
 Ältere Paketdokumente beschreiben ihren damaligen Teilstand; Aussagen wie
@@ -228,12 +228,13 @@ UUID erzeugen ist kein allgemeiner Reparaturweg.
 ## 8. Verarbeitung, Ablage und Mailabschluss
 
 Neue Quellen kommen ausschließlich aus der direkten Inbox des vorgesehenen
-Postfachs ab **1. Dezember 2026, 00:00 Europe/Berlin**. Ältere Mails bleiben
+Postfachs ab **23. November 2026, 00:00 Europe/Berlin**. Gelesene und ungelesene
+Nachrichten werden berücksichtigt. Ältere Mails bleiben
 unangetastet. Paging und Quellmanifest werden vor äußeren Wirkungen vollständig
 gebunden. Die Originalbytes, tatsächliche Bytezahl und SHA256 sind maßgeblich.
 Ein Empfangs- oder Dateiname allein ersetzt keine Quellenprüfung.
 
-Die eingefrorene Erkennung unterscheidet E-Rechnungen, Rechnungs-PDFs,
+Die Erkennung unterscheidet E-Rechnungen, Rechnungs-PDFs,
 Zahlungsavise, Mahnungen/Zahlungserinnerungen, unbekannte Dokumente, ignorierte
 Anhänge und technische/strukturelle Fehler. Sie ist Formaterkennung, keine
 vollständige fachliche Rechnungsvalidierung. ZUGFeRD bleibt als Original-PDF erhalten.
@@ -288,6 +289,7 @@ laufenden Hosttimers. Maßgeblich sind tatsächliche Units und frischer gebunden
 | `invoice-status.timer` | Jede Minute, Sekunde 20. |
 | `invoice-rotation-daily.timer` | Täglich 03:35. |
 | `invoice-rotation-opportunity.timer` | Jede Minute, Sekunde 40. |
+| `invoice-maintenance.timer` | Sonntag, 03:00 Uhr Europe/Berlin; bedarfsabhängiger Neustart. |
 
 Manuelle und automatische Verarbeitung teilen dieselbe Hostsperre. Ein belegter
 Job wird zurückgestellt; gemeinsame Fälligkeiten werden begrenzt und fair nachgeholt.
@@ -413,8 +415,9 @@ Berichts verschickt keine Mail. Ein akzeptiertes HTTP202 belegt Graphannahme,
 keinen Empfang beim Empfänger. Bei unbekanntem Sendeausgang vorhandenen Slot und
 Status abgleichen; kein erneuter Testversand als Diagnoseersatz. Bei Graphausfall
 kann der gleiche Graphweg keine Ausfallmail garantieren; Portal und Hostkontrolle
-bleiben erforderlich. Eine ansprechendere Gestaltung der Tages-/Wochenmails ist
-als gesonderter AP07-Nachtrag nur geplant.
+bleiben erforderlich. Tages- und Wochenberichte werden seit der Bereitstellung
+vom 24.11.2026 als HTML im Portalstil erzeugt. Die fachliche und visuelle Abnahme
+der ersten regulär neu erzeugten Berichte in Outlook bleibt gesondert offen.
 
 | Beobachtung | Nächster technischer Schritt |
 | --- | --- |
@@ -493,9 +496,13 @@ braucht eine gezielte technische Entscheidung, keinen unkontrollierten Komplettr
 | Entwicklung / unabhängige Prüfung | Feste Lieferstände, nachvollziehbare Änderungen und abgegrenzte Nachweise vor Übernahme. |
 
 Die konkreten Ansprechpartner und Eskalationskontakte werden vertraulich übergeben.
-AP10 ist nur geplant: Die hier beschriebene Automatik installiert keine wöchentliche
-Linuxwartung und erlaubt keine ungeprüften Datenbankschema- oder Anwendungsupgrades.
-Ein zukünftiger Wartungsneustart ist mit einer laufenden Rotation zu koordinieren.
+AP10 ist installiert: Linuxwartung sonntags um 03:00 Uhr Europe/Berlin,
+mit bedarfsabhängigem Neustart und lesender Nachkontrolle um 03:30 Uhr.
+Der verspätete Start am 22.11. endete vor der Paketinstallation; der reguläre
+vollständige Sonntagslauf bleibt nachzuweisen. Wartungsneustarts sind mit
+laufenden Rotationen zu koordinieren. Einzelheiten und Zeitgrenzen enthält der
+[Wartungsnachtrag](WARTUNGSNACHTRAG.md). Datenbankschema- oder Anwendungsupgrades
+werden dadurch nicht automatisch freigegeben.
 
 ## 15. Abnahmebelege und offene Grenzen
 
@@ -503,11 +510,11 @@ Ein zukünftiger Wartungsneustart ist mit einer laufenden Rotation zu koordinier
 | --- | --- |
 | AD / AP01 | Echte Anmeldung, Rechte und Gesamtumfang durch Kunden abgenommen. Keine neue echte Kundenanmeldung aus späteren isolierten Browserfixtures ableiten. |
 | Erkennung / AP03 | Eingefrorener Quell-/Runtime-/Dateiprüfstand, ergänzte Titelvarianten separat bestätigt; fachliche Restfälle und Gesamtfreigabe offen. |
-| Ablage / AP04-05 | Native Journal-/Migrationsprüfungen und synthetischer echter CIFShandoff, unveränderte Bytes und keine Wiederpublikation nach Entnahme. Kein echter Rechnungsimport daraus. |
+| Ablage / AP04-05 und RC03 | Native Grundlagenprüfungen; zusätzlich am 24.11. echte Erstcharge mit 13 abgeschlossenen Mails und 14 anhand Größe, Hash und Zielpfad bestätigten Originaldateien. |
 | Journal / AP06 | Native Sicherheits-/Konkurrenz-/Vorschauprüfungen und fünf isolierte Browsergruppen; Kundenmigration und separate Betriebsreadbacks. |
 | Meldungen / AP07 | Quellen, MariaDB und isolierter Browser geprüft; feste Testmail mit genau einer Reservierung/202, Empfang nur im eigenen Abnahmepostfach. |
 | Betrieb / AP08 | Aktive Zeitpläne, Leerlaufläufe, Tages-/Wochenbericht je einmal 202, TLSübernahme und No-op, kontrollierter Boot und spätere Statusphasenprüfung. |
-| Rotation / AP12 | d9/008 bereitgestellt, echter zweiter Wechsel committed/new mit drei Verbrauchern, eigenem Abschlussproof und SQL overlap unabhängig nativ bestätigt. |
+| Rotation / AP12 und RC01 | Echter zweiter Wechsel mit drei Verbrauchern und Abschlussproof bestätigt; verwalteter alter Schlüssel am 24.11. bereinigt. Erste regulär fällige automatische Erneuerung bleibt ein zukünftiger Betriebsnachweis. |
 | Erster Rotationsversuch | Kontrollierter Rückweg committed/old; ursprüngliche Ursache offen, Kandidat und terminaler Fehlauftrag erhalten. Erfolg des zweiten erklärt den ersten nicht. |
 | AP12-Boot / Wiederaufnahme | Genau ein kontrollierter Kundenboot; API/DB/Nginx und Images erhalten, neues Graphmaterial, sieben Timer, CIFS und HTTPS gesund. Isolierte Altmaterial- und vorbereitete Neumaterialzustände gesondert qualifiziert. |
 | AP12-Browser | Sieben isolierte Funktionsgruppen und Sichtprüfung. Ursprüngliches natives false wegen genau eines Reload-GETabbruchs bleibt erhalten; nur der konkret abgegrenzte Offlinefall ist akzeptiert. |
@@ -519,12 +526,15 @@ verlorenem flüchtigem Laufzustand erreichte vorbereitete neue Übernahme mit
 erhaltener Pause; dort wurde die API gezielt neu erzeugt, DB/Nginx blieben erhalten.
 Dies wird nicht als vollständig abgeschlossener neuer Wechsel umgedeutet.
 
-Offen bleiben spätere produktive Altkeybereinigung, der zukünftige automatische
-Erneuerungsauslöser, vollständiger VM-/Offsite-Restore, fachliche Erkennungsrestfälle
-und die nicht nachgewiesene neue echte Kundenanmeldung nach den späteren Deployments.
-AP09a wartet auf das noch nicht freigegebene AP11handbuch. AP10wartung und
-Mailgestaltung bleiben geplant. Importstichtag und DMSausschluss sind unverändert.
-Diese Grenzen verhindern eine pauschale Aussage "alle nativen Fehlerfälle bestanden".
+Offen bleiben der zukünftige reguläre Erneuerungsauslöser, vollständiger
+VM-/Offsite-Restore, der vollständige Sonntagswartungslauf, erste reguläre Berichte
+in Outlook und die fachliche Abnahme am aktuellen Stand mit beiden AD-Rollen.
+Die Betriebsanzeige kann bei gemeinsam fälligen Inbox-/Korrekturtriggern zeitweise
+einen fehlenden neuen Ergebnisbeleg anzeigen; die Zuordnung zum tatsächlich
+ausgeführten Modus ist als RC03-Restkorrektur offen. Die PDF/XRechnung-Mischfälle
+und verständlichen Hinweise wurden im gelieferten Stand gezielt verbessert.
+Historische Fehlversuche bleiben unverändert als solche dokumentiert.
+Die DMS-Anbindung bleibt außerhalb des Auftrags.
 
 ## 16. Führende Quellen und PDF-Erzeugung
 
@@ -543,7 +553,7 @@ ReportLab und dessen eingebettete Vera-Schriften, erzeugt Inhaltsverzeichnis,
 Lesezeichen und Seitenzahlen ohne Netzwerkzugriff. Aufruf im Repository:
 
 ```text
-python -I -B tools/build_technical_pdf.py
+python -I -B tools/build_technical_pdf.py --document-label "RC05 | Dokumentstand 26.11.2026"
 ```
 
 Die Ausgabe liegt unter `docs/handbuecher/Technische-Dokumentation.pdf`. Für

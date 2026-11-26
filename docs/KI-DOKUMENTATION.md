@@ -1,6 +1,6 @@
 # KI-Dokumentation
 
-Stand: 18. November 2026. AP10 installiert, qualifiziert geprüft und eingeplant.
+Stand: 26. November 2026. RC04/RC05-Vorbereitung; noch keine Releasefreigabe.
 Historische Detailverläufe bleiben in den Paketverträgen und der Git-Historie.
 Keine privaten Chatprotokolle und kein pauschaler Gesamtabschlussbericht.
 
@@ -18,17 +18,21 @@ Keine privaten Chatprotokolle und kein pauschaler Gesamtabschlussbericht.
 
 ## Aktueller fester Stand
 
-Produktlaufzeit: `d9f32a5a9c9fb642f59a13ed2550f74532fc3ebe`, Schema `008`.
-Reine Dokumentcommits ändern diese Laufzeit nicht. API/Web/Worker/Hostpeers sind
-bereitgestellt; Classifier bleibt separat eingefroren. Bestehende Instanz,
-Konfiguration und Datenbank wurden erhalten.
+Produktlaufzeit: `2ee04d0bb4ef72d64fcf94cb9e0f8d283acc5e41`, Schema `008`.
+Am 26.11. lesend bestätigt: HTTPS, API/DB, zwei CIFS-Mounts, acht Timer und
+freigegebener Graphzugang mit erfolgreicher täglicher Prüfung. Reine
+Dokumentcommits ändern diese Laufzeit nicht. Bestehende Instanz, Konfiguration
+und Datenbank wurden erhalten. RC03 bestätigt 13 abgeschlossene Erstchargenmails
+und 14 hashgeprüfte Originaldateien. XRechnung-Extension-Profil, PDF-Titelkontext
+und verständliche Hinweise wurden im aktuellen Stand gezielt ergänzt.
 
 Der echte zweite Wechsel ist unabhängig nativ bestätigt: `committed/new`, SQL
 `overlap`, drei tatsächliche Verbraucher und eigener Abschlussproof. Eine unklare
 Registrierung wurde unter demselben ursprünglichen Auftrag rein lesend abgeglichen
 und fortgesetzt; keine zweite Registrierung dieses Kandidaten. Neues Graphmaterial
 aktiv, automatische Erneuerung erlaubt und Rotationtimer aktiviert. Ein zukünftiger
-automatischer Auslöser und produktive Altkeybereinigung bleiben unbewiesen.
+automatischer Auslöser bleibt unbewiesen. Die produktive verwaltete Altkeybereinigung
+wurde am 24.11.2026 in RC01 bestätigt.
 
 Der erste Versuch kehrte kontrolliert zum Originalzertifikat zurück. Ursache
 unbelegt; terminaler Fehlauftrag und registrierter Kandidat bleiben erhalten.
@@ -47,7 +51,7 @@ Späterer lesender Zustandsnachweis qualifiziert das Ergebnis, ersetzt den Fehlv
 nicht. Kein vollständiger VM-/Offsite-Restore und keine pauschal bestandene native
 Fehlerfallserie. Führend: [AP12-Übergabe](AP12-UEBERGABE.md).
 
-## Auftragsstand
+## Auftragsstand - historische Paketabschlüsse bis 18.11.
 
 AP09 ist seit 17.11.2026 zur Abschlussdokumentation freigegeben. Technikquelle/PDF,
 dieser Wiedereinstieg und konsistente Übergabedateien bilden das vollständige Paket
@@ -71,10 +75,12 @@ Betriebsbindungen erhalten. Bereitstellungsprüfung PASS. Sonntagstimer seit
 Berlin/02:00 UTC. Alter Upgrade-Timer disabled/inactive; kein heutiger Paket-/Bootlauf.
 Lesende Nachkontrolle Sonntag 03:30 Europe/Berlin übernommen und bestätigt aktiv;
 erster echter Sonntag-/Bedarfsbootlauf offen.
-API-/Workerimages bleiben d9/008; installierte Host-Stopkorrektur separat ausgewiesen.
-Der am 18.11.2026 freigegebene AP07-Nachtrag liegt lokal vor. Der gemeinsame
+API-/Workerimages waren zu diesem Paketabschluss d9/008; die aktuelle Bindung
+steht oben. Der am 18.11.2026 freigegebene AP07-Nachtrag ist seit 24.11. bereitgestellt. Der gemeinsame
 Versandrenderer erzeugt Tages- und Wochenberichte als HTML im Portalstil.
-Berichtsdaten und Slotregeln bleiben erhalten. Bereitstellung durch ORGA steht aus.
+Berichtsdaten und Slotregeln bleiben erhalten. Erste neue reguläre Berichte in
+Outlook bleiben abzunehmen. Der verspätete Wartungslauf vom 22.11. endete vor APT;
+ein vollständiger Sonntagslauf ist weiter offen.
 
 ## Führende Quellen
 
@@ -115,10 +121,10 @@ ersetzt keinen Produktionsproof. Freigabe erst nach drei Verbrauchern und Abschl
 
 ## Fachliche Invarianten
 
-- Nur vorgesehenes Postfach und direkte Inbox. Der Kandidat setzt den bestätigten
+- Nur vorgesehenes Postfach und direkte Inbox. Der bereitgestellte Stand verwendet den bestätigten
   regulären Eingang ab 23.11.2026, 00:00 Uhr Europe/Berlin (22.11.2026, 23:00 UTC).
-  Auf d9/008 gilt bis zur Bereitstellung der bisherige Termin. Altmails bleiben
-  unangetastet und AP03 bleibt eingefroren.
+  Gelesene und ungelesene Mails einbeziehen; ältere Mails bleiben unangetastet.
+  Erkennung nur bei tatsächlich belegten Restfällen gezielt ändern.
 - Formaterkennung genügt; ZUGFeRD als Original-PDF. DMS-Anbindung, Konfiguration
   und Prüfung vollständig außerhalb Auftrag und Abnahme.
 - Relevante Anhänge unabhängig ablegen. Technische/strukturelle Sperren nicht
@@ -156,7 +162,7 @@ Nur der konkret abgegrenzte endliche Offlinefall ist akzeptiert; kein allgemeine
 Networkerrorverzicht und kein neuer echter Kunden-/ADlogin daraus. Historische
 AP01-Kundenabnahme bleibt der tatsächliche ADnachweis.
 
-## Offene Punkte und nächster Schritt
+## Historischer Dokumentabschluss bis 18.11.
 
 Die einmalige finale AP09-Prüfung ist bestanden. Geprüfte Technikquelle, PDF und
 vertrauliches Betriebsblatt bleiben bei der anschließenden Statusfortschreibung unverändert.
@@ -177,7 +183,26 @@ Erneuerungsauslöser, vollständiger VM-/Offsite-Restore, fachliche Erkennungsre
 neue echte Kundenanmeldung nach späteren Deployments und ursprüngliche Ursachen
 des ersten Rotations-/Restorefehlversuchs. Keine neuen Serien daraus starten.
 
-ORGA koordiniert, DEV liefert, REVIEW prüft. Keine Zusatzchats oder Agenten ohne
+## Aktuelle Restaufgaben und Zuständigkeit
+
+RC03: Zuordnung gemeinsam fälliger Inbox-/Korrekturtrigger zur tatsächlich
+ausgeführten Arbeit korrigieren; fehlende Ergebnisbelege nicht als Erfolg maskieren.
+Erste neue reguläre Berichte sowie fachliche Kundenabläufe und beide AD-Rollen
+am aktuellen Stand abnehmen. Der PDF/XML-Mischfall ist technisch abgeschlossen.
+RC04: tatsächliche Sonntagswartung, Sicherungsdatum und Wiederanlauf belegen;
+Schelle übernimmt den isolierten VM-/Offsite-Restore-Nachweis zum Vor-Ort-Termin
+am 07.12. Die erste spätere reguläre Graph-Erneuerung mit Fälligkeit an den Betrieb
+übergeben. RC05: Dokumente und endgültigen Lieferstand abgleichen, Freigabe,
+Versions-/Tag-/Releaseerstellung und Kundenübergabe abschließen. Ziel ist 1.0.0,
+bis zur tatsächlichen Freigabe keine Veröffentlichung behaupten.
+
+Führend für diese Fortschreibung ist die [Releasevorbereitung](RELEASE-VORBEREITUNG.md).
+Historische Prüfgrenzen bleiben erhalten, erledigte Altkeybereinigung ist oben
+fortgeschrieben. Kein neuer Kundenlogin aus einer technischen Momentaufnahme.
+
+ORGA koordiniert und prüft Dokumente, DEV liefert, REVIEW prüft ausschließlich
+Code. Für neue Entwicklungsaufträge GPT-6.1 Sol, für Code-REVIEW GPT-6 Astra;
+keine Modelle der 6.2-Familie. Keine Zusatzchats oder Agenten ohne
 Auftrag. Pro Ursache höchstens fünf gezielte DEV-Korrekturversuche; Modellwechsel
 oder Umbenennung setzt Zähler nicht zurück. Interne Zeit-, Token-, Kosten-,
 Zugangs- und Prüfzuordnungen bleiben außerhalb des öffentlichen Git.

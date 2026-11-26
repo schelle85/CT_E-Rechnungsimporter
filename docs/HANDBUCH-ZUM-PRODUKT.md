@@ -2,14 +2,19 @@
 
 CT E-Rechnungsimporter - für Anwender und kundenseitige Administratoren
 
-Dokumentstand: 18. November 2026, AP11. Programmstand:
-`d9f32a5a9c9fb642f59a13ed2550f74532fc3ebe`, Datenbankschema 008.
+Dokumentstand: 26. November 2026, RC05-Vorbereitung. Programmstand:
+`2ee04d0bb4ef72d64fcf94cb9e0f8d283acc5e41`, Datenbankschema 008.
 
 Dieses Handbuch beschreibt die gelieferte Oberfläche für die Rollen Lesen und
 Verwaltung. Die Abbildungen zeigen diese Oberfläche mit ausschließlich synthetischen
 Beispieldaten. Namen, Zahlen, Termine und der beispielhafte Eingang am 01.12.2026
 sind keine Kundenbelege und keine aktuelle Betriebsanzeige. Die Bildschirmdarstellung
 kann je nach Fenstergröße und Browser leicht abweichen.
+
+Der reguläre Import berücksichtigt gelesene und ungelesene Mails ab
+23.11.2026, 00:00 Uhr Europe/Berlin. Die Beispieltermine der Bilder ändern
+diesen tatsächlichen Eingangsstichtag nicht. Die abschließende Release- und
+Kundenabnahme ist noch offen.
 
 <!-- toc:start -->
 ## Inhaltsverzeichnis
@@ -48,7 +53,7 @@ die tatsächlich protokollierten Vorgänge und ihre Ergebnisse. Sie müssen erka
 Rechnungen nicht einzeln bestätigen. Ihre fachliche Prüfung ist bei offenen
 unbekannten Anhängen erforderlich.
 
-**Eingangsstichtag:** Berücksichtigt werden ausschließlich Mails ab 1. Dezember 2026,
+**Eingangsstichtag:** Berücksichtigt werden ausschließlich Mails ab 23. November 2026,
 00:00 Uhr Europe/Berlin. Ältere Mails bleiben unangetastet. Vor diesem Stichtag ist
 ein leeres Journal möglich, obwohl die Zeitpläne aktiv sind.
 
@@ -163,6 +168,14 @@ Im Bereich **Befund** stehen die verständliche Erkennungsbewertung, aktuelle
 Zuordnung und Ablage. Ein vorhandenes Ablageziel zeigt den protokollierten Pfad.
 **Noch kein bestätigter Ablagebeleg** bedeutet, dass hier noch kein passender Erfolg
 bestätigt ist. Ein sichtbarer Kategoriename allein beweist keine Ablage.
+
+Bei einem nicht verarbeiteten Anhang erklärt ein zusätzlicher Hinweis, warum
+die Erkennung oder Verarbeitung zurückgestellt wurde und welcher nächste Schritt
+hilft. Geben Sie der Betreuung den Dateinamen, Zeitpunkt und angezeigten Hinweis
+weiter. Ein nicht unterstütztes E-Rechnungsprofil beweist keinen Fehler des
+Rechnungsstellers. Diesen erst bei bestätigtem Dateifehler um eine korrigierte
+Rechnung bitten. Bei mehreren Anhängen gelten die Hinweise jeweils für die
+betroffene Datei; erfolgreich abgelegte Anhänge bleiben erhalten.
 
 | Status | Wie Sie ihn lesen |
 | --- | --- |
@@ -656,7 +669,7 @@ Operatorbefehle gehören in die technische Dokumentation und zur Betreuung.
 
 | Situation | Sinnvoller nächster Schritt |
 | --- | --- |
-| Es ist vor dem 01.12.2026 und das Journal ist leer | Stichtag beachten. Aktive Zeitpläne und leerer Eingang können gleichzeitig korrekt sein. |
+| Es gibt keine Mails ab dem 23.11.2026 und das Journal ist leer | Stichtag beachten. Aktive Zeitpläne und leerer Eingang können gleichzeitig korrekt sein. |
 | Eine neue passende Mail erscheint noch nicht | Nächste Fünf-Minuten-Gelegenheit abwarten, Liste aktualisieren und Eingang/Filter prüfen. Bei fortbestehendem Problem Betriebsstatus und Betreuung. |
 | Ein bekannter Anhang liegt neben Unbekannt | Jeden Anhang einzeln beurteilen. Erfolgreiche Geschwister nicht neu freigeben. |
 | Eine PDF ist erkannt, Mail liegt in Nachfragen | Nachfragen ist das vereinbarte Mailziel gewöhnlicher Rechnungs-PDFs, kein zusätzlicher manueller Freigabeauftrag. |
@@ -770,15 +783,18 @@ keine Journale, Mails oder Browserdaten zur vermeintlichen Fehlerbeseitigung.
 
 Die Anleitung beschreibt die vorhandenen Möglichkeiten. Sie fügt keine Lernfunktion,
 Sammelkorrektur, Exportfunktion, DMSintegration oder zusätzliche Erkennungsgarantie hinzu.
-Eine ansprechendere Gestaltung der Tages-/Wochenmails ist nur geplant. Die geplante
-wöchentliche Linuxwartung aus AP10 ist nicht eingerichtet. Diese offenen Arbeiten
-sind keine zusätzlichen Nutzerknöpfe.
+Tages- und Wochenberichte werden seit dem 24.11.2026 im Portalstil erzeugt;
+die erste reguläre Outlook-Abnahme bleibt offen. Die wöchentliche Linuxwartung
+ist eingerichtet. Der [Wartungsnachtrag](WARTUNGSNACHTRAG.md) erklärt Termin,
+Portalunterbrechung und Nachkontrolle. Diese Abläufe benötigen keine zusätzlichen
+Nutzerknöpfe.
 
 Historische Prüfungen und aktueller Betrieb sind getrennt dokumentiert. Es gibt
 eine historische echte AD-Kundenabnahme sowie isolierte Oberflächenprüfungen;
 die synthetischen Handbuchbilder behaupten keine neue echte Kundenanmeldung.
-Spätere produktive Altkeybereinigung, künftiger automatischer Erneuerungsauslöser,
-vollständiger VM-/Offsite-Restore und fachliche Erkennungsrestfälle bleiben im
+Die verwaltete Altkeybereinigung wurde am 24.11. bestätigt. Der künftige reguläre
+Erneuerungsauslöser, vollständige VM-/Offsite-Restore, vollständige Sonntagswartung
+und fachliche Erkennungsrestfälle bleiben im
 jeweils dokumentierten Umfang offen. Das Handbuch erklärt die Bedienung und
 erteilt keine neue Betriebs- oder Gesamtfreigabe.
 

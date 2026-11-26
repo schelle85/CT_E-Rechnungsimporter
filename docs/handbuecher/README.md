@@ -1,20 +1,20 @@
 # PDF-Unterlagen
 
-Stand: 18. November 2026. AP09-Technikunterlagen geprüft; AP11-Nutzerhandbuch
-eigengeprüft und am vollständigen festen Paket b565465 genau einmal unabhängig
-mit PASS geprüft. Kundenrückmeldung zum Handbuch bleibt offen.
+Stand: 26. November 2026, RC05-Vorbereitung. Die Quellen und PDFs werden gezielt
+auf den gelieferten Stand 2ee04d0/008 fortgeschrieben. Frühere AP09-/AP11-Pakete
+sind in Git erhalten. ORGA prüft die aktuellen Dokumente und gerenderten Seiten;
+REVIEW prüft ausschließlich Code. Die Kunden- und Releaseabnahme bleibt offen.
 
 - Führende Quelle: [Technische Dokumentation](../TECHNISCHE-DOKUMENTATION.md).
 - Ausgabe: [Technische Dokumentation als PDF](Technische-Dokumentation.pdf).
 - Führendes [Nutzerhandbuch](../HANDBUCH-ZUM-PRODUKT.md) und [PDF](Handbuch-zum-Produkt.pdf):
-  24 Kapitel, zwölf synthetische Bildschirmbilder, 26 Seiten. AP11-Go seit17.11.2026;
-  AP09a hat diese Anleitung nach deren bestandener Abschlussprüfung übernommen.
+  24 Kapitel, zwölf synthetische Bildschirmbilder und 26 Seiten.
 - Ein vertrauliches Betriebsblatt wird separat übergeben und gehört nicht ins Repository.
 - Gesonderter [Wartungsnachtrag als Markdown](../WARTUNGSNACHTRAG.md) und
-  [dreiseitige PDF](Wartungsnachtrag.pdf), Stand 18.11.2026: qualifiziert
+  [PDF](Wartungsnachtrag.pdf), Stand 26.11.2026: qualifiziert
   bereitgestellte Wartung und bestätigter Sonntagstimer mit aktiver lesender
-  Nachkontrolle um 03:30 Europe/Berlin, erster realer Lauf offen.
-  Ergänzt die unveränderten datierten AP09-/AP11-Abgaben; finaler Dokumentreview offen.
+  Nachkontrolle um 03:30 Europe/Berlin; erster vollständiger regulärer Lauf offen.
+  Der verspätete Versuch vom 22.11. endete vor APT.
 
 ## Reproduzierbarer Build
 
@@ -27,7 +27,7 @@ separaten festen Prüfbericht; diese Werkzeugversionen sind keine Produktabhäng
 Vom Repositoryverzeichnis aus:
 
 ```text
-python -I -B tools/build_technical_pdf.py
+python -I -B tools/build_technical_pdf.py --document-label "RC05 | Dokumentstand 26.11.2026"
 ```
 
 Für das separat verwaltete Betriebsblatt sind Pfade ausdrücklich wählbar:
@@ -55,7 +55,7 @@ Paketverträge werden nicht mit eingebettet.
 ## Nutzerhandbuch bauen
 
 ```text
-python -I -B tools/build_technical_pdf.py --handbook --input docs/HANDBUCH-ZUM-PRODUKT.md --output docs/handbuecher/Handbuch-zum-Produkt.pdf
+python -I -B tools/build_technical_pdf.py --handbook --input docs/HANDBUCH-ZUM-PRODUKT.md --output docs/handbuecher/Handbuch-zum-Produkt.pdf --document-label "RC05 | Dokumentstand 26.11.2026"
 ```
 
 Der kleine Handbuchmodus ergänzt eingebettete PNGabbildungen mit Bildunterschriften,
@@ -72,14 +72,16 @@ Schriften, Stile, Markdownparser und Linkauflösung des vorhandenen Renderers.
 Er ergänzt nur AP10-Metadaten/Fußzeile und drei kurze Themenblätter:
 
 ```text
-python -I -B tools/build_maintenance_pdf.py
+python -I -B tools/build_maintenance_pdf.py --document-label "RC05 | Dokumentstand 26.11.2026"
 ```
 
+Ohne den optionalen Parameter bleiben die historischen Fußzeilen erhalten.
+Für die aktuelle Ausgabe wird der oben angegebene RC05-Dokumentstand gesetzt.
 Ausgabe ausschließlich `Wartungsnachtrag.pdf`; AP09-/AP11-Ausgaben werden dabei
 nicht neu erzeugt. Alle drei Seiten wurden gerendert und visuell geprüft.
 
 Nach jeder Quellenänderung neu bauen, Text extrahieren und gegen Quelle abgleichen,
 alle Seiten mit Poppler rendern und visuell auf Vollständigkeit, Tabellenumbrüche,
-Schriften, Lesbarkeit und Seitenzahlen prüfen. Eigenprüfung und unabhängige
-Abschlussprüfung sind getrennte Schritte. Keine PDF allein aufgrund eines
+Schriften, Lesbarkeit und Seitenzahlen prüfen. Dokumenteigenprüfung und
+Codeprüfung des Renderers sind getrennte Schritte. Keine PDF allein aufgrund eines
 erfolgreichen Builds als geprüft oder als Kundenabnahme bezeichnen.

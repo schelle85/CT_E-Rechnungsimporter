@@ -7,6 +7,15 @@ Microsoft-365-Postfach über Microsoft Graph. Ziel ist die kategorisierte
 SMB-Ablage von E-Rechnungen, Rechnungs-PDFs, Zahlungsavisen und Mahnungen mit einem
 internen Webportal für Protokolle, Fehler und Dubletten.
 
+## Releasevorbereitung
+
+RC04 und RC05 sind seit dem 26.11.2026 in Vorbereitung. Der lesende Betriebsabgleich
+bestätigt den unten genannten Programmstand, HTTPS, Datenbank, SMB und acht Timer.
+Handbuch, technische Unterlage und Wartungsnachtrag werden auf diesen Stand
+aktualisiert. Der [Releaseentwurf](docs/RELEASE-VORBEREITUNG.md) nennt den Umfang,
+offene Nachweise und die Unterlagen für die Übergabe am Montag, 07.12.2026.
+Ein endgültiger Tag oder GitHub-Release ist noch nicht veröffentlicht.
+
 ## Projektstatus
 
 **Aktueller Betriebsstand vom 24. November 2026:** Anwendung aus

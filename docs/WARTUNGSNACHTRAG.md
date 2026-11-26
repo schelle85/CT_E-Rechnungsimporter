@@ -1,10 +1,11 @@
 # Wartungsnachtrag
 
-Für Nutzer und Betreiber des E-Rechnungsimporters. Stand: 18. November 2026.
+Für Nutzer und Betreiber des E-Rechnungsimporters. Stand: 26. November 2026.
 Ergänzung zum gelieferten Nutzerhandbuch und zur technischen Dokumentation.
 Die Wartung ist installiert, qualifiziert geprüft und seit **18.11.2026,
-11:24:12 Uhr Europe/Berlin** regelmäßig eingeplant. Der erste tatsächliche
-Sonntagslauf steht noch aus.
+11:24:12 Uhr Europe/Berlin** regelmäßig eingeplant. Am 22.11. wurde die
+Wartung wegen des gespeicherten VM-Zustands verspätet ausgelöst und vor der
+Paketinstallation beendet. Ein vollständiger regulärer Sonntagslauf steht noch aus.
 
 ## Termin, Umfang und Portalunterbrechung
 
@@ -82,9 +83,11 @@ Ein vollständiger VM-/Offsite-Restore ist
 weiterhin **nicht nachgewiesen**. Eine vorhandene Sicherung oder ein bestandener
 Installationscheck ersetzt diesen Wiederherstellungsnachweis nicht.
 
-Anwendung und Datenbankschema bleiben auf dem gelieferten Stand d9/008. Die
-bisherigen AP09-/AP11-Unterlagen bleiben als datierte Abgaben erhalten. Dieser
-Nachtrag ergänzt sie um den Wartungsablauf. Der **erste echte Sonntagslauf**
+Anwendung und Datenbankschema wurden am 26.11. lesend auf dem gelieferten Stand
+2ee04d0/008 bestätigt. Der nächste reguläre Termin ist am 29.11. um 03:00 Uhr
+Europe/Berlin; die VM muss dafür laufen. Die ursprünglichen AP09-/AP11-Ausgaben
+bleiben in Git erhalten. Dieser Nachtrag ergänzt die aktuellen Unterlagen um
+den Wartungsablauf. Der **erste vollständige reguläre Sonntagslauf**
 und ein dabei gegebenenfalls erforderlicher **Neustart mit Wiederanlaufprüfung**
 sind noch nicht nachgewiesen.
 
