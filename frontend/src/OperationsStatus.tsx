@@ -1,7 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 import { Alert, Badge, Group, Paper, Table, Text, Title } from "@mantine/core";
 import { api } from "./api";
-import { freshStatus, freshnessDeadline, jobNames, resultLabel, stateColor, stateLabel, type Flag, type OperationsStatus } from "./operations";
+import { freshStatus, freshnessDeadline, jobNames, jobReason, resultLabel, stateColor, stateLabel, type Flag, type OperationsStatus } from "./operations";
 import { dateTime } from "./processTypes";
 
 const Context = createContext<{ status: OperationsStatus | null; refresh: () => Promise<void> }>({ status: null, refresh: async () => {} });
@@ -52,7 +52,7 @@ export function OperationsCard() {
         <Table.Td><Text size="sm" fw={600}>{names[name]}</Text><Text size="xs" c="dimmed">{opportunities[name]} · Berlin</Text></Table.Td>
         <Table.Td><Badge color={stateColor[state]} variant="light">{stateLabel[state]}</Badge><Text size="xs" mt={4}>{flagText(job?.configured, "Eingerichtet", "Nicht eingerichtet")}</Text></Table.Td>
         <Table.Td><Text size="sm">{flagText(job?.running, "Läuft", "Kein Lauf aktiv")}</Text>{job?.blocked === true && <Text size="xs" c="orange">Derzeit zurückgestellt</Text>}</Table.Td>
-        <Table.Td><Text size="sm">{resultLabel[job?.last_result ?? "unknown"]}</Text><Text size="xs" c="dimmed">{job?.last_run_at == null ? "—" : dateTime(job.last_run_at)}</Text></Table.Td>
+        <Table.Td><Text size="sm">{resultLabel[job?.last_result ?? "unknown"]}</Text><Text size="xs" c="dimmed">{job?.last_run_at == null ? "—" : dateTime(job.last_run_at)}</Text>{job && jobReason(name, job) && <Text size="xs">{jobReason(name, job)}</Text>}</Table.Td>
         <Table.Td><Text size="sm">{job?.next_run_at == null ? "Nicht belegt" : dateTime(job.next_run_at)}</Text></Table.Td>
       </Table.Tr>; })}
     </Table.Tbody></Table></Table.ScrollContainer>

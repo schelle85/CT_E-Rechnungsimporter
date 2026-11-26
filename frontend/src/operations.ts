@@ -61,6 +61,11 @@ export function isOperationsStatus(value: unknown): value is OperationsStatus {
 export const stateLabel: Record<OperationState, string> = { active: "Zeitplan aktiv", paused: "Zeitplan pausiert", degraded: "Aktiv mit Einschränkungen", unknown: "Nicht prüfbar" };
 export const stateColor: Record<OperationState, string> = { active: "green", paused: "gray", degraded: "yellow", unknown: "gray" };
 export const resultLabel: Record<OperationResult, string> = { ok: "Erfolgreich beendet", deferred: "Zurückgestellt", failed: "Fehlgeschlagen", unknown: "Ergebnis nicht prüfbar", none: "Noch kein Lauf belegt" };
+export function jobReason(name: JobName, job: JobStatus) {
+  if (["inbox", "corrections"].includes(name) && job.last_result === "deferred")
+    return "Eingang und Korrekturen teilen sich die Verarbeitung. Die Aufgabe wurde für eine nächste Startgelegenheit zurückgestellt.";
+  return null;
+}
 export function freshnessDeadline(value: OperationsStatus, started: number, received: number) {
   return value.expires_at === null ? received : received + Math.max(0, (value.expires_at - value.checked_at) * 1000 - Math.max(0, received - started));
 }

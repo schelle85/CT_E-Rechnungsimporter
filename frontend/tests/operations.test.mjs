@@ -1,6 +1,6 @@
 import {test} from "node:test";
 import assert from "node:assert/strict";
-import {isOperationsStatus,scheduleStateMatches,freshnessDeadline,freshStatus,stateLabel} from "../src/operations.ts";
+import {isOperationsStatus,scheduleStateMatches,freshnessDeadline,freshStatus,stateLabel,jobReason} from "../src/operations.ts";
 import {api,ApiProtocolError} from "../src/api.ts";
 import {activeStatus,unknownStatus,now} from "./operations-fixture.mjs";
 
@@ -25,6 +25,19 @@ test("active timer with failed processing prerequisites is degraded; notificatio
   const value=activeStatus();value.mounts.importer=null;value.state="degraded";
   value.jobs.inbox.state=value.jobs.corrections.state="degraded";
   assert.equal(isOperationsStatus(value),true);assert.equal(value.jobs.notifications.state,"active");
+});
+test("shared queue deferral explains waiting without claiming successful processing or changing the schema",()=>{
+  for(const name of ["inbox","corrections"]){
+    const value=activeStatus();value.jobs[name].last_result="deferred";
+    assert.equal(isOperationsStatus(value),true);
+    assert.match(jobReason(name,value.jobs[name]),/teilen sich die Verarbeitung/);
+    assert.match(jobReason(name,value.jobs[name]),/nächste Startgelegenheit zurückgestellt/);
+    for(const outcome of ["ok","failed","unknown","none"]){
+      value.jobs[name].last_result=outcome;assert.equal(jobReason(name,value.jobs[name]),null);
+    }
+  }
+  const value=activeStatus();value.jobs.tls.last_result="deferred";
+  assert.equal(jobReason("tls",value.jobs.tls),null);
 });
 test("monotonic freshness subtracts transit time and expires without another response",()=>{
   const value=activeStatus(),deadline=freshnessDeadline(value,0,5000);

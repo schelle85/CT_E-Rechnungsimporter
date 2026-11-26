@@ -32,7 +32,7 @@ class CollectorTests(unittest.TestCase):
         self.binding=dict(instance_id=INSTANCE,tls_root=str(self.root),peer_address="192.0.2.10",containers={key:dict(name="synthetic-"+key,image=fixtures.IMAGE) for key in ("db","api","nginx")})
         self.units={ops.START:dict(LoadState="loaded",ActiveState="active",SubState="exited",Result="success",ExecMainStartTimestamp="@"+str(NOW-30))}
         for name in ops.SERVICES:
-            self.units[ops.SERVICES[name]]=dict(LoadState="loaded",ActiveState="inactive",SubState="dead",Result="success",ExecMainStartTimestamp="@"+str(NOW-30))
+            self.units[ops.SERVICES[name]]=dict(LoadState="loaded",ActiveState="inactive",SubState="dead",Result="success",ExecMainStatus="0",ExecMainStartTimestamp="@"+str(NOW-30))
             self.units[ops.TIMERS[name]]=dict(LoadState="loaded",ActiveState="active",TimersCalendar="{ OnCalendar="+ops.CALENDARS[name]+" ; next_elapse=@"+str(NOW+60)+" }",Triggers=ops.SERVICES[name],NextElapseUSecRealtime="@"+str(NOW+60))
         for mode in ("start",*ops.SERVICES):self.receipt(mode,"ok")
         self.values=[]
@@ -94,12 +94,90 @@ class CollectorTests(unittest.TestCase):
         self.assertTrue(value["jobs"]["inbox"]["blocked"]);self.assertEqual(public["jobs"]["inbox"]["state"],"degraded")
 
     def test_old_invalid_and_future_receipts_are_not_current_success(self):
-        for changes in (dict(source_commit="b"*40),dict(at=NOW-40,started_at=NOW-50),dict(at=NOW+31),dict(schema_version=True),dict(result="private-secret")):
+        for changes in (dict(source_commit="b"*40),dict(deployment_id=INSTANCE),dict(instance_id=BOOT),dict(boot_id=DEPLOYMENT),
+                dict(at=NOW-40,started_at=NOW-50),dict(at=NOW+31),dict(schema_version=True),dict(result="private-secret")):
             self.receipt("inbox","ok",**changes)
             value,public,_=self.collect()
             self.assertEqual(value["jobs"]["inbox"]["last_result"],"unknown");self.assertEqual(public["jobs"]["inbox"]["state"],"degraded")
         self.receipt("inbox","failed");self.assertEqual(self.collect()[1]["jobs"]["inbox"]["state"],"degraded")
         self.receipt("inbox","deferred");self.assertEqual(self.collect()[0]["jobs"]["inbox"]["last_result"],"deferred")
+
+    def pending(self,name="inbox",**changes):
+        other="corrections" if name=="inbox" else "inbox"
+        value=dict(due={name:True,other:False},last=other,active=None,not_before=0);value.update(changes)
+        (self.root/"queue.json").write_text(json.dumps(value))
+        self.receipt(name,"ok",started_at=NOW-330,at=NOW-323)
+
+    def test_coalesced_trigger_is_deferred_until_its_actual_pickup_in_either_direction(self):
+        for name in ("inbox","corrections"):
+            with self.subTest(name=name):
+                for mode in ("inbox","corrections"):self.units[ops.SERVICES[mode]]["ExecMainStartTimestamp"]="@"+str(NOW-30)
+                self.receipt("inbox","ok");self.receipt("corrections","ok");self.pending(name)
+                value,public,_=self.collect();job=value["jobs"][name]
+                self.assertEqual(job["last_result"],"deferred");self.assertEqual(job["last_run_at"],NOW-10)
+                self.assertFalse(job["running"]);self.assertEqual(public["jobs"][name]["state"],"active")
+                self.assertTrue(json.loads((self.root/"queue.json").read_text())["due"][name])
+                # The normal later trigger consumes the queued mode, with its own genuine receipt.
+                self.units[ops.SERVICES[name]]["ExecMainStartTimestamp"]="@"+str(NOW-5)
+                self.receipt(name,"ok",started_at=NOW-5,at=NOW-1)
+                (self.root/"queue.json").write_text(json.dumps(dict(due=dict(inbox=False,corrections=False),last=name,active=None,not_before=0)))
+                value,public,_=self.collect()
+                self.assertEqual(value["jobs"][name]["last_result"],"ok");self.assertEqual(value["jobs"][name]["last_run_at"],NOW-1)
+                self.assertEqual(public["jobs"][name]["state"],"active")
+
+    def test_pending_queue_without_current_bound_success_cannot_explain_a_trigger(self):
+        self.pending()
+        for changes in (dict(source_commit="b"*40),dict(deployment_id=INSTANCE),dict(instance_id=BOOT),dict(boot_id=DEPLOYMENT),
+                dict(started_at=NOW-50,at=NOW-40),dict(at=NOW+31),dict(result="failed"),dict(result="unknown"),dict(result="deferred")):
+            with self.subTest(changes=changes):
+                self.receipt("corrections","ok",**changes)
+                value,public,_=self.collect()
+                self.assertEqual(value["jobs"]["inbox"]["last_result"],"unknown")
+                self.assertEqual(public["jobs"]["inbox"]["state"],"degraded")
+        (self.root/"corrections.json").unlink()
+        self.assertEqual(self.collect()[0]["jobs"]["inbox"]["last_result"],"unknown")
+
+    def test_trigger_coalesced_during_actual_run_uses_its_completion_not_its_start(self):
+        self.pending()
+        self.receipt("corrections","ok",started_at=NOW-31,at=NOW-10)
+        value,public,_=self.collect()
+        self.assertEqual(value["jobs"]["inbox"]["last_result"],"deferred")
+        self.assertEqual(value["jobs"]["corrections"]["last_result"],"ok")
+        self.assertEqual(public["state"],"active")
+
+    def test_real_service_or_receipt_failures_are_never_masked_by_queue_or_ok_receipt(self):
+        self.pending();self.units[ops.SERVICES["inbox"]]["Result"]="exit-code"
+        self.receipt("inbox","ok")
+        value,public,_=self.collect()
+        self.assertEqual(value["jobs"]["inbox"]["last_result"],"failed");self.assertEqual(public["jobs"]["inbox"]["state"],"degraded")
+        self.units[ops.SERVICES["inbox"]]["Result"]="success"
+        for started in (NOW-330,NOW-30):
+            self.receipt("inbox","failed",started_at=started)
+            self.assertNotEqual(self.collect()[1]["jobs"]["inbox"]["state"],"active")
+
+    def test_running_unlocked_or_incomplete_queue_snapshots_do_not_invent_completion(self):
+        self.pending(active="corrections")
+        value,public,_=self.collect(locked=True)
+        self.assertTrue(value["jobs"]["corrections"]["running"]);self.assertFalse(value["jobs"]["inbox"]["running"])
+        self.assertEqual(public["jobs"]["inbox"]["state"],"degraded")
+        self.pending()
+        for locked in (True,None):
+            self.assertEqual(self.collect(locked=locked)[0]["jobs"]["inbox"]["last_result"],"unknown")
+        for changes in (dict(ActiveState="activating"),dict(ExecMainStatus="1"),dict(Result="exit-code"),dict(ExecMainStartTimestamp="")):
+            original=deepcopy(self.units[ops.SERVICES["corrections"]])
+            self.units[ops.SERVICES["corrections"]].update(changes)
+            self.assertEqual(self.collect()[0]["jobs"]["inbox"]["last_result"],"unknown")
+            self.units[ops.SERVICES["corrections"]]=original
+        self.pending(due=dict(inbox=False,corrections=False))
+        self.assertEqual(self.collect()[0]["jobs"]["inbox"]["last_result"],"unknown")
+
+    def test_backoff_and_drain_remain_restrictions_even_with_proven_queue_deferral(self):
+        self.pending(not_before=NOW+300)
+        value,public,_=self.collect()
+        self.assertEqual(value["jobs"]["inbox"]["last_result"],"deferred")
+        self.assertTrue(value["jobs"]["inbox"]["blocked"]);self.assertEqual(public["jobs"]["inbox"]["state"],"degraded")
+        self.pending();self.host.draining=lambda:True
+        self.assertEqual(self.collect()[1]["jobs"]["inbox"]["state"],"degraded")
 
     def test_exact_vm_systemd_format_and_spent_budget(self):
         text="Id=invoice-tls.timer\nLoadState=loaded\nTimersCalendar={ OnCalendar=*-*-* *:00:00 Europe/Berlin ; next_elapse=@1794852000 }\nNextElapseUSecRealtime=@1794864557\n\nId=invoice-tls.service\nExecMainStartTimestamp=@1794169442\n"

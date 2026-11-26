@@ -133,20 +133,39 @@ def held(path,host):
     return False
 
 
-def last_result(cfg,binding,mode,row,host,model,now):
-    start=timestamp(row.get("ExecMainStartTimestamp"))
+def read_result(cfg,binding,mode,host,model,now,boot):
     def receipt():
         value=json.loads(host.protected(Path(cfg["result_directory"])/(mode+".json")).read_text(encoding="utf-8"),object_pairs_hook=model.json_object)
         if (set(value)!={"schema_version","source_commit","deployment_id","instance_id","boot_id","started_at","at","result"}
                 or type(value["schema_version"]) is not int or value["schema_version"]!=1 or (value["source_commit"],value["deployment_id"],value["instance_id"])!=
                 (cfg["source_commit"],cfg["deployment_id"],binding["instance_id"])
-                or not model.canonical_uuid(value["boot_id"]) or not model.integer(value["at"]) or not model.integer(value["started_at"])
+                or value["boot_id"]!=boot or not model.integer(value["at"]) or not model.integer(value["started_at"])
                 or not value["started_at"]<=value["at"]<=now+30 or value["result"] not in model.RESULTS):raise ValueError()
         return value
-    value=observed(receipt)
-    if value is not None and (start is None or value["at"]>=start):return value["result"],value["at"]
+    return observed(receipt)
+
+
+def last_result(value,row):
+    start=timestamp(row.get("ExecMainStartTimestamp"))
     if row.get("Result") not in {None,"","success"}:return "failed",start
+    if value is not None and (start is None or value["at"]>=start):return value["result"],value["at"]
     return ("none",None) if start is None and loaded(row) is not None else ("unknown",start)
+
+
+def shared_pending(name,row,receipts,units,queued,locked):
+    """A completed, bound actual run can explain an unconsumed nominal trigger."""
+    other="corrections" if name=="inbox" else "inbox"
+    start=timestamp(row.get("ExecMainStartTimestamp"))
+    other_row=units.get(SERVICES[other],{})
+    value=receipts[other];own=receipts[name]
+    return (locked is False and queued is not None and queued["active"] is None and queued["due"][name] is True
+        and queued["last"]==other and start is not None and running(row) is False
+        and loaded(row) is True and row.get("Result")=="success" and row.get("ExecMainStatus")=="0"
+        and value is not None and value["at"]>=start and value["result"]=="ok"
+        and loaded(other_row) is True and running(other_row) is False and other_row.get("Result")=="success"
+        and other_row.get("ExecMainStatus")=="0" and timestamp(other_row.get("ExecMainStartTimestamp")) is not None
+        and last_result(value,other_row)[0]=="ok"
+        and (own is None or own["result"] not in {"failed","unknown"}))
 
 
 def schedule(name,timer,service):
@@ -171,7 +190,8 @@ def collect(path,host,runtime,until):
         units=observed(lambda:systemd(work)) or {}
         now=int(time.time())
         startup=units.get(START,{})
-        result,at=last_result(cfg,binding,"start",startup,host,model,now)
+        receipts={name:read_result(cfg,binding,name,host,model,now,boot) for name in ("start",*SERVICES)}
+        result,at=last_result(receipts["start"],startup)
         facts={}
         def containers():
             text=host.command(["inspect","--format",runtime.CONTAINER_TEMPLATE,*[binding["containers"][key]["name"] for key in ("db","api","nginx")]],runtime.seconds(work,3))
@@ -216,10 +236,12 @@ def collect(path,host,runtime,until):
         for name in SERVICES:
             timer=units.get(TIMERS[name],{});service=units.get(SERVICES[name],{})
             configured,enabled=schedule(name,timer,service)
-            outcome,last=last_result(cfg,binding,name,service,host,model,now)
+            outcome,last=last_result(receipts[name],service)
             run=running(service)
             blocked=blocked_tls if name=="tls" else (queued["not_before"]>now if queued is not None else None) if name in {"inbox","corrections"} else False
             if name in {"inbox","corrections"} and locked is True:run=(queued["active"]==name) if queued and queued["active"] else None
+            if name in {"inbox","corrections"} and outcome=="unknown" and shared_pending(name,service,receipts,units,queued,locked):
+                outcome,last="deferred",receipts["corrections" if name=="inbox" else "inbox"]["at"]
             jobs[name]=dict(configured=configured,active=enabled,running=run,blocked=blocked,last_result=outcome,last_run_at=last,
                 next_run_at=timestamp(timer.get("NextElapseUSecRealtime")))
         value=dict(schema_version=1,source_commit=cfg["source_commit"],deployment_id=cfg["deployment_id"],instance_id=binding["instance_id"],
