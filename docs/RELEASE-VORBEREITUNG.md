@@ -20,22 +20,24 @@ Dies ist der Entwurf der Übergabeunterlage, keine bereits erteilte Releasefreig
 ## Aktueller belegter Lieferstand
 
 Am 26.11. lesend bestätigt: Programmquelle
-2ee04d0bb4ef72d64fcf94cb9e0f8d283acc5e41, Datenbankschema 008.
+5ad0a2c01490eaaafc65e4229298d8e074710bef, Datenbankschema 008.
 Die erste reguläre Charge mit 13 abgeschlossenen Mails und 14 unverändert
 abgelegten Originaldateien ist am 24.11. nachgewiesen. Der PDF/XRechnung-Mischfall
 und verständliche Hinweise je Anhang wurden gezielt verbessert.
 Dokumentänderungen führen zu keiner neuen Programmbereitstellung.
 
+Die zusätzliche RC03-Statuskorrektur ist bereitgestellt und geprüft. Bei gemeinsam
+fälligen Inbox-/Korrekturtriggern bleibt eine noch vorgemerkte Aufgabe als
+zurückgestellt erkennbar; sie erhält keinen erfundenen eigenen Erfolgsbeleg.
+Neue Tagesberichte sind empfangen und das neue Layout ist in Outlook geprüft.
+
 ## Vor der endgültigen Freigabe
 
-1. RC03-Restkorrektur der Betriebsanzeige prüfen und bereitstellen: Bei gemeinsam
-   fälligen Inbox-/Korrekturtriggern muss der Nachweis zum tatsächlich ausgeführten
-   Modus passen. Ein fehlender neuer Beleg darf nicht als Erfolg ausgegeben werden.
-2. Tatsächliche Kundenabläufe mit beiden AD-Rollen und die ersten neu erzeugten
-   Tages-/Wochenberichte in Outlook abnehmen.
-3. Die regulären Wartungsergebnisse auswerten; zukünftige Graph-Erneuerung und
+1. Tatsächliche Kundenabläufe mit beiden AD-Rollen sowie Berichtszahlen und den
+   ersten neu erzeugten Wochenbericht in Outlook fachlich abnehmen.
+2. Die regulären Wartungsergebnisse auswerten; zukünftige Graph-Erneuerung und
    den isolierten VM-/Offsite-Restore mit Zuständigkeit und Termin übergeben.
-4. Finalen Programm- und Dokumentstand sowie Image-Zuordnung festhalten;
+3. Finalen Programm- und Dokumentstand sowie Image-Zuordnung festhalten;
    Releaseversion, Tag und Veröffentlichung erst nach Betreiberfreigabe erstellen.
 
 ## Betrieb und bekannte Grenzen

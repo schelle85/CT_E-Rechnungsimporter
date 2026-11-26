@@ -1,7 +1,7 @@
 # PDF-Unterlagen
 
 Stand: 26. November 2026, RC05-Vorbereitung. Die Quellen und PDFs werden gezielt
-auf den gelieferten Stand 2ee04d0/008 fortgeschrieben. Frühere AP09-/AP11-Pakete
+auf den gelieferten Stand 5ad0a2c/008 fortgeschrieben. Frühere AP09-/AP11-Pakete
 sind in Git erhalten. ORGA prüft die aktuellen Dokumente und gerenderten Seiten;
 REVIEW prüft ausschließlich Code. Die Kunden- und Releaseabnahme bleibt offen.
 

@@ -3,7 +3,7 @@
 CT E-Rechnungsimporter
 
 Dokumentversion: RC05-Vorbereitung, 26. November 2026. Technische Betriebs- und Übergabeunterlage.
-Programmstand: `2ee04d0bb4ef72d64fcf94cb9e0f8d283acc5e41`, Datenbankschema `008`.
+Programmstand: `5ad0a2c01490eaaafc65e4229298d8e074710bef`, Datenbankschema `008`.
 Die Dokumentversion bezeichnet diese Unterlage; sie ist keine neue Programmversion.
 
 ## 1. Geltung und Übergabestatus
@@ -529,10 +529,12 @@ Dies wird nicht als vollständig abgeschlossener neuer Wechsel umgedeutet.
 Offen bleiben der zukünftige reguläre Erneuerungsauslöser, vollständiger
 VM-/Offsite-Restore, der vollständige Sonntagswartungslauf, erste reguläre Berichte
 in Outlook und die fachliche Abnahme am aktuellen Stand mit beiden AD-Rollen.
-Die Betriebsanzeige kann bei gemeinsam fälligen Inbox-/Korrekturtriggern zeitweise
-einen fehlenden neuen Ergebnisbeleg anzeigen; die Zuordnung zum tatsächlich
-ausgeführten Modus ist als RC03-Restkorrektur offen. Die PDF/XRechnung-Mischfälle
-und verständlichen Hinweise wurden im gelieferten Stand gezielt verbessert.
+Die RC03-Korrektur der Betriebsanzeige ist bereitgestellt: Gemeinsam fällige
+Inbox-/Korrekturtrigger werden anhand gebundener tatsächlicher Laufbelege
+zugeordnet. Eine vorgemerkte Aufgabe wird als zurückgestellt erklärt, nicht als
+erfolgreich verarbeitet. Alte, fremde oder fehlende Belege sowie echte Fehler
+bleiben gesondert sichtbar. Auch die PDF/XRechnung-Mischfälle und verständlichen
+Hinweise wurden im gelieferten Stand gezielt verbessert.
 Historische Fehlversuche bleiben unverändert als solche dokumentiert.
 Die DMS-Anbindung bleibt außerhalb des Auftrags.
 

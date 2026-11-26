@@ -18,7 +18,7 @@ Keine privaten Chatprotokolle und kein pauschaler Gesamtabschlussbericht.
 
 ## Aktueller fester Stand
 
-Produktlaufzeit: `2ee04d0bb4ef72d64fcf94cb9e0f8d283acc5e41`, Schema `008`.
+Produktlaufzeit: `5ad0a2c01490eaaafc65e4229298d8e074710bef`, Schema `008`.
 Am 26.11. lesend bestätigt: HTTPS, API/DB, zwei CIFS-Mounts, acht Timer und
 freigegebener Graphzugang mit erfolgreicher täglicher Prüfung. Reine
 Dokumentcommits ändern diese Laufzeit nicht. Bestehende Instanz, Konfiguration
@@ -185,10 +185,14 @@ des ersten Rotations-/Restorefehlversuchs. Keine neuen Serien daraus starten.
 
 ## Aktuelle Restaufgaben und Zuständigkeit
 
-RC03: Zuordnung gemeinsam fälliger Inbox-/Korrekturtrigger zur tatsächlich
-ausgeführten Arbeit korrigieren; fehlende Ergebnisbelege nicht als Erfolg maskieren.
-Erste neue reguläre Berichte sowie fachliche Kundenabläufe und beide AD-Rollen
-am aktuellen Stand abnehmen. Der PDF/XML-Mischfall ist technisch abgeschlossen.
+RC03-Statuskorrektur ist nach Quell-/Operationscodeprüfung und 28 gezielten
+Linux-Tests bereitgestellt. Collector und Webanzeige erklären eine vorgemerkte
+gemeinsame Aufgabe als deferred; fehlende oder fremde Belege werden nicht als
+Erfolg maskiert. Datenbank/Einstellungen erhalten, acht Timer und drei Graph-
+Verbraucher getrennt bestätigt. PDF/XML-Mischfall ebenfalls technisch abgeschlossen.
+Neue Tagesberichte vom 25./26.11. sind empfangen, das Outlook-Layout vom 26.11.
+ist visuell geprüft. Fachlicher Kennzahlen-/Wochenberichtabgleich sowie aktuelle
+Kundenabläufe mit beiden AD-Rollen bleiben abzunehmen.
 RC04: tatsächliche Sonntagswartung, Sicherungsdatum und Wiederanlauf belegen;
 Schelle übernimmt den isolierten VM-/Offsite-Restore-Nachweis zum Vor-Ort-Termin
 am 07.12. Die erste spätere reguläre Graph-Erneuerung mit Fälligkeit an den Betrieb

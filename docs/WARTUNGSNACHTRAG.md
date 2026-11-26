@@ -84,7 +84,7 @@ weiterhin **nicht nachgewiesen**. Eine vorhandene Sicherung oder ein bestandener
 Installationscheck ersetzt diesen Wiederherstellungsnachweis nicht.
 
 Anwendung und Datenbankschema wurden am 26.11. lesend auf dem gelieferten Stand
-2ee04d0/008 bestätigt. Der nächste reguläre Termin ist am 29.11. um 03:00 Uhr
+5ad0a2c/008 bestätigt. Der nächste reguläre Termin ist am 29.11. um 03:00 Uhr
 Europe/Berlin; die VM muss dafür laufen. Die ursprünglichen AP09-/AP11-Ausgaben
 bleiben in Git erhalten. Dieser Nachtrag ergänzt die aktuellen Unterlagen um
 den Wartungsablauf. Der **erste vollständige reguläre Sonntagslauf**

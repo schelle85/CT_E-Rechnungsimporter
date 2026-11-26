@@ -3,7 +3,7 @@
 ## Aktuelle Fortschreibung vom 26.11.2026
 
 RC05 aktualisiert die vorhandenen Quellen und PDFs für den bereitgestellten
-Programmstand 2ee04d0/008. Handbuch, Technikunterlage, Wartungsnachtrag, KI-MD
+Programmstand 5ad0a2c/008. Handbuch, Technikunterlage, Wartungsnachtrag, KI-MD
 und README bilden ein gemeinsames vorbereitetes Übergabepaket. ORGA prüft Inhalte,
 Verweise und gerenderte PDFs; REVIEW prüft ausschließlich die kleine Änderung
 am Dokumentrenderer. Kein neuer unabhängiger Dokumentreview wird behauptet.

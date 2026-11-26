@@ -3,7 +3,7 @@
 CT E-Rechnungsimporter - für Anwender und kundenseitige Administratoren
 
 Dokumentstand: 26. November 2026, RC05-Vorbereitung. Programmstand:
-`2ee04d0bb4ef72d64fcf94cb9e0f8d283acc5e41`, Datenbankschema 008.
+`5ad0a2c01490eaaafc65e4229298d8e074710bef`, Datenbankschema 008.
 
 Dieses Handbuch beschreibt die gelieferte Oberfläche für die Rollen Lesen und
 Verwaltung. Die Abbildungen zeigen diese Oberfläche mit ausschließlich synthetischen
@@ -125,8 +125,8 @@ Darunter erscheinen die letzten fünf Vorgänge; **Alle ansehen** öffnet die vo
 | Aktiv mit Einschränkungen, gelb | Zeitplanung vorhanden, aber eine Voraussetzung oder ein Ergebnis ist eingeschränkt. Details lesen und gegebenenfalls melden. |
 | Nicht prüfbar, grau | Kein ausreichend frischer, passender Nachweis. Aktualisieren; bleibt der Zustand bestehen, Betreuung informieren. |
 
-**Kein Lauf aktiv** ist zwischen Läufen normal, **Zurückgestellt** kann eine Sperre
-bedeuten. Nächste Gelegenheit ist keine Fertigstellungszusage; größere Vorgänge
+**Kein Lauf aktiv** ist zwischen Läufen normal, **Zurückgestellt** erklärt eine
+vorgemerkte Aufgabe oder Sperre. Nächste Gelegenheit ist keine Fertigstellungszusage; größere Vorgänge
 brauchen mehrere Läufe. Zeitplan, aktuelle Ausführung und letztes Ergebnis sind
 getrennte Angaben.
 
@@ -679,6 +679,7 @@ Operatorbefehle gehören in die technische Dokumentation und zur Betreuung.
 | Nach Klick kam keine sichere Antwort | Vorhandene ursprüngliche Anforderung abgleichen. Keine neue Absicht, Mailkopie oder gelöschten Browserdaten als Umgehung. |
 | Versand angenommen, Empfänger meldet nichts | Annahme 202 und Empfang unterscheiden. Mit Betreuung prüfen, keine zweite Mail allein wegen fehlenden Empfangs senden. |
 | Zeitplan aktiv, aber letzte Ausführung fehlgeschlagen | Die getrennten Spalten beachten. Ergebnis und Uhrzeit melden; Grün allein bestätigt keine bestimmte Datei. |
+| Eingang oder Korrekturen zurückgestellt | Beide teilen sich die Verarbeitung. Hinweis unter Letztes Ergebnis lesen und die nächste Gelegenheit abwarten. Eine vorgemerkte Aufgabe ist noch kein erfolgreicher Import. |
 | Graphwarnung bleibt trotz lokal neuer Datei | Ein Dateitausch ist kein erfolgreicher Nachfolgernachweis. Betreuung mit Status und Zeitpunkt informieren. |
 
 Bleibt ein Zustand unklar, ist der vorhandene Vorgang der Ausgangspunkt der

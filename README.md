@@ -18,12 +18,15 @@ Ein endgültiger Tag oder GitHub-Release ist noch nicht veröffentlicht.
 
 ## Projektstatus
 
-**Aktueller Betriebsstand vom 24. November 2026:** Anwendung aus
-2ee04d0bb4ef72d64fcf94cb9e0f8d283acc5e41 mit Schema008 bereitgestellt.
+**Aktueller Betriebsstand vom 26. November 2026:** Anwendung aus
+5ad0a2c01490eaaafc65e4229298d8e074710bef mit Schema008 bereitgestellt.
 Datenbank und Einstellungen sind erhalten, acht Timer sowie Graph-Zugriff für
 API, Verarbeitung und Benachrichtigungen sind bestätigt. Das neue Berichtslayout
-ist installiert; die ersten regulären Berichte und der fachliche RC03-Abgleich
-bleiben noch abzunehmen. Der folgende AP-Überblick dokumentiert historische
+ist installiert; Tagesberichte sind empfangen und das neue Outlook-Layout ist
+visuell geprüft. Die zusätzliche RC03-Statuskorrektur erklärt gemeinsam fällige
+Inbox-/Korrekturaufgaben ohne erfundenen eigenen Erfolgsbeleg. Wochenbericht,
+fachlicher Kennzahlenabgleich und Kundenabnahme bleiben offen.
+Der folgende AP-Überblick dokumentiert historische
 Abschlussstände und ersetzt diese aktuelle Laufzeitbindung nicht.
 
 **Stand: 18. November 2026. AP01 ist durch den Kunden vollständig abgenommen.
