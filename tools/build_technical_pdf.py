@@ -90,13 +90,15 @@ def inline(value):
 
 
 class Document(BaseDocTemplate):
-    def __init__(self, output, title):
+    def __init__(self, output, title, document_label=None):
         super().__init__(str(output), pagesize=A4, leftMargin=MARGIN,
                          rightMargin=MARGIN, topMargin=53, bottomMargin=48,
                          title=title, author="CT E-Rechnungsimporter",
                          subject="Nutzer- und Administrationshandbuch / AP11" if HANDBOOK else "Technische Betriebs- und Übergabeunterlage / AP09",
                          pageCompression=1, allowSplitting=1)
         self.document_title = title
+        self.document_label = document_label if document_label is not None else (
+            "AP11 | Dokumentstand 18.11.2026" if HANDBOOK else "AP09 | Dokumentstand 17.11.2026")
         self.addPageTemplates(PageTemplate(id="document", frames=[Frame(
             MARGIN, 48, CONTENT, HEIGHT - 101, leftPadding=0, rightPadding=0,
             topPadding=0, bottomPadding=0)], onPage=self.decorate))
@@ -107,7 +109,7 @@ class Document(BaseDocTemplate):
         canvas.line(MARGIN, 38, WIDTH - MARGIN, 38)
         canvas.setFont("Vera", 7.5)
         canvas.setFillColor(INK)
-        canvas.drawString(MARGIN, 25, "AP11 | Dokumentstand 18.11.2026" if HANDBOOK else "AP09 | Dokumentstand 17.11.2026")
+        canvas.drawString(MARGIN, 25, self.document_label)
         canvas.drawRightString(WIDTH - MARGIN, 25, str(doc.page))
         if doc.page > 1:
             canvas.setFillColor(BLUE)
@@ -284,6 +286,7 @@ def main():
     parser.add_argument("--input", type=Path, default=ROOT / "docs/TECHNISCHE-DOKUMENTATION.md")
     parser.add_argument("--output", type=Path, default=ROOT / "docs/handbuecher/Technische-Dokumentation.pdf")
     parser.add_argument("--handbook", action="store_true", help="AP11 page layout, figures and metadata")
+    parser.add_argument("--document-label", help="Override the footer label; omission preserves the historical label")
     args = parser.parse_args()
     HANDBOOK = args.handbook
     SOURCE_PATH = args.input.resolve()
@@ -292,7 +295,7 @@ def main():
     title = source.splitlines()[0].removeprefix("# ")
     register_fonts()
     args.output.parent.mkdir(parents=True, exist_ok=True)
-    document = Document(args.output, title)
+    document = Document(args.output, title, document_label=args.document_label)
     document.multiBuild(make_story(source, title))
     print(json.dumps({"pages": document.page, "reportlab": reportlab.Version,
                       "source_sha256": hashlib.sha256(source_bytes).hexdigest(),

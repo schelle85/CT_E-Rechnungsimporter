@@ -1,4 +1,5 @@
 """Build only the separate AP10 supplement using the existing document renderer."""
+import argparse
 import hashlib
 import importlib.util
 import json
@@ -13,8 +14,9 @@ specification.loader.exec_module(renderer)
 
 
 class MaintenanceDocument(renderer.Document):
-    def __init__(self,output,title):
-        super().__init__(output,title)
+    def __init__(self,output,title,document_label=None):
+        super().__init__(output,title,document_label=document_label)
+        self.document_label='AP10 | Dokumentstand 18.11.2026' if document_label is None else document_label
         self.subject='Wartungsnachtrag für Nutzer und Betreiber / AP10'
 
     def decorate(self,canvas,document):
@@ -23,7 +25,7 @@ class MaintenanceDocument(renderer.Document):
         canvas.line(renderer.MARGIN,38,renderer.WIDTH-renderer.MARGIN,38)
         canvas.setFont('Vera',7.5)
         canvas.setFillColor(renderer.INK)
-        canvas.drawString(renderer.MARGIN,25,'AP10 | Dokumentstand 18.11.2026')
+        canvas.drawString(renderer.MARGIN,25,self.document_label)
         canvas.drawRightString(renderer.WIDTH-renderer.MARGIN,25,'Seite '+str(document.page))
         if document.page>1:
             canvas.setFillColor(renderer.BLUE)
@@ -32,6 +34,9 @@ class MaintenanceDocument(renderer.Document):
 
 
 def main():
+    parser=argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--document-label',help='Override the footer label; omission preserves the historical label')
+    args=parser.parse_args()
     source=ROOT/'docs/WARTUNGSNACHTRAG.md'
     output=ROOT/'docs/handbuecher/Wartungsnachtrag.pdf'
     renderer.SOURCE_PATH=source
@@ -45,7 +50,7 @@ def main():
                 'Nachkontrolle und Störungen','Geprüfter Stand, Sicherung und offene Nachweise'}:
             story.append(PageBreak())
         story.append(flowable)
-    document=MaintenanceDocument(output,title)
+    document=MaintenanceDocument(output,title,document_label=args.document_label)
     document.multiBuild(story)
     assert 2<=document.page<=3
     print(json.dumps(dict(pages=document.page,reportlab=renderer.reportlab.Version,
