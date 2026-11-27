@@ -62,7 +62,7 @@ def source_manifest(mailbox, message, attachments):
 
 def checked_finding(value, original_sha256):
     required = {"status", "category", "reason", "original_sha256", "rule_version"}
-    allowed = required | {"format", "method"}
+    allowed = required | {"format", "method", "warnings"}
     if (not isinstance(original_sha256, str) or not re.fullmatch(r"[0-9a-f]{64}", original_sha256)
             or not isinstance(value, dict) or not required <= set(value) or set(value) - allowed
             or value.get("original_sha256") != original_sha256 or value.get("rule_version") != "ap03-4"
@@ -75,6 +75,15 @@ def checked_finding(value, original_sha256):
             raise ProcessingError("processing_finding_invalid")
     elif category is not None:
         raise ProcessingError("processing_finding_invalid")
+    if "warnings" in value:
+        warnings = value["warnings"]
+        if (not isinstance(warnings, list) or not 1 <= len(warnings) <= 2
+                or any(not isinstance(code, str) or code not in {
+                    "pdf_stream_missing_checksum", "hybrid_xrechnung_metadata_version"} for code in warnings)
+                or len(set(warnings)) != len(warnings) or value["status"] != "recognized" or category != "E-Rechnung"
+                or value.get("format") != "ZUGFeRD/Factur-X" or value.get("method") != "structure"
+                or value["reason"] != "hybrid_invoice_structure"):
+            raise ProcessingError("processing_finding_invalid")
     for field in ("format", "method"):
         item = value.get(field)
         if item is not None and (not isinstance(item, str) or len(item) > 128 or any(ord(char) < 32 for char in item)):

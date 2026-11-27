@@ -3,7 +3,7 @@ import { Alert, Badge, Button, Group, Modal, Paper, Select, Stack, Text, Title }
 import { api, ApiError } from "./api";
 import { type PendingIntent, readPending, queuePending, beginPendingSend, closeRejectedPending, rejectPending, resolvePending, intentPath, receiptMatches } from "./pending-intents";
 import { type ProcessDetail, type ProcessingSettings, StatusBadge, dateTime, labels, reasonText } from "./processTypes";
-import { attachmentNextStep, mailCompletionHint } from "./processGuidance";
+import { attachmentNextStep, findingWarnings, mailCompletionHint } from "./processGuidance";
 
 export default function ProcessDialog({ detail, initialAttachment, settings, canEdit, identity, csrfToken, onClose, onChanged }: {
   detail: ProcessDetail | null; initialAttachment: string | null; settings: ProcessingSettings | null; canEdit: boolean;
@@ -98,6 +98,7 @@ export default function ProcessDialog({ detail, initialAttachment, settings, can
             </button>)}</Stack></div>
           {row && <>
             <Paper withBorder p="md"><Text fw={600}>Anhangserkennung</Text><Text size="sm" mt={6}>{reasonText(row.current_finding)}</Text>
+              {findingWarnings(row.current_finding).map(text => <Alert key={text} color="yellow" mt="xs">{text}</Alert>)}
               <Text size="sm" mt="xs">{attachmentNextStep(row.current_finding, canEdit, row.can_correct && !detail.archived && !pending && loadedKey === currentKey)}</Text>
               <Text size="sm" mt="xs">Zuordnung: {row.category || (row.approval ? labels[row.approval.decision] || row.approval.decision : "Offen")}</Text>
               <Text size="sm">Ablage: {row.storage_state ? labels[row.storage_state] || row.storage_state : "Noch kein bestätigter Ablagebeleg"}</Text>

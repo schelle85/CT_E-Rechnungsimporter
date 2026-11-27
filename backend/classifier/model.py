@@ -14,9 +14,15 @@ class Finding:
     format: str | None
     reason: str
     method: str = "structure"
+    warnings: tuple[str, ...] = ()
 
     def result(self, digest):
-        return {**asdict(self), "original_sha256": digest, "rule_version": "ap03-4"}
+        value = asdict(self)
+        if self.warnings:
+            value["warnings"] = list(self.warnings)
+        else:
+            value.pop("warnings")  # Preserve all existing finding bytes/identities without warnings.
+        return {**value, "original_sha256": digest, "rule_version": "ap03-4"}
 
 
 def failed(code):

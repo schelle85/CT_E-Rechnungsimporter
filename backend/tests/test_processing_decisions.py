@@ -17,6 +17,32 @@ from app.storage_state import operations
 
 
 class DecisionTests(unittest.TestCase):
+    def test_warned_hybrid_retry_keeps_first_finding_and_uses_original_pdf_effect(self):
+        from app.storage import StorageResult
+        key=self.mail(specs=[('a1','synthetic-hybrid.pdf','failed',None,'malformed_pdf')])
+        original=self.store.get_attachments(key)[0]['original_finding']
+        self.retry(key);revision=self.decisions.consume_retry(key);owned=self.store.claim(key)
+        row=self.store.get_attachments(key)[0]
+        self.store.content(key,row['attachment_key'],owned['owner'],revision,byte_size=row['byte_size'],sha256=row['raw_sha256'])
+        value=dict(status='recognized',category='E-Rechnung',reason='hybrid_invoice_structure',format='ZUGFeRD/Factur-X',
+            method='structure',original_sha256=row['raw_sha256'],rule_version='ap03-4',
+            warnings=['pdf_stream_missing_checksum','hybrid_xrechnung_metadata_version'])
+        self.store.finding(key,row['attachment_key'],owned['owner'],revision,value)
+        request=self.store.begin_storage(key,row['attachment_key'],owned['owner'],revision,'query-tests','d'*64)
+        claim=self.storage.claim(request);self.storage.begin_publication(request.key,claim['owner'])
+        self.storage.finish(request.key,claim['owner'],'stored')
+        self.store.stored(key,row['attachment_key'],owned['owner'],revision,StorageResult(request.key,'stored',claim['target']))
+        self.close(key,owned['owner'],revision)
+        row=self.store.get_attachments(key)[0]
+        self.assertEqual(row['original_finding'],original)
+        self.assertEqual(json.loads(row['effective_finding']),value)
+        self.assertTrue(row['storage_target'].startswith('E-Rechnung/'))
+        self.assertTrue(row['storage_target'].endswith('synthetic-hybrid.pdf'))
+        self.assertEqual(self.store.get_message(key)['state'],'done')
+        detail=self.queries.detail(key)
+        self.assertEqual(detail['attachments'][0]['current_finding']['warnings'],value['warnings'])
+        self.assertTrue(any(entry['finding'].get('warnings')==value['warnings'] for entry in detail['finding_history']))
+
     def setUp(self):
         fixture.ProcessQueryTests.setUp(self)
         security_metadata.create_all(self.engine)

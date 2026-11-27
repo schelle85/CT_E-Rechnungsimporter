@@ -1,6 +1,6 @@
 import { Badge } from "@mantine/core";
 import { recognitionText } from "./processGuidance";
-export type Finding = { status: string; category: string | null; reason: string; method?: string; format?: string; rule_version?: string };
+export type Finding = { status: string; category: string | null; reason: string; method?: string; format?: string; rule_version?: string; warnings?: string[] };
 export type Attachment = {
   id: string; message_id: string; name: string; byte_size: number | null; sha256: string | null;
   status: string; recognition_status: string | null; category: string | null;

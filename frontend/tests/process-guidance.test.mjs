@@ -1,9 +1,17 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { recognitionText, attachmentNextStep, mailCompletionHint } from "../src/processGuidance.ts";
+import { recognitionText, attachmentNextStep, findingWarnings, mailCompletionHint } from "../src/processGuidance.ts";
 
 const mixed={status:"unknown",reason:"ambiguous_mixed_document"};
 const profile={status:"failed",reason:"unsupported_invoice_profile"};
+
+test("only bounded PDF/XML warning codes have readable source-labelled guidance",()=>{
+  assert.deepEqual(findingWarnings(mixed),[]);assert.deepEqual(findingWarnings(null),[]);
+  const texts=findingWarnings({status:"recognized",reason:"hybrid_invoice_structure",warnings:["pdf_stream_missing_checksum","hybrid_xrechnung_metadata_version","private/path"]});
+  assert.equal(texts.length,2);assert.match(texts[0],/PDF-Strukturprüfung.*Originaldatei bleibt unverändert/);
+  assert.match(texts[1],/PDF-Metadaten.*keine vollständige Konformitätsprüfung/);
+  assert.ok(texts.every(text=>!text.includes("private/path")));
+});
 test("unsupported profile identifies support gap without claiming supplier fault",()=>{
   assert.equal(recognitionText(profile),"Bei der letzten Prüfung wurde dieses Rechnungsprofil nicht unterstützt.");
   assert.doesNotMatch(recognitionText(profile),/Lieferantenfehler|Dateifehler/);

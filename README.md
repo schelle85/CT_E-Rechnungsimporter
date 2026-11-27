@@ -24,6 +24,12 @@ HTML-Rahmen der Tages-/Wochenberichte. Ursachen und technische Codes bleiben
 sichtbar. Die Testmailvorschau zeigt HTML isoliert und ältere Textmails weiterhin
 als Text. Versandregeln und Einstellungen bleiben erhalten.
 
+Bei eindeutig gebundener eingebetteter XRechnung können eng geprüfte Abweichungen
+des PDF-Datenstroms und der Hybridmetadaten als Warnung je Anhang sichtbar bleiben.
+Die E-Rechnung wird dabei als unverändertes Original-PDF abgelegt. Harte Lese-,
+XML-, Kontext- und Sicherheitsfehler bleiben gesperrt. Dies ist Formaterkennung,
+keine vollständige Konformitätsprüfung. Die Grenze von zehn OCR-Seiten bleibt erhalten.
+
 **Aktueller Betriebsstand vom 26. November 2026:** Anwendung aus
 5ad0a2c01490eaaafc65e4229298d8e074710bef mit Schema008 bereitgestellt.
 Datenbank und Einstellungen sind erhalten, acht Timer sowie Graph-Zugriff für

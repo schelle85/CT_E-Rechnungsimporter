@@ -1,5 +1,13 @@
-type Finding = { status: string; reason: string } | null;
+type Finding = { status: string; reason: string; warnings?: string[] } | null;
 const ambiguous = new Set(["ambiguous_pdf", "ambiguous_invoice", "ambiguous_payment_advice", "ambiguous_reminder", "ambiguous_mixed_document"]);
+
+export function findingWarnings(value: Finding): string[] {
+  const labels: Record<string, string> = {
+    pdf_stream_missing_checksum: "PDF-Strukturprüfung: Ein vollständig lesbarer Datenstrom hat einen unvollständigen Prüfsummenabschluss. Die Originaldatei bleibt unverändert.",
+    hybrid_xrechnung_metadata_version: "PDF-Metadaten: Die angegebene Hybridversion weicht ab. Die eingebettete XRechnung wurde anhand ihrer XML-Struktur erkannt. Das ist keine vollständige Konformitätsprüfung.",
+  };
+  return (value?.warnings ?? []).filter(code => Object.hasOwn(labels, code)).map(code => labels[code]);
+}
 
 export function recognitionText(value: Finding): string {
   if (!value) return "Ein aktueller Befund steht noch aus.";

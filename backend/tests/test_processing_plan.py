@@ -17,6 +17,17 @@ def attachment(aid="a1", **changes):
 
 
 class ProcessingPlanTests(unittest.TestCase):
+    def test_bounded_warning_codes_preserve_legacy_findings_and_reject_unbound_warnings(self):
+        value=dict(status='recognized',category='E-Rechnung',reason='hybrid_invoice_structure',format='ZUGFeRD/Factur-X',
+                   method='structure',original_sha256='a'*64,rule_version='ap03-4')
+        self.assertEqual(checked_finding(value,'a'*64),value)
+        allowed=['pdf_stream_missing_checksum','hybrid_xrechnung_metadata_version']
+        self.assertEqual(checked_finding(dict(value,warnings=allowed),'a'*64)['warnings'],allowed)
+        for warnings in ([],['private/path'],['pdf_stream_missing_checksum']*2,['pdf_stream_missing_checksum']*3,[{}]):
+            with self.assertRaises(ProcessingError):checked_finding(dict(value,warnings=warnings),'a'*64)
+        for changes in (dict(status='failed',category=None),dict(category='PDF'),dict(method='ocr'),dict(reason='different')):
+            with self.assertRaises(ProcessingError):checked_finding(dict(value,warnings=allowed,**changes),'a'*64)
+
     def test_all_priority_edges_and_independent_attachment_order(self):
         priorities = [(Outcome("failed"), "Failed"), (Outcome("unknown"), "unzugeordnet"),
                       (Outcome("recognized", "PDF", "duplicate"), "unzugeordnet"),
