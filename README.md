@@ -18,7 +18,7 @@ Ein endgültiger Tag oder GitHub-Release ist noch nicht veröffentlicht.
 
 ## Projektstatus
 
-**Quellnachtrag vom 27. November 2026, noch nicht bereitgestellt:** Auch Fehler-,
+**Bereitgestellt am 27. November 2026:** Auch Fehler-,
 Ausfall-, Wiederherstellungs-, Zertifikats- und Testmails verwenden den vorhandenen
 HTML-Rahmen der Tages-/Wochenberichte. Ursachen und technische Codes bleiben
 sichtbar. Die Testmailvorschau zeigt HTML isoliert und ältere Textmails weiterhin
@@ -30,12 +30,14 @@ Die E-Rechnung wird dabei als unverändertes Original-PDF abgelegt. Harte Lese-,
 XML-, Kontext- und Sicherheitsfehler bleiben gesperrt. Dies ist Formaterkennung,
 keine vollständige Konformitätsprüfung. Die Grenze von zehn OCR-Seiten bleibt erhalten.
 
-**Aktueller Betriebsstand vom 26. November 2026:** Anwendung aus
-5ad0a2c01490eaaafc65e4229298d8e074710bef mit Schema008 bereitgestellt.
+**Aktueller Betriebsstand vom 27. November 2026:** Anwendung aus
+3aab05cc38c6b90b63d5b6faa162e11e91a11fb7 mit Schema008 bereitgestellt.
 Datenbank und Einstellungen sind erhalten, acht Timer sowie Graph-Zugriff für
-API, Verarbeitung und Benachrichtigungen sind bestätigt. Das neue Berichtslayout
-ist installiert; Tagesberichte sind empfangen und das neue Outlook-Layout ist
-visuell geprüft. Die zusätzliche RC03-Statuskorrektur erklärt gemeinsam fällige
+API, Verarbeitung und Benachrichtigungen sind bestätigt. Alle sieben automatischen
+Mailarten verwenden jetzt das gemeinsame HTML-Layout; die sichere Testmailvorschau
+unterstützt HTML sowie ältere Textpayloads. Die frühere Outlook-Sichtprüfung der
+Tagesberichte bleibt ein datierter Nachweis; die neuen Vorlagen sind gezielt geprüft.
+Die bereits enthaltene RC03-Statuskorrektur erklärt gemeinsam fällige
 Inbox-/Korrekturaufgaben ohne erfundenen eigenen Erfolgsbeleg. Wochenbericht,
 fachlicher Kennzahlenabgleich und Kundenabnahme bleiben offen.
 Der folgende AP-Überblick dokumentiert historische
