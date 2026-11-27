@@ -170,8 +170,6 @@ def detect_pdf(data):
                 if count > MAX_OBJECTS:
                     raise RecognitionError("pdf_structure_limit")
                 if isinstance(obj, pikepdf.Array):
-                    if len(obj) == 2 and str(obj[0]) == "/ICCBased" and isinstance(obj[1], pikepdf.Stream):
-                        icc_references.add(object_key(obj[1]))
                     pending.extend(obj)
                 else:
                     if obj.get("/JS") is not None or str(obj.get("/S", "")) in ("/JavaScript", "/Launch", "/SubmitForm", "/ImportData"):
