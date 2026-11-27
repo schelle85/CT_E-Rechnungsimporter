@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Alert, Button, Checkbox, Group, Modal, NumberInput, Pagination, Paper, Select, Stack, Table, Text, Textarea, TextInput, Title } from "@mantine/core";
 import { api } from "./api";
+import { NotificationPreview, type NotificationBody } from "./NotificationPreview";
 import { closeTestIntent, ensureTestIntent, readTestIntent, testReceiptMatches, testTerminal, type NotificationReceipt, type TestIntent } from "./notification-intent";
 import { dateTime } from "./processTypes";
 import type { CertificateStatus } from "./CertificateNotice";
@@ -10,7 +11,7 @@ import { stateColor, stateLabel, type Flag, type OperationState } from "./operat
 type Settings = { recipients: string[]; certificate_time: string; daily_time: string; weekly_time: string; weekly_day: number; errors_enabled: boolean; outages_enabled: boolean; daily_enabled: boolean; weekly_enabled: boolean; error_bundle_minutes: number; error_repeat_hours: number; outage_after_minutes: number; outage_repeat_hours: number };
 type Config = { version: number; scope_key: string; settings: Settings; configured: boolean; can_edit: boolean; automatic_schedule_active: Flag; automatic_schedule_state: OperationState };
 type History = { items: NotificationReceipt[]; total: number; page: number; page_size: number };
-type Payload = { message: { subject: string; body: { content: string }; toRecipients: { emailAddress: { address: string } }[] } };
+type Payload = { message: { subject: string; body: NotificationBody; toRecipients: { emailAddress: { address: string } }[] } };
 type Result = { ok: boolean; persisted: boolean; receipt: NotificationReceipt | null; payload?: Payload };
 export const notificationStates: Record<string, string> = { prepared: "Vorbereitet / wartet", sending: "Versand läuft / Abgleich erforderlich", accepted: "Angenommen (202), Zustellung nicht bestätigt", rejected: "Sicher abgewiesen", unknown: "Ausgang ungewiss · Einmalversuch verbraucht", obsolete: "Überholt" };
 const kinds: Record<string, string> = { certificate: "Zertifikatswarnung", test: "Testmail", daily: "Tagesbericht", weekly: "Wochenbericht", errors: "Verarbeitungsfehler", outage: "Technischer Ausfall", recovery: "Erholung" };
@@ -91,6 +92,6 @@ export default function NotificationsPanel({ identity, readOnly, csrfToken }: { 
     <Paper withBorder p="xl"><Title order={2}>Versandverlauf</Title><Text size="sm" c="dimmed" mb="md">Annahme durch Graph ist keine Zustellbestätigung. Ungewisse Einmalversuche werden nicht erneut gesendet.</Text>
       {history ? <><Table.ScrollContainer minWidth={600}><Table><Table.Thead><Table.Tr><Table.Th>Erstellt</Table.Th><Table.Th>Art</Table.Th><Table.Th>Status</Table.Th><Table.Th>Versuche</Table.Th></Table.Tr></Table.Thead><Table.Tbody>{history.items.map(row => <Table.Tr key={row.slot_key}><Table.Td>{dateTime(row.created_at)}</Table.Td><Table.Td>{kinds[row.kind] || row.kind}</Table.Td><Table.Td>{notificationStates[row.state] || row.state}</Table.Td><Table.Td>{row.reservations}</Table.Td></Table.Tr>)}</Table.Tbody></Table></Table.ScrollContainer>{!history.items.length && <Text c="dimmed">Noch keine Versandabsichten protokolliert.</Text>}{history.total > history.page_size && <Pagination mt="md" value={page} total={Math.ceil(history.total / history.page_size)} onChange={setPage} />}</> : <Text>Verlauf nicht geladen.</Text>}
     </Paper>
-    <Modal opened={!!preview} onClose={() => setPreview(null)} title="Feste Testmail · Vorschau" size="lg" centered>{preview && <Stack><Text fw={600}>{preview.message.subject}</Text><Text size="sm">An: {preview.message.toRecipients.map(row => row.emailAddress.address).join(", ")}</Text><Text style={{ whiteSpace: "pre-wrap" }}>{preview.message.body.content}</Text><Button disabled={busy || !editable || !!receipt && testTerminal(receipt)} onClick={() => void send()}>Einmal senden</Button></Stack>}</Modal>
+    <Modal opened={!!preview} onClose={() => setPreview(null)} title="Feste Testmail · Vorschau" size="lg" centered>{preview && <Stack><Text fw={600}>{preview.message.subject}</Text><Text size="sm">An: {preview.message.toRecipients.map(row => row.emailAddress.address).join(", ")}</Text><NotificationPreview body={preview.message.body} /><Button disabled={busy || !editable || !!receipt && testTerminal(receipt)} onClick={() => void send()}>Einmal senden</Button></Stack>}</Modal>
   </Stack>;
 }

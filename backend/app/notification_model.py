@@ -231,7 +231,19 @@ def report_html(title, slot, data, as_of, key, origin):
             + "".join(rows) + "</table>"
         )
 
-    application = f'<br>Anwendung: {escape(origin.rstrip("/"))}' if origin is not None else ""
+    content = f"""<p style="margin:0;padding:10px 12px;background-color:#e8f2fa;font-size:15px">
+<strong>Zeitraum Berlin</strong><br>{timestamp(slot.start)}<br>bis ausschließlich {timestamp(slot.end)}</p>
+<p style="margin:10px 0 0;font-size:14px">
+Im Zeitraum erstmals protokollierte Vorgänge; Zustände bei Berichtserstellung.</p>
+{''.join(sections)}"""
+    return mail_html(title, content, as_of, key, origin)
+
+
+def mail_html(title, content, as_of, key, origin):
+    """Shared inline email frame; content must already be escaped by its renderer."""
+    timestamp = escape(datetime.fromtimestamp(as_of, BERLIN).isoformat(sep=" "))
+    application = (f'<br>Anwendung: <a href="{escape(origin.rstrip("/"))}" style="color:#073b50">'
+        f'{escape(origin.rstrip("/"))}</a>') if origin is not None else ""
     return f"""<!doctype html>
 <html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{escape(title)}</title></head>
@@ -246,14 +258,10 @@ def report_html(title, slot, data, as_of, key, origin):
 <h1 style="margin:3px 0 0;font-size:27px;color:#ffffff">{escape(title)}</h1>
 </td></tr>
 <tr><td style="padding:16px 18px">
-<p style="margin:0;padding:10px 12px;background-color:#e8f2fa;font-size:15px">
-<strong>Zeitraum Berlin</strong><br>{timestamp(slot.start)}<br>bis ausschließlich {timestamp(slot.end)}</p>
-<p style="margin:10px 0 0;font-size:14px">
-Im Zeitraum erstmals protokollierte Vorgänge; Zustände bei Berichtserstellung.</p>
-{''.join(sections)}
+{content}
 </td></tr>
 <tr><td bgcolor="#e8f2fa" style="padding:12px 18px;font-size:13px;overflow-wrap:anywhere;word-wrap:break-word">
-Automatische Meldung des E-Rechnungsimporters.<br>Stand: {timestamp(as_of)}<br>
+Automatische Meldung des E-Rechnungsimporters.<br>Stand: {timestamp}<br>
 Auftrag: {escape(key[:32])}<wbr>{escape(key[32:])}{application}
 </td></tr></table>
 <!--[if mso]></td></tr></table><![endif]-->
@@ -288,7 +296,8 @@ def make_payload(slot, key, config, data, as_of, *, origin=None):
                 or not isinstance(data["codes"], list) or len(data["codes"]) > 10
                 or any(not isinstance(code, str) or not re.fullmatch(r"[a-z0-9_]{1,64}", code) for code in data["codes"])):
             raise NotificationError("notification_facts_invalid", 422)
-        lines += ["Prüfquelle: " + data["source"], "Beobachtete Ereignisse: " + str(data["count"]),
+        source_label = dict(api="Anwendung", graph="Microsoft Graph", processing="Verarbeitung")[data["source"]]
+        lines += ["Prüfquelle: " + source_label + " (" + data["source"] + ")", "Beobachtete Ereignisse: " + str(data["count"]),
             "Erstmals: " + datetime.fromtimestamp(data["first_seen"], BERLIN).isoformat(),
             "Zuletzt: " + datetime.fromtimestamp(data["last_seen"], BERLIN).isoformat(),
             "Gründe: " + ", ".join(data["codes"])]
@@ -301,10 +310,13 @@ def make_payload(slot, key, config, data, as_of, *, origin=None):
     title = SUBJECTS[slot.kind]
     if slot.kind in {"daily", "weekly"}:
         body = dict(contentType="HTML", content=report_html(title, slot, data, as_of, key, origin))
-        template_version = "ap07-2"
     else:
-        body = dict(contentType="Text", content="\n".join(lines))
-        template_version = "ap07-1"
+        # Metadata and the validated origin appear once in the common footer.
+        details = lines[3:-1] if origin is not None else lines[3:]
+        content = "".join('<p style="margin:0 0 12px;font-size:15px;overflow-wrap:anywhere;word-wrap:break-word">'
+            + escape(line) + '</p>' for line in details)
+        body = dict(contentType="HTML", content=mail_html(title, content, as_of, key, origin))
+    template_version = "ap07-3"
     payload = dict(message=dict(subject="E-Rechnungsimporter – " + title,
         body=body,
         toRecipients=[dict(emailAddress=dict(address=a)) for a in config["recipients"]],

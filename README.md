@@ -18,6 +18,12 @@ Ein endgültiger Tag oder GitHub-Release ist noch nicht veröffentlicht.
 
 ## Projektstatus
 
+**Quellnachtrag vom 27. November 2026, noch nicht bereitgestellt:** Auch Fehler-,
+Ausfall-, Wiederherstellungs-, Zertifikats- und Testmails verwenden den vorhandenen
+HTML-Rahmen der Tages-/Wochenberichte. Ursachen und technische Codes bleiben
+sichtbar. Die Testmailvorschau zeigt HTML isoliert und ältere Textmails weiterhin
+als Text. Versandregeln und Einstellungen bleiben erhalten.
+
 **Aktueller Betriebsstand vom 26. November 2026:** Anwendung aus
 5ad0a2c01490eaaafc65e4229298d8e074710bef mit Schema008 bereitgestellt.
 Datenbank und Einstellungen sind erhalten, acht Timer sowie Graph-Zugriff für
