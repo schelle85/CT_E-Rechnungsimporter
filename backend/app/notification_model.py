@@ -252,12 +252,12 @@ def mail_html(title, content, as_of, key, origin):
 <tr><td align="center" style="padding:12px 8px">
 <!--[if mso]><table role="presentation" width="600" cellpadding="0" cellspacing="0"><tr><td><![endif]-->
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" bgcolor="#ffffff"
- style="max-width:600px;font-family:Arial,sans-serif;color:#183347;line-height:1.45">
+ style="max-width:600px;table-layout:fixed;font-family:Arial,sans-serif;color:#183347;line-height:1.45">
 <tr><td bgcolor="#073b50" style="padding:16px 18px;border-top:4px solid #1677bb;color:#ffffff">
 <div style="font-size:14px;font-weight:bold;color:#ffffff">E-Rechnungsimporter</div>
 <h1 style="margin:3px 0 0;font-size:27px;color:#ffffff">{escape(title)}</h1>
 </td></tr>
-<tr><td style="padding:16px 18px">
+<tr><td style="padding:16px 18px;overflow-wrap:anywhere;word-wrap:break-word">
 {content}
 </td></tr>
 <tr><td bgcolor="#e8f2fa" style="padding:12px 18px;font-size:13px;overflow-wrap:anywhere;word-wrap:break-word">

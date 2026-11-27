@@ -84,6 +84,17 @@ class TemplateTests(unittest.TestCase):
         self.assertIn("keine Rechnungs- oder Mailinhalte",text)
         self.assertIn("bestätigt noch keinen Empfang",text)
 
+    def test_long_fingerprint_and_maximum_valid_code_keep_full_text_in_wrapping_body(self):
+        for kind in ("certificate", "errors"):
+            slot,data=example(kind)
+            value="b"*64 if kind=="certificate" else "processing_"+"x"*53
+            if kind=="errors":data["codes"]=[value]
+            content=model.make_payload(slot,KEY,CONFIG,data,NOW)["message"]["body"]["content"]
+            self.assertEqual(len(value),64)
+            self.assertIn(value,"".join(Document(content).text))
+            self.assertIn("max-width:600px;table-layout:fixed",content)
+            self.assertIn('style="padding:16px 18px;overflow-wrap:anywhere;word-wrap:break-word"',content)
+
     def test_report_sections_counts_and_exclusive_period_remain(self):
         for kind in ("daily","weekly"):
             slot,data=example(kind);content=self.payload(kind)["message"]["body"]["content"]
