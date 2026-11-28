@@ -1,6 +1,7 @@
 # Vorbereitung der ersten Produktversion
 
-Stand: 26. November 2026. Ziel: Version 1.0.0, Übergabe am Montag 07.12.2026.
+Dokumentgrundlage: 26. November 2026; Terminaktualisierung: 28. November 2026.
+Ziel: Version 1.0.0, bestätigte Übergabe am Dienstag, 08.12.2026; Uhrzeit noch offen.
 Dies ist der Entwurf der Übergabeunterlage, keine bereits erteilte Releasefreigabe.
 
 ## Gelieferter Umfang
